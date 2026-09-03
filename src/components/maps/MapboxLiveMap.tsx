@@ -17,7 +17,14 @@ import { getPontosEmbarqueConfig, type PontoEmbarqueConfig } from "@/lib/pontos-
 import type { TelemetriaVeiculo } from "@/lib/superadmin-config";
 
 const MAPBOX_TOKEN =
-  (typeof import.meta !== "undefined" && import.meta.env?.["VITE_MAPBOX_TOKEN"]) ||
+  (typeof import.meta !== "undefined" &&
+    (import.meta.env?.["VITE_MAPBOX_TOKEN"] ||
+      import.meta.env?.["VITE_MAPBOX_ACCESS_TOKEN"] ||
+      import.meta.env?.["MAPBOX_TOKEN"])) ||
+  (typeof process !== "undefined" &&
+    (process.env?.["VITE_MAPBOX_TOKEN"] ||
+      process.env?.["VITE_MAPBOX_ACCESS_TOKEN"] ||
+      process.env?.["MAPBOX_TOKEN"])) ||
   "";
 
 const ROTA_COORDS: [number, number][] = [
@@ -92,6 +99,7 @@ export function MapboxLiveMap({
 
   const [vanAtiva, setVanAtiva] = useState<VanLive | null>(() => vansParaExibir[0] ?? null);
   const [is3D, setIs3D] = useState(true);
+  const [falhaMapa, setFalhaMapa] = useState(!MAPBOX_TOKEN);
 
   // Sincronizar vanAtiva quando os veículos do banco carregarem
   useEffect(() => {
@@ -115,20 +123,31 @@ export function MapboxLiveMap({
 
   useEffect(() => {
     if (!mapContainer.current) return;
+    if (!MAPBOX_TOKEN) {
+      setFalhaMapa(true);
+      return;
+    }
 
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    let mapInstance: mapboxgl.Map;
+    try {
+      mapboxgl.accessToken = MAPBOX_TOKEN;
 
-    const mapInstance = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: mapStyles[estiloMapa],
-      center: [-35.85, -9.75],
-      zoom: 9.6,
-      pitch: is3D ? 48 : 0,
-      bearing: is3D ? -15 : 0,
-      attributionControl: false,
-    });
+      mapInstance = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: mapStyles[estiloMapa],
+        center: [-35.85, -9.75],
+        zoom: 9.6,
+        pitch: is3D ? 48 : 0,
+        bearing: is3D ? -15 : 0,
+        attributionControl: false,
+      });
 
-    map.current = mapInstance;
+      map.current = mapInstance;
+    } catch (err) {
+      console.warn("[Mapbox] Falha ao inicializar Mapbox GL:", err);
+      setFalhaMapa(true);
+      return;
+    }
 
     mapInstance.on("load", () => {
       mapInstance.addSource("rota-coop", {
@@ -273,9 +292,69 @@ export function MapboxLiveMap({
     <div
       className={`relative w-full rounded-3xl overflow-hidden border border-slate-200/80 shadow-md bg-slate-950 ${altura} ${className}`}
     >
-      <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+      {falhaMapa ? (
+        <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-slate-950 text-white p-4 text-center overflow-hidden">
+          {/* Fundo Aeroespacial & Radar */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#0d593018_1px,transparent_1px),linear-gradient(to_bottom,#0d593018_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+          <div className="absolute h-64 w-64 rounded-full border border-emerald-500/20 animate-ping opacity-20 pointer-events-none" />
+          <div className="absolute h-48 w-48 rounded-full border border-emerald-500/30 pointer-events-none" />
+          <div className="absolute h-32 w-32 rounded-full border border-emerald-500/40 pointer-events-none" />
+          <div className="absolute h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399] pointer-events-none" />
+
+          <div className="relative z-10 space-y-3 max-w-sm w-full">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-black">
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              Radar Satelital Starlink Ativo
+            </div>
+
+            <div className="space-y-0.5">
+              <h3 className="text-sm font-black text-white">Telemetria da Frota em Tempo Real</h3>
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                Vans monitoradas no corredor Alagoas ➔ Pernambuco via coordenadas GPS.
+              </p>
+            </div>
+
+            {/* Listagem rápida de vans ativas */}
+            {vansParaExibir.length > 0 && (
+              <div className="grid grid-cols-2 gap-2 text-left pt-1">
+                {vansParaExibir.slice(0, 2).map((van) => (
+                  <div
+                    key={van.id}
+                    onClick={() => {
+                      setVanAtiva(van);
+                      onSelecionarVan?.(van.id);
+                    }}
+                    className={`p-2.5 rounded-xl border transition-all cursor-pointer ${
+                      vanAtiva?.id === van.id
+                        ? "bg-emerald-950/80 border-emerald-500/60 text-white shadow-sm"
+                        : "bg-slate-900/80 border-white/10 text-slate-300 hover:border-emerald-500/30"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-black text-amber-300">{van.placa}</span>
+                      <span className="text-[9px] font-bold text-emerald-400">{van.velocidadeKmH} km/h</span>
+                    </div>
+                    <p className="text-[10px] font-medium text-slate-300 truncate mt-0.5">{van.motorista}</p>
+                    <span className="text-[9px] text-slate-400 block truncate">{van.sentido}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="pt-2 text-[10px] text-slate-500 flex items-center justify-center gap-1">
+              <span>Para mapa 3D: adicione</span>
+              <code className="text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded border border-white/10 font-mono">
+                VITE_MAPBOX_TOKEN
+              </code>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+      )}
 
       {/* Controles Flutuantes Direita: Temas & 3D (Touch target acessível >= 36px) */}
+      {!falhaMapa && (
       <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-20 flex flex-col gap-2 items-center pointer-events-auto">
         <div className="flex flex-col gap-1.5 rounded-2xl bg-slate-950/90 backdrop-blur-md p-1.5 border border-white/20 shadow-xl">
           <button
@@ -352,6 +431,7 @@ export function MapboxLiveMap({
           <Locate className="h-4.5 w-4.5" />
         </button>
       </div>
+      )}
 
       {mostrarCardInferior && vanAtiva && (
         <div className="absolute bottom-2.5 inset-x-2.5 z-10 animate-in fade-in slide-in-from-bottom-2 duration-200">

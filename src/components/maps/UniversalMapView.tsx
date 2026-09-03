@@ -1,10 +1,41 @@
-import { lazy, Suspense } from "react";
+import { Component, lazy, Suspense, type ErrorInfo, type ReactNode } from "react";
 import type { TelemetriaVeiculo } from "@/lib/superadmin-config";
 
 // Lazy load assíncrono do Mapbox GL (elimina 2.4 MB do bundle inicial da aplicação)
 const MapboxLiveMap = lazy(() =>
   import("./MapboxLiveMap").then((m) => ({ default: m.MapboxLiveMap })),
 );
+
+interface ErrorBoundaryProps {
+  fallback: ReactNode;
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class MapErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.warn("[MapErrorBoundary] Interceptou falha no mapa:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}
 
 export interface UniversalMapViewProps {
   className?: string | undefined;
@@ -42,10 +73,10 @@ function MapboxRadarSkeleton({
 
       <div className="mt-4 text-center z-10 space-y-0.5 px-4">
         <p className="text-[11px] font-black uppercase tracking-widest text-emerald-400">
-          Sintonizando Satélite Starlink...
+          Radar Satelital Starlink Ativo
         </p>
         <p className="text-[10px] text-slate-400 font-medium">
-          Carregando mapa e telemetria orbital
+          Monitoramento e telemetria orbital
         </p>
       </div>
     </div>
@@ -63,19 +94,23 @@ export function UniversalMapView({
   onSelecionarPonto,
   mostrarCardInferior = true,
 }: UniversalMapViewProps) {
+  const fallback = <MapboxRadarSkeleton altura={altura} className={className} />;
+
   return (
-    <Suspense fallback={<MapboxRadarSkeleton altura={altura} className={className} />}>
-      <MapboxLiveMap
-        className={className}
-        altura={altura}
-        modo={modo}
-        veiculos={veiculos}
-        vanSelecionadaId={veiculoSelecionadoId}
-        pontoSelecionadoId={pontoSelecionadoId}
-        onSelecionarVan={onSelecionarVeiculo}
-        onSelecionarPonto={onSelecionarPonto}
-        mostrarCardInferior={mostrarCardInferior}
-      />
-    </Suspense>
+    <MapErrorBoundary fallback={fallback}>
+      <Suspense fallback={fallback}>
+        <MapboxLiveMap
+          className={className}
+          altura={altura}
+          modo={modo}
+          veiculos={veiculos}
+          vanSelecionadaId={veiculoSelecionadoId}
+          pontoSelecionadoId={pontoSelecionadoId}
+          onSelecionarVan={onSelecionarVeiculo}
+          onSelecionarPonto={onSelecionarPonto}
+          mostrarCardInferior={mostrarCardInferior}
+        />
+      </Suspense>
+    </MapErrorBoundary>
   );
 }
