@@ -36,23 +36,36 @@ export function BottomNav() {
     };
   }, []);
 
-  // Inteligência de rolagem suave
+  // Inteligência de rolagem suave (oculta ao rolar para baixo, reaparece ao subir ou parar)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    function handleScroll() {
+    function handleScroll(e?: Event) {
       if (modalCompraAberto) return;
 
-      const scrollAtual = window.scrollY || document.documentElement.scrollTop;
+      const target = (e?.target as HTMLElement) || document.documentElement;
+      let scrollAtual =
+        window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+
+      if (
+        target &&
+        "scrollTop" in target &&
+        typeof (target as HTMLElement).scrollTop === "number" &&
+        (target as HTMLElement).scrollTop > 0
+      ) {
+        scrollAtual = (target as HTMLElement).scrollTop;
+      }
+
       const diferenca = scrollAtual - ultimoScrollY.current;
 
-      if (scrollAtual < 50) {
+      // Se estiver próximo ao topo (< 40px), sempre manter visível
+      if (scrollAtual < 40) {
         setVisivel(true);
-      } else if (diferenca > 15) {
+      } else if (diferenca > 8) {
         // Rolando para baixo: ocultar suavemente
         setVisivel(false);
-      } else if (diferenca < -12) {
-        // Rolando para cima: exibir
+      } else if (diferenca < -8) {
+        // Rolando para cima: exibir imediatamente
         setVisivel(true);
       }
 
@@ -66,13 +79,15 @@ export function BottomNav() {
         if (!modalCompraAberto) {
           setVisivel(true);
         }
-      }, 1200);
+      }, 1100);
     }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true, capture: true });
+    document.addEventListener("scroll", handleScroll, { passive: true, capture: true });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll, { capture: true } as any);
+      document.removeEventListener("scroll", handleScroll, { capture: true } as any);
       if (idleTimeoutRef.current) {
         clearTimeout(idleTimeoutRef.current);
       }

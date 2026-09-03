@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { useRouterState, Link } from "@tanstack/react-router";
 import {
   Smartphone,
@@ -101,7 +101,7 @@ export function MobileViewportContainer({ children }: MobileViewportContainerPro
 
       {/* CONTAINER DO SMARTPHONE — 100% CENTRALIZADO NA TELA DO DESKTOP */}
       <div className="w-full flex-1 flex items-start sm:items-center justify-center sm:py-3 z-10">
-        <main className="w-full max-w-[430px] min-h-screen sm:min-h-[850px] sm:max-h-[92vh] sm:rounded-[2.5rem] bg-background text-foreground relative shadow-[0_0_70px_rgba(0,0,0,0.6)] sm:border sm:border-slate-800/80 flex flex-col overflow-y-auto overflow-x-hidden">
+        <main className="w-full max-w-[430px] min-h-screen bg-background text-foreground relative shadow-[0_0_70px_rgba(0,0,0,0.6)] sm:border-x sm:border-slate-800/80 flex flex-col">
           {/* BARRA SUPERIOR SIMULADA DE SMARTPHONE (VISÍVEL APENAS NO DESKTOP) */}
           <div className="hidden sm:flex items-center justify-between px-6 pt-3 pb-2 text-[11px] font-bold text-slate-400 bg-background/95 border-b border-border/40 select-none sticky top-0 z-50 backdrop-blur-md">
             <span className="font-mono text-xs font-black text-foreground">{horaAtual}</span>
