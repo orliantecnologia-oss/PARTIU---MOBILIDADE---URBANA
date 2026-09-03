@@ -36,6 +36,15 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+  // Re-throw redirects para o TanStack Router gerenciar transições sem tratá-las como crash
+  if (
+    error &&
+    typeof error === "object" &&
+    ("options" in error || "isSerializedRedirect" in error || (error as any).status === 307 || (error as any).status === 302)
+  ) {
+    throw error;
+  }
+
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -51,6 +60,11 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
         <p className="mt-2 text-sm text-muted-foreground">
           Something went wrong on our end. You can try refreshing or head back home.
         </p>
+        {error?.message && (
+          <p className="mt-2 text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 p-2 rounded-lg break-words text-left max-h-32 overflow-auto">
+            {error.message}
+          </p>
+        )}
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
