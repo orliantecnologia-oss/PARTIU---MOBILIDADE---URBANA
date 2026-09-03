@@ -62,7 +62,7 @@ export function EmergenciaSOSPage() {
   }
 
   return (
-    <div className="px-1.5 sm:px-4 pt-2 pb-16 w-full max-w-full sm:max-w-2xl mx-auto">
+    <div className="px-1.5 sm:px-4 pt-2 pb-28 w-full max-w-full sm:max-w-2xl mx-auto">
       {/* 1. Header */}
       <div className="flex items-center gap-2.5">
         <Link

@@ -104,7 +104,7 @@ export function BilhetesPassageiroScreen() {
         `🚏 *Embarque:* ${b.pontoEmbarque || "Ponto Oficial"}\n` +
         `🚐 *Van:* ${b.vanModelo} (${b.vanPlaca})\n` +
         `👨‍✈️ *Motorista:* ${b.motoristaNome}\n\n` +
-        `Acompanhe a viagem pelo App UniVans: http://localhost:8080/app/viagem`,
+        `Acompanhe a viagem pelo App UniVans: https://apk-uni-vans-coop.vercel.app/app/viagem`,
     );
     window.open(`https://wa.me/?text=${texto}`, "_blank");
   }

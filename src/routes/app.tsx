@@ -68,8 +68,8 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background w-full flex flex-col relative">
-      <div className="w-full flex-1 px-1.5 sm:px-2 pb-24">
+    <div className="min-h-[100dvh] bg-background w-full flex flex-col relative">
+      <div className="w-full flex-1 px-1.5 sm:px-2 pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
         <Outlet />
       </div>
       <BottomNav />

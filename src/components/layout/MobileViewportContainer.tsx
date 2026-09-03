@@ -55,7 +55,7 @@ export function MobileViewportContainer({ children }: MobileViewportContainerPro
   }
 
   return (
-    <div className="min-h-screen w-full bg-slate-950 text-slate-100 flex flex-col items-center justify-start relative overflow-x-hidden selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-[100dvh] w-full bg-slate-950 text-slate-100 flex flex-col items-center justify-start relative overflow-x-hidden selection:bg-emerald-500 selection:text-white">
       {/* Grade de fundo aeroespacial no Desktop */}
       <div className="fixed inset-0 bg-[radial-gradient(#0d593033_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none opacity-50" />
 
@@ -101,7 +101,7 @@ export function MobileViewportContainer({ children }: MobileViewportContainerPro
 
       {/* CONTAINER DO SMARTPHONE — 100% CENTRALIZADO NA TELA DO DESKTOP */}
       <div className="w-full flex-1 flex items-start sm:items-center justify-center sm:py-3 z-10">
-        <main className="w-full max-w-[430px] min-h-screen bg-background text-foreground relative shadow-[0_0_70px_rgba(0,0,0,0.6)] sm:border-x sm:border-slate-800/80 flex flex-col">
+        <main className="w-full max-w-[430px] min-h-[100dvh] bg-background text-foreground relative shadow-[0_0_70px_rgba(0,0,0,0.6)] sm:border-x sm:border-slate-800/80 flex flex-col">
           {/* BARRA SUPERIOR SIMULADA DE SMARTPHONE (VISÍVEL APENAS NO DESKTOP) */}
           <div className="hidden sm:flex items-center justify-between px-6 pt-3 pb-2 text-[11px] font-bold text-slate-400 bg-background/95 border-b border-border/40 select-none sticky top-0 z-50 backdrop-blur-md">
             <span className="font-mono text-xs font-black text-foreground">{horaAtual}</span>

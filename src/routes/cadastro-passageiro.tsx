@@ -84,12 +84,12 @@ export function CadastroPassageiroPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full">
+    <div className="min-h-[100dvh] bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       {/* Top Header com Voltar */}
       <div className="mx-auto w-full max-w-full sm:max-w-md flex items-center justify-between px-1 sm:px-0">
         <Link
           to="/"
-          className="flex h-9 w-9 items-center justify-center rounded-lg sm:rounded-xl bg-white border border-slate-200 text-slate-700 shadow-xs"
+          className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-700 shadow-xs active:scale-95 transition-transform"
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
@@ -97,7 +97,7 @@ export function CadastroPassageiroPage() {
           <ShieldCheck className="h-3.5 w-3.5" />
           Cadastro com GPS Ativo
         </span>
-        <div className="w-9" />
+        <div className="w-11" />
       </div>
 
       <main className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-3">
@@ -116,7 +116,7 @@ export function CadastroPassageiroPage() {
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
                 Nome Completo
               </label>
               <input
@@ -124,7 +124,7 @@ export function CadastroPassageiroPage() {
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 placeholder="Ex: Carlos Silva"
-                className="w-full min-h-9 h-9 sm:h-9.5 rounded-lg bg-slate-50 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-colors"
+                className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-colors"
               />
             </div>
 

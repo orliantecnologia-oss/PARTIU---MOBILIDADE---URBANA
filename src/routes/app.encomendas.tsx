@@ -120,12 +120,12 @@ export function EncomendasPage() {
     : encomendas;
 
   return (
-    <div className="px-5 pt-4 pb-12">
+    <div className="px-3 sm:px-4 pt-3 pb-28 w-full max-w-full mx-auto">
       {/* 1. Header */}
       <div className="flex items-center gap-3">
         <Link
           to="/app"
-          className="rounded-full bg-card p-2 text-foreground shadow-sm hover:bg-accent transition-colors"
+          className="flex min-h-[40px] min-w-[40px] h-10 w-10 items-center justify-center rounded-xl bg-card p-2 text-foreground shadow-sm hover:bg-accent active:scale-95 transition-all cursor-pointer"
           aria-label="Voltar para o Início"
         >
           <ArrowLeft className="h-5 w-5" />

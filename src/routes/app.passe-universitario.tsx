@@ -91,13 +91,13 @@ export function PasseUniversitarioPage() {
   const chavePixSimulada = `00020126580014br.gov.bcb.pix0136univans-passe-${pacote.id}-${Date.now()}5204000053039865802BR5925UNIVANS ALAGOAS6009MACEIO62070503***6304`;
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] text-slate-900 pb-16">
+    <div className="min-h-[100dvh] bg-[#f8faf9] text-slate-900 pb-28">
       {/* 1. Header */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-2 sm:px-4 py-2.5 border-b border-slate-200/80 shadow-2xs">
         <div className="w-full max-w-full sm:max-w-2xl mx-auto flex items-center justify-between">
           <Link
             to="/app"
-            className="flex h-9 w-9 items-center justify-center rounded-lg sm:rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition-all"
+            className="flex min-h-[40px] min-w-[40px] h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer"
             aria-label="Voltar"
           >
             <ArrowLeft className="h-4 w-4" />

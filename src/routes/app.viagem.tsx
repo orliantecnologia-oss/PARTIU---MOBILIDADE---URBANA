@@ -266,8 +266,8 @@ export function ViagemAoVivoPassageiro() {
 
       {/* 3. CONTAINER DO MAPA AO VIVO */}
       <div className="p-1.5 sm:p-4 w-full max-w-full sm:max-w-2xl mx-auto">
-        <div className="relative h-[52vh] sm:h-[58vh] min-h-[360px] w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 shadow-md bg-slate-950">
-          <UniversalMapView altura="h-full min-h-[360px]" mostrarCardInferior={false} />
+        <div className="relative h-[48dvh] sm:h-[54dvh] min-h-[300px] w-full rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/80 shadow-md bg-slate-950">
+          <UniversalMapView altura="h-full min-h-[300px]" mostrarCardInferior={false} />
         </div>
       </div>
 

@@ -692,7 +692,7 @@ export function SuperAdminLayout() {
       {/* MODAL DE ALTERAÇÃO DE E-MAIL E SENHA DA CONTA ADMINISTRATIVA */}
       {modalContaAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in">
-          <div className="w-[96vw] max-w-none sm:max-w-md mx-auto rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 space-y-4">
+          <div className="w-full max-w-md mx-auto rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 text-[#0d5930]">
                 <Key className="h-6 w-6 text-amber-500" />

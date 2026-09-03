@@ -150,22 +150,26 @@ export function BottomNav() {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`flex flex-col items-center justify-center py-1 px-2 sm:px-3.5 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer min-w-[54px] min-h-[48px] ${
+                className={`flex flex-col items-center justify-center py-1 px-1 sm:px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer min-w-[48px] sm:min-w-[54px] min-h-[48px] ${
                   isActive
                     ? "text-[#0d5930] font-black"
                     : "text-slate-500 hover:text-slate-800 font-semibold"
                 }`}
               >
                 <div
-                  className={`flex h-7.5 w-7.5 items-center justify-center rounded-lg transition-all duration-200 ${
+                  className={`flex h-7 w-7 sm:h-7.5 sm:w-7.5 items-center justify-center rounded-lg transition-all duration-200 ${
                     isActive
                       ? "bg-emerald-50 text-[#0d5930] shadow-2xs"
                       : "text-slate-400 group-hover:text-slate-600"
                   }`}
                 >
-                  <Icon className={`h-5 w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`} />
+                  <Icon
+                    className={`h-4.5 w-4.5 sm:h-5 sm:w-5 ${isActive ? "stroke-[2.5]" : "stroke-2"}`}
+                  />
                 </div>
-                <span className="text-xs mt-0.5 leading-tight">{item.label}</span>
+                <span className="text-[10px] sm:text-xs mt-0.5 leading-tight truncate">
+                  {item.label}
+                </span>
               </Link>
             );
           })}
