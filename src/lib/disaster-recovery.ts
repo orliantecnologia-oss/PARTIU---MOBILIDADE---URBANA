@@ -34,7 +34,14 @@ export async function testBackupRestoreDryRun(): Promise<BackupVerificationResul
   const agora = new Date().toISOString();
 
   // Verificação real de conectividade e contagem de registros no banco
-  const tables = ["linhas", "viagens", "veiculos", "passagens", "alertas_sos", "despesas_operacionais"];
+  const tables = [
+    "linhas",
+    "viagens",
+    "veiculos",
+    "passagens",
+    "alertas_sos",
+    "despesas_operacionais",
+  ];
   let rowsCount = 0;
 
   try {

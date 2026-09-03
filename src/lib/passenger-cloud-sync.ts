@@ -7,11 +7,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert } from "@/integrations/supabase/types";
-import {
-  type BilhetePassagem,
-  getBilhetesPassagens,
-  salvarNovoBilhete,
-} from "./passagens-store";
+import { type BilhetePassagem, getBilhetesPassagens, salvarNovoBilhete } from "./passagens-store";
 
 export type PassagemRow = Tables<"passagens">;
 
@@ -63,8 +59,7 @@ export function converterPassagemBancoParaBilhete(
   extras?: Partial<BilhetePassagem>,
 ): BilhetePassagem {
   const isEmbarcado = row.status_embarque === "embarcado";
-  const isConfirmado =
-    row.status_pagamento === "confirmado" || row.status_pagamento === "pago";
+  const isConfirmado = row.status_pagamento === "confirmado" || row.status_pagamento === "pago";
 
   return {
     id: row.codigo_bilhete || `CVAN-${row.id.slice(0, 6)}`,
@@ -72,7 +67,9 @@ export function converterPassagemBancoParaBilhete(
     origem: extras?.origem || "Origem Alagoas",
     destino: extras?.destino || "Destino Alagoas",
     dataViagem: extras?.dataViagem || new Date(row.created_at).toLocaleDateString("pt-BR"),
-    horarioSaida: extras?.horarioSaida || new Date(row.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+    horarioSaida:
+      extras?.horarioSaida ||
+      new Date(row.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
     horarioChegadaPrevisto: extras?.horarioChegadaPrevisto || "--:--",
     quantidadePassagens: row.quantidade_passagens || 1,
     passageiroNome: row.passageiro_nome,

@@ -138,7 +138,9 @@ export function AdminFrotaPage() {
                   Ver CRLV
                 </a>
               ) : (
-                <span className="min-h-[36px] inline-flex items-center text-muted-foreground">CRLV não enviado</span>
+                <span className="min-h-[36px] inline-flex items-center text-muted-foreground">
+                  CRLV não enviado
+                </span>
               )}
               {v.cnh_foto_url ? (
                 <a
@@ -150,7 +152,9 @@ export function AdminFrotaPage() {
                   Ver CNH
                 </a>
               ) : (
-                <span className="min-h-[36px] inline-flex items-center text-muted-foreground">CNH não enviada</span>
+                <span className="min-h-[36px] inline-flex items-center text-muted-foreground">
+                  CNH não enviada
+                </span>
               )}
             </div>
 

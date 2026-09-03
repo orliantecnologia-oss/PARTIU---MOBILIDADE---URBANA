@@ -842,7 +842,9 @@ export function AppHomeScreen() {
                       <MapPin className="h-5 w-5" />
                     </div>
                     <div>
-                      <strong className="text-sm sm:text-base font-black text-slate-900 block">{c.nome}</strong>
+                      <strong className="text-sm sm:text-base font-black text-slate-900 block">
+                        {c.nome}
+                      </strong>
                       <span className="text-xs text-slate-500 font-medium">{c.terminal}</span>
                     </div>
                   </div>
@@ -862,10 +864,7 @@ export function AppHomeScreen() {
       />
 
       {/* MENU LATERAL HAMBÚRGUER (APP DRAWER) */}
-      <AppDrawer
-        open={menuDrawerAberto}
-        onClose={() => setMenuDrawerAberto(false)}
-      />
+      <AppDrawer open={menuDrawerAberto} onClose={() => setMenuDrawerAberto(false)} />
     </div>
   );
 }

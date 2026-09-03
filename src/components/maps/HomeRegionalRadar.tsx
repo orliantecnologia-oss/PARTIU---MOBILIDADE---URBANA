@@ -42,7 +42,8 @@ export function HomeRegionalRadar({ onSelecionarPontoOrigem }: HomeRegionalRadar
 
   // Detector de Geofence: se o usuário estiver a menos de 300m (0.3km) do ponto selecionado
   const noRaioDoTrevo = useMemo(() => {
-    if (!coords || pontoSelecionado.lat === undefined || pontoSelecionado.lng === undefined) return false;
+    if (!coords || pontoSelecionado.lat === undefined || pontoSelecionado.lng === undefined)
+      return false;
     const dist = calcularDistanciaKm(
       coords.latitude,
       coords.longitude,

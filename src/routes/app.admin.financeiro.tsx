@@ -693,7 +693,8 @@ export function PainelFinanceiroAdminPage() {
                   Despesas Operacionais da Cooperativa
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Controle de abastecimentos, manutenção mecânica, pedágios e peças persistido no PostgreSQL.
+                  Controle de abastecimentos, manutenção mecânica, pedágios e peças persistido no
+                  PostgreSQL.
                 </p>
               </div>
 
@@ -742,7 +743,9 @@ export function PainelFinanceiroAdminPage() {
 
                 <div className="grid gap-3.5 sm:grid-cols-2">
                   <label className="text-xs sm:text-sm">
-                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-600">Descrição do Gasto</span>
+                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-600">
+                      Descrição do Gasto
+                    </span>
                     <input
                       type="text"
                       required
@@ -754,7 +757,9 @@ export function PainelFinanceiroAdminPage() {
                   </label>
 
                   <label className="text-xs sm:text-sm">
-                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-600">Categoria</span>
+                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-600">
+                      Categoria
+                    </span>
                     <select
                       value={despesaCategoria}
                       onChange={(e) => setDespesaCategoria(e.target.value)}
@@ -769,7 +774,9 @@ export function PainelFinanceiroAdminPage() {
                   </label>
 
                   <label className="text-xs sm:text-sm">
-                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-700">Subcategoria / Especificação</span>
+                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-700">
+                      Subcategoria / Especificação
+                    </span>
                     <input
                       type="text"
                       placeholder="Ex: Troca de pastilhas de freio da Master"
@@ -780,7 +787,9 @@ export function PainelFinanceiroAdminPage() {
                   </label>
 
                   <label className="text-xs sm:text-sm">
-                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-700">Valor Total (R$)</span>
+                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-700">
+                      Valor Total (R$)
+                    </span>
                     <input
                       type="number"
                       step="0.01"
@@ -793,7 +802,9 @@ export function PainelFinanceiroAdminPage() {
                   </label>
 
                   <label className="text-xs sm:text-sm sm:col-span-2">
-                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-700">Data do Comprovante</span>
+                    <span className="mb-1 block font-bold uppercase tracking-wider text-slate-700">
+                      Data do Comprovante
+                    </span>
                     <input
                       type="date"
                       required

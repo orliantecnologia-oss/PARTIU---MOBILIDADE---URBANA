@@ -75,9 +75,7 @@ function MapboxRadarSkeleton({
         <p className="text-[11px] font-black uppercase tracking-widest text-emerald-400">
           Radar Satelital Starlink Ativo
         </p>
-        <p className="text-[10px] text-slate-400 font-medium">
-          Monitoramento e telemetria orbital
-        </p>
+        <p className="text-[10px] text-slate-400 font-medium">Monitoramento e telemetria orbital</p>
       </div>
     </div>
   );

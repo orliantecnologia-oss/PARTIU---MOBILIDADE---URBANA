@@ -151,10 +151,7 @@ export function SecaoTrajetosFrequentes({
   }, [origemAtual, destinoAtual, temHistoricoReal, rotaMaisUsadaKey]);
 
   return (
-    <section
-      className="space-y-4 pt-1"
-      aria-labelledby="titulo-secao-trajetos"
-    >
+    <section className="space-y-4 pt-1" aria-labelledby="titulo-secao-trajetos">
       {/* ======================================================== */}
       {/* 1. HEADER DA SEÇÃO COM HIERARQUIA TIPOGRÁFICA CLARA      */}
       {/* ======================================================== */}
@@ -225,9 +222,7 @@ export function SecaoTrajetosFrequentes({
                   </span>
                 )}
 
-                <span className="text-[11px] font-bold text-slate-400">
-                  {rota.duracaoTexto}
-                </span>
+                <span className="text-[11px] font-bold text-slate-400">{rota.duracaoTexto}</span>
               </div>
 
               {/* Trajeto Visual Conector */}
@@ -322,8 +317,9 @@ export function SecaoTrajetosFrequentes({
         <div className="grid grid-cols-2 gap-2">
           {DESTINOS_POPULARES.map((dest) => {
             const Icone = dest.icone;
-            const selecionado =
-              destinoAtual.toLowerCase().includes(dest.destinoPadrao.toLowerCase());
+            const selecionado = destinoAtual
+              .toLowerCase()
+              .includes(dest.destinoPadrao.toLowerCase());
 
             return (
               <button

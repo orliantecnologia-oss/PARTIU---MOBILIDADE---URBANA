@@ -84,7 +84,12 @@ function calcularDistanciaKm(lat1: number, lon1: number, lat2: number, lon2: num
   return R * c;
 }
 
-export function calcularDistanciaMetros(lat1: number, lon1: number, lat2: number, lon2: number): number {
+export function calcularDistanciaMetros(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+): number {
   return calcularDistanciaKm(lat1, lon1, lat2, lon2) * 1000;
 }
 

@@ -237,7 +237,13 @@ export function PainelMotoristaPage() {
     } else {
       pararGpsContinuo();
     }
-  }, [statusVan, viagemAtiva?.id, iniciarGpsContinuo, pararGpsContinuo, atualizarTelemetriaMutation]);
+  }, [
+    statusVan,
+    viagemAtiva?.id,
+    iniciarGpsContinuo,
+    pararGpsContinuo,
+    atualizarTelemetriaMutation,
+  ]);
 
   const [resultadoValidacao, setResultadoValidacao] = useState<ResultadoValidacaoOffline | null>(
     null,
@@ -547,7 +553,9 @@ export function PainelMotoristaPage() {
                     />
                     <span
                       className={`relative inline-flex rounded-full h-3 w-3 ${
-                        isGpsContinuoAtivo ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" : "bg-slate-400"
+                        isGpsContinuoAtivo
+                          ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+                          : "bg-slate-400"
                       }`}
                     />
                   </span>
@@ -639,7 +647,9 @@ export function PainelMotoristaPage() {
                       : "bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200"
                   }`}
                 >
-                  <span>{isWakeLockAtivo ? "✓ Anti-Sleep Ativo (Tela não apaga)" : "Ativar Anti-Sleep"}</span>
+                  <span>
+                    {isWakeLockAtivo ? "✓ Anti-Sleep Ativo (Tela não apaga)" : "Ativar Anti-Sleep"}
+                  </span>
                 </button>
 
                 <div className="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
@@ -981,9 +991,7 @@ export function PainelMotoristaPage() {
                   Pacote: {encomendaParaEntregar.codigoRastreio}
                 </p>
                 <p className="text-slate-700">{encomendaParaEntregar.descricao}</p>
-                <p className="text-slate-500 text-xs">
-                  Destino: {encomendaParaEntregar.destino}
-                </p>
+                <p className="text-slate-500 text-xs">Destino: {encomendaParaEntregar.destino}</p>
               </div>
 
               {/* Input de PIN com 4 dígitos */}

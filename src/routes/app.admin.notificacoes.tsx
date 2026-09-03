@@ -37,7 +37,8 @@ export const Route = createFileRoute("/app/admin/notificacoes")({
       { title: "Central de Disparo de Notificações | UniVans Admin" },
       {
         name: "description",
-        content: "Disparo de notificações push e comunicados segmentados para usuários, gratuidades e motoristas.",
+        content:
+          "Disparo de notificações push e comunicados segmentados para usuários, gratuidades e motoristas.",
       },
     ],
   }),
@@ -299,10 +300,26 @@ export function AdminNotificacoesScreen() {
               </label>
               <div className="grid grid-cols-4 gap-1.5">
                 {[
-                  { id: "info", label: "Informativo", cor: "border-emerald-300 text-emerald-800 bg-emerald-50" },
-                  { id: "alerta", label: "Alerta Trânsito", cor: "border-amber-300 text-amber-800 bg-amber-50" },
-                  { id: "urgente", label: "Urgente", cor: "border-rose-300 text-rose-800 bg-rose-50" },
-                  { id: "promocao", label: "Promoção", cor: "border-purple-300 text-purple-800 bg-purple-50" },
+                  {
+                    id: "info",
+                    label: "Informativo",
+                    cor: "border-emerald-300 text-emerald-800 bg-emerald-50",
+                  },
+                  {
+                    id: "alerta",
+                    label: "Alerta Trânsito",
+                    cor: "border-amber-300 text-amber-800 bg-amber-50",
+                  },
+                  {
+                    id: "urgente",
+                    label: "Urgente",
+                    cor: "border-rose-300 text-rose-800 bg-rose-50",
+                  },
+                  {
+                    id: "promocao",
+                    label: "Promoção",
+                    cor: "border-purple-300 text-purple-800 bg-purple-50",
+                  },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -391,7 +408,9 @@ export function AdminNotificacoesScreen() {
                 <option value="/app/linhas">/app/linhas — Consulta de Horários e Linhas</option>
                 <option value="/app/bilhetes">/app/bilhetes — Meus Bilhetes & QR Code</option>
                 <option value="/app/beneficios">/app/beneficios — Passe Livre & Gratuidade</option>
-                <option value="/app/motorista">/app/motorista — Cockpit Operacional do Motorista</option>
+                <option value="/app/motorista">
+                  /app/motorista — Cockpit Operacional do Motorista
+                </option>
                 <option value="/app/viagem">/app/viagem — Monitoramento do Radar ao Vivo</option>
               </select>
             </div>
@@ -504,7 +523,9 @@ export function AdminNotificacoesScreen() {
                     </span>
                     <span className="text-xs font-black text-slate-900">{item.titulo}</span>
                   </div>
-                  <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">{item.mensagem}</p>
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-2xl">
+                    {item.mensagem}
+                  </p>
                   <div className="flex items-center gap-3 text-[10px] text-slate-400">
                     <span>Enviado em: {new Date(item.criadoEm).toLocaleString("pt-BR")}</span>
                     <span>•</span>

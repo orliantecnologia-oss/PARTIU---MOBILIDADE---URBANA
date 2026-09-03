@@ -7,9 +7,7 @@ import {
 } from "./continuous-gps-engine";
 
 export function useContinuousGps() {
-  const [estado, setEstado] = useState<EstadoContinuousGps>(() =>
-    continuousGpsEngine.getEstado(),
-  );
+  const [estado, setEstado] = useState<EstadoContinuousGps>(() => continuousGpsEngine.getEstado());
 
   useEffect(() => {
     // Sincroniza estado inicial

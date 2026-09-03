@@ -250,9 +250,7 @@ export function ProfilePage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1.5">
-                Tipo de Conta
-              </label>
+              <label className="block text-xs font-bold text-slate-500 mb-1.5">Tipo de Conta</label>
               <select
                 value={tipoPerfil}
                 onChange={(e) => setTipoPerfil(e.target.value as "passageiro" | "motorista")}

@@ -247,7 +247,9 @@ export function BilhetesPassageiroScreen() {
                           ? "🏛️ Gratuidade por Lei"
                           : "Bilhete Confirmado"}
                       </span>
-                      <strong className="text-xs sm:text-sm font-mono text-slate-700">{b.id}</strong>
+                      <strong className="text-xs sm:text-sm font-mono text-slate-700">
+                        {b.id}
+                      </strong>
                     </div>
 
                     <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">

@@ -332,9 +332,13 @@ export function MapboxLiveMap({
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-[11px] font-black text-amber-300">{van.placa}</span>
-                      <span className="text-[9px] font-bold text-emerald-400">{van.velocidadeKmH} km/h</span>
+                      <span className="text-[9px] font-bold text-emerald-400">
+                        {van.velocidadeKmH} km/h
+                      </span>
                     </div>
-                    <p className="text-[10px] font-medium text-slate-300 truncate mt-0.5">{van.motorista}</p>
+                    <p className="text-[10px] font-medium text-slate-300 truncate mt-0.5">
+                      {van.motorista}
+                    </p>
                     <span className="text-[9px] text-slate-400 block truncate">{van.sentido}</span>
                   </div>
                 ))}
@@ -355,82 +359,82 @@ export function MapboxLiveMap({
 
       {/* Controles Flutuantes Direita: Temas & 3D (Touch target acessível >= 36px) */}
       {!falhaMapa && (
-      <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-20 flex flex-col gap-2 items-center pointer-events-auto">
-        <div className="flex flex-col gap-1.5 rounded-2xl bg-slate-950/90 backdrop-blur-md p-1.5 border border-white/20 shadow-xl">
+        <div className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-20 flex flex-col gap-2 items-center pointer-events-auto">
+          <div className="flex flex-col gap-1.5 rounded-2xl bg-slate-950/90 backdrop-blur-md p-1.5 border border-white/20 shadow-xl">
+            <button
+              type="button"
+              onClick={() => setEstiloMapa("night")}
+              className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-all ${
+                estiloMapa === "night"
+                  ? "bg-emerald-600 text-white shadow-xs scale-105"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Noturno VIP"
+              aria-label="Mapa Noturno"
+            >
+              <Moon className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setEstiloMapa("satellite")}
+              className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-all ${
+                estiloMapa === "satellite"
+                  ? "bg-emerald-600 text-white shadow-xs scale-105"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Satélite HD"
+              aria-label="Mapa Satélite"
+            >
+              <Globe className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setEstiloMapa("light")}
+              className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-all ${
+                estiloMapa === "light"
+                  ? "bg-emerald-600 text-white shadow-xs scale-105"
+                  : "text-slate-400 hover:text-white"
+              }`}
+              title="Modo Claro"
+              aria-label="Mapa Claro"
+            >
+              <Sun className="h-4 w-4" />
+            </button>
+          </div>
+
           <button
             type="button"
-            onClick={() => setEstiloMapa("night")}
-            className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-all ${
-              estiloMapa === "night"
-                ? "bg-emerald-600 text-white shadow-xs scale-105"
-                : "text-slate-400 hover:text-white"
+            onClick={() => setIs3D((prev) => !prev)}
+            className={`flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl backdrop-blur-md shadow-lg border transition-all ${
+              is3D
+                ? "bg-[#0d5930] text-emerald-200 border-emerald-400 scale-105"
+                : "bg-slate-950/85 text-slate-300 border-white/10"
             }`}
-            title="Noturno VIP"
-            aria-label="Mapa Noturno"
+            title="Alternar 3D"
+            aria-label="Alternar Perspectiva 3D"
           >
-            <Moon className="h-4 w-4" />
+            <Compass className="h-4.5 w-4.5" />
           </button>
+
           <button
             type="button"
-            onClick={() => setEstiloMapa("satellite")}
-            className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-all ${
-              estiloMapa === "satellite"
-                ? "bg-emerald-600 text-white shadow-xs scale-105"
-                : "text-slate-400 hover:text-white"
-            }`}
-            title="Satélite HD"
-            aria-label="Mapa Satélite"
+            onClick={() => {
+              if (map.current && vanAtiva) {
+                map.current.flyTo({
+                  center: vanAtiva.coords,
+                  zoom: 13,
+                  speed: 1.2,
+                  pitch: is3D ? 55 : 0,
+                });
+              }
+            }}
+            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-950/85 backdrop-blur-md text-emerald-400 shadow-lg border border-white/10 hover:scale-105 active:scale-95 transition-all"
+            title="Centralizar na Van"
+            aria-label="Centralizar na Van"
           >
-            <Globe className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            onClick={() => setEstiloMapa("light")}
-            className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl transition-all ${
-              estiloMapa === "light"
-                ? "bg-emerald-600 text-white shadow-xs scale-105"
-                : "text-slate-400 hover:text-white"
-            }`}
-            title="Modo Claro"
-            aria-label="Mapa Claro"
-          >
-            <Sun className="h-4 w-4" />
+            <Locate className="h-4.5 w-4.5" />
           </button>
         </div>
-
-        <button
-          type="button"
-          onClick={() => setIs3D((prev) => !prev)}
-          className={`flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl backdrop-blur-md shadow-lg border transition-all ${
-            is3D
-              ? "bg-[#0d5930] text-emerald-200 border-emerald-400 scale-105"
-              : "bg-slate-950/85 text-slate-300 border-white/10"
-          }`}
-          title="Alternar 3D"
-          aria-label="Alternar Perspectiva 3D"
-        >
-          <Compass className="h-4.5 w-4.5" />
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            if (map.current && vanAtiva) {
-              map.current.flyTo({
-                center: vanAtiva.coords,
-                zoom: 13,
-                speed: 1.2,
-                pitch: is3D ? 55 : 0,
-              });
-            }
-          }}
-          className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-950/85 backdrop-blur-md text-emerald-400 shadow-lg border border-white/10 hover:scale-105 active:scale-95 transition-all"
-          title="Centralizar na Van"
-          aria-label="Centralizar na Van"
-        >
-          <Locate className="h-4.5 w-4.5" />
-        </button>
-      </div>
       )}
 
       {mostrarCardInferior && vanAtiva && (

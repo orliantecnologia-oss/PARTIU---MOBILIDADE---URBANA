@@ -68,20 +68,18 @@ import {
   resetAllCircuitBreakers,
   getRateLimiter,
 } from "../src/lib/circuit-breaker.ts";
-import {
-  verificarAssinaturaEd25519,
-} from "../src/lib/offline-ticket-crypto.ts";
-import {
-  gerarAssinaturaWebhook,
-  verificarWebhookHmac,
-} from "../src/lib/payment-webhook-engine.ts";
+import { verificarAssinaturaEd25519 } from "../src/lib/offline-ticket-crypto.ts";
+import { gerarAssinaturaWebhook, verificarWebhookHmac } from "../src/lib/payment-webhook-engine.ts";
 import {
   assertDoubleEntryBalanced,
   registrarEntradaEscrow,
   liquidarSplitViagem,
 } from "../src/lib/finops-double-entry.ts";
 import { assinarBilheteServerSide } from "../src/lib/ticket-signing.server.ts";
-import { runOutboxWorkerBatch, calculateExponentialBackoffMs } from "../src/lib/outbox-worker.server.ts";
+import {
+  runOutboxWorkerBatch,
+  calculateExponentialBackoffMs,
+} from "../src/lib/outbox-worker.server.ts";
 import * as ClientCryptoModule from "../src/lib/offline-ticket-crypto.ts";
 import { continuousGpsEngine } from "../src/lib/continuous-gps-engine.ts";
 import {
@@ -529,7 +527,11 @@ describe("12. Authentic Ed25519 Cryptography (RFC 8032)", () => {
 // SUITE 13: STRIPE & MERCADO PAGO HMAC-SHA256 WEBHOOK SECURITY
 describe("13. Financial Webhook HMAC-SHA256 Anti-Tamper & Anti-Replay", () => {
   test("Webhook com assinatura HMAC-SHA256 válida dentro da janela é aprovado", () => {
-    const payload = JSON.stringify({ event: "payment.succeeded", id: "pi_123", amount_cents: 3800 });
+    const payload = JSON.stringify({
+      event: "payment.succeeded",
+      id: "pi_123",
+      amount_cents: 3800,
+    });
     const sigHeader = gerarAssinaturaWebhook(payload);
 
     const res = verificarWebhookHmac(payload, sigHeader);
@@ -537,7 +539,11 @@ describe("13. Financial Webhook HMAC-SHA256 Anti-Tamper & Anti-Replay", () => {
   });
 
   test("Proteção Anti-Replay: Webhook com timestamp expirado (>5min) é rejeitado", () => {
-    const payload = JSON.stringify({ event: "payment.succeeded", id: "pi_123", amount_cents: 3800 });
+    const payload = JSON.stringify({
+      event: "payment.succeeded",
+      id: "pi_123",
+      amount_cents: 3800,
+    });
     const timestampAntigo = Date.now() - 600 * 1000; // 10 minutos atrás
     const sigHeader = gerarAssinaturaWebhook(payload, undefined, timestampAntigo);
 
@@ -547,10 +553,18 @@ describe("13. Financial Webhook HMAC-SHA256 Anti-Tamper & Anti-Replay", () => {
   });
 
   test("Proteção de Integridade: Payload adulterado é rejeitado pelo HMAC", () => {
-    const payloadOriginal = JSON.stringify({ event: "payment.succeeded", id: "pi_123", amount_cents: 3800 });
+    const payloadOriginal = JSON.stringify({
+      event: "payment.succeeded",
+      id: "pi_123",
+      amount_cents: 3800,
+    });
     const sigHeader = gerarAssinaturaWebhook(payloadOriginal);
 
-    const payloadFalso = JSON.stringify({ event: "payment.succeeded", id: "pi_123", amount_cents: 100 });
+    const payloadFalso = JSON.stringify({
+      event: "payment.succeeded",
+      id: "pi_123",
+      amount_cents: 100,
+    });
     const res = verificarWebhookHmac(payloadFalso, sigHeader);
     expect(res.valid).toBe(false);
   });
@@ -576,8 +590,24 @@ describe("14. Strict Double-Entry Bookkeeping Ledger", () => {
     let capturouErro = false;
     try {
       assertDoubleEntryBalanced([
-        { id: "1", transactionId: "t1", entryType: "DEBIT", accountId: "A", amountCents: 100, description: "D", createdAt: "" },
-        { id: "2", transactionId: "t1", entryType: "CREDIT", accountId: "B", amountCents: 90, description: "C", createdAt: "" },
+        {
+          id: "1",
+          transactionId: "t1",
+          entryType: "DEBIT",
+          accountId: "A",
+          amountCents: 100,
+          description: "D",
+          createdAt: "",
+        },
+        {
+          id: "2",
+          transactionId: "t1",
+          entryType: "CREDIT",
+          accountId: "B",
+          amountCents: 90,
+          description: "C",
+          createdAt: "",
+        },
       ]);
     } catch (e) {
       capturouErro = true;
@@ -633,37 +663,40 @@ describe("15. Server-Side Ticket Issuance & Zero Private Key Client Leak", () =>
 
 // SUITE 16: ATOMIC SEAT RESERVATION & CONCURRENCY OVERBOOKING PREVENTOR
 describe("16. Atomic Seat Reservation & Concurrency Overbooking Preventor", () => {
-  testAsync("100 requisições simultâneas disputando 1 única vaga -> Exatamente 1 aprovada e 99 rejeitadas", async () => {
-    let vagasTotais = 16;
-    let vagasOcupadas = 15;
-    let mutex = false;
+  testAsync(
+    "100 requisições simultâneas disputando 1 única vaga -> Exatamente 1 aprovada e 99 rejeitadas",
+    async () => {
+      let vagasTotais = 16;
+      let vagasOcupadas = 15;
+      let mutex = false;
 
-    async function reservarVagaAtomica(qtd) {
-      while (mutex) {
-        await new Promise((r) => setTimeout(r, 1));
-      }
-      mutex = true;
-      try {
-        if (vagasOcupadas + qtd > vagasTotais) {
-          return { sucesso: false, erro: "VAGAS_INSUFICIENTES" };
+      async function reservarVagaAtomica(qtd) {
+        while (mutex) {
+          await new Promise((r) => setTimeout(r, 1));
         }
-        vagasOcupadas += qtd;
-        return { sucesso: true, vagasRestantes: vagasTotais - vagasOcupadas };
-      } finally {
-        mutex = false;
+        mutex = true;
+        try {
+          if (vagasOcupadas + qtd > vagasTotais) {
+            return { sucesso: false, erro: "VAGAS_INSUFICIENTES" };
+          }
+          vagasOcupadas += qtd;
+          return { sucesso: true, vagasRestantes: vagasTotais - vagasOcupadas };
+        } finally {
+          mutex = false;
+        }
       }
-    }
 
-    const promises = Array.from({ length: 100 }, () => reservarVagaAtomica(1));
-    const results = await Promise.all(promises);
+      const promises = Array.from({ length: 100 }, () => reservarVagaAtomica(1));
+      const results = await Promise.all(promises);
 
-    const aprovadas = results.filter((r) => r.sucesso);
-    const rejeitadas = results.filter((r) => !r.sucesso && r.erro === "VAGAS_INSUFICIENTES");
+      const aprovadas = results.filter((r) => r.sucesso);
+      const rejeitadas = results.filter((r) => !r.sucesso && r.erro === "VAGAS_INSUFICIENTES");
 
-    expect(aprovadas.length).toBe(1);
-    expect(rejeitadas.length).toBe(99);
-    expect(vagasOcupadas).toBe(16);
-  });
+      expect(aprovadas.length).toBe(1);
+      expect(rejeitadas.length).toBe(99);
+      expect(vagasOcupadas).toBe(16);
+    },
+  );
 });
 
 // SUITE 17: OUTBOX WORKER POLLER, EXPONENTIAL BACKOFF & DLQ DISPATCH
@@ -676,25 +709,28 @@ describe("17. Outbox Worker Engine, Exponential Backoff & DLQ Dispatch", () => {
     expect(calculateExponentialBackoffMs(20)).toBe(300000);
   });
 
-  testAsync("Worker processa evento com falha repetida e transfere atomicamente para DLQ após max retries", async () => {
-    const mockFailingEvent = {
-      id: "evt_fail_999",
-      event_type: "UNREGISTERED_HANDLER_EVENT",
-      payload: { test: true },
-      retry_count: 4,
-      max_retries: 5,
-      status: "FAILED",
-    };
+  testAsync(
+    "Worker processa evento com falha repetida e transfere atomicamente para DLQ após max retries",
+    async () => {
+      const mockFailingEvent = {
+        id: "evt_fail_999",
+        event_type: "UNREGISTERED_HANDLER_EVENT",
+        payload: { test: true },
+        retry_count: 4,
+        max_retries: 5,
+        status: "FAILED",
+      };
 
-    const dlqSink = [];
-    const res = await runOutboxWorkerBatch([mockFailingEvent], dlqSink);
+      const dlqSink = [];
+      const res = await runOutboxWorkerBatch([mockFailingEvent], dlqSink);
 
-    expect(res.processed).toBe(1);
-    expect(res.deadLetters).toBe(1);
-    expect(mockFailingEvent.status).toBe("DEAD_LETTER");
-    expect(dlqSink.length).toBe(1);
-    expect(dlqSink[0].outbox_id).toBe("evt_fail_999");
-  });
+      expect(res.processed).toBe(1);
+      expect(res.deadLetters).toBe(1);
+      expect(mockFailingEvent.status).toBe("DEAD_LETTER");
+      expect(dlqSink.length).toBe(1);
+      expect(dlqSink[0].outbox_id).toBe("evt_fail_999");
+    },
+  );
 });
 
 // SUITE 18: SOS SECURITY HARDENING & TENANT ANTI-FLOOD GUARDS
@@ -702,7 +738,8 @@ describe("18. SOS Security Hardening & Tenant Anti-Flood Guards", () => {
   test("Validação de integridade SOS: Chamado sem dados mínimos de solicitante é rejeitado", () => {
     function validarPayloadSOS(nome, telefone) {
       if (!nome || nome.trim().length < 2) return { valido: false, erro: "NOME_INVALIDO" };
-      if (!telefone || telefone.trim().length < 8) return { valido: false, erro: "TELEFONE_INVALIDO" };
+      if (!telefone || telefone.trim().length < 8)
+        return { valido: false, erro: "TELEFONE_INVALIDO" };
       return { valido: true };
     }
 
@@ -975,9 +1012,15 @@ describe("22. Broadcast Notifications & Multi-Category Routing Engine", () => {
       totalDestinatariosEstimados: 1450,
     });
 
-    expect(obterNotificacoesParaCategoria("usuario").some((n) => n.id === "test-notif-todos")).toBe(true);
-    expect(obterNotificacoesParaCategoria("gratis").some((n) => n.id === "test-notif-todos")).toBe(true);
-    expect(obterNotificacoesParaCategoria("motorista").some((n) => n.id === "test-notif-todos")).toBe(true);
+    expect(obterNotificacoesParaCategoria("usuario").some((n) => n.id === "test-notif-todos")).toBe(
+      true,
+    );
+    expect(obterNotificacoesParaCategoria("gratis").some((n) => n.id === "test-notif-todos")).toBe(
+      true,
+    );
+    expect(
+      obterNotificacoesParaCategoria("motorista").some((n) => n.id === "test-notif-todos"),
+    ).toBe(true);
   });
 
   test("Controle de Leitura: Marcação de lido atualiza o estado da notificação", () => {

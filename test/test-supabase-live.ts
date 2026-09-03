@@ -12,7 +12,10 @@ if (fs.existsSync(envPath)) {
       const idx = trimmed.indexOf("=");
       const key = trimmed.slice(0, idx).trim();
       let val = trimmed.slice(idx + 1).trim();
-      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      if (
+        (val.startsWith('"') && val.endsWith('"')) ||
+        (val.startsWith("'") && val.endsWith("'"))
+      ) {
         val = val.slice(1, -1);
       }
       process.env[key] = val;
@@ -32,7 +35,10 @@ const supabase = createClient(url, key);
 
 async function runLiveTests() {
   console.log("1. Verificando tabela 'alertas_sos'...");
-  const { data: sosData, error: sosError } = await supabase.from("alertas_sos").select("*").limit(3);
+  const { data: sosData, error: sosError } = await supabase
+    .from("alertas_sos")
+    .select("*")
+    .limit(3);
   if (sosError) {
     console.error("   ❌ Erro ao consultar alertas_sos:", sosError.message);
   } else {
@@ -40,7 +46,10 @@ async function runLiveTests() {
   }
 
   console.log("\n2. Verificando tabela 'user_roles'...");
-  const { data: rolesData, error: rolesError } = await supabase.from("user_roles").select("*").limit(3);
+  const { data: rolesData, error: rolesError } = await supabase
+    .from("user_roles")
+    .select("*")
+    .limit(3);
   if (rolesError) {
     console.error("   ❌ Erro ao consultar user_roles:", rolesError.message);
   } else {

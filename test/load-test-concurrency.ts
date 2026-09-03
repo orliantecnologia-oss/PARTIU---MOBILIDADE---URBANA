@@ -25,7 +25,7 @@ async function runConcurrencyLoadTests() {
   // CENÁRIO 1: DISPUTA DE ASSENTOS SOB CONCORRÊNCIA EXTREMA (ANTI-OVERBOOKING)
   // ----------------------------------------------------------------------------
   console.log("📍 CENÁRIO 1: Disputa Simultânea de 500 Passageiros por 15 Vagas");
-  
+
   let vagasOcupadas = 0;
   const vagasTotais = 15;
   let aprovadas = 0;
@@ -41,7 +41,7 @@ async function runConcurrencyLoadTests() {
     promisesAssentos.push(
       (async () => {
         const t0 = performance.now();
-        
+
         // Simula delay de rede assimétrico (jitter de 5ms a 25ms)
         const jitterMs = Math.random() * 20 + 5;
         await new Promise((res) => setTimeout(res, jitterMs));
@@ -64,15 +64,19 @@ async function runConcurrencyLoadTests() {
   const duracaoCenario1 = performance.now() - inicioCenario1;
 
   console.log(`   ⏱️  Duração Total do Batch: ${duracaoCenario1.toFixed(2)}ms`);
-  console.log(`   ✅ Vagas Totais: ${vagasTotais} | Aprovadas: ${aprovadas} | Rejeitadas: ${rejeitadas}`);
-  console.log(`   📊 Invariante Anti-Overbooking: ${aprovadas === vagasTotais ? "PRESERVADA (ZERO OVERBOOKING)" : "FALHA!"}`);
+  console.log(
+    `   ✅ Vagas Totais: ${vagasTotais} | Aprovadas: ${aprovadas} | Rejeitadas: ${rejeitadas}`,
+  );
+  console.log(
+    `   📊 Invariante Anti-Overbooking: ${aprovadas === vagasTotais ? "PRESERVADA (ZERO OVERBOOKING)" : "FALHA!"}`,
+  );
   console.log(`   📈 Latência da Reserva:`);
   console.log(`      p50: ${calcularPercentil(latenciasAssentosMs, 50)}ms`);
   console.log(`      p90: ${calcularPercentil(latenciasAssentosMs, 90)}ms`);
   console.log(`      p95: ${calcularPercentil(latenciasAssentosMs, 95)}ms`);
   console.log(`      p99: ${calcularPercentil(latenciasAssentosMs, 99)}ms`);
 
-  if (aprovadas !== vagasTotais || rejeitadas !== (totalRequisicoes - vagasTotais)) {
+  if (aprovadas !== vagasTotais || rejeitadas !== totalRequisicoes - vagasTotais) {
     throw new Error("Falha no teste de concorrência de assentos!");
   }
 
@@ -80,7 +84,7 @@ async function runConcurrencyLoadTests() {
   // CENÁRIO 2: INGESTÃO DE TELEMETRIA GPS COM DEADBAND (1.000 CICLOS / 100 VANS)
   // ----------------------------------------------------------------------------
   console.log("\n📍 CENÁRIO 2: Ingestão de GPS de 100 Vans sob Trânsito Rodoviário");
-  
+
   const totalCiclos = 1000;
   let escritasBloqueadasPeloDeadband = 0;
   let escritasTransmitidasAoBanco = 0;
@@ -88,8 +92,8 @@ async function runConcurrencyLoadTests() {
 
   const vans = Array.from({ length: 100 }, (_, idx) => ({
     id: `van_${idx + 1}`,
-    lat: -9.6658 + (idx * 0.001),
-    lng: -35.7351 + (idx * 0.001),
+    lat: -9.6658 + idx * 0.001,
+    lng: -35.7351 + idx * 0.001,
     lastSentAt: 1000000,
     parada: idx % 3 === 0, // 33% das vans paradas
   }));
@@ -99,10 +103,10 @@ async function runConcurrencyLoadTests() {
   for (let c = 0; c < totalCiclos; c++) {
     const t0 = performance.now();
     const van = vans[c % vans.length]!;
-    
+
     let novaLat = van.lat;
     let novaLng = van.lng;
-    const tempoAtual = van.lastSentAt + ((c % 5) * 1000);
+    const tempoAtual = van.lastSentAt + (c % 5) * 1000;
 
     if (van.parada) {
       // Van parada: micro-jitter de 1 metro
@@ -138,7 +142,9 @@ async function runConcurrencyLoadTests() {
   const percentualEconomia = ((escritasBloqueadasPeloDeadband / totalCiclos) * 100).toFixed(1);
 
   console.log(`   ⏱️  Tempo para processar 1.000 coordenadas: ${duracaoCenario2.toFixed(2)}ms`);
-  console.log(`   🛑 Writes Bloqueados no Banco (Economia de CPU): ${escritasBloqueadasPeloDeadband} (${percentualEconomia}%)`);
+  console.log(
+    `   🛑 Writes Bloqueados no Banco (Economia de CPU): ${escritasBloqueadasPeloDeadband} (${percentualEconomia}%)`,
+  );
   console.log(`   🚀 Writes Efetivos Transmitidos: ${escritasTransmitidasAoBanco}`);
   console.log(`   📈 Latência de Avaliação Deadband:`);
   console.log(`      p50: ${calcularPercentil(latenciasDeadbandMs, 50)}ms`);
@@ -149,7 +155,7 @@ async function runConcurrencyLoadTests() {
   // CENÁRIO 3: MOTOR DE DETECÇÃO DE ANOMALIAS DE TELEMETRIA EM ALTA VAZÃO
   // ----------------------------------------------------------------------------
   console.log("\n📍 CENÁRIO 3: Motor de Detecção de Anomalias (1.000 Ingestões com Teleporte)");
-  
+
   const inicioCenario3 = performance.now();
   let anomaliasDetectadas = 0;
   const veiculoAlvo = "VAN_PRODUCAO_01";
@@ -174,12 +180,12 @@ async function runConcurrencyLoadTests() {
   for (let i = 2; i <= 1000; i++) {
     tempoBase += 1000; // 1 segundo depois
     const isSalto = i % 10 === 0; // 10% dos pacotes simulando salto impossível de 15km em 1s (>50.000 km/h)
-    
+
     const res = processarIngestaoTelemetria({
       organizationId: "COOP_ALAGOAS_CENTRAL",
       vehicleId: veiculoAlvo,
       deviceId: "DEV_01",
-      latitude: isSalto ? -9.5000 : -9.6658 + (i * 0.00005),
+      latitude: isSalto ? -9.5 : -9.6658 + i * 0.00005,
       longitude: -35.7351,
       speedKmh: isSalto ? 220 : 65,
       headingDegrees: 90,

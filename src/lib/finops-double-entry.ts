@@ -47,7 +47,9 @@ export const CONTAS_CONTABEIS = {
  */
 export function assertDoubleEntryBalanced(entries: LedgerEntry[]): boolean {
   if (!entries || entries.length < 2) {
-    throw new Error("TRANSACTION_MALFORMED: Uma transação contábil exige no mínimo dois lançamentos.");
+    throw new Error(
+      "TRANSACTION_MALFORMED: Uma transação contábil exige no mínimo dois lançamentos.",
+    );
   }
 
   const debits = entries

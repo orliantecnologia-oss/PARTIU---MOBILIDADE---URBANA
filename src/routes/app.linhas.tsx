@@ -51,10 +51,28 @@ const CIDADES_FILTRO = [
 
 /* ─── Helpers de vagas semafóricas ─── */
 function vagasCor(vagas: number, esgotado: boolean) {
-  if (esgotado) return { dot: "bg-slate-400", text: "text-slate-400", bg: "bg-slate-50", label: "Esgotado" };
-  if (vagas <= 2) return { dot: "bg-rose-500", text: "text-rose-600", bg: "bg-rose-50", label: `Últimas ${vagas}` };
-  if (vagas <= 5) return { dot: "bg-amber-500", text: "text-amber-600", bg: "bg-amber-50", label: `${vagas} disponíveis` };
-  return { dot: "bg-emerald-500", text: "text-emerald-700", bg: "bg-emerald-50", label: `${vagas} disponíveis` };
+  if (esgotado)
+    return { dot: "bg-slate-400", text: "text-slate-400", bg: "bg-slate-50", label: "Esgotado" };
+  if (vagas <= 2)
+    return {
+      dot: "bg-rose-500",
+      text: "text-rose-600",
+      bg: "bg-rose-50",
+      label: `Últimas ${vagas}`,
+    };
+  if (vagas <= 5)
+    return {
+      dot: "bg-amber-500",
+      text: "text-amber-600",
+      bg: "bg-amber-50",
+      label: `${vagas} disponíveis`,
+    };
+  return {
+    dot: "bg-emerald-500",
+    text: "text-emerald-700",
+    bg: "bg-emerald-50",
+    label: `${vagas} disponíveis`,
+  };
 }
 
 export function LinhasPassagensScreen() {
@@ -343,7 +361,8 @@ export function LinhasPassagensScreen() {
                   </span>
                 </div>
                 <h3 className="text-sm font-bold text-slate-900 truncate">
-                  {proximaSaida.rota.origem.split("(")[0]?.trim()} → {proximaSaida.rota.destino.split("(")[0]?.trim()}
+                  {proximaSaida.rota.origem.split("(")[0]?.trim()} →{" "}
+                  {proximaSaida.rota.destino.split("(")[0]?.trim()}
                 </h3>
                 <div className="flex items-center gap-2 text-xs text-slate-600">
                   <span className="font-bold text-[#0d5930] text-base">
@@ -351,7 +370,10 @@ export function LinhasPassagensScreen() {
                   </span>
                   <span className="text-slate-300">•</span>
                   {(() => {
-                    const v = vagasCor(proximaSaida.horario.vagasLivres, proximaSaida.horario.vagasLivres === 0);
+                    const v = vagasCor(
+                      proximaSaida.horario.vagasLivres,
+                      proximaSaida.horario.vagasLivres === 0,
+                    );
                     return (
                       <span className={`flex items-center gap-1 font-semibold ${v.text}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${v.dot}`} />
@@ -380,9 +402,16 @@ export function LinhasPassagensScreen() {
               ? "Nenhuma rota encontrada"
               : `${rotasFiltradas.length} ${rotasFiltradas.length === 1 ? "rota encontrada" : "rotas encontradas"}`}
             {cidadeSelecionada !== "Todas" && (
-              <> <span className="text-slate-300">•</span> {cidadeSelecionada}</>
+              <>
+                {" "}
+                <span className="text-slate-300">•</span> {cidadeSelecionada}
+              </>
             )}
-            <> <span className="text-slate-300">•</span> <span className="text-[#0d5930] font-bold">{textoDataSelecionada}</span></>
+            <>
+              {" "}
+              <span className="text-slate-300">•</span>{" "}
+              <span className="text-[#0d5930] font-bold">{textoDataSelecionada}</span>
+            </>
           </p>
 
           {rotasFiltradas.length === 0 ? (
@@ -427,9 +456,7 @@ export function LinhasPassagensScreen() {
               const proximoHorarioId = obterProximoHorarioId(horariosExibidos);
 
               const idSelecionado =
-                horariosSelecionados[rota.id] ||
-                proximoHorarioId ||
-                horariosExibidos[0]?.id;
+                horariosSelecionados[rota.id] || proximoHorarioId || horariosExibidos[0]?.id;
               const horarioAtual =
                 horariosExibidos.find((h) => h.id === idSelecionado) || horariosExibidos[0];
 
@@ -448,8 +475,7 @@ export function LinhasPassagensScreen() {
                         Linha Executiva #{rota.id}
                       </span>
                       <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
-                        <Wifi className="h-2.5 w-2.5" />
-                        ✦ VIP
+                        <Wifi className="h-2.5 w-2.5" />✦ VIP
                       </span>
                     </div>
 
@@ -474,7 +500,8 @@ export function LinhasPassagensScreen() {
                     <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-medium mb-3">
                       <MapPin className="h-3 w-3 shrink-0" />
                       <span className="truncate">
-                        {rota.origem.match(/\(([^)]+)\)/)?.[1] || rota.origem} • {rota.distanciaKm} km • {horarioAtual.tempoEstimadoTexto}
+                        {rota.origem.match(/\(([^)]+)\)/)?.[1] || rota.origem} • {rota.distanciaKm}{" "}
+                        km • {horarioAtual.tempoEstimadoTexto}
                       </span>
                     </div>
                   </div>
@@ -489,7 +516,8 @@ export function LinhasPassagensScreen() {
                         const selecionado = h.id === horarioAtual.id;
                         const esgotado = h.vagasLivres === 0;
                         const encerrado = h.status === "encerrado";
-                        const isProxima = h.id === proximoHorarioId && dataSelecionadaIso === hojeIso;
+                        const isProxima =
+                          h.id === proximoHorarioId && dataSelecionadaIso === hojeIso;
                         const v = vagasCor(h.vagasLivres, esgotado);
 
                         return (
@@ -518,7 +546,9 @@ export function LinhasPassagensScreen() {
                                 Próxima
                               </span>
                             )}
-                            <span className={`text-xs font-bold leading-tight ${encerrado ? "line-through" : ""}`}>
+                            <span
+                              className={`text-xs font-bold leading-tight ${encerrado ? "line-through" : ""}`}
+                            >
                               {h.horarioSaida}
                             </span>
                             <span
@@ -530,7 +560,11 @@ export function LinhasPassagensScreen() {
                                     : v.text
                               }`}
                             >
-                              {encerrado ? "encerrado" : esgotado ? "esgotado" : `${h.vagasLivres} vagas`}
+                              {encerrado
+                                ? "encerrado"
+                                : esgotado
+                                  ? "esgotado"
+                                  : `${h.vagasLivres} vagas`}
                             </span>
                           </button>
                         );
@@ -543,9 +577,14 @@ export function LinhasPassagensScreen() {
                     <div className="flex items-center justify-between text-[11px]">
                       <div className="flex items-center gap-1.5 font-semibold text-slate-600">
                         <Users className="h-3.5 w-3.5 text-slate-400" />
-                        <span>{horarioAtual.vagasOcupadas}/{horarioAtual.vagasTotais} ocupadas</span>
+                        <span>
+                          {horarioAtual.vagasOcupadas}/{horarioAtual.vagasTotais} ocupadas
+                        </span>
                         {(() => {
-                          const v = vagasCor(horarioAtual.vagasLivres, horarioAtual.vagasLivres === 0);
+                          const v = vagasCor(
+                            horarioAtual.vagasLivres,
+                            horarioAtual.vagasLivres === 0,
+                          );
                           return (
                             <span className={`flex items-center gap-1 ${v.text} font-bold`}>
                               <span className={`h-1.5 w-1.5 rounded-full ${v.dot}`} />

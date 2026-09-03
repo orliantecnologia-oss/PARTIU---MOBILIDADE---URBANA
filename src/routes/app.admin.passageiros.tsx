@@ -95,7 +95,10 @@ function AdminPassageiros() {
               ["whatsapp", "WhatsApp", "text"],
             ] as const
           ).map(([campo, rotulo, tipo]) => (
-            <label key={campo} className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+            <label
+              key={campo}
+              className="block text-xs font-bold uppercase tracking-wider text-slate-600"
+            >
               {rotulo}
               <input
                 type={tipo}

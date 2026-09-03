@@ -247,7 +247,9 @@ export function CadastroGratuidadePage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs sm:text-sm font-bold text-slate-700">Nascimento *</label>
+                  <label className="text-xs sm:text-sm font-bold text-slate-700">
+                    Nascimento *
+                  </label>
                   <input
                     type="date"
                     required
@@ -274,7 +276,9 @@ export function CadastroGratuidadePage() {
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs sm:text-sm font-bold text-slate-700">Órgão Emissor</label>
+                  <label className="text-xs sm:text-sm font-bold text-slate-700">
+                    Órgão Emissor
+                  </label>
                   <input
                     type="text"
                     value={orgaoEmissor}

@@ -28,7 +28,11 @@ export function registerServerEventHandler(eventType: string, handler: OutboxEve
  * Calcula o backoff exponencial em milissegundos para retentativas de eventos
  * Fórmula: baseMs * (2 ^ tentativa) com teto máximo
  */
-export function calculateExponentialBackoffMs(attempt: number, baseMs = 1000, maxMs = 300000): number {
+export function calculateExponentialBackoffMs(
+  attempt: number,
+  baseMs = 1000,
+  maxMs = 300000,
+): number {
   const delay = baseMs * Math.pow(2, Math.max(0, attempt - 1));
   return Math.min(delay, maxMs);
 }
@@ -52,7 +56,8 @@ export async function runOutboxWorkerBatch(
   let events: any[] = [];
   if (mockEventsProvider) {
     events = mockEventsProvider.filter(
-      (e) => e.status === "PENDING" || (e.status === "FAILED" && e.retry_count < (e.max_retries || 5)),
+      (e) =>
+        e.status === "PENDING" || (e.status === "FAILED" && e.retry_count < (e.max_retries || 5)),
     );
   }
 

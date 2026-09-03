@@ -362,7 +362,9 @@ export function ViagemAoVivoPassageiro() {
               : "bg-white hover:bg-slate-50 text-slate-800 border border-slate-200"
           }`}
         >
-          <Zap className={`h-4.5 w-4.5 ${sinalPistaEnviado ? "text-amber-300" : "text-[#0d5930]"}`} />
+          <Zap
+            className={`h-4.5 w-4.5 ${sinalPistaEnviado ? "text-amber-300" : "text-[#0d5930]"}`}
+          />
           <span>
             {sinalPistaEnviado
               ? "Sinal Enviado ao Tablet da Van com Sucesso!"

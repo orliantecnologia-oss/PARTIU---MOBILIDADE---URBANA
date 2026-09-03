@@ -86,7 +86,9 @@ export default {
     try {
       const { runOutboxWorkerBatch } = await import("./lib/outbox-worker.server");
       const res = await runOutboxWorkerBatch();
-      console.log(`[OutboxWorker:Cron] Processados: ${res.processed} | Publicados: ${res.published} | DLQ: ${res.deadLetters}`);
+      console.log(
+        `[OutboxWorker:Cron] Processados: ${res.processed} | Publicados: ${res.published} | DLQ: ${res.deadLetters}`,
+      );
     } catch (err: any) {
       console.error("[OutboxWorker:Cron] Erro ao executar ciclo de outbox:", err?.message || err);
     }

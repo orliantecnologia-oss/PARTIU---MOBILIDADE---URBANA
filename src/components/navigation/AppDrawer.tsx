@@ -193,7 +193,9 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-slate-900">Linhas & Horários</p>
-                <p className="text-[11px] text-slate-500 truncate">Trevos, polos e saídas de vans</p>
+                <p className="text-[11px] text-slate-500 truncate">
+                  Trevos, polos e saídas de vans
+                </p>
               </div>
             </Link>
 
@@ -212,7 +214,9 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
                     GPS
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 truncate">Rastreamento Starlink em tempo real</p>
+                <p className="text-[11px] text-slate-500 truncate">
+                  Rastreamento Starlink em tempo real
+                </p>
               </div>
             </Link>
           </div>
@@ -247,7 +251,9 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-slate-900">Central SOS 24h</p>
-                <p className="text-[11px] text-slate-500 truncate">Emergência e telemetria na rodovia</p>
+                <p className="text-[11px] text-slate-500 truncate">
+                  Emergência e telemetria na rodovia
+                </p>
               </div>
             </Link>
           </div>

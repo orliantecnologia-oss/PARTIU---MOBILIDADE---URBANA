@@ -106,6 +106,8 @@ export const emitirBilheteAssinadoServerFn = createServerFn({ method: "POST" })
       };
     } catch (err: any) {
       console.error("[TicketSigningService] Erro ao assinar bilhete no servidor:", err);
-      throw new Error(`Falha na assinatura criptográfica do bilhete: ${err?.message || "Erro desconhecido"}`);
+      throw new Error(
+        `Falha na assinatura criptográfica do bilhete: ${err?.message || "Erro desconhecido"}`,
+      );
     }
   });

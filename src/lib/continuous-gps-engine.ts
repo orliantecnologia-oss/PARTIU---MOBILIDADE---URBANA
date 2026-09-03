@@ -41,7 +41,8 @@ export interface ConfigContinuousGps {
   linhaOrigemDestino?: string | undefined;
   deadbandMetros?: number | undefined;
   heartbeatIntervaloMs?: number | undefined;
-  onPontoTransmitido?: ((ponto: TelemetriaGpsPonto) => Promise<boolean> | boolean | void) | undefined;
+  onPontoTransmitido?:
+    ((ponto: TelemetriaGpsPonto) => Promise<boolean> | boolean | void) | undefined;
   onEstadoMudou?: ((estado: EstadoContinuousGps) => void) | undefined;
   onError?: ((erro: string) => void) | undefined;
 }
@@ -201,11 +202,15 @@ class ContinuousGpsManager {
       if (AudioCtx) {
         this.audioContext = new AudioCtx();
         // Buffer silencioso de 1 segundo
-        const buffer = this.audioContext.createBuffer(1, this.audioContext.sampleRate, this.audioContext.sampleRate);
+        const buffer = this.audioContext.createBuffer(
+          1,
+          this.audioContext.sampleRate,
+          this.audioContext.sampleRate,
+        );
         const source = this.audioContext.createBufferSource();
         source.buffer = buffer;
         source.loop = true;
-        
+
         // Conectar a ganho zero para ser completamente inaudível
         const gainNode = this.audioContext.createGain();
         gainNode.gain.value = 0.0001; // Nível inaudível
@@ -324,7 +329,8 @@ class ContinuousGpsManager {
     const agora = Date.now();
 
     // Calcular velocidade em km/h (speed da API vem em m/s)
-    let velocidadeKmh = speed !== null && speed !== undefined && !isNaN(speed) ? Math.round(speed * 3.6) : 0;
+    let velocidadeKmh =
+      speed !== null && speed !== undefined && !isNaN(speed) ? Math.round(speed * 3.6) : 0;
 
     // Se velocidade não foi fornecida pelo hardware, calcular por delta de distância e tempo
     if (velocidadeKmh === 0 && this.ultimoPontoTransmitido) {

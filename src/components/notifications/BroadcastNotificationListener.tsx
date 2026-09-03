@@ -1,4 +1,4 @@
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouterState, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
@@ -48,7 +48,7 @@ export function BroadcastNotificationListener() {
   const [notificacaoAtiva, setNotificacaoAtiva] = useState<NotificacaoBroadcast | null>(null);
 
   // Determinar a categoria do usuário no contexto atual
-  function detectarCategoriaAtual(): "usuario" | "gratis" | "motorista" {
+  const detectarCategoriaAtual = useCallback((): "usuario" | "gratis" | "motorista" => {
     if (pathname.includes("/motorista")) {
       return "motorista";
     }
@@ -56,9 +56,7 @@ export function BroadcastNotificationListener() {
       return "gratis";
     }
     return "usuario";
-  }
-
-  const categoriaAtual = detectarCategoriaAtual();
+  }, [pathname]);
 
   // Escuta novos disparos emitidos pelo Painel Admin
   useEffect(() => {
@@ -76,7 +74,9 @@ export function BroadcastNotificationListener() {
         if (typeof navigator !== "undefined" && "vibrate" in navigator) {
           try {
             navigator.vibrate([100, 50, 100]);
-          } catch {}
+          } catch (_err) {
+            // Ignorado se não permitido
+          }
         }
       }
     }
@@ -85,7 +85,7 @@ export function BroadcastNotificationListener() {
     return () => {
       window.removeEventListener("univans:nova_notificacao_broadcast", handleNovaNotificacao);
     };
-  }, [pathname]);
+  }, [detectarCategoriaAtual]);
 
   // Checar ao montar se há alguma notificação recente não lida
   useEffect(() => {
@@ -103,7 +103,7 @@ export function BroadcastNotificationListener() {
         }
       }
     }
-  }, [pathname]);
+  }, [detectarCategoriaAtual]);
 
   if (!notificacaoAtiva) return null;
 
@@ -123,7 +123,10 @@ export function BroadcastNotificationListener() {
     }
   }
 
-  const badgesCategoria: Record<CategoriaDestinatario, { label: string; bg: string; text: string }> = {
+  const badgesCategoria: Record<
+    CategoriaDestinatario,
+    { label: string; bg: string; text: string }
+  > = {
     todos: { label: "COMUNICADO GERAL", bg: "bg-slate-800", text: "text-slate-100" },
     usuario: { label: "PASSAGEIROS UNIVANS", bg: "bg-emerald-700", text: "text-white" },
     gratis: { label: "PASSE LIVRE & GRATUIDADE", bg: "bg-indigo-700", text: "text-white" },
@@ -162,9 +165,7 @@ export function BroadcastNotificationListener() {
       >
         <div className="flex items-start justify-between gap-2.5">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-white/10 shrink-0">
-              {estilosUrgencia.icone}
-            </div>
+            <div className="p-2 rounded-xl bg-white/10 shrink-0">{estilosUrgencia.icone}</div>
             <div>
               <span
                 className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${infoBadge.bg} ${infoBadge.text}`}

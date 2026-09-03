@@ -18,6 +18,7 @@ Teste de Carga & Estresse: Homologado sob 500 requisições simultâneas (p50: 2
 ================================================================================
 DECLARAÇÃO MANDATÓRIA DE AUSÊNCIA DE PAGAMENTOS (ETAPA V6.1)
 ================================================================================
+
 Conforme diretriz mandatória de engenharia, NENHUM mecanismo ou gateway de
 pagamento foi implementado, adicionado ou ativado nesta etapa (Pix bancário,
 cartão de crédito/débito, Mercado Pago, Stripe, Adyen, gateways de pagamento,
@@ -27,8 +28,9 @@ qualquer PSP). O sistema de reservas opera em modalidade cooperativa operacional
 sem cobrança financeira direta nesta fase.
 
 ================================================================================
+
 1. RESUMO EXECUTIVO DA ARQUITETURA DE ENGENHARIA V6.1
-================================================================================
+   \================================================================================
 
 O UniVans TOS é uma plataforma operacional de missão crítica para gestão integrada
 de cooperativas de transporte intermunicipal, concebida sob o padrão Monólito
@@ -82,91 +84,108 @@ Principais Conquistas Técnicas da Versão 6.1:
    - Verificação em 5 etapas: Lint/TypeScript (`tsc --noEmit`), Testes Automatizados (`npm test`),
      Build de Produção (`npm run build`) e Auditoria de Chaves Privadas no bundle público.
 
-================================================================================
-2. MATRIZ DE TESTES AUTOMATIZADOS (41/41 APROVADOS)
+================================================================================ 2. MATRIZ DE TESTES AUTOMATIZADOS (41/41 APROVADOS)
 ================================================================================
 
 Suite 1: Domain State Machines & Guard Invariants (5 testes) — PASS
-  - Trip: DRAFT -> SCHEDULED -> BOARDING
-  - Trip: Bloqueio DRAFT -> COMPLETED
-  - Ticket: CREATED -> PAID -> ACTIVE -> VALIDATED
-  - Ticket: Anti-replay em validação dupla
-  - Device: Bloqueio de ação em dispositivo revogado
+
+- Trip: DRAFT -> SCHEDULED -> BOARDING
+- Trip: Bloqueio DRAFT -> COMPLETED
+- Ticket: CREATED -> PAID -> ACTIVE -> VALIDATED
+- Ticket: Anti-replay em validação dupla
+- Device: Bloqueio de ação em dispositivo revogado
 
 Suite 2: Zero-Trust Multi-Tenancy & Adversarial RLS (3 testes) — PASS
-  - Bloqueio de leitura cross-tenant
-  - Bloqueio de exclusão cross-tenant
-  - Filtragem estrita de exportação por tenant
+
+- Bloqueio de leitura cross-tenant
+- Bloqueio de exclusão cross-tenant
+- Filtragem estrita de exportação por tenant
 
 Suite 3: Global Idempotency Engine (2 testes) — PASS
-  - Ação START_TRIP repetida executa apenas uma vez
-  - Conflito de payload para mesma chave rejeitado com IDEMPOTENCY_CONFLICT
+
+- Ação START_TRIP repetida executa apenas uma vez
+- Conflito de payload para mesma chave rejeitado com IDEMPOTENCY_CONFLICT
 
 Suite 4: FinOps Minor Units Precision & Balanced Ledger (2 testes) — PASS
-  - Split exato em minor units (centavos inteiros)
-  - Motor de estorno imutável com bloqueio de duplicidade
+
+- Split exato em minor units (centavos inteiros)
+- Motor de estorno imutável com bloqueio de duplicidade
 
 Suite 5: Transactional Outbox, Event Bus & Dead-Letter Queue (1 teste) — PASS
-  - Publicação atômica e despacho idempotente de eventos
+
+- Publicação atômica e despacho idempotente de eventos
 
 Suite 6: SOS Critical Path State Machine & Priority Queue (1 teste) — PASS
-  - Ciclo de vida SOS: CREATED -> ACKNOWLEDGED -> DISPATCHED -> RESOLVED
+
+- Ciclo de vida SOS: CREATED -> ACKNOWLEDGED -> DISPATCHED -> RESOLVED
 
 Suite 7: Circuit Breaker Fault Isolation Engine (2 testes) — PASS
-  - Abertura de circuito e acionamento de fallback sob falhas repetidas
-  - Token bucket rate limiter contra rajadas excessivas
+
+- Abertura de circuito e acionamento de fallback sob falhas repetidas
+- Token bucket rate limiter contra rajadas excessivas
 
 Suite 8: Cryptographic Key Lifecycle & Multi-Version Rotation (2 testes) — PASS
-  - Assinatura com chave ativa verificada com sucesso
-  - Chave revogada bloqueada imediatamente
+
+- Assinatura com chave ativa verificada com sucesso
+- Chave revogada bloqueada imediatamente
 
 Suite 9: Offline Queue Sequence Gaps & Hash Chain (2 testes) — PASS
-  - Detecção de quebra de sequência de eventos offline
-  - Verificação de hash chain criptográfica
+
+- Detecção de quebra de sequência de eventos offline
+- Verificação de hash chain criptográfica
 
 Suite 10: Multi-Variable Telemetry & Anomaly Scoring Engine (2 testes) — PASS
-  - Telemetria de trajeto aceita em condições nominais
-  - Detecção de salto de teleporte (> 180 km/h) classificada como CRITICAL
+
+- Telemetria de trajeto aceita em condições nominais
+- Detecção de salto de teleporte (> 180 km/h) classificada como CRITICAL
 
 Suite 11: Real In-Process Concurrency Benchmark (1 teste) — PASS
-  - 1.000 iterações de split contábil em 1ms (p95 < 20ms)
+
+- 1.000 iterações de split contábil em 1ms (p95 < 20ms)
 
 Suite 12: Authentic Ed25519 Cryptography (RFC 8032) (2 testes) — PASS
-  - Assinatura de 64 bytes válida
-  - Adulteração de payload detectada e rejeitada
+
+- Assinatura de 64 bytes válida
+- Adulteração de payload detectada e rejeitada
 
 Suite 13: Financial Webhook HMAC-SHA256 Anti-Tamper & Anti-Replay (3 testes) — PASS
-  - Validação de integridade HMAC-SHA256
-  - Rejeição de timestamp expirado (> 5min)
-  - Rejeição de payload adulterado
+
+- Validação de integridade HMAC-SHA256
+- Rejeição de timestamp expirado (> 5min)
+- Rejeição de payload adulterado
 
 Suite 14: Strict Double-Entry Bookkeeping Ledger (3 testes) — PASS
-  - SUM(Débitos) === SUM(Créditos) em entrada de escrow
-  - Balanço contábil exato em split de viagem
-  - Transação desbalanceada aborta imediatamente
+
+- SUM(Débitos) === SUM(Créditos) em entrada de escrow
+- Balanço contábil exato em split de viagem
+- Transação desbalanceada aborta imediatamente
 
 Suite 15: Server-Side Ticket Issuance & Zero Private Key Client Leak (3 testes) — PASS
-  - Módulo client offline-ticket-crypto não exporta chave privada
-  - Emissão e assinatura server-side via Ed25519
-  - Validação offline nos totens exclusivamente com chave pública
+
+- Módulo client offline-ticket-crypto não exporta chave privada
+- Emissão e assinatura server-side via Ed25519
+- Validação offline nos totens exclusivamente com chave pública
 
 Suite 16: Atomic Seat Reservation & Concurrency Overbooking Preventor (1 teste) — PASS
-  - 100 requisições simultâneas por 1 vaga: exatamente 1 aprovada e 99 rejeitadas
+
+- 100 requisições simultâneas por 1 vaga: exatamente 1 aprovada e 99 rejeitadas
 
 Suite 17: Outbox Worker Engine, Exponential Backoff & DLQ Dispatch (2 testes) — PASS
-  - Escalonamento de backoff exponencial com teto máximo
-  - Transferência atômica para DLQ após esgotamento de tentativas
+
+- Escalonamento de backoff exponencial com teto máximo
+- Transferência atômica para DLQ após esgotamento de tentativas
 
 Suite 18: SOS Security Hardening & Tenant Anti-Flood Guards (1 teste) — PASS
-  - Bloqueio de chamados anônimos ou sem dados mínimos de solicitante
+
+- Bloqueio de chamados anônimos ou sem dados mínimos de solicitante
 
 Suite 19: GPS Geographic Deadband & Database Write Throttle (3 testes) — PASS
-  - Van parada (deslocamento < 20m e tempo < 15s) bloqueia escrita redundante no Postgres
-  - Van em movimento (deslocamento >= 20m) aprova transmissão imediata de telemetria
-  - Heartbeat temporal: van parada por mais de 15s transmite para comprovar liveness
 
-================================================================================
-3. RESULTADOS DO TESTE DE CARGA DE CONCORRÊNCIA REAL (BENCHMARK)
+- Van parada (deslocamento < 20m e tempo < 15s) bloqueia escrita redundante no Postgres
+- Van em movimento (deslocamento >= 20m) aprova transmissão imediata de telemetria
+- Heartbeat temporal: van parada por mais de 15s transmite para comprovar liveness
+
+================================================================================ 3. RESULTADOS DO TESTE DE CARGA DE CONCORRÊNCIA REAL (BENCHMARK)
 ================================================================================
 
 Executado via `npm run test:load`:
@@ -177,10 +196,10 @@ Executado via `npm run test:load`:
    - Vagas Rejeitadas: 485 / 485
    - Invariante Anti-Overbooking: 100% PRESERVADA (ZERO OVERBOOKING)
    - Percentis de Latência:
-     * p50: 23.59 ms
-     * p90: 25.34 ms
-     * p95: 25.72 ms
-     * p99: 26.01 ms
+     - p50: 23.59 ms
+     - p90: 25.34 ms
+     - p95: 25.72 ms
+     - p99: 26.01 ms
 
 2. Ingestão de GPS de 100 Vans com Deadband (1.000 transmissões):
    - Tempo para processar 1.000 coordenadas: 2.69 ms
@@ -191,11 +210,11 @@ Executado via `npm run test:load`:
    - Throughput de Ingestão: 101.373 pacotes/segundo
    - Taxa de Detecção de GPS Spoofing/Teleporte: 100% de precisão
 
-================================================================================
-4. ARQUIVOS MODIFICADOS E CRIADOS
+================================================================================ 4. ARQUIVOS MODIFICADOS E CRIADOS
 ================================================================================
 
 Arquivos Novos Criados:
+
 - `src/lib/public-key-registry.ts`: Repositório de chaves públicas seguras para o client.
 - `src/lib/signing-key-provider.server.ts`: Provedor seguro de chaves privadas para o servidor.
 - `src/lib/ticket-signing.server.ts`: Server function de emissão de bilhetes assinados.
@@ -206,6 +225,7 @@ Arquivos Novos Criados:
 - `.github/workflows/ci.yml`: Pipeline de CI/CD automatizada.
 
 Arquivos Modificados:
+
 - `src/routes/app.motorista.tsx`: Deadband geográfico no GPS da van; redução de 90% de writes no banco.
 - `src/lib/telemetry-pipeline.ts`: Exportação de `deveTransmitirGpsDeadband` e `calcularDistanciaMetros`.
 - `src/server.ts`: Ativação do Outbox Daemon em segundo plano e manipulador `scheduled`.
@@ -221,6 +241,7 @@ Arquivos Modificados:
 ================================================================================
 CERTIFICADO DE CONFORMIDADE TÉCNICA
 ================================================================================
+
 Atesto que o UniVans TOS encontra-se em total conformidade com os requisitos de
 arquitetura de missão crítica, com 41 testes executados e aprovados, compilação
 estrita sem erros, teste de carga sob concorrência de 500 requisições simultâneas

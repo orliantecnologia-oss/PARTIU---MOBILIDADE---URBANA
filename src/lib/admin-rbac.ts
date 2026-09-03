@@ -331,7 +331,12 @@ export function isOwner(roleOverride?: AdminRole): boolean {
   return (roleOverride || getAdminRole()) === "OWNER";
 }
 
-export function getRoleMetadata(role: AdminRole): { label: string; titulo: string; badgeColor: string; description: string } {
+export function getRoleMetadata(role: AdminRole): {
+  label: string;
+  titulo: string;
+  badgeColor: string;
+  description: string;
+} {
   switch (role) {
     case "OWNER":
       return {
@@ -401,6 +406,7 @@ export function atualizarCredenciaisContaAtiva(
 ): { sucesso: boolean; mensagem: string } {
   return {
     sucesso: true,
-    mensagem: "Para atualizar credenciais permanentemente, use o fluxo de recuperação de conta no Supabase Auth.",
+    mensagem:
+      "Para atualizar credenciais permanentemente, use o fluxo de recuperação de conta no Supabase Auth.",
   };
 }

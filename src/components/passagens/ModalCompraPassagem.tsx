@@ -221,7 +221,9 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
     setProcessandoPagamento(true);
 
     const codigoBilhete = "UV-" + Math.floor(100000 + Math.random() * 900000);
-    const pontoEmbarqueNome = pontoEmbarqueEscolhido ? pontoEmbarqueEscolhido.nome : "Trevo Tabuleiro";
+    const pontoEmbarqueNome = pontoEmbarqueEscolhido
+      ? pontoEmbarqueEscolhido.nome
+      : "Trevo Tabuleiro";
 
     // 1. Emissão e Assinatura Criptográfica Ed25519 Segura via Server Function (Chave privada isolada no servidor)
     let qrPayload = `UNIVANS:${codigoBilhete}:${viagem?.placa || "VAN"}`;

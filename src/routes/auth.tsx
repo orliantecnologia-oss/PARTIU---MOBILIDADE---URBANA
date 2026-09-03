@@ -24,12 +24,14 @@ export const Route = createFileRoute("/auth")({
       { title: "Entrar ou Cadastrar | UniVans" },
       {
         name: "description",
-        content: "Acesse sua conta com seu número de celular para comprar passagens e acompanhar sua van em tempo real.",
+        content:
+          "Acesse sua conta com seu número de celular para comprar passagens e acompanhar sua van em tempo real.",
       },
       { property: "og:title", content: "Entrar | UniVans" },
       {
         property: "og:description",
-        content: "Acesse sua conta com seu número de celular para comprar passagens e acompanhar sua van em tempo real.",
+        content:
+          "Acesse sua conta com seu número de celular para comprar passagens e acompanhar sua van em tempo real.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -360,7 +362,9 @@ export function AuthPage() {
                   </div>
 
                   {erro && <p className="text-xs sm:text-sm font-semibold text-rose-600">{erro}</p>}
-                  {aviso && <p className="text-xs sm:text-sm font-semibold text-emerald-600">{aviso}</p>}
+                  {aviso && (
+                    <p className="text-xs sm:text-sm font-semibold text-emerald-600">{aviso}</p>
+                  )}
 
                   <button
                     type="submit"
@@ -372,7 +376,10 @@ export function AuthPage() {
                   </button>
                 </form>
               ) : (
-                <form onSubmit={handleConfirmarCodigoOtp} className="space-y-3.5 animate-in fade-in">
+                <form
+                  onSubmit={handleConfirmarCodigoOtp}
+                  className="space-y-3.5 animate-in fade-in"
+                >
                   <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-1">
                     <span className="text-xs font-black text-[#0d5930] block">
                       Código enviado para {celular}
@@ -403,7 +410,9 @@ export function AuthPage() {
                   </div>
 
                   {erro && <p className="text-xs sm:text-sm font-semibold text-rose-600">{erro}</p>}
-                  {aviso && <p className="text-xs sm:text-sm font-semibold text-emerald-600">{aviso}</p>}
+                  {aviso && (
+                    <p className="text-xs sm:text-sm font-semibold text-emerald-600">{aviso}</p>
+                  )}
 
                   <button
                     type="submit"
@@ -482,7 +491,9 @@ export function AuthPage() {
               </div>
 
               {erro && <p className="text-xs sm:text-sm font-semibold text-rose-600">{erro}</p>}
-              {aviso && <p className="text-xs sm:text-sm font-semibold text-emerald-600">{aviso}</p>}
+              {aviso && (
+                <p className="text-xs sm:text-sm font-semibold text-emerald-600">{aviso}</p>
+              )}
 
               <button
                 type="submit"

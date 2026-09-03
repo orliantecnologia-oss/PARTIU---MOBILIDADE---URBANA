@@ -40,7 +40,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   if (
     error &&
     typeof error === "object" &&
-    ("options" in error || "isSerializedRedirect" in error || (error as any).status === 307 || (error as any).status === 302)
+    ("options" in error ||
+      "isSerializedRedirect" in error ||
+      (error as any).status === 307 ||
+      (error as any).status === 302)
   ) {
     throw error;
   }

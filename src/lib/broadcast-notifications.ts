@@ -54,7 +54,8 @@ const mocksIniciais: NotificacaoBroadcast[] = [
   {
     id: "notif-003",
     titulo: "Aviso de Fiscalização no Trevo da Massagueira",
-    mensagem: "Equipe do BPRv realizando blitz de rotina. Mantenha manifesto de passageiros e tacógrafo em dia.",
+    mensagem:
+      "Equipe do BPRv realizando blitz de rotina. Mantenha manifesto de passageiros e tacógrafo em dia.",
     categoria: "motorista",
     urgencia: "alerta",
     rotaDestino: "/app/motorista",
@@ -65,7 +66,7 @@ const mocksIniciais: NotificacaoBroadcast[] = [
 ];
 
 let memoriaNotificacoes: NotificacaoBroadcast[] = [...mocksIniciais];
-let memoriaLidas = new Set<string>();
+const memoriaLidas = new Set<string>();
 
 /**
  * Templates pré-configurados para disparo rápido pelo administrador
@@ -170,9 +171,7 @@ export function obterNotificacoesParaCategoria(
   categoriaUsuario: "usuario" | "gratis" | "motorista",
 ): NotificacaoBroadcast[] {
   const todas = listarNotificacoesBroadcast();
-  return todas.filter(
-    (n) => n.categoria === "todos" || n.categoria === categoriaUsuario,
-  );
+  return todas.filter((n) => n.categoria === "todos" || n.categoria === categoriaUsuario);
 }
 
 /**

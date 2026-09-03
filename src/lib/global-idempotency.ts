@@ -178,10 +178,13 @@ export async function executeWithIdempotency<T>(
 
     // Atualizar resultado no PostgreSQL
     try {
-      await supabase.from("idempotency_keys").update({
-        status: "COMMITTED",
-        response_payload: (result as any) ?? null,
-      }).eq("key", idempotencyKey);
+      await supabase
+        .from("idempotency_keys")
+        .update({
+          status: "COMMITTED",
+          response_payload: (result as any) ?? null,
+        })
+        .eq("key", idempotencyKey);
     } catch {
       // Ignora erro de rede pós-execução
     }
@@ -192,9 +195,12 @@ export async function executeWithIdempotency<T>(
     LOCAL_FALLBACK_STORE.set(idempotencyKey, record as IdempotencyRecord<unknown>);
 
     try {
-      await supabase.from("idempotency_keys").update({
-        status: "REJECTED",
-      }).eq("key", idempotencyKey);
+      await supabase
+        .from("idempotency_keys")
+        .update({
+          status: "REJECTED",
+        })
+        .eq("key", idempotencyKey);
     } catch {
       // Ignora
     }

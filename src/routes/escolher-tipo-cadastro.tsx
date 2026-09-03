@@ -75,7 +75,9 @@ export function EscolherTipoCadastroPage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm sm:text-base font-black text-slate-900">Sou Passageiro</p>
-              <p className="text-xs text-slate-500 font-medium">Encontrar rotas, horários e viajar</p>
+              <p className="text-xs text-slate-500 font-medium">
+                Encontrar rotas, horários e viajar
+              </p>
             </div>
             <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-[#0d5930] transition-transform group-hover:translate-x-1" />
           </Link>
@@ -105,7 +107,9 @@ export function EscolherTipoCadastroPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5 flex-wrap">
-                <p className="text-sm sm:text-base font-black text-slate-900">Passe Livre Governamental</p>
+                <p className="text-sm sm:text-base font-black text-slate-900">
+                  Passe Livre Governamental
+                </p>
                 <span className="text-xs font-black uppercase text-[#0d5930] bg-emerald-100 px-2 py-0.5 rounded">
                   Lei 100% Gratuito
                 </span>
@@ -126,8 +130,12 @@ export function EscolherTipoCadastroPage() {
               <Clock className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm sm:text-base font-black text-slate-900">Consultar Horários & Linhas</p>
-              <p className="text-xs text-slate-500 font-medium">Ver próximas saídas e vagas livres</p>
+              <p className="text-sm sm:text-base font-black text-slate-900">
+                Consultar Horários & Linhas
+              </p>
+              <p className="text-xs text-slate-500 font-medium">
+                Ver próximas saídas e vagas livres
+              </p>
             </div>
             <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-amber-600 transition-transform group-hover:translate-x-1" />
           </Link>

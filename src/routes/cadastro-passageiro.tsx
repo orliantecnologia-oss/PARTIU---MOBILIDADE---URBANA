@@ -107,7 +107,9 @@ export function CadastroPassageiroPage() {
             className="rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-7 shadow-xl border border-slate-200/80 space-y-3.5"
           >
             <div className="text-left border-b border-slate-100 pb-3">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">Crie sua Conta</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
+                Crie sua Conta
+              </h1>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
                 Reserve vagas, avise o motorista no ponto e pague via PIX
               </p>

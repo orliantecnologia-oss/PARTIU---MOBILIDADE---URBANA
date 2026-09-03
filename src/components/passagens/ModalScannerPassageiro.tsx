@@ -191,7 +191,9 @@ export function ModalScannerPassageiro({ aberto, onFechar, bilheteId, onSucesso 
                   {resultado.sucesso ? "Embarque Confirmado!" : "Embarque Não Permitido"}
                 </strong>
               </div>
-              <p className="text-xs sm:text-sm leading-relaxed font-semibold">{resultado.mensagem}</p>
+              <p className="text-xs sm:text-sm leading-relaxed font-semibold">
+                {resultado.mensagem}
+              </p>
               {resultado.sucesso && resultado.bilhete && (
                 <div className="pt-2 border-t border-emerald-200 text-xs font-bold flex items-center justify-between">
                   <span>Passageiro: {resultado.bilhete.passageiroNome}</span>
