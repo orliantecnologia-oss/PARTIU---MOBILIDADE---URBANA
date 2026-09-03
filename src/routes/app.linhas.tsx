@@ -219,31 +219,31 @@ export function LinhasPassagensScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] text-slate-900 pb-10">
+    <div className="min-h-[100dvh] bg-[#f8faf9] text-slate-900 pb-[calc(7rem+env(safe-area-inset-bottom,0px))]">
       {/* ═══ 1. HEADER COMPACTO COM INDICADOR LIVE ═══ */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-3 sm:px-4 py-2 border-b border-slate-200/80 shadow-2xs">
+      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-3 sm:px-4 py-2.5 border-b border-slate-200/80 shadow-2xs">
         <div className="w-full max-w-2xl mx-auto flex items-center justify-between">
           <Link
             to="/app"
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition-all"
+            className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer shadow-2xs"
+            aria-label="Voltar para a página inicial"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="text-center">
-            <h1 className="text-[13px] font-bold text-slate-900 tracking-tight">
-              Linhas e horários
-            </h1>
-            <span className="text-[10px] text-emerald-700 font-semibold flex items-center justify-center gap-1">
+            <h1 className="text-sm font-bold text-slate-900 tracking-tight">Linhas e horários</h1>
+            <span className="text-xs text-emerald-700 font-semibold flex items-center justify-center gap-1">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Dados atualizados em tempo real
+              Tempo real
             </span>
           </div>
           <Link
             to="/app/viagem"
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-[#0d5930] hover:bg-emerald-100 transition-all"
+            className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-[#0d5930] hover:bg-emerald-100 active:scale-95 transition-all cursor-pointer shadow-2xs"
             title="Minhas Passagens"
+            aria-label="Minhas Passagens"
           >
-            <Ticket className="h-4 w-4" />
+            <Ticket className="h-5 w-5" />
           </Link>
         </div>
       </header>
