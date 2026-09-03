@@ -132,15 +132,16 @@ export function BilhetesPassageiroScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] text-slate-900 pb-12">
+    <div className="min-h-[100dvh] bg-[#f8faf9] text-slate-900 pb-[calc(7rem+env(safe-area-inset-bottom,0px))]">
       {/* 1. CABEÇALHO DA CENTRAL DE BILHETES */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-2 sm:px-4 py-2.5 border-b border-slate-200/80 shadow-2xs">
         <div className="w-full max-w-full sm:max-w-2xl mx-auto flex items-center justify-between">
           <Link
             to="/app"
-            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer"
+            className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition-all cursor-pointer shadow-2xs"
+            aria-label="Voltar para a Home"
           >
-            <ArrowLeft className="h-4.5 w-4.5" />
+            <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="text-center">
             <h1 className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-tight">
@@ -153,10 +154,11 @@ export function BilhetesPassageiroScreen() {
           </div>
           <Link
             to="/app/linhas"
-            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-emerald-50 text-[#0d5930] border border-emerald-200 hover:bg-emerald-100 active:scale-95 transition-all cursor-pointer"
+            className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-[#0d5930] border border-emerald-200 hover:bg-emerald-100 active:scale-95 transition-all cursor-pointer shadow-2xs"
             title="Comprar Nova Passagem"
+            aria-label="Comprar Nova Passagem"
           >
-            <Ticket className="h-4.5 w-4.5" />
+            <Ticket className="h-5 w-5" />
           </Link>
         </div>
       </header>

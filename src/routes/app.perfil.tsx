@@ -143,7 +143,7 @@ export function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8faf8] text-slate-900 pb-28">
+    <div className="min-h-[100dvh] bg-[#f8faf8] text-slate-900 pb-[calc(7rem+env(safe-area-inset-bottom,0px))]">
       {/* 1. Top Header com a Paleta Oficial Verde Cooperativa */}
       <div className="relative bg-gradient-to-br from-[#0d5930] via-[#116e3c] to-[#094223] px-5 pt-6 pb-12 text-white rounded-b-[2.8rem] shadow-xl overflow-hidden">
         <div className="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#f5a623]/25 blur-3xl pointer-events-none" />
@@ -152,7 +152,8 @@ export function ProfilePage() {
         <div className="relative z-10 flex items-center justify-between mb-6">
           <Link
             to="/app"
-            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl text-white border border-white/20 hover:bg-white/30 active:scale-95 transition-all"
+            className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-xl text-white border border-white/20 hover:bg-white/30 active:scale-95 transition-all shadow-2xs cursor-pointer"
+            aria-label="Voltar para a Home"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -160,7 +161,7 @@ export function ProfilePage() {
           <button
             type="button"
             onClick={salvarDadosPerfil}
-            className="rounded-full bg-white/20 backdrop-blur-xl px-4 py-1.5 text-xs font-black text-white border border-white/30 hover:bg-white/30 active:scale-95 transition-all"
+            className="min-h-[40px] px-5 py-2 rounded-full bg-white/20 backdrop-blur-xl text-xs sm:text-sm font-black text-white border border-white/30 hover:bg-white/30 active:scale-95 transition-all cursor-pointer shadow-2xs"
           >
             Salvar
           </button>
@@ -233,20 +234,20 @@ export function ProfilePage() {
               type="text"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              className="w-full rounded-2xl bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-900 border border-slate-200 focus:border-[#0d5930] focus:bg-white outline-none transition-all"
+              className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2.5 text-sm sm:text-base font-medium text-slate-900 border border-slate-200 focus:border-[#0d5930] focus:bg-white outline-none transition-all"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-2.5">
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 mb-1">
+              <label className="block text-xs font-bold text-slate-500 mb-1.5">
                 Telefone WhatsApp
               </label>
               <input
                 type="text"
                 value={telefone}
                 onChange={(e) => setTelefone(e.target.value)}
-                className="w-full rounded-2xl bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-900 border border-slate-200 focus:border-[#0d5930] focus:bg-white outline-none transition-all"
+                className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2.5 text-sm sm:text-base font-medium text-slate-900 border border-slate-200 focus:border-[#0d5930] focus:bg-white outline-none transition-all"
               />
             </div>
             <div>

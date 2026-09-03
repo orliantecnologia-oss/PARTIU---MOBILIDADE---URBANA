@@ -76,8 +76,24 @@ function vagasCor(vagas: number, esgotado: boolean) {
 }
 
 export function LinhasPassagensScreen() {
-  const [busca, setBusca] = useState("");
-  const [cidadeSelecionada, setCidadeSelecionada] = useState("Todas");
+  const [busca, setBusca] = useState(() => {
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get("busca") || sp.get("destino") || "";
+    }
+    return "";
+  });
+  const [cidadeSelecionada, setCidadeSelecionada] = useState(() => {
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      const c = sp.get("cidade") || sp.get("destino");
+      if (c) {
+        const match = CIDADES_FILTRO.find((item) => item.toLowerCase() === c.toLowerCase());
+        if (match) return match;
+      }
+    }
+    return "Todas";
+  });
 
   const hojeIso = new Date().toISOString().split("T")[0]!;
   const amanhaDate = new Date();

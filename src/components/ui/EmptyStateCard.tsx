@@ -40,7 +40,7 @@ export function EmptyStateCard({
           {acaoLink ? (
             <Link
               to={acaoLink}
-              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-xs font-black shadow-sm active:scale-95 transition-all hover:brightness-105"
+              className="inline-flex items-center justify-center min-h-[48px] h-12 px-6 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-sm font-black shadow-md shadow-emerald-950/20 active:scale-95 transition-all hover:brightness-105 cursor-pointer"
             >
               {acaoTexto}
             </Link>
@@ -48,7 +48,7 @@ export function EmptyStateCard({
             <button
               type="button"
               onClick={onAcaoClique}
-              className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-xs font-black shadow-sm active:scale-95 transition-all hover:brightness-105"
+              className="inline-flex items-center justify-center min-h-[48px] h-12 px-6 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-sm font-black shadow-md shadow-emerald-950/20 active:scale-95 transition-all hover:brightness-105 cursor-pointer"
             >
               {acaoTexto}
             </button>

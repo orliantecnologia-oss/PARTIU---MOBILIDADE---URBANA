@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Compass,
@@ -98,10 +98,10 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex min-h-[38px] min-w-[38px] h-9 w-9 items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/20 active:scale-95 transition-all cursor-pointer"
+                className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/20 active:scale-95 transition-all cursor-pointer shadow-2xs"
                 aria-label="Fechar Menu"
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </button>
             </div>
 
@@ -313,18 +313,18 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
               href="https://wa.me/5582988727777?text=Olá,%20preciso%20de%20ajuda%20com%20minha%20viagem%20na%20UniVans."
               target="_blank"
               rel="noopener noreferrer"
-              className="flex min-h-[40px] h-10 w-full items-center justify-center gap-2 rounded-xl bg-emerald-50 text-[#0d5930] hover:bg-emerald-100 border border-emerald-200 text-xs font-black active:scale-95 transition-all cursor-pointer"
+              className="flex min-h-[44px] h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-50 text-[#0d5930] hover:bg-emerald-100 border border-emerald-200 text-xs sm:text-sm font-black active:scale-95 transition-all cursor-pointer shadow-2xs"
             >
-              <MessageCircle className="h-3.5 w-3.5" />
+              <MessageCircle className="h-4 w-4" />
               <span>Suporte WhatsApp 24h</span>
             </a>
 
             <button
               type="button"
               onClick={handleLogout}
-              className="flex min-h-[40px] h-10 w-full items-center justify-center gap-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 text-xs font-bold active:scale-95 transition-all cursor-pointer"
+              className="flex min-h-[44px] h-11 w-full items-center justify-center gap-2 rounded-xl bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 text-xs sm:text-sm font-bold active:scale-95 transition-all cursor-pointer shadow-2xs"
             >
-              <LogOut className="h-3.5 w-3.5" />
+              <LogOut className="h-4 w-4" />
               <span>Desconectar da Conta</span>
             </button>
 

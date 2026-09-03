@@ -239,7 +239,7 @@ export function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full">
+    <div className="min-h-[100dvh] bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       {/* Top Header */}
       <div className="mx-auto w-full max-w-full sm:max-w-md flex items-center justify-between px-1 sm:px-0">
         <Link

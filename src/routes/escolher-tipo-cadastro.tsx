@@ -31,14 +31,15 @@ export function EscolherTipoCadastroPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full">
+    <div className="min-h-[100dvh] bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       {/* Top Header com Voltar */}
       <div className="mx-auto w-full max-w-full sm:max-w-md flex items-center justify-between px-1 sm:px-0">
         <Link
           to="/"
-          className="flex h-9 w-9 items-center justify-center rounded-lg sm:rounded-xl bg-white border border-slate-200 text-slate-700 shadow-xs"
+          className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-700 shadow-2xs active:scale-95 transition-all cursor-pointer"
+          aria-label="Voltar para a página inicial"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-5 w-5" />
         </Link>
         <span className="text-xs font-black uppercase tracking-wider text-[#0d5930]">
           Selecione seu Perfil

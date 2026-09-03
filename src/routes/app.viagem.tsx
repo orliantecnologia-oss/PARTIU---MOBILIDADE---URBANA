@@ -125,7 +125,7 @@ export function ViagemAoVivoPassageiro() {
 
   if (!temAcessoRadar) {
     return (
-      <div className="flex flex-col min-h-screen bg-[#f8faf9] text-slate-900 justify-between p-2 sm:p-6 w-full">
+      <div className="flex flex-col min-h-[100dvh] bg-[#f8faf9] text-slate-900 justify-between p-2 sm:p-6 w-full pb-[max(2rem,env(safe-area-inset-bottom,0px))]">
         {/* Cabeçalho */}
         <header className="w-full max-w-full sm:max-w-2xl mx-auto flex items-center justify-between">
           <Link
@@ -198,7 +198,7 @@ export function ViagemAoVivoPassageiro() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#f8faf9] text-slate-900 pb-36">
+    <div className="flex flex-col min-h-[100dvh] bg-[#f8faf9] text-slate-900 pb-[calc(8rem+env(safe-area-inset-bottom,0px))]">
       {/* 1. CABEÇALHO DO RADAR AO VIVO */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md px-2 sm:px-4 py-2.5 border-b border-slate-200/80 shadow-2xs flex items-center justify-between">
         <div className="flex items-center gap-2">

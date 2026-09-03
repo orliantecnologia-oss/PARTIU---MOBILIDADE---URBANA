@@ -445,7 +445,17 @@ export function AppHomeScreen() {
           {/* CTA PRINCIPAL: CONSULTAR HORÁRIOS & COMPRAR PASSAGEM */}
           <button
             type="button"
-            onClick={() => navigate({ to: "/app/linhas" })}
+            onClick={() =>
+              navigate({
+                to: "/app/linhas",
+                search: {
+                  origem,
+                  destino,
+                  busca: destino,
+                  cidade: destino,
+                } as any,
+              })
+            }
             className="w-full mt-3 flex items-center justify-center gap-2 min-h-[48px] h-12 py-2 px-5 rounded-xl bg-gradient-to-r from-[#0d5930] via-[#126839] to-[#0b2046] hover:brightness-110 active:scale-[0.98] text-white text-xs sm:text-sm font-black uppercase tracking-wider shadow-md shadow-emerald-950/20 transition-all cursor-pointer group"
           >
             <Search className="h-4.5 w-4.5 text-amber-300 group-hover:scale-110 transition-transform" />

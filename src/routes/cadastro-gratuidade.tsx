@@ -52,14 +52,15 @@ export function CadastroGratuidadePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-between p-3 text-slate-900 w-full max-w-md mx-auto">
+    <div className="min-h-[100dvh] bg-[#f8faf9] flex flex-col justify-between p-3 sm:p-4 text-slate-900 w-full max-w-md mx-auto pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
       {/* 1. CABEÇALHO */}
       <header className="w-full flex items-center justify-between py-1">
         <Link
           to="/escolher-tipo-cadastro"
-          className="flex h-9 w-9 items-center justify-center rounded-lg sm:rounded-xl bg-white border border-slate-200 text-slate-700 shadow-xs active:scale-95 transition-all"
+          className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-700 shadow-2xs active:scale-95 transition-all cursor-pointer"
+          aria-label="Voltar para a escolha de perfil"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-5 w-5" />
         </Link>
         <span className="text-xs font-black uppercase tracking-wider text-[#0d5930] flex items-center gap-1.5">
           <ShieldCheck className="h-4 w-4 text-emerald-600" />
@@ -102,7 +103,7 @@ export function CadastroGratuidadePage() {
             <button
               type="button"
               onClick={() => navigate({ to: "/app/linhas" })}
-              className="w-full min-h-9.5 h-9.5 sm:h-10 py-1.5 px-5 rounded-lg bg-[#0d5930] hover:bg-[#147a44] text-white text-xs sm:text-sm font-black shadow-xs active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full min-h-[48px] h-12 py-2 px-5 rounded-xl bg-[#0d5930] hover:bg-[#147a44] text-white text-sm font-black shadow-md shadow-emerald-950/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Ver Horários &amp; Reservar Assento Gratuito</span>
               <ChevronRight className="h-4 w-4" />
