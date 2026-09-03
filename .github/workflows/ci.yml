@@ -1,0 +1,49 @@
+name: UniVans TOS — CI/CD Production Readiness Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-build:
+    name: Typecheck, Security Tests & Production Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Runtime (v22 LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 1. Strict TypeScript Validation (tsc --noEmit)
+        run: npx tsc --noEmit
+
+      - name: 2. Security & Domain Certification Test Suite (npm test)
+        run: npm test
+
+      - name: 3. Nitro SSR Production Build (npm run build)
+        run: npm run build
+
+      - name: 4. Client Bundle Secret Scan Verification
+        run: |
+          echo "Verificando se nenhuma chave privada vazou no bundle de produção..."
+          if grep -rnw ".output/public" -e "BEGIN PRIVATE KEY" 2>/dev/null; then
+            echo "CRITICAL SECURITY ERROR: Chave privada detectada no bundle client!"
+            exit 1
+          else
+            echo "CONFIRMADO: Zero chaves privadas no bundle client compilado."
+          fi

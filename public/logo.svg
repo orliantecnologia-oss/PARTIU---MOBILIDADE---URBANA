@@ -1,0 +1,259 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 250" fill="none">
+  <defs>
+    <!-- Filtro de Sombra 3D Profunda & Realista -->
+    <filter id="shadow3D" x="-10%" y="-10%" width="135%" height="135%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.55" />
+      <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.3" />
+    </filter>
+
+    <!-- Brilho Ambiente Esmeralda -->
+    <filter id="emeraldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="glow" />
+      <feComposite in="SourceGraphic" in2="glow" operator="over" />
+    </filter>
+
+    <!-- Gradiente Metálico Azul Marinho 3D (UNI) -->
+    <linearGradient id="navy3D" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#5dade2" />
+      <stop offset="12%" stop-color="#2874a6" />
+      <stop offset="45%" stop-color="#1b4f72" />
+      <stop offset="85%" stop-color="#0e2f44" />
+      <stop offset="100%" stop-color="#081c2a" />
+    </linearGradient>
+
+    <!-- Bevel Superior Chrome para o Azul -->
+    <linearGradient id="navyBevel" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
+      <stop offset="50%" stop-color="#5dade2" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#1b4f72" stop-opacity="0.8" />
+    </linearGradient>
+
+    <!-- Gradiente Metálico Verde Esmeralda 3D (VANS) -->
+    <linearGradient id="emerald3D" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a7f3d0" />
+      <stop offset="12%" stop-color="#34d399" />
+      <stop offset="42%" stop-color="#10b981" />
+      <stop offset="75%" stop-color="#059669" />
+      <stop offset="95%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#022c22" />
+    </linearGradient>
+
+    <!-- Brilho de Vidro Superior (Glass Specular Highlight) -->
+    <linearGradient id="glassReflection" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.25" />
+      <stop offset="55%" stop-color="#ffffff" stop-opacity="0.0" />
+    </linearGradient>
+
+    <!-- Gradiente Asfalto da Rodovia 3D -->
+    <linearGradient id="roadAsphalt" x1="0%" y1="100%" x2="50%" y2="0%">
+      <stop offset="0%" stop-color="#09131f" />
+      <stop offset="50%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#334155" />
+    </linearGradient>
+
+    <!-- Bordas da Pista Verde Neon -->
+    <linearGradient id="curbGreen" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="50%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#6ee7b7" />
+    </linearGradient>
+
+    <!-- Gradiente Dourado Realista -->
+    <linearGradient id="goldReal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="35%" stop-color="#f59e0b" />
+      <stop offset="70%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#92400e" />
+    </linearGradient>
+
+    <!-- Gradiente do Banner Inferior -->
+    <linearGradient id="bannerBg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#071833" />
+      <stop offset="50%" stop-color="#0a254d" />
+      <stop offset="100%" stop-color="#071833" />
+    </linearGradient>
+  </defs>
+
+  <!-- GRUPO PRINCIPAL COM PERSPECTIVA DINÂMICA (ITALIC / SKEW -8°) E SOMBRA 3D -->
+  <g filter="url(#shadow3D)">
+
+    <!-- ======================================================== -->
+    <!-- 1. LETRA 'U' COM A RODOVIA 3D EM PERSPECTIVA CURVADA     -->
+    <!-- ======================================================== -->
+    <g transform="translate(18, 12)">
+      <!-- Fundo Estrutural da Letra U (Haste Direita e Base) -->
+      <path d="M72 10 L108 10 L108 92 C108 112 90 126 62 126 C36 126 16 114 8 96 L42 96 C46 102 54 105 62 105 C70 105 76 100 76 92 L76 10 Z" 
+            fill="url(#navy3D)" />
+      <!-- Bevel Superior na Haste Direita -->
+      <polygon points="72,10 108,10 105,14 75,14" fill="#ffffff" fill-opacity="0.8" />
+
+      <!-- Pista Asfáltica Curvada 3D que corta a perna esquerda do U -->
+      <path d="M6 108 C 10 75, 45 42, 106 32 L106 42 C 55 52, 28 80, 24 108 Z" 
+            fill="url(#roadAsphalt)" />
+
+      <!-- Borda Verde Externa da Rodovia -->
+      <path d="M4 110 C 8 73, 44 39, 107 29 L107 33 C 46 43, 11 76, 7 110 Z" 
+            fill="url(#curbGreen)" />
+
+      <!-- Borda Verde Interna da Rodovia -->
+      <path d="M23 108 C 27 82, 54 53, 106 43 L106 47 C 57 56, 31 84, 27 108 Z" 
+            fill="url(#curbGreen)" />
+
+      <!-- Faixas Brancas Pintadas no Asfalto (Perspectiva Acelerada) -->
+      <polygon points="12,108 15,108 26,98 23,98" fill="#ffffff" opacity="0.95" />
+      <polygon points="28,94 31,94 43,84 40,84" fill="#ffffff" opacity="0.95" />
+      <polygon points="48,80 51,80 63,72 60,72" fill="#ffffff" opacity="0.95" />
+      <polygon points="68,69 71,69 82,62 80,62" fill="#ffffff" opacity="0.95" />
+      <polygon points="86,59 88,59 96,54 94,54" fill="#ffffff" opacity="0.95" />
+      <polygon points="98,52 100,52 106,48 105,48" fill="#ffffff" opacity="0.95" />
+
+      <!-- Haste Esquerda Traseira do U -->
+      <polygon points="10,10 46,10 46,55 10,72" fill="url(#navy3D)" />
+      <polygon points="10,10 46,10 43,14 13,14" fill="#ffffff" fill-opacity="0.8" />
+    </g>
+
+    <!-- ======================================================== -->
+    <!-- 2. LETRAS 'NI' (NAVY METÁLICO 3D COM BEVEL & REFLEXO)    -->
+    <!-- ======================================================== -->
+    <!-- Letra N -->
+    <g transform="translate(138, 22)">
+      <path d="M0 0 L32 0 L66 75 L66 0 L96 0 L96 115 L66 115 L30 38 L30 115 L0 115 Z" 
+            fill="url(#navy3D)" />
+      <!-- Bevel Superior -->
+      <polygon points="0,0 32,0 30,4 3,4" fill="#ffffff" fill-opacity="0.8" />
+      <polygon points="66,0 96,0 93,4 68,4" fill="#ffffff" fill-opacity="0.8" />
+      <!-- Brilho de Reflexo Diagonal -->
+      <path d="M0 0 L32 0 L66 75 L66 40 L30 0 Z" fill="#ffffff" fill-opacity="0.12" />
+    </g>
+
+    <!-- Letra I -->
+    <g transform="translate(244, 22)">
+      <path d="M0 0 L32 0 L32 115 L0 115 Z" fill="url(#navy3D)" />
+      <polygon points="0,0 32,0 29,4 3,4" fill="#ffffff" fill-opacity="0.8" />
+      <polygon points="0,0 32,0 32,50 0,60" fill="#ffffff" fill-opacity="0.15" />
+    </g>
+
+    <!-- ======================================================== -->
+    <!-- 3. LETRAS 'VANS' (ESMERALDA 3D, VIDRO & BEVEL CHROME)    -->
+    <!-- ======================================================== -->
+    <!-- Letra V -->
+    <g transform="translate(286, 22)">
+      <path d="M0 0 L35 0 L58 84 L80 0 L115 0 L76 115 L39 115 Z" 
+            fill="url(#emerald3D)" />
+      <!-- Bevel Superior -->
+      <polygon points="0,0 35,0 32,4 3,4" fill="#ffffff" fill-opacity="0.9" />
+      <polygon points="80,0 115,0 112,4 83,4" fill="#ffffff" fill-opacity="0.9" />
+      <!-- Reflexo de Vidro Curvo na Parte Superior -->
+      <path d="M0 0 L35 0 L49 52 C35 55, 15 52, 0 45 Z" fill="url(#glassReflection)" />
+      <path d="M80 0 L115 0 L102 48 C92 50, 84 48, 80 44 Z" fill="url(#glassReflection)" />
+    </g>
+
+    <!-- Letra A -->
+    <g transform="translate(406, 22)">
+      <path d="M35 0 L72 0 L108 115 L73 115 L64 85 L32 85 L22 115 L0 115 Z M48 30 L38 64 L58 64 Z" 
+            fill="url(#emerald3D)" />
+      <polygon points="35,0 72,0 68,4 38,4" fill="#ffffff" fill-opacity="0.9" />
+      <!-- Reflexo de Vidro Superior -->
+      <path d="M35 0 L72 0 L88 52 C70 54, 50 54, 25 45 Z" fill="url(#glassReflection)" />
+    </g>
+
+    <!-- Letra N -->
+    <g transform="translate(516, 22)">
+      <path d="M0 0 L32 0 L66 75 L66 0 L96 0 L96 115 L66 115 L30 38 L30 115 L0 115 Z" 
+            fill="url(#emerald3D)" />
+      <polygon points="0,0 32,0 29,4 3,4" fill="#ffffff" fill-opacity="0.9" />
+      <polygon points="66,0 96,0 93,4 68,4" fill="#ffffff" fill-opacity="0.9" />
+      <!-- Reflexo Superior -->
+      <path d="M0 0 L32 0 L66 75 L66 40 L30 0 Z" fill="url(#glassReflection)" />
+    </g>
+
+    <!-- Letra S (INTEGRALMENTE VISÍVEL E COM BEVEL/REFLEXO 3D) -->
+    <g transform="translate(620, 22)">
+      <path d="M12 92 C15 106 28 116 48 116 C68 116 82 105 82 90 C82 65 32 65 32 45 C32 35 40 28 52 28 C64 28 72 34 74 45 L98 38 C94 18 78 4 52 4 C24 4 4 18 4 42 C4 68 54 68 54 88 C54 98 44 102 34 102 C20 102 12 94 10 86 Z" 
+            fill="url(#emerald3D)" />
+      <!-- Bevel Superior na curva do topo -->
+      <path d="M52 4 C78 4 94 18 98 38 L94 39 C90 21 76 8 52 8 C30 8 13 19 8 38 L4 37 C9 16 26 4 52 4 Z" fill="#ffffff" fill-opacity="0.85" />
+      <!-- Reflexo de Vidro na Curva Superior -->
+      <path d="M52 4 C67 4, 82 12, 90 28 C72 30, 47 28, 22 22 C28 10, 40 4, 52 4 Z" fill="url(#glassReflection)" />
+    </g>
+
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 4. LINHAS AERODINÂMICAS DE VELOCIDADE (WINGS)            -->
+  <!-- ======================================================== -->
+  <!-- Asas Esquerdas -->
+  <g transform="translate(85, 155)">
+    <polygon points="0,3 130,3 125,0 0,0" fill="#2563eb" opacity="0.85" />
+    <polygon points="35,10 135,10 130,7 35,7" fill="#10b981" opacity="0.9" />
+    <polygon points="65,17 140,17 136,15 65,15" fill="#2563eb" opacity="0.75" />
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 5. PALAVRA 'C O O P' CENTRALIZADA EM 3D ESMERALDA        -->
+  <!-- ======================================================== -->
+  <g transform="translate(235, 142)" filter="url(#shadow3D)">
+    <text x="140" y="26" 
+          font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" 
+          font-size="34" 
+          font-weight="900" 
+          letter-spacing="14" 
+          text-anchor="middle"
+          fill="url(#emerald3D)">
+      COOP
+    </text>
+  </g>
+
+  <!-- Asas Direitas -->
+  <g transform="translate(525, 155)">
+    <polygon points="10,0 5,3 140,3 140,0" fill="#2563eb" opacity="0.85" />
+    <polygon points="0,7 5,10 105,10 105,7" fill="#10b981" opacity="0.9" />
+    <polygon points="0,15 4,17 75,17 75,15" fill="#2563eb" opacity="0.75" />
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 6. PALAVRA 'A L A G O A S' EM NAVY METÁLICO ELEGANTE     -->
+  <!-- ======================================================== -->
+  <g transform="translate(0, 192)">
+    <!-- Linhas Divisórias Laterais Sutis Perfeitamente Balanceadas -->
+    <line x1="85" y1="-8" x2="225" y2="-8" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+    
+    <text x="375" y="0" 
+          font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" 
+          font-size="21" 
+          font-weight="900" 
+          letter-spacing="18" 
+          text-anchor="middle"
+          fill="#f8fafc"
+          filter="drop-shadow(0 2px 4px rgba(0,0,0,0.5))">
+      ALAGOAS
+    </text>
+
+    <line x1="525" y1="-8" x2="665" y2="-8" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" opacity="0.8" />
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 7. PÍLULA BANNER VIP: "JUNTOS TRANSPORTAMOS CONFIANÇA."   -->
+  <!-- ======================================================== -->
+  <g transform="translate(85, 206)" filter="url(#shadow3D)">
+    <rect x="0" y="0" width="580" height="30" rx="10" 
+          fill="url(#bannerBg)" 
+          stroke="url(#emerald3D)" 
+          stroke-width="1.5" />
+    
+    <!-- Linha Dourada de Realce no Topo da Pílula -->
+    <line x1="20" y1="2" x2="560" y2="2" stroke="url(#goldReal)" stroke-width="1" stroke-linecap="round" opacity="0.7" />
+
+    <text x="290" y="20" 
+          font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" 
+          font-size="12.5" 
+          font-weight="900" 
+          letter-spacing="3.5" 
+          text-anchor="middle"
+          fill="#ffffff"
+          filter="drop-shadow(0 1px 2px rgba(0,0,0,0.8))">
+      JUNTOS TRANSPORTAMOS CONFIANÇA.
+    </text>
+  </g>
+</svg>

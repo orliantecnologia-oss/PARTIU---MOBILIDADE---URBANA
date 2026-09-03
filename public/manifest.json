@@ -1,0 +1,38 @@
+{
+  "name": "UniVans - Cooperativa de Vans de Alagoas",
+  "short_name": "UniVans",
+  "description": "Sistema de gestão de frotas de vans, horários em tempo real, encomendas e telemetria Starlink.",
+  "start_url": "/app",
+  "display": "standalone",
+  "background_color": "#083d21",
+  "theme_color": "#0d5930",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Horários & Linhas",
+      "url": "/app/linhas",
+      "description": "Consulte saídas e vagas de vans"
+    },
+    {
+      "name": "Enviar Encomenda",
+      "url": "/app/encomendas",
+      "description": "Despacho expresso pelo bagageiro"
+    },
+    {
+      "name": "Emergência SOS",
+      "url": "/app/sos",
+      "description": "Acionamento de socorro na rodovia"
+    },
+    {
+      "name": "Painel do Motorista",
+      "url": "/app/motorista",
+      "description": "Controle de assentos e passageiros"
+    }
+  ]
+}
