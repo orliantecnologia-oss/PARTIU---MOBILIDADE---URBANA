@@ -189,7 +189,7 @@ class ContinuousGpsManager {
           artist: `${this.config?.placaVeiculo || "Van Starlink"} • Motorista ${this.config?.motoristaNome || "Operacional"}`,
           album: this.config?.linhaOrigemDestino || "Corredor Rodoviário UniVans",
           artwork: [
-            { src: "/favicon.ico", sizes: "96x96", type: "image/x-icon" },
+            { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
             { src: "/logo.svg", sizes: "512x512", type: "image/svg+xml" },
           ],
         });

@@ -118,7 +118,7 @@ export async function dispararNotificacaoPush({
   titulo,
   corpo,
   rota = "/app/bilhetes",
-  icone = "/favicon.ico",
+  icone = "/icon-192.png",
   tag = "univans-push",
 }: OpcoesNotificacao): Promise<boolean> {
   if (typeof window === "undefined" || !("Notification" in window)) {

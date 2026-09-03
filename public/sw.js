@@ -7,7 +7,13 @@ const CACHE_NAME = "univans-v1";
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(["/favicon.ico", "/manifest.json"]);
+      return cache.addAll([
+        "/favicon.ico",
+        "/icon-192.png",
+        "/icon-512.png",
+        "/apple-touch-icon.png",
+        "/manifest.json",
+      ]);
     }),
   );
   self.skipWaiting();
@@ -23,7 +29,7 @@ self.addEventListener("push", (event) => {
     title: "UniVans • Alerta de Embarque",
     body: "Sua van está se aproximando do ponto de embarque!",
     url: "/app/bilhetes",
-    icon: "/favicon.ico",
+    icon: "/icon-192.png",
     tag: "univans-trevo-alert",
   };
 
@@ -38,8 +44,8 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: data.body,
-    icon: data.icon || "/favicon.ico",
-    badge: "/favicon.ico",
+    icon: data.icon || "/icon-192.png",
+    badge: "/icon-192.png",
     vibrate: [200, 100, 200, 100, 200],
     data: {
       url: data.url || "/app/bilhetes",

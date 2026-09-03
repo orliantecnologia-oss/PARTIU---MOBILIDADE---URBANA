@@ -277,8 +277,15 @@
   opacity: 0.9;
 }
 
-#lovable-badge {
+#lovable-badge,
+[id*="lovable-badge"],
+[class*="lovable-badge"],
+iframe[src*="lovable"],
+a[href*="lovable.dev"] {
   display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }
 
 /* ==========================================================================
