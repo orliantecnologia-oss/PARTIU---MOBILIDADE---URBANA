@@ -269,6 +269,30 @@ export function confirmarPresencaPassagem(bilheteId: string): BilhetePassagem[] 
   }
 }
 
+export function excluirBilhete(bilheteId: string): BilhetePassagem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const atuais = getBilhetesPassagens();
+    const atualizados = atuais.filter((b) => b.id !== bilheteId);
+    localStorage.setItem("univans_bilhetes_passageiro", JSON.stringify(atualizados));
+    return atualizados;
+  } catch {
+    return [];
+  }
+}
+
+export function limparTodosBilhetes(): BilhetePassagem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    localStorage.removeItem("univans_bilhetes_passageiro");
+    localStorage.removeItem("univans_pendencias_passageiro");
+    localStorage.removeItem("univans_historico_embarques_totem");
+    return [];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * 📲 VALIDAÇÃO DE PASSAGEM DE USO ÚNICO VIA TOTEM/QR DA VAN
  * O passageiro lê o QR Code gerado no celular do motorista e valida seu bilhete.

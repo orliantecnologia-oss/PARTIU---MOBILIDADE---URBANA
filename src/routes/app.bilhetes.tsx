@@ -24,6 +24,7 @@ import {
   Zap,
   RefreshCw,
   Cloud,
+  Trash2,
 } from "lucide-react";
 import { RealQrCodePix } from "@/components/passagens/RealQrCodePix";
 import { EmptyStateCard } from "@/components/ui/EmptyStateCard";
@@ -33,6 +34,8 @@ import { sincronizarPassagensNuvem } from "@/lib/passenger-cloud-sync";
 import {
   getBilhetesPassagens,
   confirmarPresencaPassagem,
+  excluirBilhete,
+  limparTodosBilhetes,
   type BilhetePassagem,
 } from "@/lib/passagens-store";
 
@@ -106,6 +109,28 @@ export function BilhetesPassageiroScreen() {
     window.open(`https://wa.me/?text=${texto}`, "_blank");
   }
 
+  async function handleExcluirPassagem(bilheteId: string) {
+    if (!window.confirm("Deseja realmente remover esta passagem de teste?")) return;
+    const atualizados = excluirBilhete(bilheteId);
+    setBilhetes(atualizados);
+    try {
+      await supabase.from("passagens").delete().eq("codigo_bilhete", bilheteId);
+    } catch {
+      // Ignorar se offline
+    }
+  }
+
+  async function handleLimparTudo() {
+    if (!window.confirm("Deseja remover todas as passagens de teste salvas?")) return;
+    limparTodosBilhetes();
+    setBilhetes([]);
+    try {
+      await supabase.from("passagens").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+    } catch {
+      // Ignorar se offline
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#f8faf9] text-slate-900 pb-12">
       {/* 1. CABEÇALHO DA CENTRAL DE BILHETES */}
@@ -159,15 +184,28 @@ export function BilhetesPassageiroScreen() {
                 : "Cache Local Ativo (Modo Offline)"}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={carregarPassagens}
-            disabled={sincronizandoNuvem}
-            className="flex items-center gap-1 text-[11px] font-black text-[#0d5930] hover:underline disabled:opacity-60 cursor-pointer"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${sincronizandoNuvem ? "animate-spin" : ""}`} />
-            <span>{sincronizandoNuvem ? "Atualizando..." : "Puxar da Nuvem"}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={carregarPassagens}
+              disabled={sincronizandoNuvem}
+              className="flex items-center gap-1 text-[11px] font-black text-[#0d5930] hover:underline disabled:opacity-60 cursor-pointer"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${sincronizandoNuvem ? "animate-spin" : ""}`} />
+              <span>{sincronizandoNuvem ? "Atualizando..." : "Puxar da Nuvem"}</span>
+            </button>
+            {bilhetes.length > 0 && (
+              <button
+                type="button"
+                onClick={handleLimparTudo}
+                className="flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-2 py-1 rounded-lg border border-rose-200 transition-all cursor-pointer"
+                title="Limpar bilhetes de teste salvos"
+              >
+                <Trash2 className="h-3 w-3" />
+                <span>Limpar Testes</span>
+              </button>
+            )}
+          </div>
         </div>
         <div className="bg-slate-100 p-1.5 rounded-xl flex items-center gap-1 border border-slate-200/80">
           <button
@@ -252,9 +290,19 @@ export function BilhetesPassageiroScreen() {
                       </strong>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
-                      <Wifi className="h-3.5 w-3.5" />
-                      <span>{b.starlinkWifi || "Starlink VIP"}</span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                        <Wifi className="h-3.5 w-3.5" />
+                        <span>{b.starlinkWifi || "Starlink VIP"}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleExcluirPassagem(b.id)}
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Remover passagem de teste"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </div>
 
@@ -475,13 +523,23 @@ export function BilhetesPassageiroScreen() {
                     </span>
                   </div>
 
-                  <Link
-                    to="/app/linhas"
-                    className="flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-[#0d5930] text-slate-700 text-xs font-black shrink-0 transition-colors"
-                  >
-                    <span>Comprar Novamente</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </Link>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Link
+                      to="/app/linhas"
+                      className="flex items-center gap-1 px-3 py-2 rounded-xl bg-slate-100 hover:bg-emerald-50 hover:text-[#0d5930] text-slate-700 text-xs font-black transition-colors"
+                    >
+                      <span>Comprar Novamente</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => handleExcluirPassagem(b.id)}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Remover do histórico"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))
             )}
