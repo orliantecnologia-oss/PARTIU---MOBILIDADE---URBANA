@@ -68,8 +68,8 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background w-full">
-      <div className="w-full max-w-full px-2 sm:px-3 pb-24">
+    <div className="min-h-screen bg-background w-full flex flex-col relative">
+      <div className="w-full flex-1 px-1.5 sm:px-2 pb-24">
         <Outlet />
       </div>
       <BottomNav />

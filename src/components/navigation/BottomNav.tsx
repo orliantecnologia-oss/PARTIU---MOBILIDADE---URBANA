@@ -92,13 +92,13 @@ export function BottomNav() {
 
   return (
     <nav
-      className={`fixed bottom-0 left-0 right-0 z-40 px-2 sm:px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1 pointer-events-none transition-all duration-300 ease-out transform ${
+      className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-1 pointer-events-none transition-all duration-300 ease-out transform ${
         deveOcultar ? "translate-y-32 opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
       }`}
       aria-label="Navegação Principal"
     >
-      <div className="w-[96vw] max-w-[430px] mx-auto pointer-events-auto">
-        <div className="relative flex items-center justify-around rounded-2xl bg-white/95 backdrop-blur-2xl px-1.5 sm:px-4 py-1 shadow-[0_8px_24px_rgba(13,89,48,0.12)] border border-emerald-100/80 ring-1 ring-black/5">
+      <div className="w-full pointer-events-auto">
+        <div className="relative flex items-center justify-around rounded-2xl bg-white/95 backdrop-blur-2xl px-1.5 sm:px-3 py-1 shadow-[0_8px_24px_rgba(13,89,48,0.12)] border border-emerald-100/80 ring-1 ring-black/5">
           {links.map((item) => {
             const Icon = item.icon;
             const isActive = item.exact ? pathname === item.to : pathname.startsWith(item.to);

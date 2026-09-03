@@ -329,7 +329,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
   return (
     <>
       <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md p-0 sm:p-4 animate-in fade-in duration-200">
-        <div className="w-[96vw] max-w-none sm:max-w-xl mx-auto bg-white rounded-t-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh] pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="w-full max-w-[430px] mx-auto bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92dvh] sm:max-h-[88vh] pb-[env(safe-area-inset-bottom,0px)]">
           {/* BARRA DE ARRASTE MOBILE (DRAG HANDLE) */}
           <div className="pt-3 pb-1 flex justify-center sm:hidden bg-gradient-to-r from-[#0b2046] via-[#0d5930] to-[#071833]">
             <div className="h-1.5 w-12 rounded-full bg-white/40" />

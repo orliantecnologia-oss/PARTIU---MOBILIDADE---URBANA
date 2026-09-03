@@ -967,7 +967,7 @@ export function PainelMotoristaPage() {
         {/* MODAL DE CONFIRMAÇÃO DE PIN ESTILO 99 */}
         {encomendaParaEntregar && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in">
-            <div className="w-[96vw] max-w-none sm:max-w-md mx-auto rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 text-center space-y-4 animate-in zoom-in-95">
+            <div className="w-full max-w-md mx-auto rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 text-center space-y-4 animate-in zoom-in-95">
               <div className="h-14 w-14 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-xs">
                 <KeyRound className="h-7 w-7" />
               </div>

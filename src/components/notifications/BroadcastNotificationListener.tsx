@@ -159,7 +159,7 @@ export function BroadcastNotificationListener() {
   const infoBadge = badgesCategoria[notificacaoAtiva.categoria] || badgesCategoria.todos;
 
   return (
-    <div className="fixed top-4 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-md z-[9999] animate-in slide-in-from-top-4 duration-300">
+    <div className="fixed top-3 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-[400px] z-[9999] animate-in slide-in-from-top-4 duration-300">
       <div
         className={`p-3.5 rounded-2xl ${estilosUrgencia.fundo} text-white shadow-2xl border ${estilosUrgencia.borda} backdrop-blur-md space-y-2`}
       >

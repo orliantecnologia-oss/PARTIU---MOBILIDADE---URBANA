@@ -100,7 +100,7 @@ export function CadastroPassageiroPage() {
         <div className="w-9" />
       </div>
 
-      <main className="w-[96vw] max-w-none sm:max-w-md mx-auto flex-1 flex flex-col justify-center py-3">
+      <main className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-3">
         {!sucesso ? (
           <form
             onSubmit={handleSubmit}

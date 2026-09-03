@@ -751,7 +751,7 @@ export function AppHomeScreen() {
       {/* MODAL SELEÇÃO DE CIDADE */}
       {modalCidadeAberto && (
         <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-slate-950/80 backdrop-blur-md p-0 sm:p-4 animate-in fade-in">
-          <div className="w-[96vw] max-w-none sm:max-w-xl mx-auto bg-white rounded-t-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="w-full max-w-[430px] mx-auto bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
             {/* BARRA DE ARRASTE MOBILE */}
             <div className="h-1.5 w-12 rounded-full bg-slate-300 mx-auto mt-3 mb-1 sm:hidden" />
 

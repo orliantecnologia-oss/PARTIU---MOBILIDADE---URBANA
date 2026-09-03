@@ -52,9 +52,9 @@ export function CadastroGratuidadePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 text-slate-900 w-full">
+    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-between p-3 text-slate-900 w-full max-w-md mx-auto">
       {/* 1. CABEÇALHO */}
-      <header className="mx-auto w-full max-w-full sm:max-w-md flex items-center justify-between px-1 sm:px-0">
+      <header className="w-full flex items-center justify-between py-1">
         <Link
           to="/escolher-tipo-cadastro"
           className="flex h-9 w-9 items-center justify-center rounded-lg sm:rounded-xl bg-white border border-slate-200 text-slate-700 shadow-xs active:scale-95 transition-all"
@@ -69,7 +69,7 @@ export function CadastroGratuidadePage() {
       </header>
 
       {/* 2. CONTEÚDO PRINCIPAL */}
-      <main className="mx-auto w-[96vw] max-w-none sm:max-w-md flex-1 flex flex-col justify-center py-3">
+      <main className="w-full flex-1 flex flex-col justify-center py-2">
         {sucesso ? (
           <div className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200 text-center space-y-4 animate-in zoom-in-95">
             <div className="h-16 w-16 bg-emerald-100 text-[#0d5930] rounded-full flex items-center justify-center mx-auto shadow-inner">

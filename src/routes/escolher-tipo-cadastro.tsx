@@ -46,7 +46,7 @@ export function EscolherTipoCadastroPage() {
         <div className="w-9" />
       </div>
 
-      <div className="mx-auto w-[96vw] max-w-none sm:max-w-md flex-1 flex flex-col justify-center py-2">
+      <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-2">
         {/* Logo e Título */}
         <div className="text-center mb-5">
           <div className="mx-auto flex h-14 w-auto items-center justify-center rounded-2xl bg-white p-2 border border-slate-200 shadow-md mb-2">

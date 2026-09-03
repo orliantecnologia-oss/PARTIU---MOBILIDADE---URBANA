@@ -63,7 +63,7 @@ export function PushNotificationPrompt() {
   if (!visivel) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-in slide-in-from-bottom-5 duration-300">
+    <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-[400px] z-50 animate-in slide-in-from-bottom-5 duration-300">
       <div className="p-4 rounded-3xl bg-slate-950 text-white shadow-2xl border border-emerald-500/30 space-y-3 relative overflow-hidden">
         {/* Fundo com gradiente sutil */}
         <div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none" />

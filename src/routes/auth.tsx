@@ -254,7 +254,7 @@ export function AuthPage() {
         <div className="w-11" />
       </div>
 
-      <div className="w-[96vw] max-w-none sm:max-w-md mx-auto flex-1 flex flex-col justify-center py-3">
+      <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-3">
         {expirada === "1" && (
           <div
             role="status"

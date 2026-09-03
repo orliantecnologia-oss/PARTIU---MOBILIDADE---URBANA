@@ -323,7 +323,7 @@ export function ProfilePage() {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200 p-0 sm:p-4">
           <div className="absolute inset-0" onClick={() => setModalFotoAberto(false)} />
 
-          <div className="relative z-10 w-[96vw] max-w-none sm:max-w-xl mx-auto rounded-t-2xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-2xl border border-slate-200/90 max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
+          <div className="relative z-10 w-full max-w-[430px] mx-auto rounded-t-3xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-2xl border border-slate-200/90 max-h-[90vh] flex flex-col animate-in slide-in-from-bottom-8 duration-300">
             <div className="mx-auto -mt-2 mb-3 h-1.5 w-12 rounded-full bg-slate-200 sm:hidden" />
 
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">

@@ -108,7 +108,7 @@ export function ModalScannerPassageiro({ aberto, onFechar, bilheteId, onSucesso 
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-slate-950/85 backdrop-blur-md p-0 sm:p-4 animate-in fade-in duration-200">
-      <div className="w-[96vw] max-w-none sm:max-w-lg mx-auto bg-white rounded-t-[2.5rem] sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92dvh] pb-[env(safe-area-inset-bottom,0px)]">
+      <div className="w-full max-w-[430px] mx-auto bg-white rounded-t-[2.5rem] sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92dvh] pb-[env(safe-area-inset-bottom,0px)]">
         {/* Cabeçalho do Leitor */}
         <div className="bg-gradient-to-r from-[#0b2046] via-[#0d5930] to-[#071833] p-4 sm:p-5 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">

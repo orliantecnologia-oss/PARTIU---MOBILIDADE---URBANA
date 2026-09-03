@@ -141,7 +141,7 @@ export function CadastroMotoristaPage() {
       </div>
 
       {/* Conteúdo Principal Centralizado */}
-      <main className="mx-auto w-[96vw] max-w-none sm:max-w-md flex-1 flex flex-col justify-center py-2">
+      <main className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-2">
         {!sucesso ? (
           <form
             onSubmit={handleSubmit}

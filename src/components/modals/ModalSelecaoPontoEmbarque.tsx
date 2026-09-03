@@ -82,7 +82,7 @@ export function ModalSelecaoPontoEmbarque({
   return (
     <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-[96vw] max-w-none sm:max-w-xl max-h-[92vh] sm:max-h-[85vh] flex flex-col bg-white rounded-t-2xl sm:rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden animate-in slide-in-from-bottom duration-200 mx-auto"
+        className="relative w-full max-w-[430px] max-h-[92vh] sm:max-h-[85vh] flex flex-col bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200/90 overflow-hidden animate-in slide-in-from-bottom duration-200 mx-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* BARRA SUPERIOR MOBILE DE ARRASTE (DRAG HANDLE) */}
