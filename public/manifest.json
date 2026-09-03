@@ -4,6 +4,9 @@
   "description": "Sistema de gestão de frotas de vans, horários em tempo real, encomendas e telemetria Starlink.",
   "start_url": "/app",
   "display": "standalone",
+  "orientation": "portrait",
+  "lang": "pt-BR",
+  "categories": ["travel", "transportation"],
   "background_color": "#083d21",
   "theme_color": "#0d5930",
   "icons": [

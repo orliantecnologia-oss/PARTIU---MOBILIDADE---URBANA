@@ -97,7 +97,7 @@ export function BottomNav() {
       }`}
       aria-label="Navegação Principal"
     >
-      <div className="w-[96vw] max-w-full sm:max-w-2xl mx-auto pointer-events-auto">
+      <div className="w-[96vw] max-w-[430px] mx-auto pointer-events-auto">
         <div className="relative flex items-center justify-around rounded-2xl bg-white/95 backdrop-blur-2xl px-1.5 sm:px-4 py-1 shadow-[0_8px_24px_rgba(13,89,48,0.12)] border border-emerald-100/80 ring-1 ring-black/5">
           {links.map((item) => {
             const Icon = item.icon;

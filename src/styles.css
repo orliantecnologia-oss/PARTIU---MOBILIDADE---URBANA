@@ -512,6 +512,35 @@ html[data-font-size="extra-grande"] {
 }
 
 /* ==========================================================================
+   MOBILE-FIRST APP PERFORMANCE & TOUCH SENSITIVITY OPTIMIZATIONS
+   ========================================================================== */
+html,
+body {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior-y: contain;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Garante rolagem fluida com aceleração por GPU */
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* Suporte a Safe Area do entalhe de celulares (iPhone Dynamic Island / Notch) */
+.safe-area-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+.safe-area-top {
+  padding-top: max(0.5rem, env(safe-area-inset-top));
+}
+
+/* ==========================================================================
    BREATHING GLOW WAVE — Pulsação sequencial suave nos botões de ação
    Ciclo total: 6s → Botão1 (0-2s) → Botão2 (2-4s) → Botão3 (4-6s)
    ========================================================================== */

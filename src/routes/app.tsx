@@ -69,7 +69,7 @@ function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background w-full">
-      <div className="mx-auto w-full max-w-full sm:max-w-3xl md:max-w-4xl px-1.5 sm:px-4 pb-24">
+      <div className="w-full max-w-full px-2 sm:px-3 pb-24">
         <Outlet />
       </div>
       <BottomNav />
