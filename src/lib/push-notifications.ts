@@ -31,6 +31,23 @@ export async function registrarServiceWorker(): Promise<ServiceWorkerRegistratio
 }
 
 /**
+ * Detecta se o app está rodando dentro do navegador interno do Facebook, Instagram, WhatsApp, etc.
+ */
+export function isInAppBrowser(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || navigator.vendor || (window as any).opera || "";
+  return /FBAN|FBAV|Instagram|WhatsApp|Line|musical_ly|BytedanceWebview/i.test(ua);
+}
+
+/**
+ * Retorna se o navegador atual tem suporte a Web Push Notifications reais
+ */
+export function isPushNotificationSupported(): boolean {
+  if (typeof window === "undefined") return false;
+  return "Notification" in window && "serviceWorker" in navigator;
+}
+
+/**
  * Retorna o estado atual da permissão de notificações
  */
 export function getStatusPermissaoPush(): NotificationPermission {
@@ -40,25 +57,57 @@ export function getStatusPermissaoPush(): NotificationPermission {
   return Notification.permission;
 }
 
+export interface ResultadoSolicitacaoPush {
+  sucesso: boolean;
+  motivo?: "in_app_browser" | "nao_suportado" | "negado" | "concedido";
+  mensagem?: string;
+}
+
 /**
- * Solicita autorização de Notificações Push ao usuário
+ * Solicita autorização de Notificações Push ao usuário com diagnóstico de ambiente
  */
-export async function solicitarPermissaoPush(): Promise<boolean> {
-  if (typeof window === "undefined" || !("Notification" in window)) {
-    alert("Seu navegador não suporta notificações do sistema.");
-    return false;
+export async function solicitarPermissaoPush(): Promise<ResultadoSolicitacaoPush> {
+  if (typeof window === "undefined") {
+    return { sucesso: false, motivo: "nao_suportado" };
+  }
+
+  // Detectar navegador embutido (ex: Facebook do screenshot)
+  if (isInAppBrowser()) {
+    return {
+      sucesso: false,
+      motivo: "in_app_browser",
+      mensagem:
+        "O navegador do Facebook não suporta notificações em segundo plano. Abra no Google Chrome para ativar.",
+    };
+  }
+
+  if (!("Notification" in window)) {
+    return {
+      sucesso: false,
+      motivo: "nao_suportado",
+      mensagem:
+        "Este navegador não suporta notificações push do sistema. Abra no Google Chrome ou adicione o app à tela inicial.",
+    };
   }
 
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       await registrarServiceWorker();
-      return true;
+      return { sucesso: true, motivo: "concedido" };
     }
-    return false;
+    return {
+      sucesso: false,
+      motivo: "negado",
+      mensagem: "Permissão de notificações não foi concedida.",
+    };
   } catch (err) {
-    console.error("[Push Engine] Erro ao solicitar permissão:", err);
-    return false;
+    console.warn("[Push Engine] Falha ao solicitar permissão de push:", err);
+    return {
+      sucesso: false,
+      motivo: "nao_suportado",
+      mensagem: "Não foi possível ativar notificações push neste navegador.",
+    };
   }
 }
 
@@ -78,7 +127,7 @@ export async function dispararNotificacaoPush({
 
   if (Notification.permission !== "granted") {
     const aceitou = await solicitarPermissaoPush();
-    if (!aceitou) return false;
+    if (!aceitou.sucesso) return false;
   }
 
   try {
