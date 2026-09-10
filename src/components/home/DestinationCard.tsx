@@ -1,12 +1,16 @@
-import React from "react";
-import { Search, Clock, ChevronRight } from "lucide-react";
-import { RecentAddressItem, RECENT_SEARCH_MOCKS } from "./home-mock-data";
+import React, { useState, useEffect } from "react";
+import { Search, Clock, ChevronRight, Home, Briefcase, MapPin, ArrowRight } from "lucide-react";
+import { RecentAddressItem } from "./home-mock-data";
+import { addressService, type UserAddressItem } from "@/services/AddressService";
+import { hapticFeedback } from "@/lib/haptics/haptic-feedback";
 
 export interface DestinationCardProps {
   onSearchClick: () => void;
   onEditPickupClick?: () => void;
   onAdjustPinOnMap?: () => void;
   onSelectAddress?: (item: RecentAddressItem) => void;
+  onSelectCasa?: () => void;
+  onSelectTrabalho?: () => void;
   recentAddresses?: RecentAddressItem[];
   currentAddress?: string;
   userAccuracyMeters?: number | null;
@@ -17,45 +21,85 @@ export function DestinationCard({
   onEditPickupClick,
   onAdjustPinOnMap,
   onSelectAddress,
+  onSelectCasa,
+  onSelectTrabalho,
   recentAddresses = [],
   currentAddress,
-  userAccuracyMeters,
 }: DestinationCardProps) {
-  // Limita estritamente a no máximo 2 itens rápidos
-  const itensRapidos = (recentAddresses || []).slice(0, 2);
+  const [casa, setCasa] = useState<UserAddressItem | null>(null);
+  const [trabalho, setTrabalho] = useState<UserAddressItem | null>(null);
+
+  useEffect(() => {
+    const carregar = () => {
+      setCasa(addressService.getCasa());
+      setTrabalho(addressService.getTrabalho());
+    };
+    carregar();
+    window.addEventListener("partiu:addresses_updated", carregar);
+    return () => window.removeEventListener("partiu:addresses_updated", carregar);
+  }, []);
+
+  const handleCasaClick = () => {
+    hapticFeedback.light();
+    if (onSelectCasa) {
+      onSelectCasa();
+      return;
+    }
+    if (casa && casa.endereco) {
+      onSelectAddress?.({
+        id: casa.id,
+        titulo: "Casa",
+        endereco: casa.endereco,
+        coords: casa.coords,
+      });
+    } else {
+      onSearchClick();
+    }
+  };
+
+  const handleTrabalhoClick = () => {
+    hapticFeedback.light();
+    if (onSelectTrabalho) {
+      onSelectTrabalho();
+      return;
+    }
+    if (trabalho && trabalho.endereco) {
+      onSelectAddress?.({
+        id: trabalho.id,
+        titulo: "Trabalho",
+        endereco: trabalho.endereco,
+        coords: trabalho.coords,
+      });
+    } else {
+      onSearchClick();
+    }
+  };
+
+  // Limita estritamente ao item recente mais relevante para manter a tela limpa
+  const itensRapidos = (recentAddresses || []).slice(0, 1);
 
   return (
     <div className="w-full z-20 pointer-events-auto">
-      <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-3.5 sm:p-4 space-y-2.5 text-left">
+      <div className="bg-white/98 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 p-3.5 sm:p-4 space-y-3 text-left">
         
-        {/* Local de Embarque Atual (Identificado pelo GPS em tempo real ou personalizado) */}
-        <div className="flex items-center justify-between gap-2.5 px-3.5 py-2 rounded-2xl bg-emerald-50/90 border border-emerald-200/80 text-emerald-950 shadow-2xs">
+        {/* 1. PONTO DE PARTIDA / EMBARQUE (DISCRETO E ELEGANTE ESTILO 99) */}
+        <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-2xl bg-slate-50/80 border border-slate-200/60 hover:bg-slate-100/70 transition-colors">
           <button
             type="button"
             onClick={onEditPickupClick || onSearchClick}
             className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer text-left group bg-transparent border-0 p-0"
-            title="Clique para editar seu endereço de embarque"
+            title="Alterar ponto de partida"
           >
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0 ring-4 ring-emerald-200/70" />
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100 shrink-0" />
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1 mb-0.5">
-                <span className="text-[10px] uppercase font-black tracking-wider text-emerald-700 block leading-none">
-                  Local de Embarque
-                </span>
-                <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.2 rounded-md">
-                  {userAccuracyMeters && userAccuracyMeters > 35 ? "Rede / IP" : "GPS"}
-                </span>
-              </div>
-              <span className="font-bold text-slate-900 block truncate text-xs sm:text-[13px] group-hover:text-emerald-700 transition-colors">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-700 block leading-none mb-0.5">
+                Embarque
+              </span>
+              <span className="font-bold text-slate-800 block truncate text-xs group-hover:text-emerald-700 transition-colors">
                 {currentAddress && currentAddress !== "Meu Local Atual"
                   ? currentAddress
-                  : "Definir endereço de embarque..."}
+                  : "Meu local atual"}
               </span>
-              {userAccuracyMeters && userAccuracyMeters > 35 && (
-                <span className="text-[10px] text-amber-800 font-semibold block truncate">
-                  Local aproximado • Toque para rua exata
-                </span>
-              )}
             </div>
           </button>
 
@@ -63,54 +107,106 @@ export function DestinationCard({
             <button
               type="button"
               onClick={onAdjustPinOnMap}
-              className="px-2.5 py-1.5 text-[11px] font-black bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300/80 rounded-xl transition shadow-2xs cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
-              title="Ajustar ponto exato no mapa"
+              className="px-2.5 py-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/80 rounded-xl transition shadow-2xs cursor-pointer shrink-0 flex items-center gap-1 active:scale-95"
+              title="Ajustar no mapa"
             >
-              <span>Ajustar no mapa</span>
+              <MapPin className="w-3 h-3 text-emerald-600" />
+              <span>Ajustar</span>
             </button>
           )}
         </div>
 
-        {/* Input Principal: Botão estilizado como campo de busca com lupa (área de toque maximizada) */}
+        {/* 2. BARRA PRINCIPAL "PARA ONDE VAMOS?" (CHAMATIVA, CONFORTÁVEL, ESTILO 99) */}
         <button
           type="button"
-          onClick={onSearchClick}
-          className="group w-full h-12 sm:h-13 px-3.5 sm:px-4 rounded-2xl bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200/80 flex items-center gap-3 transition-all duration-200 active:scale-[0.99] cursor-pointer text-left shadow-2xs"
+          onClick={() => {
+            hapticFeedback.light();
+            onSearchClick();
+          }}
+          className="group w-full h-13 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200/70 border border-slate-200/80 flex items-center gap-3.5 transition-all duration-200 active:scale-[0.99] cursor-pointer text-left shadow-2xs"
           aria-label="Para onde vamos? Buscar endereços"
         >
-          <div className="w-8 h-8 rounded-xl bg-amber-400 group-hover:bg-amber-500 text-slate-950 flex items-center justify-center font-black shadow-xs shrink-0 group-hover:scale-105 transition-transform">
-            <Search className="w-4 h-4 stroke-[2.8]" />
+          <div className="w-9 h-9 rounded-xl bg-amber-400 group-hover:bg-amber-500 text-slate-950 flex items-center justify-center font-black shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+            <Search className="w-4.5 h-4.5 stroke-[2.8]" />
           </div>
 
-          <span className="text-sm sm:text-[15px] font-black text-slate-900 block flex-1 truncate">
-            Para onde vamos?
-          </span>
+          <div className="flex-1 min-w-0">
+            <span className="text-[15px] font-black text-slate-900 block truncate">
+              Para onde vamos?
+            </span>
+          </div>
+
+          <div className="w-7 h-7 rounded-full bg-white text-slate-400 group-hover:text-slate-700 flex items-center justify-center shrink-0 shadow-2xs">
+            <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+          </div>
         </button>
 
-        {/* Lista de Atalhos Recentes: exibida apenas se houver histórico real */}
+        {/* 3. ATALHOS RÁPIDOS DE 1 TOQUE: CASA E TRABALHO (ESTILO 99) */}
+        <div className="grid grid-cols-2 gap-2 pt-0.5">
+          {/* Botão Casa */}
+          <button
+            type="button"
+            onClick={handleCasaClick}
+            className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/70 transition active:scale-[0.98] cursor-pointer group text-left"
+          >
+            <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Home className="w-4 h-4 stroke-[2.4]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-xs font-black text-slate-900 block leading-tight">
+                Casa
+              </span>
+              <span className="text-[10px] text-slate-500 block truncate mt-0.5 font-medium">
+                {casa?.endereco ? casa.endereco.split(",")[0] : "Adicionar"}
+              </span>
+            </div>
+          </button>
+
+          {/* Botão Trabalho */}
+          <button
+            type="button"
+            onClick={handleTrabalhoClick}
+            className="flex items-center gap-2.5 p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100/90 border border-slate-200/70 transition active:scale-[0.98] cursor-pointer group text-left"
+          >
+            <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Briefcase className="w-4 h-4 stroke-[2.4]" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="text-xs font-black text-slate-900 block leading-tight">
+                Trabalho
+              </span>
+              <span className="text-[10px] text-slate-500 block truncate mt-0.5 font-medium">
+                {trabalho?.endereco ? trabalho.endereco.split(",")[0] : "Adicionar"}
+              </span>
+            </div>
+          </button>
+        </div>
+
+        {/* 4. DESTINO RECENTE (SE HOUVER) */}
         {itensRapidos.length > 0 && (
-          <div className="divide-y divide-slate-100/80 pt-0.5">
-            {itensRapidos.slice(0, 2).map((item) => (
+          <div className="pt-1 border-t border-slate-100">
+            {itensRapidos.map((item) => (
               <button
                 key={item.id}
                 type="button"
-                onClick={() => onSelectAddress?.(item)}
-                className="w-full py-2 px-1 flex items-center gap-3 hover:bg-slate-50/80 rounded-xl transition active:scale-[0.99] cursor-pointer group text-left"
+                onClick={() => {
+                  hapticFeedback.light();
+                  onSelectAddress?.(item);
+                }}
+                className="w-full py-1.5 px-2 flex items-center gap-2.5 hover:bg-slate-50 rounded-xl transition active:scale-[0.99] cursor-pointer group text-left"
               >
-                <div className="w-7 h-7 rounded-full bg-slate-100 group-hover:bg-amber-100 text-slate-600 group-hover:text-slate-950 flex items-center justify-center shrink-0 transition-colors">
-                  <Clock className="w-3.5 h-3.5 stroke-[2.4]" />
+                <div className="w-6 h-6 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                  <Clock className="w-3 h-3 stroke-[2.4]" />
                 </div>
-
                 <div className="flex-1 min-w-0">
-                  <span className="text-xs sm:text-[13px] font-bold text-slate-900 block truncate leading-tight">
+                  <span className="text-xs font-bold text-slate-800 block truncate">
                     {item.titulo}
                   </span>
-                  <span className="text-[10.5px] sm:text-[11px] text-slate-500 group-hover:text-slate-700 font-normal block truncate mt-0.5">
+                  <span className="text-[10px] text-slate-400 block truncate">
                     {item.endereco}
                   </span>
                 </div>
-
-                <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-600 shrink-0 transition-colors" />
+                <ChevronRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-600 shrink-0" />
               </button>
             ))}
           </div>
@@ -120,3 +216,4 @@ export function DestinationCard({
     </div>
   );
 }
+

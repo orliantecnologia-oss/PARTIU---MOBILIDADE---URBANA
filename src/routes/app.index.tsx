@@ -80,6 +80,28 @@ function PartiuPassengerHomeContent() {
   const [pushStatus, setPushStatus] = useState<NotificationPermission>("default");
   const [userName, setUserName] = useState("Rodrigo");
 
+  // Histórico de destinos recentes do passageiro
+  const [recentAddresses, setRecentAddresses] = useState<RecentAddressItem[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const salvo = localStorage.getItem("partiu_recent_destinations_v1");
+      if (salvo) {
+        const parsed = JSON.parse(salvo);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.slice(0, 2).map((item: any) => ({
+            id: item.id,
+            titulo: item.label || item.titulo || "Recente",
+            endereco: item.endereco,
+            coords: item.coords || [-41.886, -21.2065],
+          }));
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return [];
+  });
+
   // Banners Ativos do Ecossistema (Backend/Database)
   const [activeBanners, setActiveBanners] = useState<PromoBannerItem[]>(() => {
     const fromService = bannerService.getActiveBanners("PASSENGER");
@@ -114,8 +136,30 @@ function PartiuPassengerHomeContent() {
       localStorage.getItem("univans_user_nome");
     if (salvo) setUserName(salvo);
 
+    const carregarRecentes = () => {
+      try {
+        const salvoRec = localStorage.getItem("partiu_recent_destinations_v1");
+        if (salvoRec) {
+          const parsed = JSON.parse(salvoRec);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setRecentAddresses(
+              parsed.slice(0, 2).map((item: any) => ({
+                id: item.id,
+                titulo: item.label || item.titulo || "Recente",
+                endereco: item.endereco,
+                coords: item.coords || [-41.886, -21.2065],
+              }))
+            );
+          }
+        }
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("storage", carregarRecentes);
+
     // Inscrição reativa para alterações de banners no Admin
-    return bannerService.subscribe((all) => {
+    const unsubBanner = bannerService.subscribe((all) => {
       const passengerBanners = all.filter((b) => b.is_active && (b.category === "PASSENGER" || b.category === "ALL"));
       if (passengerBanners.length > 0) {
         setActiveBanners(
@@ -137,6 +181,11 @@ function PartiuPassengerHomeContent() {
         setActiveBanners([]);
       }
     });
+
+    return () => {
+      window.removeEventListener("storage", carregarRecentes);
+      unsubBanner();
+    };
   }, []);
 
   const pushAtivo = pushStatus === "granted";
@@ -341,7 +390,7 @@ function PartiuPassengerHomeContent() {
                 onSelectAddress={(item) => selectDestination(item.endereco, item.coords)}
                 currentAddress={origem}
                 userAccuracyMeters={userAccuracyMeters}
-                recentAddresses={[]}
+                recentAddresses={recentAddresses}
               />
 
               {/* Card 2 - Carrossel de Banners Promocionais (gap idêntico de 10px / 2.5 acima do rodapé) */}
