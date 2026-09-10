@@ -35,48 +35,32 @@ function calculateBearing(start: [number, number], end: [number, number]): numbe
 }
 
 /**
- * Cria polígono geodésico correspondente ao disco físico de precisão do GPS (raio em metros)
- * Padrão Uber / WhatsApp / Google Maps
- * Se a precisão for nula ou superior a 30m (ex.: desktop/IP), retorna polígono vazio
- * evitando desenhar um círculo gigante na tela do usuário.
+ * Tipos e funções matemáticas de Interpolação Linear (LERP) a 60 FPS
+ * para garantir deslizamento contínuo dos veículos sem teleporte (Padrão 99)
  */
-function createGeoJsonCircle(
-  center: [number, number],
-  radiusInMeters: number,
-  points = 32
-): any {
-  if (!radiusInMeters || radiusInMeters <= 0) {
-    return {
-      type: "Feature",
-      geometry: {
-        type: "Polygon",
-        coordinates: [],
-      },
-      properties: {},
-    };
-  }
+interface VehicleAnimState {
+  id: string;
+  fromLng: number;
+  fromLat: number;
+  fromBearing: number;
+  toLng: number;
+  toLat: number;
+  toBearing: number;
+  currentLng: number;
+  currentLat: number;
+  currentBearing: number;
+  startTime: number;
+  duration: number;
+  properties: Record<string, any>;
+}
 
-  const [lng, lat] = center;
-  // Capped estrito entre 5m e 30m (apenas satélite real GNSS)
-  const safeRadius = Math.max(5, Math.min(30, radiusInMeters));
-  const radiusKm = safeRadius / 1000;
-  const dLat = radiusKm / 110.574;
-  const dLng = radiusKm / (111.32 * Math.max(0.1, Math.cos((lat * Math.PI) / 180)));
-  const ring: [number, number][] = [];
+function lerpCoord(start: number, end: number, t: number): number {
+  return start + (end - start) * t;
+}
 
-  for (let i = 0; i <= points; i++) {
-    const theta = (i / points) * (2 * Math.PI);
-    ring.push([lng + dLng * Math.cos(theta), lat + dLat * Math.sin(theta)]);
-  }
-
-  return {
-    type: "Feature",
-    geometry: {
-      type: "Polygon",
-      coordinates: [ring],
-    },
-    properties: {},
-  };
+function lerpBearing(start: number, end: number, t: number): number {
+  const diff = ((end - start + 540) % 360) - 180;
+  return (start + diff * t + 360) % 360;
 }
 
 export interface PartiuRideMapProps {
@@ -151,6 +135,10 @@ export function PartiuRideMap({
   });
   const liveDriversGeoJson = useLiveDriversGeoJson(liveDrivers);
 
+  // Motor de Interpolação Linear (60 FPS LERP) para deslizamento suave dos carros parceiros (Padrão 99)
+  const vehiclesAnimMapRef = useRef<Map<string, VehicleAnimState>>(new Map());
+  const vehicleAnimRafRef = useRef<number | null>(null);
+
   // 1. INICIALIZAÇÃO DO MAPBOX E REGISTRO DE ASSETS VETORIAIS HD
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -170,7 +158,8 @@ export function PartiuRideMap({
       } as any);
 
       map.on("load", async () => {
-        mapboxService.applyUberCleanFilters(map);
+        // Aplica a paleta limpa estilo Google Maps (fundo #F1F3F4, ruas brancas, zero POIs comerciais)
+        mapboxService.applyGoogleMapsPalette(map);
         // Registra assets nativos para SymbolLayers e marcadores
         await registerAllMapAssets(map);
         // await registerAllMapboxMarkers(map);
@@ -219,43 +208,7 @@ export function PartiuRideMap({
         });
 
         // --------------------------------------------------------------------
-        // B0. FONTE E CAMADA: DISCO DE PRECISÃO FÍSICA GNSS (ACCURACY CIRCLE)
-        // --------------------------------------------------------------------
-        // Se a precisão for de satélite real (< 35m), desenha círculo sutil
-        // Se for telemetria IP/Desktop (> 35m), NÃO desenha círculo gigante para não poluir o mapa
-        const circleRadiusMeters =
-          userAccuracyMeters && userAccuracyMeters <= 35
-            ? Math.max(8, Math.min(userAccuracyMeters, 25))
-            : 0;
-
-        map.addSource("user-accuracy-source", {
-          type: "geojson",
-          data: createGeoJsonCircle(origemCoords, circleRadiusMeters),
-        });
-
-        map.addLayer({
-          id: "user-accuracy-fill",
-          type: "fill",
-          source: "user-accuracy-source",
-          paint: {
-            "fill-color": "#0284C7",
-            "fill-opacity": circleRadiusMeters > 0 ? 0.12 : 0,
-          },
-        });
-
-        map.addLayer({
-          id: "user-accuracy-stroke",
-          type: "line",
-          source: "user-accuracy-source",
-          paint: {
-            "line-color": "#0284C7",
-            "line-width": 1.2,
-            "line-opacity": circleRadiusMeters > 0 ? 0.35 : 0,
-          },
-        });
-
-        // --------------------------------------------------------------------
-        // B. FONTE E CAMADAS: USER LOCATION (NATIVE GPU WEBGL CIRCLES — PADRÃO 99 / UBER)
+        // B. FONTE E CAMADAS: USER LOCATION (EXATO PONTO AZUL PADRÃO 99)
         // --------------------------------------------------------------------
         map.addSource("user-location-source", {
           type: "geojson",
@@ -269,26 +222,26 @@ export function PartiuRideMap({
           },
         });
 
-        // Camada 1: Halo de Pulso Estático Suave
+        // Camada 1: Halo Concêntrico Azul Claro Suave (w-12 h-12 = 48px -> raio 24px)
         map.addLayer({
           id: "user-location-pulse-ring",
           type: "circle",
           source: "user-location-source",
           paint: {
-            "circle-radius": 14,
-            "circle-color": "#0284C7",
-            "circle-opacity": 0.22,
+            "circle-radius": 24,
+            "circle-color": "#3B82F6",
+            "circle-opacity": 0.20,
           },
         });
 
-        // Camada 2: Ponto Central Sólido 99 / Uber (Azul Ciano com Borda Branca)
+        // Camada 2: Ponto Central Sólido 99 (w-4 h-4 = 16px -> raio 8px) com borda branca 2.5px
         map.addLayer({
           id: "user-location-dot-core",
           type: "circle",
           source: "user-location-source",
           paint: {
-            "circle-radius": 7.5,
-            "circle-color": "#0284C7",
+            "circle-radius": 8,
+            "circle-color": "#2563EB",
             "circle-stroke-color": "#FFFFFF",
             "circle-stroke-width": 2.5,
           },
@@ -552,7 +505,19 @@ export function PartiuRideMap({
     };
   }, []);
 
-  // 2. ATUALIZAÇÃO DA COORDENADA DO PASSAGEIRO (PULSING DOT & ORIGIN PIN)
+  // 1.1 OBSERVADOR DE REDIMENSIONAMENTO (RESIZEOBSERVER) — COMPATIBILIDADE HALF-MAP
+  useEffect(() => {
+    if (!mapContainer.current) return;
+    const ro = new ResizeObserver(() => {
+      if (mapRef.current) {
+        mapRef.current.resize();
+      }
+    });
+    ro.observe(mapContainer.current);
+    return () => ro.disconnect();
+  }, [mapLoaded]);
+
+  // 2. ATUALIZAÇÃO DA COORDENADA DO PASSAGEIRO (EXATO PONTO AZUL 99 & ORIGIN PIN)
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
@@ -567,15 +532,6 @@ export function PartiuRideMap({
           coordinates: origemCoords,
         },
       });
-    }
-
-    const accuracySource = map.getSource("user-accuracy-source") as mapboxgl.GeoJSONSource | undefined;
-    if (accuracySource) {
-      const radius =
-        userAccuracyMeters && userAccuracyMeters <= 35
-          ? Math.max(8, Math.min(userAccuracyMeters, 25))
-          : 0;
-      accuracySource.setData(createGeoJsonCircle(origemCoords, radius));
     }
 
     const originSource = map.getSource("origin-pin-source") as mapboxgl.GeoJSONSource | undefined;
@@ -605,7 +561,7 @@ export function PartiuRideMap({
         });
       }
     }
-  }, [mapLoaded, origemCoords, status, userAccuracyMeters]);
+  }, [mapLoaded, origemCoords, status]);
 
   // 3. ATUALIZAÇÃO DA COORDENADA DO DESTINO (DESTINATION PIN)
   useEffect(() => {
@@ -985,22 +941,143 @@ export function PartiuRideMap({
     return () => {
       active = false;
     };
-  }, [mapLoaded, status, origemCoords, destinoCoords, driverCoords, modalidade, liveDriversGeoJson, cameraPadding]);
+  }, [mapLoaded, status, origemCoords, destinoCoords, driverCoords, modalidade, cameraPadding]);
 
-  // 10. SINCRONIZAÇÃO REATIVA COM A FROTA DE MOTORISTAS EM TEMPO REAL (REALTIME MAPBOX)
+  // 10. SINCRONIZAÇÃO REATIVA COM A FROTA DE MOTORISTAS EM TEMPO REAL (60FPS LERP - PADRÃO 99)
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
 
+    const idleSource = map.getSource("idle-drivers-source") as mapboxgl.GeoJSONSource | undefined;
+    if (!idleSource) return;
+
     if (
-      status !== "REVIEWING_ROUTE" &&
-      status !== "A_CAMINHO" &&
-      status !== "EM_VIAGEM"
+      status === "REVIEWING_ROUTE" ||
+      status === "A_CAMINHO" ||
+      status === "EM_VIAGEM"
     ) {
-      const idleSource = map.getSource("idle-drivers-source") as mapboxgl.GeoJSONSource | undefined;
-      if (idleSource) {
-        idleSource.setData(liveDriversGeoJson as any);
+      if (vehicleAnimRafRef.current) {
+        cancelAnimationFrame(vehicleAnimRafRef.current);
+        vehicleAnimRafRef.current = null;
       }
+      vehiclesAnimMapRef.current.clear();
+      idleSource.setData({ type: "FeatureCollection", features: [] });
+      return;
+    }
+
+    const now = performance.now();
+    const incomingFeatures = liveDriversGeoJson?.features || [];
+    const activeIds = new Set<string>();
+
+    incomingFeatures.forEach((feat: any, idx: number) => {
+      const id = String(feat.id || feat.properties?.id || idx);
+      activeIds.add(id);
+      const coords = feat.geometry?.coordinates;
+      if (!coords || coords.length < 2) return;
+      const [tLng, tLat] = coords;
+      const tBearing = Number(feat.properties?.heading ?? feat.properties?.bearing ?? 0);
+
+      const existing = vehiclesAnimMapRef.current.get(id);
+      if (!existing) {
+        // Veículo novo: entra instantaneamente na posição atual
+        vehiclesAnimMapRef.current.set(id, {
+          id,
+          fromLng: tLng,
+          fromLat: tLat,
+          fromBearing: tBearing,
+          toLng: tLng,
+          toLat: tLat,
+          toBearing: tBearing,
+          currentLng: tLng,
+          currentLat: tLat,
+          currentBearing: tBearing,
+          startTime: now,
+          duration: 0,
+          properties: feat.properties || {},
+        });
+      } else {
+        // Veículo existente: interpolação suave contínua a 60 FPS
+        const hasMoved =
+          Math.abs(existing.toLng - tLng) > 0.000005 ||
+          Math.abs(existing.toLat - tLat) > 0.000005;
+
+        if (hasMoved) {
+          existing.fromLng = existing.currentLng;
+          existing.fromLat = existing.currentLat;
+          existing.fromBearing = existing.currentBearing;
+          existing.toLng = tLng;
+          existing.toLat = tLat;
+
+          existing.toBearing =
+            tBearing !== 0
+              ? tBearing
+              : calculateBearing([existing.fromLng, existing.fromLat], [tLng, tLat]);
+
+          existing.startTime = now;
+          existing.duration = 1500; // Deslizamento suave ao longo de 1.5 segundos
+          existing.properties = feat.properties || existing.properties;
+        } else {
+          existing.properties = feat.properties || existing.properties;
+        }
+      }
+    });
+
+    // Remove veículos que ficaram offline ou saíram da área visível
+    for (const key of vehiclesAnimMapRef.current.keys()) {
+      if (!activeIds.has(key)) {
+        vehiclesAnimMapRef.current.delete(key);
+      }
+    }
+
+    const step = () => {
+      const curTime = performance.now();
+      let isStillMoving = false;
+      const features: any[] = [];
+
+      for (const v of vehiclesAnimMapRef.current.values()) {
+        const elapsed = curTime - v.startTime;
+        const progress = v.duration > 0 ? Math.min(1, elapsed / v.duration) : 1;
+
+        v.currentLng = lerpCoord(v.fromLng, v.toLng, progress);
+        v.currentLat = lerpCoord(v.fromLat, v.toLat, progress);
+        v.currentBearing = lerpBearing(v.fromBearing, v.toBearing, progress);
+
+        if (progress < 1) {
+          isStillMoving = true;
+        }
+
+        features.push({
+          type: "Feature",
+          id: v.id,
+          properties: {
+            ...v.properties,
+            heading: v.currentBearing,
+            bearing: v.currentBearing,
+          },
+          geometry: {
+            type: "Point",
+            coordinates: [v.currentLng, v.currentLat],
+          },
+        });
+      }
+
+      const source = mapRef.current?.getSource("idle-drivers-source") as mapboxgl.GeoJSONSource | undefined;
+      if (source) {
+        source.setData({
+          type: "FeatureCollection",
+          features,
+        });
+      }
+
+      if (isStillMoving) {
+        vehicleAnimRafRef.current = requestAnimationFrame(step);
+      } else {
+        vehicleAnimRafRef.current = null;
+      }
+    };
+
+    if (!vehicleAnimRafRef.current) {
+      vehicleAnimRafRef.current = requestAnimationFrame(step);
     }
   }, [mapLoaded, status, liveDriversGeoJson]);
 
@@ -1063,13 +1140,15 @@ export function PartiuRideMap({
     });
   }
 
-  const recenterBottomStyle = cameraPadding?.bottom
-    ? { bottom: `${cameraPadding.bottom + 16}px` }
-    : undefined;
+  const recenterBottomStyle =
+    cameraPadding?.bottom && cameraPadding.bottom > 100
+      ? { bottom: `${cameraPadding.bottom + 16}px` }
+      : undefined;
 
-  const layersMenuStyle = cameraPadding?.bottom
-    ? { bottom: `${cameraPadding.bottom + 76}px` }
-    : undefined;
+  const layersMenuStyle =
+    cameraPadding?.bottom && cameraPadding.bottom > 100
+      ? { bottom: `${cameraPadding.bottom + 76}px` }
+      : undefined;
 
   const handleSelectStyle = async (newStyle: "streets" | "traffic" | "satellite") => {
     setActiveStyleKey(newStyle);
@@ -1086,7 +1165,7 @@ export function PartiuRideMap({
 
     map.setStyle(url);
     map.once("style.load", async () => {
-      mapboxService.applyUberCleanFilters(map);
+      mapboxService.applyGoogleMapsPalette(map);
       await registerAllMapAssets(map);
 
       if (!map.getSource("route-source")) {
@@ -1114,30 +1193,6 @@ export function PartiuRideMap({
         });
       }
 
-      const circleRadiusMeters =
-        userAccuracyMeters && userAccuracyMeters <= 30
-          ? Math.max(8, Math.min(userAccuracyMeters, 25))
-          : 0;
-
-      if (!map.getSource("user-accuracy-source")) {
-        map.addSource("user-accuracy-source", {
-          type: "geojson",
-          data: createGeoJsonCircle(origemCoords, circleRadiusMeters),
-        });
-        map.addLayer({
-          id: "user-accuracy-fill",
-          type: "fill",
-          source: "user-accuracy-source",
-          paint: { "fill-color": "#0284C7", "fill-opacity": circleRadiusMeters > 0 ? 0.12 : 0 },
-        });
-        map.addLayer({
-          id: "user-accuracy-stroke",
-          type: "line",
-          source: "user-accuracy-source",
-          paint: { "line-color": "#0284C7", "line-width": 1.2, "line-opacity": circleRadiusMeters > 0 ? 0.35 : 0 },
-        });
-      }
-
       if (!map.getSource("user-location-source")) {
         map.addSource("user-location-source", {
           type: "geojson",
@@ -1147,25 +1202,25 @@ export function PartiuRideMap({
             geometry: { type: "Point", coordinates: origemCoords },
           },
         });
-        // Camada 1: Halo de Pulso Estático Suave
+        // Camada 1: Halo Concêntrico Azul Claro Suave (w-12 h-12 = 48px -> raio 24px)
         map.addLayer({
           id: "user-location-pulse-ring",
           type: "circle",
           source: "user-location-source",
           paint: {
-            "circle-radius": 14,
-            "circle-color": "#0284C7",
-            "circle-opacity": 0.22,
+            "circle-radius": 24,
+            "circle-color": "#3B82F6",
+            "circle-opacity": 0.20,
           },
         });
-        // Camada 2: Ponto Central Sólido HD (Azul 99 com borda branca)
+        // Camada 2: Ponto Central Sólido 99 (w-4 h-4 = 16px -> raio 8px) com borda branca 2.5px
         map.addLayer({
           id: "user-location-dot-core",
           type: "circle",
           source: "user-location-source",
           paint: {
-            "circle-radius": 7,
-            "circle-color": "#0284C7",
+            "circle-radius": 8,
+            "circle-color": "#2563EB",
             "circle-stroke-color": "#FFFFFF",
             "circle-stroke-width": 2.5,
           },
@@ -1233,7 +1288,7 @@ export function PartiuRideMap({
       <div
         style={layersMenuStyle}
         className={`absolute right-4 z-20 flex flex-col items-end gap-2 ${
-          !cameraPadding?.bottom ? "bottom-[404px] sm:bottom-[444px]" : ""
+          !layersMenuStyle ? "bottom-20" : ""
         }`}
       >
         {showLayersMenu && (
@@ -1246,7 +1301,7 @@ export function PartiuRideMap({
               onClick={() => handleSelectStyle("streets")}
               className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-left ${
                 activeStyleKey === "streets"
-                  ? "bg-emerald-50 text-emerald-800 font-extrabold border border-emerald-200"
+                  ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200"
                   : "text-slate-700 hover:bg-slate-100"
               }`}
             >
@@ -1254,14 +1309,14 @@ export function PartiuRideMap({
                 <span>🗺️</span>
                 <span>Nomes das Ruas</span>
               </div>
-              {activeStyleKey === "streets" && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
+              {activeStyleKey === "streets" && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
             </button>
             <button
               type="button"
               onClick={() => handleSelectStyle("traffic")}
               className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-left ${
                 activeStyleKey === "traffic"
-                  ? "bg-emerald-50 text-emerald-800 font-extrabold border border-emerald-200"
+                  ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200"
                   : "text-slate-700 hover:bg-slate-100"
               }`}
             >
@@ -1269,14 +1324,14 @@ export function PartiuRideMap({
                 <span>🚗</span>
                 <span>Trânsito & Vias</span>
               </div>
-              {activeStyleKey === "traffic" && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
+              {activeStyleKey === "traffic" && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
             </button>
             <button
               type="button"
               onClick={() => handleSelectStyle("satellite")}
               className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-left ${
                 activeStyleKey === "satellite"
-                  ? "bg-emerald-50 text-emerald-800 font-extrabold border border-emerald-200"
+                  ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200"
                   : "text-slate-700 hover:bg-slate-100"
               }`}
             >
@@ -1284,7 +1339,7 @@ export function PartiuRideMap({
                 <span>🛰️</span>
                 <span>Satélite Real</span>
               </div>
-              {activeStyleKey === "satellite" && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
+              {activeStyleKey === "satellite" && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
             </button>
           </div>
         )}
@@ -1292,8 +1347,8 @@ export function PartiuRideMap({
         <button
           type="button"
           onClick={() => setShowLayersMenu((prev) => !prev)}
-          className={`w-12 h-12 rounded-full bg-white/95 backdrop-blur-md text-slate-800 shadow-xl border border-slate-200/80 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-black/5 ${
-            showLayersMenu ? "ring-emerald-500 text-emerald-600" : ""
+          className={`w-11 h-11 rounded-full bg-white/95 backdrop-blur-md text-slate-800 shadow-xl border border-slate-200/80 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-black/5 ${
+            showLayersMenu ? "ring-blue-500 text-blue-600" : ""
           }`}
           title="Alternar estilo do mapa (Nomes de Ruas, Trânsito, Satélite)"
         >
@@ -1301,18 +1356,18 @@ export function PartiuRideMap({
         </button>
       </div>
 
-      {/* Botão Flutuante: Centralizar no Passageiro (Estilo Uber/99) */}
+      {/* Botão Flutuante: Centralizar no Passageiro (Estilo 99 / Uber) */}
       {!hideRecenter && (
         <button
           type="button"
           onClick={handleRecenter}
           style={recenterBottomStyle}
-          className={`absolute right-4 z-20 w-12 h-12 rounded-full bg-white/95 backdrop-blur-md text-slate-800 shadow-xl border border-slate-200/80 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-black/5 ${
-            !cameraPadding?.bottom ? "bottom-[340px] sm:bottom-[380px]" : ""
+          className={`absolute right-4 z-20 w-11 h-11 rounded-full bg-white/95 backdrop-blur-md text-slate-800 shadow-xl border border-slate-200/80 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-black/5 ${
+            !recenterBottomStyle ? "bottom-6" : ""
           }`}
           title="Centralizar no meu local exato"
         >
-          <LocateFixed className="w-6 h-6 text-emerald-600" />
+          <LocateFixed className="w-5 h-5 text-blue-600" />
         </button>
       )}
 

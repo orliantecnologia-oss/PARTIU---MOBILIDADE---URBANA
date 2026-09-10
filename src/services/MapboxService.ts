@@ -29,14 +29,140 @@ export class MapboxService {
   }
 
   public getStyleUrl(
-    variant: "customStudio" | "cleanDay" | "streets" | "cleanNight" | "navigationTraffic" | "satelliteStreets" = "streets"
+    variant: "googleClone99" | "customStudio" | "cleanDay" | "streets" | "cleanNight" | "navigationTraffic" | "satelliteStreets" = "streets"
   ): string {
-    const url = (MapboxConfig.STYLES as any)[variant] || MapboxConfig.STYLES.cleanDay;
+    const url = (MapboxConfig.STYLES as any)[variant];
+    if (variant === "googleClone99") {
+      if (url && url !== "COLE_SUA_URL_GOOGLE_CLONE_DO_MAPBOX_STUDIO_AQUI" && url.startsWith("mapbox://")) {
+        return url;
+      }
+      // Fallback para streets-v12 com aplicação programática da paleta Google Maps (99)
+      return MapboxConfig.STYLES.cleanDay;
+    }
     // Se o usuário ainda não colou a URL do Mapbox Studio, retorna o fallback cleanDay
     if (variant === "customStudio" && (!url || url === "COLE_SUA_URL_DO_MAPBOX_STUDIO_AQUI" || !url.startsWith("mapbox://"))) {
       return MapboxConfig.STYLES.cleanDay;
     }
-    return url;
+    return url || MapboxConfig.STYLES.cleanDay;
+  }
+
+  /**
+   * Mimetiza a paleta visual exata do Google Maps (utilizada pelo app 99):
+   * - Fundo cinza gelo (#F1F3F4 / #E8EAED)
+   * - Água em azul pastel suave (#C2E0FF)
+   * - Áreas verdes em menta suave (#CEEAD6)
+   * - Asfalto e vias urbanas em branco puro (#FFFFFF) com contorno cinza suave (#E5E7EB / #D1D5DB)
+   * - Prédios em cinza sutil (#E8EAED)
+   * - Tipografia de logradouros em grafite (#3C4043) com halo branco nítido
+   * - Zero poluição de ícones de POIs comerciais
+   */
+  public applyGoogleMapsPalette(map: mapboxgl.Map): void {
+    if (!map || !map.getStyle) return;
+    this.applyUberCleanFilters(map);
+
+    try {
+      const style = map.getStyle();
+      if (!style || !style.layers) return;
+
+      for (const layer of style.layers) {
+        const id = (layer.id || "").toLowerCase();
+        const type = layer.type;
+
+        if (!map.getLayer(layer.id)) continue;
+
+        try {
+          // ── 1. TERRENO E PLANO DE FUNDO CINZA-GELO (GOOGLE MAPS) ──
+          if (id === "background" || id === "land") {
+            map.setPaintProperty(layer.id, "background-color", "#F1F3F4");
+          }
+
+          // ── 2. ÁREAS VERDES E PARQUES PASTEL (#CEEAD6) ─────────────
+          if (
+            (id.includes("park") ||
+              id.includes("green") ||
+              id.includes("grass") ||
+              id.includes("landcover") ||
+              id.includes("national-park") ||
+              id.includes("wood")) &&
+            (type === "fill" || type === "background")
+          ) {
+            map.setPaintProperty(layer.id, "fill-color", "#CEEAD6");
+            map.setPaintProperty(layer.id, "fill-opacity", 0.75);
+          } else if (id.includes("landuse") && type === "fill") {
+            if (id.includes("residential") || id.includes("commercial")) {
+              map.setPaintProperty(layer.id, "fill-color", "#EDEDEE");
+              map.setPaintProperty(layer.id, "fill-opacity", 0.45);
+            }
+          }
+
+          // ── 3. CORPOS D'ÁGUA EM AZUL PASTEL GOOGLE (#C2E0FF) ───────
+          if ((id.includes("water") && type === "fill") || id === "water") {
+            map.setPaintProperty(layer.id, "fill-color", "#C2E0FF");
+          }
+
+          // ── 4. MALHA VIÁRIA: RUAS BRANCAS (#FFFFFF) COM CASING CINZA ──
+          if (type === "line" && id.includes("road")) {
+            const isCasing = id.includes("case") || id.includes("casing");
+
+            // Rodovias e vias expressas (brancas ou leve tom marfim, com borda sutil)
+            if (id.includes("motorway") || id.includes("trunk") || id.includes("primary")) {
+              if (isCasing) {
+                map.setPaintProperty(layer.id, "line-color", "#D1D5DB");
+                map.setPaintProperty(layer.id, "line-opacity", 0.85);
+              } else {
+                map.setPaintProperty(layer.id, "line-color", "#FFFFFF");
+                map.setPaintProperty(layer.id, "line-opacity", 1.0);
+              }
+            }
+            // Vias secundárias e terciárias
+            else if (id.includes("secondary") || id.includes("tertiary")) {
+              if (isCasing) {
+                map.setPaintProperty(layer.id, "line-color", "#E5E7EB");
+              } else {
+                map.setPaintProperty(layer.id, "line-color", "#FFFFFF");
+                map.setPaintProperty(layer.id, "line-opacity", 1.0);
+              }
+            }
+            // Vias residenciais e locais
+            else if (
+              id.includes("street") ||
+              id.includes("local") ||
+              id.includes("minor") ||
+              id.includes("service")
+            ) {
+              if (isCasing) {
+                map.setPaintProperty(layer.id, "line-color", "#E5E7EB");
+              } else {
+                map.setPaintProperty(layer.id, "line-color", "#FFFFFF");
+                map.setPaintProperty(layer.id, "line-opacity", 0.95);
+              }
+            }
+          }
+
+          // ── 5. EDIFICAÇÕES E PRÉDIOS EM CINZA SUAVE ────────────────
+          if (type === "fill" && (id.includes("building") || id === "building")) {
+            map.setPaintProperty(layer.id, "fill-color", "#E8EAED");
+            map.setPaintProperty(layer.id, "fill-opacity", 0.6);
+          }
+
+          // ── 6. NOMES DE RUAS E LOGRADOUROS (ALTA LEGIBILIDADE) ──────
+          if (type === "symbol" && id.includes("road") && id.includes("label")) {
+            map.setPaintProperty(layer.id, "text-color", "#3C4043");
+            map.setPaintProperty(layer.id, "text-halo-color", "#FFFFFF");
+            map.setPaintProperty(layer.id, "text-halo-width", 2.0);
+          }
+
+          // ── 7. NOMES DE BAIRROS E CIDADES ─────────────────────────
+          if (type === "symbol" && (id.includes("place") || id.includes("settlement"))) {
+            map.setPaintProperty(layer.id, "text-color", "#5F6368");
+            map.setPaintProperty(layer.id, "text-halo-color", "#FFFFFF");
+            map.setPaintProperty(layer.id, "text-halo-width", 1.8);
+          }
+        } catch (_) {
+          // Algumas camadas podem não aceitar propriedades específicas
+        }
+      }
+    } catch (_) {}
   }
 
   public getDefaultCenter(): [number, number] {

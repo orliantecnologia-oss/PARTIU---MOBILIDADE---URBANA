@@ -322,16 +322,22 @@ function PartiuPassengerHomeContent() {
   }, [isSearching, mapStatus, activeSheetHeight]);
 
   return (
-    <div className="relative w-full h-[100dvh] max-h-[100dvh] bg-slate-100 overflow-hidden font-sans select-none">
+    <div className="relative w-full h-[100dvh] max-h-[100dvh] bg-slate-100 overflow-hidden font-sans select-none flex flex-col">
       {/* BANNER DE RESILIÊNCIA DE REDE & TOAST FLUTUANTE DE RINGING */}
       <NetworkReconnectionBanner />
       <LiveRingingToast />
       <GpsPermissionModal />
 
       {/* ========================================================================= */}
-      {/* CAMADA 0 (FUNDO / BACKGROUND): MAPA EM TELA CHEIA FIXO (POSITION: ABSOLUTE) */}
+      {/* SEÇÃO DO MAPA: HALF-MAP (46dvh) NO ESTADO IDLE / TELA CHEIA NOS DEMAIS    */}
       {/* ========================================================================= */}
-      <div className="absolute inset-0 z-0 w-full h-full pointer-events-auto">
+      <div
+        className={`w-full transition-[height] duration-300 ease-out pointer-events-auto ${
+          state === "IDLE"
+            ? "relative h-[46dvh] shrink-0 z-0"
+            : "absolute inset-0 z-0 h-full"
+        }`}
+      >
         <PartiuRideMap
           status={mapStatus}
           modalidade={categoriaVeiculo === "MOTO" ? "MOTO" : "POP"}
@@ -365,7 +371,7 @@ function PartiuPassengerHomeContent() {
       {state === "IDLE" ? (
         <>
           {/* ========================================================================= */}
-          {/* CAMADA 1 (ELEMENTO FIXO TOPO): CABEÇALHO DINÂMICO                         */}
+          {/* CABEÇALHO FLUTUANTE SOBRE O TOPO DO MAPA                                 */}
           {/* ========================================================================= */}
           <AnimatedWaveHeader
             userName={userName}
@@ -377,33 +383,40 @@ function PartiuPassengerHomeContent() {
           />
 
           {/* ========================================================================= */}
-          {/* CAMADA 2: BOTTOM SHEET ANCORADO COM ESPAÇAMENTO UNIFORME (CARD + BANNERS + RODAPÉ) */}
+          {/* CONTÊINER BRANCO INFERIOR (PADRÃO 99): BORDA ARREDONDADA E OVERLAP       */}
           {/* ========================================================================= */}
-          <div className="absolute inset-x-0 bottom-0 z-20 pointer-events-none flex flex-col justify-end w-full">
-            {/* Wrapper Agrupado: Card "Para onde vamos?" e Carrossel de Banners com o mesmo gap (mb-2.5) para o rodapé */}
-            <div className="w-[92%] max-w-lg mx-auto space-y-2.5 pointer-events-auto flex flex-col justify-end mb-2.5">
-              {/* Card 1 - "Para onde vamos?" com margens laterais mínimas (92% width) */}
-              <DestinationCard
-                onSearchClick={startSearch}
-                onEditPickupClick={startEditingPickup}
-                onAdjustPinOnMap={proceedToConfirmPickup}
-                onSelectAddress={(item) => selectDestination(item.endereco, item.coords)}
-                currentAddress={origem}
-                userAccuracyMeters={userAccuracyMeters}
-                recentAddresses={recentAddresses}
-              />
-
-              {/* Card 2 - Carrossel de Banners Promocionais (gap idêntico de 10px / 2.5 acima do rodapé) */}
-              {activeBanners && activeBanners.length > 0 && (
-                <PromoCarousel
-                  banners={activeBanners}
-                  autoPlayIntervalMs={3000}
-                />
-              )}
+          <div className="relative flex-1 bg-white rounded-t-[28px] -mt-6 z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] flex flex-col justify-between overflow-hidden">
+            {/* Indicador de Arrasto / Pílula Central Cinza 99 */}
+            <div className="w-full pt-2.5 pb-1 flex justify-center shrink-0">
+              <div className="w-10 h-1 bg-slate-300 rounded-full" />
             </div>
 
-            {/* Barra de Navegação Inferior Fixa (Rodapé) */}
-            <div className="w-full pointer-events-auto">
+            {/* Conteúdo com Scroll Suave: Card "Para onde vamos?" + Histórico 2 itens + Banners */}
+            <div className="flex-1 overflow-y-auto px-4 py-1 space-y-2.5">
+              <div className="max-w-lg mx-auto space-y-2.5">
+                {/* Input "Para onde vamos?" ultra-compacto com histórico de 2 endereços */}
+                <DestinationCard
+                  onSearchClick={startSearch}
+                  onEditPickupClick={startEditingPickup}
+                  onAdjustPinOnMap={proceedToConfirmPickup}
+                  onSelectAddress={(item) => selectDestination(item.endereco, item.coords)}
+                  currentAddress={origem}
+                  userAccuracyMeters={userAccuracyMeters}
+                  recentAddresses={recentAddresses}
+                />
+
+                {/* Carrossel de Banners Promocionais */}
+                {activeBanners && activeBanners.length > 0 && (
+                  <PromoCarousel
+                    banners={activeBanners}
+                    autoPlayIntervalMs={3000}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Barra de Navegação Inferior Fixa Ancorada no Rodapé */}
+            <div className="w-full shrink-0 border-t border-slate-100 bg-white">
               <HomeBottomNav activeTab="corridas" />
             </div>
           </div>

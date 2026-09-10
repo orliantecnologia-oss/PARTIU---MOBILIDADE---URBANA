@@ -51,11 +51,23 @@ export class MapboxConfig {
   // Estilos canônicos Mapbox Studio
   public static readonly STYLES = {
     // ──────────────────────────────────────────────────────────────────────────
-    // 🎨 ESTILO CUSTOM MAPBOX STUDIO (TONS FRIOS PADRÃO 99 APP)
-    // Cole aqui a URL do seu estilo personalizado criado no Mapbox Studio.
-    // Exemplo: "mapbox://styles/seu-usuario/clxxxxxxxxxxxxxxxxx"
-    // Enquanto não configurar, o fallback será o Light v11 (tons neutros).
+    // 🎨 TODO [DESENVOLVEDOR]: ESTILO "GOOGLE CLONE" (PADRÃO 99) NO MAPBOX STUDIO
     // ──────────────────────────────────────────────────────────────────────────
+    // Para replicar 100% o estilo idêntico do Google Maps / 99 App via Studio:
+    // 1. Acesse https://studio.mapbox.com
+    // 2. Crie um novo estilo baseado no template "Streets" ou "Light"
+    // 3. Configure:
+    //    - Fundo (background/land): Cinza gelo (#F1F3F4 ou #E8EAED)
+    //    - Ruas locais: Brancas (#FFFFFF) com contorno sutil (#E5E7EB)
+    //    - Rodovias/Vias expressas: Amarelo suave (#FDE68A / #FEF08A)
+    //    - Água: Azul suave (#C4E0E5 ou #A8DADC)
+    //    - Áreas verdes: Verde menta suave (#E5F0E6)
+    //    - Oculte 100% dos POIs comerciais (restaurantes, lojas, bancos)
+    // 4. Publique e cole a URL abaixo:
+    // Exemplo: "mapbox://styles/seu-usuario/clxxxxxxxxxxxxxxxxx"
+    // (Enquanto não configurada, o motor aplica a paleta Google programaticamente sobre streets-v12)
+    // ──────────────────────────────────────────────────────────────────────────
+    googleClone99: "COLE_SUA_URL_GOOGLE_CLONE_DO_MAPBOX_STUDIO_AQUI",
     customStudio: "COLE_SUA_URL_DO_MAPBOX_STUDIO_AQUI",
     // Estilo Clean Day: Mapbox Streets v12 — Nomes de ruas, logradouros e bairros em alta definição e contraste
     cleanDay: "mapbox://styles/mapbox/streets-v12",
