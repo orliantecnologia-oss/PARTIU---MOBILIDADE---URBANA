@@ -1213,15 +1213,6 @@ export function PartiuRideMap({
       {/* Canvas WebGL do Mapbox */}
       <div ref={mapContainer} className="w-full h-full" />
 
-      {/* Indicador Oficial de Frota Real: Se não houver motoristas transmitindo no Supabase */}
-      {status === "IDLE" && totalDrivers === 0 && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none animate-in fade-in duration-300">
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-950/85 backdrop-blur-md text-slate-100 text-xs font-extrabold shadow-2xl border border-white/10 select-none">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-            <span>Buscando motoristas na região</span>
-          </div>
-        </div>
-      )}
 
       {/* Fallback de rede / WebGL */}
       {mapError && (
