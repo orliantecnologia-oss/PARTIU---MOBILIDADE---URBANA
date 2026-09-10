@@ -789,5 +789,174 @@ BEGIN
 END $$;
 
 -- ==============================================================================
--- FIM DO SCRIPT DE SETUP — BANCO 100% PRONTO PARA O PARTIU
+-- 16. TABELA CANÔNICA DE CORRIDAS EM TEMPO REAL (RIDES)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.rides (
+  id TEXT PRIMARY KEY,
+  tenant_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
+  passenger_id TEXT NOT NULL,
+  passenger_name TEXT NOT NULL,
+  passenger_phone TEXT,
+  pickup_address TEXT NOT NULL,
+  pickup_lat DOUBLE PRECISION NOT NULL,
+  pickup_lng DOUBLE PRECISION NOT NULL,
+  pickup_location geography(Point, 4326),
+  dropoff_address TEXT NOT NULL,
+  dropoff_lat DOUBLE PRECISION NOT NULL,
+  dropoff_lng DOUBLE PRECISION NOT NULL,
+  dropoff_location geography(Point, 4326),
+  status TEXT NOT NULL DEFAULT 'REQUESTED' CHECK (
+    status IN (
+      'REQUESTED', 'SEARCHING_R1', 'SEARCHING_R2', 'SEARCHING_R3',
+      'ACCEPTED', 'DRIVER_ASSIGNED', 'DRIVER_ARRIVING', 'DRIVER_EN_ROUTE', 'DRIVER_ARRIVED',
+      'IN_PROGRESS', 'ON_TRIP', 'COMPLETED', 'CANCELLED', 'TIMEOUT'
+    )
+  ),
+  vehicle_category TEXT NOT NULL DEFAULT 'CARRO',
+  price_estimated_brl NUMERIC(10,2) NOT NULL,
+  price_final_brl NUMERIC(10,2),
+  distance_km NUMERIC(6,2) NOT NULL,
+  duration_minutes INT NOT NULL,
+  driver_id TEXT,
+  driver_name TEXT,
+  driver_phone TEXT,
+  driver_coords JSONB,
+  polyline TEXT,
+  payment_method TEXT NOT NULL DEFAULT 'pix',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_rides_status_created ON public.rides (status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_rides_passenger ON public.rides (passenger_id);
+CREATE INDEX IF NOT EXISTS idx_rides_driver ON public.rides (driver_id);
+
+ALTER TABLE public.rides ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Acesso público leituras rides" ON public.rides;
+CREATE POLICY "Acesso público leituras rides" ON public.rides FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Acesso público inserções rides" ON public.rides;
+CREATE POLICY "Acesso público inserções rides" ON public.rides FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Acesso público updates rides" ON public.rides;
+CREATE POLICY "Acesso público updates rides" ON public.rides FOR UPDATE USING (true);
+
+-- ==============================================================================
+-- 17. TABELA CANÔNICA DE TELEMETRIA EM TEMPO REAL (DRIVER_LOCATIONS)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.driver_locations (
+  driver_id TEXT PRIMARY KEY,
+  tenant_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
+  latitude DOUBLE PRECISION NOT NULL,
+  longitude DOUBLE PRECISION NOT NULL,
+  heading DOUBLE PRECISION NOT NULL DEFAULT 0,
+  speed DOUBLE PRECISION NOT NULL DEFAULT 0,
+  accuracy DOUBLE PRECISION NOT NULL DEFAULT 10,
+  status TEXT NOT NULL DEFAULT 'AVAILABLE',
+  category TEXT NOT NULL DEFAULT 'CARRO',
+  current_ride_id TEXT,
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'driver_locations' AND column_name = 'location'
+  ) THEN
+    ALTER TABLE public.driver_locations
+    ADD COLUMN location geography(Point, 4326)
+    GENERATED ALWAYS AS (ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)::geography) STORED;
+  END IF;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_driver_locations_gist ON public.driver_locations USING GIST (location);
+CREATE INDEX IF NOT EXISTS idx_driver_locations_status_cat ON public.driver_locations (status, category, updated_at);
+
+ALTER TABLE public.driver_locations ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Acesso público leituras driver_locations" ON public.driver_locations;
+CREATE POLICY "Acesso público leituras driver_locations" ON public.driver_locations FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Acesso público updates driver_locations" ON public.driver_locations;
+CREATE POLICY "Acesso público updates driver_locations" ON public.driver_locations FOR ALL USING (true);
+
+-- ==============================================================================
+-- 18. ACTIVE_DRIVERS (COMPATIBILIDADE LOGÍSTICA V4)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.active_drivers (
+  driver_id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  vehicle_category TEXT NOT NULL DEFAULT 'CARRO',
+  coords geography(Point, 4326) NOT NULL,
+  heading DOUBLE PRECISION DEFAULT 0,
+  speed_kmh DOUBLE PRECISION DEFAULT 0,
+  accuracy_meters DOUBLE PRECISION DEFAULT 5,
+  status TEXT NOT NULL DEFAULT 'ONLINE_IDLE',
+  is_online BOOLEAN NOT NULL DEFAULT true,
+  is_available BOOLEAN NOT NULL DEFAULT true,
+  rating NUMERIC(3,2) DEFAULT 5.00,
+  acceptance_rate NUMERIC(5,2) DEFAULT 100.00,
+  last_ping_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.active_drivers ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Acesso público active_drivers" ON public.active_drivers;
+CREATE POLICY "Acesso público active_drivers" ON public.active_drivers FOR ALL USING (true);
+
+-- ==============================================================================
+-- 19. ENTREGAS DUAL-PIN (DELIVERY_PACKAGES)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.delivery_packages (
+  id TEXT PRIMARY KEY,
+  sender_id TEXT NOT NULL,
+  sender_phone TEXT,
+  recipient_name TEXT NOT NULL,
+  recipient_phone TEXT NOT NULL,
+  pickup_address TEXT NOT NULL,
+  dropoff_address TEXT NOT NULL,
+  pickup_pin_hash TEXT NOT NULL,
+  delivery_pin_hash TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'WAITING_COURIER',
+  courier_id TEXT,
+  courier_name TEXT,
+  courier_phone TEXT,
+  courier_coords JSONB,
+  failed_pin_attempts INT DEFAULT 0,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.delivery_packages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Acesso público delivery_packages" ON public.delivery_packages;
+CREATE POLICY "Acesso público delivery_packages" ON public.delivery_packages FOR ALL USING (true);
+
+-- ==============================================================================
+-- 20. CHAT EM TEMPO REAL (CHAT_MESSAGES)
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.chat_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  ride_id TEXT NOT NULL,
+  sender_id TEXT NOT NULL,
+  sender_role TEXT NOT NULL CHECK (sender_role IN ('passenger', 'driver', 'system')),
+  content TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_messages_ride ON public.chat_messages (ride_id, created_at ASC);
+
+ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Acesso público chat_messages" ON public.chat_messages;
+CREATE POLICY "Acesso público chat_messages" ON public.chat_messages FOR ALL USING (true);
+
+-- ==============================================================================
+-- 21. HABILITAÇÃO DO SUPABASE REALTIME (WEBSOCKETS)
+-- ==============================================================================
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.rides; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.driver_locations; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.active_drivers; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_messages; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.partiu_corridas; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+DO $$ BEGIN ALTER PUBLICATION supabase_realtime ADD TABLE public.partiu_driver_status; EXCEPTION WHEN OTHERS THEN NULL; END $$;
+
+-- ==============================================================================
+-- FIM DO SCRIPT DE SETUP — BANCO 100% PRONTO PARA O PARTIU MOBILIDADE URBANA
 -- ==============================================================================
