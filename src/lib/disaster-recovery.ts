@@ -73,7 +73,7 @@ export function getDisasterRecoveryOverview(): DisasterRecoveryStatus[] {
       service: "PostgreSQL / PostGIS Database (Supabase Managed)",
       isHealthy: true,
       failoverActive: false,
-      primaryEndpoint: "db.lbpfwbnhkyhgaeflzuno.supabase.co",
+      primaryEndpoint: `db.${(typeof process !== "undefined" && process.env?.["SUPABASE_PROJECT_ID"]) || "lgcqtvmhfhclyprpqfpn"}.supabase.co`,
       standbyEndpoint: "supabase-managed-pitr-wal",
       lastBackupTimestamp: agora,
       backupVerified: true,
