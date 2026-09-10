@@ -1,8 +1,8 @@
 /**
  * ==============================================================================
- * 📢 UNIVANS BROADCAST NOTIFICATION ENGINE (v4.0)
+ * 📢 PARTIU BROADCAST NOTIFICATION ENGINE (v4.0)
  * Sistema de Disparo de Notificações Segmentadas por Categoria
- * (Usuário / Grátis / Motorista / Todos) com Web Push e Entrega In-App
+ * (Passageiro / Cupons / Motorista & Entregador / Todos) com Web Push e In-App
  * ==============================================================================
  */
 
@@ -25,43 +25,43 @@ export interface NotificacaoBroadcast {
   totalDestinatariosEstimados: number;
 }
 
-const STORAGE_KEY_NOTIFICACOES = "univans_broadcast_notificacoes";
-const STORAGE_KEY_LIDAS = "univans_notificacoes_lidas";
+const STORAGE_KEY_NOTIFICACOES = "partiu_broadcast_notificacoes";
+const STORAGE_KEY_LIDAS = "partiu_notificacoes_lidas";
 
 const mocksIniciais: NotificacaoBroadcast[] = [
   {
     id: "notif-001",
-    titulo: "Operação Normal em Todas as Linhas",
-    mensagem: "Linhas para Maceió, Arapiraca e Penedo com saídas pontuais e assentos liberados.",
+    titulo: "Operação Normal — Alta Disponibilidade",
+    mensagem: "Corridas de carro (Partiu Pop), moto e entregas expressas com tempo de resposta médio de 3 minutos.",
     categoria: "todos",
     urgencia: "info",
     rotaDestino: "/app",
     criadoEm: new Date(Date.now() - 3600000 * 2).toISOString(),
-    enviadoPor: "Central de Operações UniVans",
-    totalDestinatariosEstimados: 1240,
+    enviadoPor: "Central de Operações PARTIU",
+    totalDestinatariosEstimados: 2450,
   },
   {
     id: "notif-002",
-    titulo: "Cota de Viagens Gratuitas Atualizada",
-    mensagem: "Suas 4 passagens gratuitas deste mês já estão disponíveis no sistema.",
+    titulo: "Desconto de 20% na Sua Próxima Corrida",
+    mensagem: "Use o cupom PARTIU20 e ganhe 20% OFF no seu próximo trajeto de carro ou moto.",
     categoria: "gratis",
-    urgencia: "info",
-    rotaDestino: "/app/beneficios",
+    urgencia: "promocao",
+    rotaDestino: "/app",
     criadoEm: new Date(Date.now() - 3600000 * 5).toISOString(),
-    enviadoPor: "Setor de Passe Livre & Gratuidade",
-    totalDestinatariosEstimados: 180,
+    enviadoPor: "Marketing PARTIU",
+    totalDestinatariosEstimados: 1800,
   },
   {
     id: "notif-003",
-    titulo: "Aviso de Fiscalização no Trevo da Massagueira",
+    titulo: "Alta Demanda na Região Central (1.4x)",
     mensagem:
-      "Equipe do BPRv realizando blitz de rotina. Mantenha manifesto de passageiros e tacógrafo em dia.",
+      "Tarifa dinâmica ativa nas imediações do centro. Fature mais por quilômetro rodado neste horário de pico!",
     categoria: "motorista",
     urgencia: "alerta",
     rotaDestino: "/app/motorista",
     criadoEm: new Date(Date.now() - 3600000 * 8).toISOString(),
-    enviadoPor: "Despacho Operacional",
-    totalDestinatariosEstimados: 68,
+    enviadoPor: "Despacho Inteligente PARTIU",
+    totalDestinatariosEstimados: 120,
   },
 ];
 
@@ -76,37 +76,37 @@ export const TEMPLATES_NOTIFICACOES = [
     rotulo: "Alerta de Trânsito / Chuva",
     categoria: "todos" as CategoriaDestinatario,
     urgencia: "alerta" as UrgenciaNotificacao,
-    titulo: "Aviso de Lentidão na AL-101 Sul",
+    titulo: "Chuva Intensa na Cidade",
     mensagem:
-      "Devido às fortes chuvas, o tráfego próximo ao Trevo do Francês está lento. As vans podem operar com tolerância de até 15 minutos.",
+      "Tráfego com velocidade reduzida nas principais avenidas. O tempo de chegada dos motoristas parceiros pode sofrer pequeno atraso.",
     rotaDestino: "/app",
   },
   {
-    rotulo: "Recadastramento Passe Livre",
-    categoria: "gratis" as CategoriaDestinatario,
-    urgencia: "urgente" as UrgenciaNotificacao,
-    titulo: "Renovação Anual do Passe Livre Escolar/PCD",
+    rotulo: "Cupom Promocional (Passageiros)",
+    categoria: "usuario" as CategoriaDestinatario,
+    urgencia: "promocao" as UrgenciaNotificacao,
+    titulo: "Sua Corrida com Desconto Especial!",
     mensagem:
-      "Beneficiários de gratuidade legal têm até o final do mês para atualizar a declaração na cooperativa e manter as cotas ativas.",
-    rotaDestino: "/app/beneficios",
+      "Aproveite 15% de desconto em corridas Partiu Pop hoje até as 22h. Não precisa digitar código, já está ativo!",
+    rotaDestino: "/app",
   },
   {
-    rotulo: "Vistoria Semestral das Vans",
+    rotulo: "Aviso de Tarifa Dinâmica (Motoristas)",
     categoria: "motorista" as CategoriaDestinatario,
-    urgencia: "alerta" as UrgenciaNotificacao,
-    titulo: "Convocação para Vistoria Obrigatória da Frota",
+    urgencia: "urgente" as UrgenciaNotificacao,
+    titulo: "Horário de Pico: Ganhe até 1.5x Mais",
     mensagem:
-      "Todos os cooperados com placa final 1, 2 e 3 devem comparecer à garagem central até sexta-feira para aferição mecânica e tacógrafo.",
+      "Grande volume de passageiros solicitando corridas. Fique online no aplicativo para maximizar seus ganhos com repasse imediato via PIX D+0!",
     rotaDestino: "/app/motorista",
   },
   {
-    rotulo: "Nova Rota Disponível",
-    categoria: "usuario" as CategoriaDestinatario,
+    rotulo: "Nova Categoria Flash (Entregas)",
+    categoria: "todos" as CategoriaDestinatario,
     urgencia: "promocao" as UrgenciaNotificacao,
-    titulo: "Nova Rota Expressa: Maceió ➔ Penedo",
+    titulo: "Envie Encomendas com o Partiu Flash",
     mensagem:
-      "Agora com saídas diárias às 06h00 e 15h30 com ar-condicionado e Starlink Wi-Fi. Garanta sua vaga com desconto pelo app!",
-    rotaDestino: "/app/linhas",
+      "Precisa enviar documentos ou pacotes pequenos? Chame um motociclista parceiro agora por apenas R$ 7,90!",
+    rotaDestino: "/app/encomendas",
   },
 ];
 
@@ -118,7 +118,7 @@ export function listarNotificacoesBroadcast(): NotificacaoBroadcast[] {
     return memoriaNotificacoes;
   }
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_NOTIFICACOES);
+    const raw = localStorage.getItem(STORAGE_KEY_NOTIFICACOES) || localStorage.getItem("univans_broadcast_notificacoes");
     if (!raw) {
       localStorage.setItem(STORAGE_KEY_NOTIFICACOES, JSON.stringify(mocksIniciais));
       return mocksIniciais;
@@ -150,6 +150,11 @@ export function salvarNotificacaoBroadcast(
       const atualizados = [nova, ...atuais];
       localStorage.setItem(STORAGE_KEY_NOTIFICACOES, JSON.stringify(atualizados));
 
+      window.dispatchEvent(
+        new CustomEvent("partiu:nova_notificacao_broadcast", {
+          detail: nova,
+        }),
+      );
       window.dispatchEvent(
         new CustomEvent("univans:nova_notificacao_broadcast", {
           detail: nova,
@@ -196,11 +201,12 @@ export function marcarNotificacaoComoLida(id: string): void {
   memoriaLidas.add(id);
   if (typeof window === "undefined") return;
   try {
-    const lidasRaw = localStorage.getItem(STORAGE_KEY_LIDAS);
+    const lidasRaw = localStorage.getItem(STORAGE_KEY_LIDAS) || localStorage.getItem("univans_notificacoes_lidas");
     const lidas: string[] = lidasRaw ? JSON.parse(lidasRaw) : [];
     if (!lidas.includes(id)) {
       lidas.push(id);
       localStorage.setItem(STORAGE_KEY_LIDAS, JSON.stringify(lidas));
+      window.dispatchEvent(new CustomEvent("partiu:notificacao_lida", { detail: { id } }));
       window.dispatchEvent(new CustomEvent("univans:notificacao_lida", { detail: { id } }));
     }
   } catch (err) {
@@ -216,7 +222,7 @@ export function isNotificacaoLida(id: string): boolean {
     return memoriaLidas.has(id);
   }
   try {
-    const lidasRaw = localStorage.getItem(STORAGE_KEY_LIDAS);
+    const lidasRaw = localStorage.getItem(STORAGE_KEY_LIDAS) || localStorage.getItem("univans_notificacoes_lidas");
     const lidas: string[] = lidasRaw ? JSON.parse(lidasRaw) : [];
     return lidas.includes(id);
   } catch {
@@ -249,10 +255,10 @@ export async function dispararBroadcastAdmin(dados: {
 }): Promise<{ sucesso: boolean; notificação: NotificacaoBroadcast; webPushDisparado: boolean }> {
   // Estimativa de alcance por categoria
   const estimativas: Record<CategoriaDestinatario, number> = {
-    todos: 1450,
-    usuario: 1100,
-    gratis: 210,
-    motorista: 75,
+    todos: 3500,
+    usuario: 2800,
+    gratis: 600,
+    motorista: 320,
   };
 
   const nova = salvarNotificacaoBroadcast({
@@ -261,7 +267,7 @@ export async function dispararBroadcastAdmin(dados: {
     categoria: dados.categoria,
     urgencia: dados.urgencia,
     rotaDestino: dados.rotaDestino || "/app",
-    enviadoPor: dados.enviadoPor || "Painel Administrativo UniVans",
+    enviadoPor: dados.enviadoPor || "Painel Administrativo PARTIU",
     totalDestinatariosEstimados: estimativas[dados.categoria] || 500,
   });
 
@@ -269,7 +275,7 @@ export async function dispararBroadcastAdmin(dados: {
   let webPushDisparado = false;
   try {
     webPushDisparado = await dispararNotificacaoPush({
-      titulo: `[UniVans ${dados.categoria.toUpperCase()}] ${dados.titulo}`,
+      titulo: `[PARTIU ${dados.categoria.toUpperCase()}] ${dados.titulo}`,
       corpo: dados.mensagem,
       rota: dados.rotaDestino || "/app",
       tag: `broadcast-${nova.id}`,

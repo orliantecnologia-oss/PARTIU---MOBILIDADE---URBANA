@@ -2,64 +2,213 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
   ArrowLeft,
+  Bike,
+  Car,
   CheckCircle2,
   Clock,
   Filter,
   MapPin,
+  Package,
   SlidersHorizontal,
-  Truck,
   User,
+  Zap,
 } from "lucide-react";
-import { rotasHistorico } from "@/lib/admin-data";
 
 export const Route = createFileRoute("/app/admin/historico")({
   head: () => ({
     meta: [
-      { title: "Histórico de Rotas | UniVans" },
+      { title: "Histórico de Corridas & Entregas | PARTIU Admin" },
       {
         name: "description",
-        content: "Log detalhado de viagens por modalidade: rotas escolares e shuttles de empresa.",
+        content: "Log detalhado de corridas urbanas, moto e entregas expressas finalizadas.",
       },
     ],
   }),
   component: HistoricoRotas,
 });
 
-const filtros = ["Rotas Escolares", "Shuttles de Empresa", "Todas"] as const;
+interface CorridaHistorico {
+  id: string;
+  modalidade: "Partiu Pop" | "Partiu Moto" | "Entregas Flash";
+  passageiro: string;
+  motorista: string;
+  veiculo: string;
+  origem: string;
+  destino: string;
+  data: string;
+  duracao: string;
+  valor: number;
+  status: "Concluída" | "Cancelada";
+}
+
+const HISTORICO_MOCK: CorridaHistorico[] = [
+  {
+    id: "cor-101",
+    modalidade: "Partiu Pop",
+    passageiro: "Camila Ribeiro",
+    motorista: "Carlos Eduardo Silva",
+    veiculo: "Chevrolet Onix (BRA-2E19)",
+    origem: "Av. Fernandes Lima, 1200",
+    destino: "Shopping Pátio Maceió",
+    data: "Hoje, 16:42",
+    duracao: "18 min",
+    valor: 19.5,
+    status: "Concluída",
+  },
+  {
+    id: "cor-102",
+    modalidade: "Partiu Moto",
+    passageiro: "Rodrigo Mendonça",
+    motorista: "Marcos Paulo Santos",
+    veiculo: "Honda CG 160 (MOC-9J21)",
+    origem: "Rua do Comércio, 340",
+    destino: "Praia de Pajuçara",
+    data: "Hoje, 15:10",
+    duracao: "11 min",
+    valor: 9.8,
+    status: "Concluída",
+  },
+  {
+    id: "cor-103",
+    modalidade: "Entregas Flash",
+    passageiro: "Drogaria São Paulo (Envio)",
+    motorista: "Lucas Ferreira",
+    veiculo: "Yamaha Factor 150 (AL-4491)",
+    origem: "Av. Menino Marcelo, 500",
+    destino: "Condomínio Aldebaran, Lt 14",
+    data: "Hoje, 14:05",
+    duracao: "22 min",
+    valor: 16.0,
+    status: "Concluída",
+  },
+  {
+    id: "cor-104",
+    modalidade: "Partiu Pop",
+    passageiro: "Juliana Duarte",
+    motorista: "Alexandre Barros",
+    veiculo: "Fiat Argo (MOB-7A33)",
+    origem: "Aeroporto Zumbi dos Palmares",
+    destino: "Ponta Verde",
+    data: "Hoje, 12:30",
+    duracao: "34 min",
+    valor: 42.0,
+    status: "Concluída",
+  },
+];
+
+import { useEffect } from "react";
+import { getHistoricoViagens } from "@/lib/partiu-engine";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+
+const filtros = ["Todas", "Partiu Pop", "Partiu Moto", "Entregas Flash"] as const;
 
 export function HistoricoRotas() {
-  const [filtroAtivo, setFiltroAtivo] = useState<(typeof filtros)[number]>("Rotas Escolares");
+  const [filtroAtivo, setFiltroAtivo] = useState<(typeof filtros)[number]>("Todas");
+  const [historico, setHistorico] = useState<CorridaHistorico[]>(HISTORICO_MOCK);
 
-  const lista = rotasHistorico.filter((r) =>
+  useEffect(() => {
+    async function carregarHistoricoReal() {
+      // 1. Tenta carregar do Supabase
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await (supabase as any)
+            .from("partiu_corridas")
+            .select("*, partiu_motoristas(nome, veiculo_marca_modelo, veiculo_placa)")
+            .in("status", ["CONCLUIDA", "CANCELADA"])
+            .order("created_at", { ascending: false })
+            .limit(50);
+
+          if (!error && data && data.length > 0) {
+            const convertidos: CorridaHistorico[] = data.map((c: any) => ({
+              id: c.codigo_viagem || c.id,
+              modalidade: c.is_entrega || c.modalidade?.startsWith("ENTREGA")
+                ? "Entregas Flash"
+                : c.modalidade === "MOTO"
+                  ? "Partiu Moto"
+                  : "Partiu Pop",
+              passageiro: c.passageiro_nome,
+              motorista: c.partiu_motoristas?.nome || "Motorista Parceiro",
+              veiculo: `${c.partiu_motoristas?.veiculo_marca_modelo || "Veículo"} (${c.partiu_motoristas?.veiculo_placa || "---"})`,
+              origem: c.origem_endereco,
+              destino: c.destino_endereco,
+              data: new Date(c.created_at).toLocaleDateString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+              duracao: `${c.duracao_min || 15} min`,
+              valor: (c.valor_bruto_cents || 1600) / 100,
+              status: c.status === "CANCELADA" ? "Cancelada" : "Concluída",
+            }));
+
+            setHistorico((prev) => {
+              const idsReais = new Set(convertidos.map((r) => r.id));
+              const outros = prev.filter((h) => !idsReais.has(h.id));
+              return [...convertidos, ...outros];
+            });
+            return;
+          }
+        } catch (err) {
+          console.warn("[AdminHistorico] Erro ao carregar viagens do Supabase:", err);
+        }
+      }
+
+      // 2. Fallback do localStorage
+      const local = getHistoricoViagens();
+      if (local.length > 0) {
+        const convertidosLocal: CorridaHistorico[] = local.map((c) => ({
+          id: c.id,
+          modalidade: c.isEntrega || c.modalidade.startsWith("ENTREGA")
+            ? "Entregas Flash"
+            : c.modalidade === "MOTO"
+              ? "Partiu Moto"
+              : "Partiu Pop",
+          passageiro: c.passageiroNome,
+          motorista: c.motorista?.nome || "Motorista Parceiro",
+          veiculo: `${c.motorista?.veiculo || "Veículo"} (${c.motorista?.placa || "---"})`,
+          origem: c.origem,
+          destino: c.destino,
+          data: new Date(c.criadoEm).toLocaleDateString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
+          duracao: `${c.duracaoMin} min`,
+          valor: c.valor,
+          status: c.status === "CANCELADA" ? "Cancelada" : "Concluída",
+        }));
+
+        setHistorico((prev) => {
+          const ids = new Set(convertidosLocal.map((r) => r.id));
+          const outros = prev.filter((h) => !ids.has(h.id));
+          return [...convertidosLocal, ...outros];
+        });
+      }
+    }
+
+    void carregarHistoricoReal();
+  }, []);
+
+  const lista = historico.filter((r) =>
     filtroAtivo === "Todas" ? true : r.modalidade === filtroAtivo,
   );
 
   return (
-    <div className="px-5 pt-4 pb-8">
-      {/* 1. Header com Voltar e Filtros */}
+    <div className="px-4 sm:px-6 pt-4 pb-12 max-w-5xl mx-auto">
+      {/* 1. Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link
             to="/app/admin"
-            className="rounded-full bg-card p-2 text-foreground shadow-sm hover:bg-accent transition-colors"
+            className="rounded-2xl bg-white border border-slate-200 p-2.5 text-slate-700 shadow-xs hover:bg-slate-50 transition-colors"
             aria-label="Voltar para o Dashboard"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-xl font-extrabold tracking-tight text-foreground">
-            Histórico de Rotas
-          </h1>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+              Histórico de Corridas & Entregas
+            </h1>
+            <p className="text-xs text-slate-500 font-medium">
+              Auditoria de trajetos urbanos concluídos em tempo real
+            </p>
+          </div>
         </div>
-        <button
-          type="button"
-          className="rounded-full bg-card p-2 text-foreground shadow-sm hover:bg-accent transition-colors"
-          aria-label="Filtros avançados"
-        >
-          <SlidersHorizontal className="h-5 w-5" />
-        </button>
       </div>
 
-      {/* 2. Pílulas de Modalidade de Serviço */}
+      {/* 2. Filtros de Modalidade */}
       <div className="mt-5 flex gap-2 overflow-x-auto no-scrollbar pb-1">
         {filtros.map((filtro) => {
           const isAtivo = filtroAtivo === filtro;
@@ -68,10 +217,10 @@ export function HistoricoRotas() {
               key={filtro}
               type="button"
               onClick={() => setFiltroAtivo(filtro)}
-              className={`rounded-full px-5 py-2 text-xs font-bold transition-all duration-200 ease-in-out ${
+              className={`rounded-xl px-4 py-2 text-xs font-black transition-all cursor-pointer ${
                 isAtivo
-                  ? "bg-[#0d5930] text-white shadow-md"
-                  : "bg-card text-muted-foreground border border-border/40 hover:bg-accent"
+                  ? "bg-[#FFDE00] text-slate-950 shadow-md shadow-[#FFDE00]/20 font-black"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               }`}
             >
               {filtro}
@@ -80,74 +229,70 @@ export function HistoricoRotas() {
         })}
       </div>
 
-      {/* 3. Log de Viagens / Cards de Histórico */}
-      <div className="mt-5 space-y-4">
-        {lista.map((rota, idx) => (
+      {/* 3. Cards de Histórico */}
+      <div className="mt-5 space-y-3">
+        {lista.map((corrida) => (
           <div
-            key={rota.id}
-            className="overflow-hidden rounded-2xl bg-card p-5 shadow-lg border border-border/40 transition-all duration-200 hover:shadow-xl"
+            key={corrida.id}
+            className="rounded-2xl bg-white p-4 sm:p-5 shadow-xs border border-slate-200 hover:border-slate-300 transition-all space-y-3"
           >
             <div className="flex items-start justify-between gap-3">
-              {/* Lado Esquerdo: Ícone da Van + Detalhes */}
-              <div className="flex items-start gap-3.5 flex-1 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-900 text-white shadow-sm">
-                  <Truck className="h-5 w-5" />
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-900">
+                  {corrida.modalidade === "Partiu Moto" ? (
+                    <Bike className="h-5 w-5" />
+                  ) : corrida.modalidade === "Entregas Flash" ? (
+                    <Package className="h-5 w-5" />
+                  ) : (
+                    <Car className="h-5 w-5" />
+                  )}
                 </div>
 
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p className="font-extrabold text-foreground text-sm tracking-tight truncate">
-                    {rota.nome}
-                  </p>
-                  <p className="text-xs font-semibold text-muted-foreground">{rota.data}</p>
-
-                  <div className="pt-2 text-xs text-muted-foreground space-y-1 font-medium">
-                    <p className="flex items-center gap-1.5">
-                      <span className="font-bold text-foreground">Stops</span> {rota.paradas}
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <span className="font-bold text-foreground">
-                        {rota.inicio} - {rota.fim}
-                      </span>
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">{rota.tipoRegistro}</p>
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <p className="font-black text-slate-900 text-sm">{corrida.modalidade}</p>
+                    <span className="text-[10px] text-slate-400 font-bold">• {corrida.data}</span>
                   </div>
+                  <p className="text-xs text-slate-600 font-medium truncate">
+                    Passageiro: <strong className="text-slate-900">{corrida.passageiro}</strong>
+                  </p>
+                  <p className="text-xs text-slate-500 font-medium truncate">
+                    Motorista: {corrida.motorista} ({corrida.veiculo})
+                  </p>
                 </div>
               </div>
 
-              {/* Lado Direito: Mini Mapa Estático do Trajeto */}
-              <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-2xl border border-border/60 bg-[#e8f0e9]">
-                {/* SVG estilizado do mini mapa */}
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 80">
-                  <path
-                    d={idx % 2 === 0 ? "M15,65 C30,60 40,20 85,25" : "M15,20 C45,15 55,65 85,60"}
-                    fill="none"
-                    stroke="#2b7a4b"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                  />
-                  {/* Ponto Inicial */}
-                  <circle cx="15" cy={idx % 2 === 0 ? "65" : "20"} r="4" fill="#0d5930" />
-                  {/* Ponto Final */}
-                  <circle cx="85" cy={idx % 2 === 0 ? "25" : "60"} r="5" fill="#eb001b" />
-                </svg>
+              <div className="text-right shrink-0">
+                <span className="text-base font-black text-slate-900 block">
+                  R$ {corrida.valor.toFixed(2).replace(".", ",")}
+                </span>
+                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+                  <CheckCircle2 className="h-3 w-3" /> {corrida.status}
+                </span>
               </div>
             </div>
 
-            {/* Rodapé do Card: Ícones e Status de Conclusão */}
-            <div className="mt-4 flex items-center justify-between pt-3 border-t border-border/40">
-              <div className="flex items-center gap-3 text-muted-foreground">
-                <span className="flex items-center gap-1 text-xs">
-                  <User className="h-3.5 w-3.5" /> 16 passageiros
-                </span>
-                <span className="flex items-center gap-1 text-xs">
-                  <Clock className="h-3.5 w-3.5" /> 45 min
+            {/* Trajeto */}
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1.5 text-xs">
+              <div className="flex items-center gap-2 text-slate-700">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+                <span className="truncate">
+                  <strong className="text-slate-900">Origem:</strong> {corrida.origem}
                 </span>
               </div>
+              <div className="flex items-center gap-2 text-slate-700">
+                <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                <span className="truncate">
+                  <strong className="text-slate-900">Destino:</strong> {corrida.destino}
+                </span>
+              </div>
+            </div>
 
-              {/* Badge Concluído */}
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0d5930]/10 px-3 py-1 text-xs font-bold text-[#0d5930]">
-                {rota.status} <CheckCircle2 className="h-3.5 w-3.5" />
+            <div className="flex items-center justify-between text-xs text-slate-500 pt-1 border-t border-slate-100">
+              <span className="flex items-center gap-1 font-medium">
+                <Clock className="h-3.5 w-3.5" /> Duração: {corrida.duracao}
               </span>
+              <span className="font-mono text-[11px] text-slate-400">ID: {corrida.id}</span>
             </div>
           </div>
         ))}

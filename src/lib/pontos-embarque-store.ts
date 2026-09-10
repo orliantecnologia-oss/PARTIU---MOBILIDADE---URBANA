@@ -179,12 +179,13 @@ export const PONTOS_EMBARQUE_PADRAO: PontoEmbarqueConfig[] = [
   },
 ];
 
-const STORAGE_KEY = "univans_pontos_embarque_config";
+const STORAGE_KEY = "partiu_pontos_embarque_config";
+const LEGACY_STORAGE_KEY = "univans_pontos_embarque_config";
 
 export function getPontosEmbarqueConfig(): PontoEmbarqueConfig[] {
   if (typeof window === "undefined") return PONTOS_EMBARQUE_PADRAO;
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(PONTOS_EMBARQUE_PADRAO));
       return PONTOS_EMBARQUE_PADRAO;

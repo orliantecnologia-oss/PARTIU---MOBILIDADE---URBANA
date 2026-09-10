@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * ⚡ UNIVANS CIRCUIT BREAKER & FAULT ISOLATION ENGINE (v4.0)
+ * ⚡ PARTIU CIRCUIT BREAKER & FAULT ISOLATION ENGINE (v4.0)
  * Proteção de Resiliência para Integrações Externas (PSP, SMS, Mapas, Starlink)
  * ==============================================================================
  */

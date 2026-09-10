@@ -25,11 +25,11 @@ class MapErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState>
     return { hasError: true };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.warn("[MapErrorBoundary] Interceptou falha no mapa:", error, errorInfo);
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return this.props.fallback;
     }
@@ -43,11 +43,15 @@ export interface UniversalMapViewProps {
   modo?: "vans" | "pontos" | "todos" | undefined;
   veiculos?: TelemetriaVeiculo[] | undefined;
   veiculoSelecionadoId?: string | null | undefined;
+  veiculoAtivoId?: string | null | undefined;
   pontoSelecionadoId?: string | null | undefined;
   onSelecionarVeiculo?: ((id: string) => void) | undefined;
+  onSelectVeiculo?: ((id: string | null) => void) | undefined;
   onSelecionarPonto?: ((id: string) => void) | undefined;
   mostrarControles?: boolean | undefined;
   mostrarCardInferior?: boolean | undefined;
+  mostrarTrafego?: boolean | undefined;
+  mostrarSatelite?: boolean | undefined;
 }
 
 function MapboxRadarSkeleton({

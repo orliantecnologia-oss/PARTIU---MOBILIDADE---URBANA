@@ -35,7 +35,7 @@ import {
 } from "@/lib/passagens-store";
 import { getPontosEmbarqueConfig, type PontoEmbarqueConfig } from "@/lib/pontos-embarque-store";
 import { ModalSelecaoPontoEmbarque } from "@/components/modals/ModalSelecaoPontoEmbarque";
-import { useCriarPassagem, useDecrementarVagasViagem } from "@/lib/univans-db";
+import { useCriarPassagem, useDecrementarVagasViagem } from "@/lib/partiu-db";
 import { supabase } from "@/integrations/supabase/client";
 import { emitirBilheteAssinadoServerFn } from "@/lib/ticket-signing.server";
 
@@ -146,13 +146,16 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
   useEffect(() => {
     if (aberto) {
       document.body.classList.add("modal-compra-ativo");
+      window.dispatchEvent(new CustomEvent("partiu:modal-compra", { detail: { aberto: true } }));
       window.dispatchEvent(new CustomEvent("univans:modal-compra", { detail: { aberto: true } }));
     } else {
       document.body.classList.remove("modal-compra-ativo");
+      window.dispatchEvent(new CustomEvent("partiu:modal-compra", { detail: { aberto: false } }));
       window.dispatchEvent(new CustomEvent("univans:modal-compra", { detail: { aberto: false } }));
     }
     return () => {
       document.body.classList.remove("modal-compra-ativo");
+      window.dispatchEvent(new CustomEvent("partiu:modal-compra", { detail: { aberto: false } }));
       window.dispatchEvent(new CustomEvent("univans:modal-compra", { detail: { aberto: false } }));
     };
   }, [aberto]);
@@ -183,7 +186,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
 
   const chavePixCopiaECola = useMemo(() => {
     const randomHex = Math.random().toString(36).substring(2, 10).toUpperCase();
-    return `00020126580014br.gov.bcb.pix0136univans-${randomHex}-pix-pagamento520400005303986540${valorTotal.toFixed(2)}5802BR5925COOPERATIVA UNIVANS AL6009MACEIO62070503***6304`;
+    return `00020126580014br.gov.bcb.pix0136partiu-${randomHex}-pix-pagamento520400005303986540${valorTotal.toFixed(2)}5802BR5925PARTIU MOBILIDADE BR6009MACEIO62070503***6304`;
   }, [valorTotal]);
 
   const criarPassagemMutation = useCriarPassagem();
@@ -220,13 +223,13 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
   async function handleFinalizarCompra() {
     setProcessandoPagamento(true);
 
-    const codigoBilhete = "UV-" + Math.floor(100000 + Math.random() * 900000);
+    const codigoBilhete = "PT-" + Math.floor(100000 + Math.random() * 900000);
     const pontoEmbarqueNome = pontoEmbarqueEscolhido
       ? pontoEmbarqueEscolhido.nome
-      : "Trevo Tabuleiro";
+      : "Ponto de Embarque Central";
 
-    // 1. Emissão e Assinatura Criptográfica Ed25519 Segura via Server Function (Chave privada isolada no servidor)
-    let qrPayload = `UNIVANS:${codigoBilhete}:${viagem?.placa || "VAN"}`;
+    // 1. Emissão e Assinatura Criptográfica Ed25519 Segura via Server Function
+    let qrPayload = `PARTIU:${codigoBilhete}:${viagem?.placa || "CARRO"}`;
     try {
       const resp = await emitirBilheteAssinadoServerFn({
         data: {
@@ -311,7 +314,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
       motoristaFoto: viagem!.motoristaFoto,
       vanPlaca: viagem!.placa,
       vanModelo: viagem!.modelo,
-      starlinkWifi: viagem!.starlinkWifi || "UniVans-Starlink-5G",
+      starlinkWifi: viagem!.starlinkWifi || "PARTIU-Starlink-5G",
       codigoQr: qrPayload,
       criadoEm: new Date().toISOString(),
     };
@@ -943,7 +946,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                 <div className="rounded-3xl bg-gradient-to-br from-[#0b2046] via-[#0d5930] to-[#071833] text-white p-4 shadow-xl border border-amber-300/40 text-left space-y-3">
                   <div className="flex items-center justify-between border-b border-white/15 pb-2">
                     <span className="text-[10px] font-black uppercase text-amber-300">
-                      Bilhete Digital UniVans
+                      Bilhete Digital PARTIU
                     </span>
                     <strong className="text-xs font-mono text-white">{bilheteEmitido.id}</strong>
                   </div>

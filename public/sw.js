@@ -1,8 +1,8 @@
 // ==============================================================================
-// 🔔 UNIVANS SERVICE WORKER — WEB PUSH NOTIFICATIONS & OFFLINE CACHE
+// 🔔 PARTIU SERVICE WORKER — WEB PUSH NOTIFICATIONS & OFFLINE CACHE
 // ==============================================================================
 
-const CACHE_NAME = "univans-v1";
+const CACHE_NAME = "partiu-v1";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -26,11 +26,11 @@ self.addEventListener("activate", (event) => {
 // Manipulador de Push Notifications recebidas em segundo plano
 self.addEventListener("push", (event) => {
   let data = {
-    title: "UniVans • Alerta de Embarque",
-    body: "Sua van está se aproximando do ponto de embarque!",
+    title: "PARTIU • Viagem & Entregas",
+    body: "Seu motorista parceiro está a caminho do ponto de embarque!",
     url: "/app/bilhetes",
     icon: "/icon-192.png",
-    tag: "univans-trevo-alert",
+    tag: "partiu-ride-alert",
   };
 
   if (event.data) {
@@ -50,10 +50,10 @@ self.addEventListener("push", (event) => {
     data: {
       url: data.url || "/app/bilhetes",
     },
-    tag: data.tag || "univans-alert",
+    tag: data.tag || "partiu-alert",
     renotify: true,
     actions: [
-      { action: "ver_bilhete", title: "Ver Bilhete & Ponto" },
+      { action: "ver_corrida", title: "Ver Corrida / Entrega" },
       { action: "fechar", title: "Entendido" },
     ],
   };

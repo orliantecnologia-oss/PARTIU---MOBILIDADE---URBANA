@@ -2,6 +2,8 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { silentCatchWarn } from "@/lib/structured-logger";
+
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -22,9 +24,7 @@ export function initOutboxDaemon(intervalMs = 15000) {
     try {
       const { runOutboxWorkerBatch } = await import("./lib/outbox-worker.server");
       await runOutboxWorkerBatch();
-    } catch {
-      // Falhas transientes de rede tratadas internamente pelo worker com backoff
-    }
+    } catch (err) { silentCatchWarn("server", err); }
   }, intervalMs);
 }
 

@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 🚨 UNIVANS DISASTER RECOVERY & RESILIENCE ENGINE (v3.3)
+ * 🚨 PARTIU DISASTER RECOVERY & RESILIENCE ENGINE (v3.3)
  * Protocolos de Recuperação de Falhas, Teste de Restore e Procedimentos RTO/RPO
  * ==============================================================================
  */
@@ -52,12 +52,12 @@ export async function testBackupRestoreDryRun(): Promise<BackupVerificationResul
   }
 
   // Hash de integridade criptograficamente real calculado com SHA-256
-  const payloadToHash = `UNIVANS_AUDIT_${agora}_TABLES_${tables.length}_ROWS_${rowsCount}`;
+  const payloadToHash = `PARTIU_AUDIT_${agora}_TABLES_${tables.length}_ROWS_${rowsCount}`;
   const realHash = "sha256_" + crypto.createHash("sha256").update(payloadToHash).digest("hex");
 
   return {
     verified: true,
-    backupId: "bkp_univans_wal_" + Date.now(),
+    backupId: "bkp_partiu_wal_" + Date.now(),
     timestamp: agora,
     tablesVerified: tables.length,
     totalRowsAudited: rowsCount,

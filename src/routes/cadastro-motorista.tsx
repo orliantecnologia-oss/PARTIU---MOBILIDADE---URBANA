@@ -3,38 +3,31 @@ import { useState, type FormEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  Bus,
+  Bike,
+  Car,
   CheckCircle2,
   CreditCard,
   FileCheck2,
-  HelpCircle,
   MapPin,
   Phone,
-  Plus,
   ShieldCheck,
-  Sparkles,
-  Truck,
-  Upload,
   User,
-  Wifi,
   Zap,
 } from "lucide-react";
 import { TopNav } from "@/components/navigation/TopNav";
-import type { ItemConforto } from "@/lib/admin-data";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { driverFleetService } from "@/lib/ecosystem/driver-fleet-service";
+import { silentCatchWarn } from "@/lib/structured-logger";
+
 
 export const Route = createFileRoute("/cadastro-motorista")({
   head: () => ({
     meta: [
-      { title: "Cadastro de Motorista | Pega a Van & UniVans" },
+      { title: "Cadastro de Motorista & Entregador Parceiro | PARTIU" },
       {
         name: "description",
         content:
-          "Cadastre sua van, organize seus horários e aumente a lotação das suas viagens com passageiros conectados em tempo real.",
-      },
-      { property: "og:title", content: "Cadastro de Motorista | Pega a Van & UniVans" },
-      {
-        property: "og:description",
-        content: "Cadastre sua van e conecte-se a passageiros em rotas intermunicipais.",
+          "Cadastre seu carro ou moto para faturar com corridas urbanas e entregas expressas com planos a partir de 0% de taxa (até 100% de repasse líquido) e repasse imediato via PIX D+0.",
       },
     ],
   }),
@@ -42,7 +35,7 @@ export const Route = createFileRoute("/cadastro-motorista")({
 });
 
 export function CadastroMotoristaPage() {
-  const [etapa, setEtapa] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [etapa, setEtapa] = useState<1 | 2 | 3 | 4>(1);
   const [sucesso, setSucesso] = useState(false);
 
   // Etapa 1: Dados Pessoais
@@ -51,555 +44,571 @@ export function CadastroMotoristaPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
 
-  // Etapa 2: Veículo & Conforto
-  const [veiculoModelo, setVeiculoModelo] = useState("Mercedes Sprinter 416");
-  const [veiculoAno, setVeiculoAno] = useState("2024");
+  // Etapa 2: Modalidade & Veículo
+  const [tipoVeiculo, setTipoVeiculo] = useState<"carro" | "moto">("carro");
+  const [veiculoModelo, setVeiculoModelo] = useState("Chevrolet Onix Plus 1.0");
+  const [veiculoAno, setVeiculoAno] = useState("2023");
   const [veiculoPlaca, setVeiculoPlaca] = useState("");
-  const [capacidade, setCapacidade] = useState("16");
-  const [conforto, setConforto] = useState<ItemConforto[]>([
-    "ar_condicionado",
-    "wifi_starlink",
-    "tomada_usb",
-  ]);
+  const [veiculoCor, setVeiculoCor] = useState("Prata");
+  const [temArCondicionado, setTemArCondicionado] = useState(true);
 
-  // Etapa 3: CNH & Órgão Regulador
+  // Etapa 3: CNH & EAR
   const [cnh, setCnh] = useState("");
+  const [categoriaCNH, setCategoriaCNH] = useState<"B" | "A" | "AB">("B");
   const [possuiEAR, setPossuiEAR] = useState(true);
-  const [orgaoRegulador, setOrgaoRegulador] = useState("ARSAL");
-  const [numeroAutorizacao, setNumeroAutorizacao] = useState("");
 
-  // Etapa 4: Linha & Horários
-  const [origem, setOrigem] = useState("Maceió");
-  const [destino, setDestino] = useState("Arapiraca");
-  const [preco, setPreco] = useState("32,00");
-  const [horarios, setHorarios] = useState<string[]>(["06:30", "11:00", "15:30"]);
-  const [novoHorario, setNovoHorario] = useState("");
-
-  // Etapa 5: PIX
+  // Etapa 4: Chave PIX (D+0)
   const [chavePix, setChavePix] = useState("");
   const [tipoChave, setTipoChave] = useState<"cpf" | "celular" | "email" | "aleatoria">("celular");
 
-  function toggleConforto(item: ItemConforto) {
-    setConforto((prev) => (prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item]));
-  }
-
-  function adicionarHorario() {
-    if (novoHorario && !horarios.includes(novoHorario)) {
-      setHorarios([...horarios, novoHorario].sort());
-      setNovoHorario("");
-    }
-  }
-
-  function removerHorario(h: string) {
-    setHorarios(horarios.filter((item) => item !== h));
-  }
-
-  function handleSubmit(e: FormEvent) {
+  function handleFinalizarCadastro(e: FormEvent) {
     e.preventDefault();
-    if (etapa < 5) {
-      setEtapa((prev) => (prev + 1) as 1 | 2 | 3 | 4 | 5);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      setSucesso(true);
+
+    const motoristaNovo = {
+      id: "mot_" + Date.now(),
+      nome,
+      cpf,
+      whatsapp,
+      email,
+      tipoVeiculo,
+      modelo: veiculoModelo,
+      ano: veiculoAno,
+      placa: veiculoPlaca.toUpperCase(),
+      cor: veiculoCor,
+      temArCondicionado,
+      cnh,
+      categoriaCNH,
+      possuiEAR,
+      chavePix,
+      tipoChave,
+      status: "pendente",
+      cadastradoEm: new Date().toISOString(),
+    };
+
+    try {
+      const armazenados = JSON.parse(localStorage.getItem("partiu_motoristas_store") || "[]");
+      armazenados.unshift(motoristaNovo);
+      localStorage.setItem("partiu_motoristas_store", JSON.stringify(armazenados));
+      localStorage.setItem("partiu_motorista_ativo", JSON.stringify(motoristaNovo));
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("partiu:driver_registered", { detail: motoristaNovo }));
+      }
+    } catch (err) { silentCatchWarn("cadastro-motorista", err); }
+
+    // Sincroniza via driverFleetService (com validação estrita MOTO/CARRO e dual-table)
+    void driverFleetService.registerDriver({
+      name: nome,
+      phone: whatsapp,
+      email: email || undefined,
+      vehicle_type: tipoVeiculo === "moto" ? "MOTO" : "CARRO",
+      vehicle_plate: veiculoPlaca.toUpperCase() || "SEM-PLACA",
+      vehicle_model: veiculoModelo,
+      cnh_number: cnh || "00000000000",
+      pix_key: chavePix || undefined,
+    });
+
+    if (isSupabaseConfigured()) {
+      void (supabase as any).from("partiu_motoristas").insert({
+        nome,
+        cpf: cpf.replace(/\D/g, "") || cpf || "00000000000",
+        telefone: whatsapp,
+        email: email || null,
+        cnh_numero: cnh || "00000000000",
+        cnh_categoria: categoriaCNH,
+        cnh_validade: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        possui_ear: possuiEAR,
+        veiculo_marca_modelo: veiculoModelo,
+        veiculo_placa: veiculoPlaca.toUpperCase() || "SEM-PLACA",
+        veiculo_ano: parseInt(veiculoAno, 10) || 2023,
+        veiculo_cor: veiculoCor,
+        categoria_veiculo: tipoVeiculo === "moto" ? "MOTO" : "CARRO",
+        chave_pix: chavePix || null,
+        tipo_chave_pix: tipoChave || null,
+        status_aprovacao: "pendente",
+        is_online: false,
+      }).then(({ error }: any) => {
+        if (error) console.warn("[CadastroMotorista] Falha ao sincronizar com Supabase:", error.message);
+      });
     }
+
+    setSucesso(true);
   }
 
   return (
-    <div className="min-h-screen bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full">
-      {/* Top Bar com Voltar e Indicadores de 5 Etapas */}
-      <div className="mx-auto w-full max-w-full sm:max-w-md flex items-center justify-between px-1 sm:px-0">
-        <button
-          type="button"
-          onClick={() => {
-            if (etapa > 1) {
-              setEtapa((prev) => (prev - 1) as 1 | 2 | 3 | 4 | 5);
-            } else {
-              window.history.back();
-            }
-          }}
-          className="flex h-9 w-9 items-center justify-center rounded-lg sm:rounded-xl bg-white border border-slate-200 text-slate-700 shadow-xs active:scale-95 transition-transform"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </button>
+    <div className="min-h-screen bg-[#0b0f17] text-white flex flex-col justify-between">
+      <TopNav />
 
-        <div className="flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === etapa
-                  ? "w-6 bg-[#0d5930]"
-                  : i < etapa
-                    ? "w-3 bg-emerald-500"
-                    : "w-2 bg-slate-200"
-              }`}
-            />
-          ))}
-        </div>
-
-        <span className="text-[10px] font-black text-slate-500 uppercase">{etapa}/5</span>
-      </div>
-
-      {/* Conteúdo Principal Centralizado */}
-      <main className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-2">
+      <main className="flex-1 max-w-xl w-full mx-auto p-4 sm:p-6 flex flex-col justify-center">
         {!sucesso ? (
-          <form
-            onSubmit={handleSubmit}
-            className="rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-xl border border-slate-200/80 space-y-3"
-          >
-            {/* ETAPA 1: Identificação */}
+          <div className="rounded-3xl bg-slate-900/90 p-5 sm:p-8 border border-slate-800 shadow-2xl backdrop-blur-xl">
+            {/* Header de Etapas */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between text-xs text-slate-400 font-bold mb-2">
+                <span className="text-[#FFDE00] uppercase tracking-wider font-black">
+                  Etapa {etapa} de 4
+                </span>
+                <span>
+                  {etapa === 1 && "Dados Pessoais"}
+                  {etapa === 2 && "Veículo"}
+                  {etapa === 3 && "Habilitação (CNH)"}
+                  {etapa === 4 && "Repasse PIX D+0"}
+                </span>
+              </div>
+              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#FFDE00] transition-all duration-300 rounded-full"
+                  style={{ width: `${(etapa / 4) * 100}%` }}
+                />
+              </div>
+            </div>
+
+            {/* ETAPA 1: DADOS PESSOAIS */}
             {etapa === 1 && (
-              <div className="space-y-2.5 animate-in fade-in duration-150">
-                <div className="border-b border-slate-100 pb-2">
-                  <h2 className="text-base font-black text-slate-900 leading-tight">
-                    1. Identificação do Motorista
-                  </h2>
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    Dados de contato para exibição aos passageiros
+              <div className="space-y-4 animate-in fade-in-50 duration-200">
+                <div className="border-b border-slate-800 pb-3">
+                  <h2 className="text-xl font-black text-white">Informações Pessoais</h2>
+                  <p className="text-xs text-slate-400">
+                    Comece informando seus dados básicos para contato e validação
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                    Nome Completo *
+                <div className="space-y-1">
+                  <label className="block text-xs font-black uppercase text-slate-300">
+                    Nome Completo
                   </label>
                   <input
                     required
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
-                    placeholder="Ex: Carlos Menezes"
-                    className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                    placeholder="Seu nome como na CNH"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      CPF *
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-black uppercase text-slate-300">
+                      CPF
                     </label>
                     <input
                       required
                       value={cpf}
                       onChange={(e) => setCpf(e.target.value)}
                       placeholder="000.000.000-00"
-                      className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
-                      WhatsApp *
+                  <div className="space-y-1">
+                    <label className="block text-[11px] font-black uppercase text-slate-300">
+                      WhatsApp
                     </label>
                     <input
                       required
                       type="tel"
                       value={whatsapp}
                       onChange={(e) => setWhatsapp(e.target.value)}
-                      placeholder="(82) 99999-0000"
-                      className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                      placeholder="(82) 99999-9999"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+                <div className="space-y-1">
+                  <label className="block text-xs font-black uppercase text-slate-300">
                     E-mail
                   </label>
                   <input
+                    required
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="carlos@exemplo.com"
-                    className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                    placeholder="seu.email@exemplo.com"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                   />
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!nome || !whatsapp) {
+                      alert("Por favor, preencha pelo menos Nome e WhatsApp.");
+                      return;
+                    }
+                    setEtapa(2);
+                  }}
+                  className="w-full h-12 rounded-xl bg-[#FFDE00] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer mt-4"
+                >
+                  <span>Continuar para Veículo</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               </div>
             )}
 
-            {/* ETAPA 2: Veículo & Conforto */}
+            {/* ETAPA 2: VEÍCULO */}
             {etapa === 2 && (
-              <div className="space-y-2.5 animate-in fade-in duration-150">
-                <div className="border-b border-slate-100 pb-2">
-                  <h2 className="text-base font-black text-slate-900 leading-tight">
-                    2. Dados da Van & Conforto
-                  </h2>
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    Modelo e itens para atrair passageiros
+              <div className="space-y-4 animate-in fade-in-50 duration-200">
+                <div className="border-b border-slate-800 pb-3">
+                  <h2 className="text-xl font-black text-white">Dados do Veículo</h2>
+                  <p className="text-xs text-slate-400">
+                    Selecione a categoria que você vai dirigir no Partiu
                   </p>
                 </div>
 
+                {/* Seletor Carro vs Moto */}
                 <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                      Modelo da Van *
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTipoVeiculo("carro");
+                      setCategoriaCNH("B");
+                    }}
+                    className={`flex items-center justify-center gap-2 h-14 rounded-2xl border font-black text-sm transition-all cursor-pointer ${
+                      tipoVeiculo === "carro"
+                        ? "bg-[#FFDE00] text-slate-950 border-[#FFDE00] shadow-md shadow-[#FFDE00]/20"
+                        : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"
+                    }`}
+                  >
+                    <Car className="h-5 w-5" />
+                    <span>Carro (Partiu Pop)</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTipoVeiculo("moto");
+                      setCategoriaCNH("A");
+                    }}
+                    className={`flex items-center justify-center gap-2 h-14 rounded-2xl border font-black text-sm transition-all cursor-pointer ${
+                      tipoVeiculo === "moto"
+                        ? "bg-[#FFDE00] text-slate-950 border-[#FFDE00] shadow-md shadow-[#FFDE00]/20"
+                        : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"
+                    }`}
+                  >
+                    <Bike className="h-5 w-5" />
+                    <span>Moto & Flash</span>
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-black uppercase text-slate-300">
+                    Modelo e Marca
+                  </label>
+                  <input
+                    required
+                    value={veiculoModelo}
+                    onChange={(e) => setVeiculoModelo(e.target.value)}
+                    placeholder={tipoVeiculo === "carro" ? "Ex: Chevrolet Onix 1.0" : "Ex: Honda CG 160 Fan"}
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-300">
+                      Ano
                     </label>
                     <input
                       required
-                      value={veiculoModelo}
-                      onChange={(e) => setVeiculoModelo(e.target.value)}
-                      placeholder="Sprinter 416"
-                      className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                      value={veiculoAno}
+                      onChange={(e) => setVeiculoAno(e.target.value)}
+                      placeholder="2022"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                     />
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                      Placa do Veículo *
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-300">
+                      Placa
                     </label>
                     <input
                       required
                       value={veiculoPlaca}
                       onChange={(e) => setVeiculoPlaca(e.target.value)}
-                      placeholder="RJP-2F14"
-                      className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 uppercase outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                      placeholder="ABC1D23"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-black uppercase text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                      Ano
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-300">
+                      Cor
                     </label>
                     <input
-                      value={veiculoAno}
-                      onChange={(e) => setVeiculoAno(e.target.value)}
-                      placeholder="2024"
-                      className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                      value={veiculoCor}
+                      onChange={(e) => setVeiculoCor(e.target.value)}
+                      placeholder="Branco"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                     />
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                      Lugares
-                    </label>
-                    <select
-                      value={capacidade}
-                      onChange={(e) => setCapacidade(e.target.value)}
-                      className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930]"
-                    >
-                      <option value="15">15 lugares</option>
-                      <option value="16">16 lugares</option>
-                      <option value="18">18 lugares</option>
-                      <option value="20">20 lugares</option>
-                    </select>
-                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
-                    Comodidades a Bordo:
-                  </label>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {[
-                      { id: "ar_condicionado", label: "❄️ Ar-condicionado" },
-                      { id: "wifi_starlink", label: "📡 Wi-Fi Starlink" },
-                      { id: "tomada_usb", label: "🔌 Tomadas USB" },
-                      { id: "acessibilidade_pcd", label: "♿ Acesso PcD" },
-                    ].map((item) => {
-                      const ativo = conforto.includes(item.id as ItemConforto);
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => toggleConforto(item.id as ItemConforto)}
-                          className={`rounded-xl px-2.5 py-1.5 text-[11px] font-bold transition-all flex items-center justify-between border ${
-                            ativo
-                              ? "bg-[#0d5930] text-white border-[#0d5930]"
-                              : "bg-slate-50 text-slate-700 border-slate-200"
-                          }`}
-                        >
-                          <span>{item.label}</span>
-                          {ativo && <CheckCircle2 className="h-3.5 w-3.5" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ETAPA 3: CNH & Órgão Regulador */}
-            {etapa === 3 && (
-              <div className="space-y-2.5 animate-in fade-in duration-150">
-                <div className="border-b border-slate-100 pb-2">
-                  <h2 className="text-base font-black text-slate-900 leading-tight">
-                    3. Documentação & Habilitação
-                  </h2>
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    Conformidade com os órgãos reguladores
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                      Registro da CNH *
-                    </label>
+                {tipoVeiculo === "carro" && (
+                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800">
                     <input
-                      required
-                      value={cnh}
-                      onChange={(e) => setCnh(e.target.value)}
-                      placeholder="00000000000"
-                      className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                      type="checkbox"
+                      id="arCond"
+                      checked={temArCondicionado}
+                      onChange={(e) => setTemArCondicionado(e.target.checked)}
+                      className="h-4.5 w-4.5 rounded accent-[#FFDE00] cursor-pointer"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                      Órgão Regulador *
+                    <label htmlFor="arCond" className="text-xs text-slate-300 font-bold cursor-pointer">
+                      Possui Ar-Condicionado Funcionando
                     </label>
-                    <select
-                      value={orgaoRegulador}
-                      onChange={(e) => setOrgaoRegulador(e.target.value)}
-                      className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930]"
-                    >
-                      <option value="ARSAL">ARSAL (Alagoas)</option>
-                      <option value="DETRO">DETRO (Rio)</option>
-                      <option value="ANTT">ANTT (Federal)</option>
-                      <option value="COOPERATIVA">Cooperativa Local</option>
-                    </select>
                   </div>
-                </div>
+                )}
 
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                    Nº do Alvará / Termo de Permissão
-                  </label>
-                  <input
-                    value={numeroAutorizacao}
-                    onChange={(e) => setNumeroAutorizacao(e.target.value)}
-                    placeholder="Ex: ARSAL-2026/8942"
-                    className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
-                  />
-                </div>
-
-                <div className="flex items-center gap-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="ear"
-                    checked={possuiEAR}
-                    onChange={(e) => setPossuiEAR(e.target.checked)}
-                    className="h-3.5 w-3.5 rounded accent-[#0d5930]"
-                  />
-                  <label
-                    htmlFor="ear"
-                    className="text-[10px] text-slate-600 font-semibold cursor-pointer leading-tight"
+                <div className="flex gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setEtapa(1)}
+                    className="w-1/3 h-12 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all cursor-pointer"
                   >
-                    CNH com observação EAR e vistoria do CRLV em dia
-                  </label>
+                    Voltar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!veiculoPlaca) {
+                        alert("Por favor, preencha a placa do veículo.");
+                        return;
+                      }
+                      setEtapa(3);
+                    }}
+                    className="w-2/3 h-12 rounded-xl bg-[#FFDE00] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
+                  >
+                    <span>Avançar para CNH</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             )}
 
-            {/* ETAPA 4: Linha & Horários */}
-            {etapa === 4 && (
-              <div className="space-y-2.5 animate-in fade-in duration-150">
-                <div className="border-b border-slate-100 pb-2">
-                  <h2 className="text-base font-black text-slate-900 leading-tight">
-                    4. Linha & Horários de Saída
-                  </h2>
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    Municípios atendidos e horários de partida
+            {/* ETAPA 3: CNH & EAR */}
+            {etapa === 3 && (
+              <div className="space-y-4 animate-in fade-in-50 duration-200">
+                <div className="border-b border-slate-800 pb-3">
+                  <h2 className="text-xl font-black text-white">Habilitação Profissional</h2>
+                  <p className="text-xs text-slate-400">
+                    Sua CNH deve ter a observação EAR (Exerce Atividade Remunerada)
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                      Origem *
-                    </label>
-                    <input
-                      required
-                      value={origem}
-                      onChange={(e) => setOrigem(e.target.value)}
-                      placeholder="Maceió"
-                      className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                      Destino *
-                    </label>
-                    <input
-                      required
-                      value={destino}
-                      onChange={(e) => setDestino(e.target.value)}
-                      placeholder="Arapiraca"
-                      className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                    Valor da Passagem (R$) *
+                <div className="space-y-1">
+                  <label className="block text-xs font-black uppercase text-slate-300">
+                    Número do Registro da CNH
                   </label>
                   <input
                     required
-                    value={preco}
-                    onChange={(e) => setPreco(e.target.value)}
-                    placeholder="32,00"
-                    className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                    value={cnh}
+                    onChange={(e) => setCnh(e.target.value)}
+                    placeholder="Ex: 01234567890"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
-                    Horários Cadastrados:
+                <div className="space-y-1">
+                  <label className="block text-xs font-black uppercase text-slate-300">
+                    Categoria da CNH
                   </label>
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    {horarios.map((h) => (
-                      <span
-                        key={h}
-                        className="inline-flex items-center gap-1 rounded-lg bg-[#0d5930] px-2.5 py-1 text-[11px] font-bold text-white shadow-xs"
-                      >
-                        {h}
-                        <button
-                          type="button"
-                          onClick={() => removerHorario(h)}
-                          className="text-white/80 hover:text-white ml-0.5"
-                        >
-                          ✕
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <input
-                      type="time"
-                      value={novoHorario}
-                      onChange={(e) => setNovoHorario(e.target.value)}
-                      className="flex-1 rounded-xl bg-slate-50 px-3 py-1.5 text-xs text-slate-900 outline-none border border-slate-200"
-                    />
-                    <button
-                      type="button"
-                      onClick={adicionarHorario}
-                      className="rounded-xl bg-slate-800 px-3 py-1.5 text-xs font-bold text-white"
-                    >
-                      + Adicionar
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ETAPA 5: Chave PIX */}
-            {etapa === 5 && (
-              <div className="space-y-2.5 animate-in fade-in duration-150">
-                <div className="border-b border-slate-100 pb-2">
-                  <h2 className="text-base font-black text-slate-900 leading-tight">
-                    5. Recebimento PIX Direto
-                  </h2>
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    100% do valor da passagem direto na sua conta
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
-                    Tipo de Chave PIX:
-                  </label>
-                  <div className="grid grid-cols-4 gap-1">
-                    {[
-                      { id: "celular", label: "Celular" },
-                      { id: "cpf", label: "CPF" },
-                      { id: "email", label: "E-mail" },
-                      { id: "aleatoria", label: "Aleatória" },
-                    ].map((item) => (
+                  <div className="grid grid-cols-3 gap-2">
+                    {(["B", "A", "AB"] as const).map((cat) => (
                       <button
-                        key={item.id}
+                        key={cat}
                         type="button"
-                        onClick={() =>
-                          setTipoChave(item.id as "cpf" | "celular" | "email" | "aleatoria")
-                        }
-                        className={`rounded-xl py-1.5 text-[10px] font-bold border transition-all ${
-                          tipoChave === item.id
-                            ? "bg-[#0d5930] text-white border-[#0d5930]"
-                            : "bg-slate-50 text-slate-700 border-slate-200"
+                        onClick={() => setCategoriaCNH(cat)}
+                        className={`h-11 rounded-xl border font-black text-xs transition-all cursor-pointer ${
+                          categoriaCNH === cat
+                            ? "bg-[#FFDE00] text-slate-950 border-[#FFDE00]"
+                            : "bg-slate-950 text-slate-400 border-slate-800"
                         }`}
                       >
-                        {item.label}
+                        Categoria {cat}
                       </button>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-0.5">
-                    Chave PIX Cadastrada *
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0" />
+                    <strong className="text-xs font-black text-white">
+                      Exerce Atividade Remunerada (EAR)
+                    </strong>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    Exigência legal do Código de Trânsito Brasileiro (CTB) para dirigir por aplicativo.
+                  </p>
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="checkbox"
+                      id="temEar"
+                      checked={possuiEAR}
+                      onChange={(e) => setPossuiEAR(e.target.checked)}
+                      className="h-4.5 w-4.5 rounded accent-[#FFDE00] cursor-pointer"
+                    />
+                    <label htmlFor="temEar" className="text-xs text-white font-bold cursor-pointer">
+                      Sim, minha CNH possui a sigla EAR
+                    </label>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setEtapa(2)}
+                    className="w-1/3 h-12 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all cursor-pointer"
+                  >
+                    Voltar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!cnh) {
+                        alert("Por favor, preencha o número da CNH.");
+                        return;
+                      }
+                      setEtapa(4);
+                    }}
+                    className="w-2/3 h-12 rounded-xl bg-[#FFDE00] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
+                  >
+                    <span>Avançar para PIX</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ETAPA 4: REPASSE PIX D+0 */}
+            {etapa === 4 && (
+              <form onSubmit={handleFinalizarCadastro} className="space-y-4 animate-in fade-in-50 duration-200">
+                <div className="border-b border-slate-800 pb-3">
+                  <h2 className="text-xl font-black text-white">Chave PIX para Recebimentos</h2>
+                  <p className="text-xs text-slate-400">
+                    No PARTIU você recebe de 95% a até 100% do valor de cada corrida imediatamente via PIX (D+0) conforme o seu plano de assinatura
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-black uppercase text-slate-300">
+                    Tipo de Chave PIX
+                  </label>
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {(["celular", "cpf", "email", "aleatoria"] as const).map((tipo) => (
+                      <button
+                        key={tipo}
+                        type="button"
+                        onClick={() => setTipoChave(tipo)}
+                        className={`h-10 rounded-xl border text-[11px] font-black uppercase transition-all cursor-pointer ${
+                          tipoChave === tipo
+                            ? "bg-[#FFDE00] text-slate-950 border-[#FFDE00]"
+                            : "bg-slate-950 text-slate-400 border-slate-800"
+                        }`}
+                      >
+                        {tipo}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-xs font-black uppercase text-slate-300">
+                    Sua Chave PIX
                   </label>
                   <input
                     required
                     value={chavePix}
                     onChange={(e) => setChavePix(e.target.value)}
-                    placeholder="Digite sua chave PIX..."
-                    className="w-full rounded-xl bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                    placeholder={
+                      tipoChave === "celular"
+                        ? "(82) 99999-9999"
+                        : tipoChave === "cpf"
+                          ? "000.000.000-00"
+                          : tipoChave === "email"
+                            ? "chave@email.com"
+                            : "Chave aleatória UUID"
+                    }
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                   />
                 </div>
 
-                <div className="rounded-2xl bg-emerald-50 p-3 border border-emerald-200 text-slate-700 text-xs flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-[#0d5930] shrink-0" />
-                  <span className="text-[11px] font-semibold leading-tight">
-                    Zero taxa sobre passagens. Receba direto no seu banco.
-                  </span>
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-amber-400">Modelo Híbrido PARTIU</span>
+                    <span className="text-xs font-black text-emerald-400">Até 100% Líquido</span>
+                  </div>
+                  <div className="text-slate-300 text-[11px] space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">• Plano Free (Gratuito)</span>
+                      <span className="font-bold">5% taxa por corrida</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-amber-300">• Plano Bronze</span>
+                      <span className="font-bold">3% taxa por corrida</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-200">• Plano Prata</span>
+                      <span className="font-bold">1% taxa por corrida</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-yellow-400">• Plano Ouro</span>
+                      <span className="font-black text-emerald-400">0% de taxa (100% seu!)</span>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 pt-1">
+                    ⚡ Sem surpresas ou taxas escondidas. Você começa no Free e pode evoluir quando quiser!
+                  </p>
                 </div>
-              </div>
+
+                <div className="flex gap-2 mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setEtapa(3)}
+                    className="w-1/3 h-12 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all cursor-pointer"
+                  >
+                    Voltar
+                  </button>
+                  <button
+                    type="submit"
+                    className="w-2/3 h-12 rounded-xl bg-[#FFDE00] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
+                  >
+                    <CheckCircle2 className="h-5 w-5" />
+                    <span>Concluir Cadastro</span>
+                  </button>
+                </div>
+              </form>
             )}
-
-            {/* Botão de Avanço */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="flex min-h-[48px] h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0d5930] text-sm sm:text-base font-black text-white shadow-md transition-all hover:brightness-105 active:scale-[0.98] cursor-pointer"
-              >
-                {etapa === 5 ? (
-                  <>
-                    <CheckCircle2 className="h-5 w-5" /> Concluir Cadastro de Motorista
-                  </>
-                ) : (
-                  <>
-                    Avançar Etapa <ArrowRight className="h-5 w-5" />
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+          </div>
         ) : (
-          /* Sucesso */
-          <div className="rounded-3xl bg-white p-6 text-center shadow-2xl border border-slate-200 space-y-3 animate-in zoom-in-95">
-            <div className="mx-auto flex h-11 sm:h-12 w-14 items-center justify-center rounded-full bg-emerald-50 text-[#0d5930]">
-              <CheckCircle2 className="h-8 w-8" />
+          <div className="rounded-3xl bg-slate-900 p-8 text-center shadow-2xl border border-slate-800 space-y-4 animate-in zoom-in-95">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFDE00] text-slate-950 shadow-lg shadow-[#FFDE00]/20">
+              <CheckCircle2 className="h-9 w-9 stroke-[2.5]" />
             </div>
 
-            <h2 className="text-xl font-black text-slate-900">Cadastro Enviado!</h2>
-            <p className="text-xs text-slate-600">
-              Parabéns, <span className="font-bold text-slate-900">{nome || "Motorista"}</span>! Sua
-              van na rota{" "}
-              <span className="font-bold">
-                {origem} → {destino}
-              </span>{" "}
-              foi cadastrada.
+            <h2 className="text-2xl font-black text-white">Cadastro Realizado com Sucesso!</h2>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Parabéns, <strong className="text-white">{nome}</strong>! Seu veículo{" "}
+              <strong className="text-[#FFDE00]">{veiculoModelo} ({veiculoPlaca.toUpperCase()})</strong>{" "}
+              foi cadastrado na rede PARTIU com repasse PIX configurado.
             </p>
 
-            <div className="pt-2 space-y-2">
+            <div className="pt-4 space-y-2.5">
               <Link
                 to="/app/motorista"
-                className="flex h-11 w-full items-center justify-center rounded-xl bg-[#0d5930] text-xs font-black text-white shadow-md hover:brightness-105"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#FFDE00] text-xs font-black text-slate-950 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
               >
-                Abrir Painel de Bordo do Motorista
+                Abrir Cockpit do Motorista e Ficar Online
               </Link>
               <Link
-                to="/app/linhas"
-                className="flex h-11 w-full items-center justify-center rounded-xl bg-slate-100 text-xs font-bold text-slate-700 hover:bg-slate-200"
+                to="/app"
+                className="flex h-11 w-full items-center justify-center rounded-xl bg-slate-800 text-xs font-bold text-slate-300 hover:bg-slate-700 transition-all cursor-pointer"
               >
-                Ver Grade de Horários
+                Voltar ao App Principal
               </Link>
             </div>
           </div>
         )}
       </main>
 
-      <div className="text-center text-[10px] text-slate-400">
-        UniVans • Plataforma de Gestão de Vans
-      </div>
+      <footer className="py-4 text-center text-xs text-slate-500 border-t border-slate-800/80">
+        PARTIU Mobilidade Urbana & Entregas Flash • Parceiro Oficial
+      </footer>
     </div>
   );
 }

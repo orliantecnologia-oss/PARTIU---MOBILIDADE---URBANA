@@ -65,59 +65,59 @@ export type Motorista = {
 export const vansAtivas: VanAtiva[] = [
   {
     id: "va1",
-    placa: "RJP-2F14",
-    motorista: "Carlos Eduardo Santos",
+    placa: "MOB-8K99",
+    motorista: "Carlos Eduardo Silva",
     fotoMotorista:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    rota: "Maceió ➔ Arapiraca (Linha Executiva)",
-    velocidade: 84,
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+    rota: "Centro ➔ Shopping (Partiu Pop)",
+    velocidade: 48,
     telemetria: "online",
     x: 28,
     y: 35,
     corPin: "verde",
-    modelo: "Sprinter 516 CDI Executive VIP",
+    modelo: "Chevrolet Onix Plus 2024 (Prata)",
   },
   {
     id: "va2",
-    placa: "LVK-7C22",
-    motorista: "Fernando Costa",
+    placa: "MOT-7799",
+    motorista: "Lucas Fernandes",
     fotoMotorista:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    rota: "Igreja Nova ➔ Maceió (Via Penedo/Coruripe)",
-    velocidade: 78,
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+    rota: "Vinhosa ➔ Centro (Partiu Moto)",
+    velocidade: 38,
     telemetria: "online",
     x: 52,
     y: 48,
     corPin: "verde",
-    modelo: "Renault Master Executive L3H2",
+    modelo: "Honda CG 160 Titan (Preta)",
   },
   {
     id: "va3",
-    placa: "MTQ-9J07",
-    motorista: "Antônio Marcos Ferreira",
+    placa: "PRT-9900",
+    motorista: "Roberto Fonseca",
     fotoMotorista:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-    rota: "Maceió ➔ Caruaru (Polo de Confecções)",
-    velocidade: 88,
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+    rota: "Aeroporto ➔ Zona Sul (Partiu Plus)",
+    velocidade: 62,
     telemetria: "online",
     x: 72,
     y: 22,
     corPin: "escuro",
-    modelo: "Sprinter 416 CDI Turismo",
+    modelo: "Toyota Corolla XEi 2024 (Preto)",
   },
   {
     id: "va4",
-    placa: "PXD-1B08",
-    motorista: "Severino José de Lima",
+    placa: "FLS-3321",
+    motorista: "Marcos Vinicius",
     fotoMotorista:
       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-    rota: "Tapera ➔ Toritama (Expresso Jeans)",
-    velocidade: 0,
+    rota: "Zona Norte ➔ Polo Comercial (Partiu Flash)",
+    velocidade: 32,
     telemetria: "online",
     x: 38,
     y: 68,
     corPin: "amarelo",
-    modelo: "Mercedes-Benz Minibus 515 VIP",
+    modelo: "Yamaha Fazer 250 (Vermelha)",
   },
 ];
 
@@ -385,13 +385,15 @@ export type EncomendaVan = {
   tipo: "envelope" | "pacote_pequeno" | "caixa_media" | "caixa_grande";
   descricao: string;
   valorFrete: number;
-  status: "aguardando_coleta" | "em_transito" | "entregue_no_terminal";
+  status: "aguardando_coleta" | "em_transito" | "entregue_no_terminal" | "a_caminho" | "entregue";
   dataEnvio: string;
   dataEntrega?: string | undefined;
   entreguePor?: string | undefined;
   motoristaNome?: string | undefined;
   vanPlaca?: string | undefined;
 };
+
+export type EncomendaFlash = EncomendaVan;
 
 export type DemandaRota = {
   id: string;
@@ -401,7 +403,7 @@ export type DemandaRota = {
   diasSemana: string;
   apoiadoresQtd: number;
   metaApoiadores: number;
-  status: "em_votacao" | "em_analise_cooperativa" | "rota_criada";
+  status: "em_votacao" | "em_analise_cooperativa" | "em_analise_operacional" | "rota_criada";
   dataCriacao: string;
 };
 
@@ -475,9 +477,9 @@ export const encomendasMock: EncomendaVan[] = [
 export function getEncomendasStore(): EncomendaVan[] {
   if (typeof window === "undefined") return encomendasMock;
   try {
-    const raw = localStorage.getItem("univans_encomendas_store");
+    const raw = localStorage.getItem("partiu_encomendas_store") || localStorage.getItem("univans_encomendas_store");
     if (!raw) {
-      localStorage.setItem("univans_encomendas_store", JSON.stringify(encomendasMock));
+      localStorage.setItem("partiu_encomendas_store", JSON.stringify(encomendasMock));
       return encomendasMock;
     }
     return JSON.parse(raw);
@@ -491,7 +493,7 @@ export function salvarNovaEncomendaStore(nova: EncomendaVan): EncomendaVan[] {
   try {
     const atuais = getEncomendasStore();
     const atualizadas = [nova, ...atuais];
-    localStorage.setItem("univans_encomendas_store", JSON.stringify(atualizadas));
+    localStorage.setItem("partiu_encomendas_store", JSON.stringify(atualizadas));
     return atualizadas;
   } catch {
     return [nova, ...encomendasMock];
@@ -543,7 +545,7 @@ export function validarPinEntregaEncomenda(
       return item;
     });
 
-    localStorage.setItem("univans_encomendas_store", JSON.stringify(atualizadas));
+    localStorage.setItem("partiu_encomendas_store", JSON.stringify(atualizadas));
     const final = atualizadas.find((e) => e.id === enc.id);
 
     return {

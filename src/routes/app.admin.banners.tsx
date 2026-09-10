@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import {
   CheckCircle2,
   ChevronRight,
@@ -13,6 +13,10 @@ import {
   Sparkles,
   Trash2,
   Upload,
+  Eye,
+  Check,
+  Tag,
+  AlertTriangle,
 } from "lucide-react";
 import {
   getSuperAdminConfig,
@@ -20,284 +24,388 @@ import {
   type BannerApp,
   type ConfigSuperAdmin,
 } from "@/lib/superadmin-config";
+import {
+  bannerService,
+  type BannerItem,
+  type BannerCategory,
+} from "@/lib/ecosystem/banner-service";
 
 export const Route = createFileRoute("/app/admin/banners")({
   head: () => ({
     meta: [
-      { title: "Gerenciador de Banners do App | Super Admin UniVans" },
+      { title: "Gerenciador de Banners do App | PARTIU Admin" },
       {
         name: "description",
-        content: "Gerencie o carrossel promocional da tela inicial do aplicativo em tempo real.",
+        content: "Gerencie o carrossel de banners da tela inicial do aplicativo do passageiro em tempo real.",
       },
     ],
   }),
   component: AdminBannersPage,
 });
 
+const IMAGENS_PRESET = [
+  {
+    nome: "Carro Urbano Moderno",
+    url: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&auto=format&fit=crop&q=80",
+  },
+  {
+    nome: "Motoboy Entrega Flash",
+    url: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=800&auto=format&fit=crop&q=80",
+  },
+  {
+    nome: "Motorista Parceiro Sorridente",
+    url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80",
+  },
+  {
+    nome: "Partiu Mulher & Segurança",
+    url: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80",
+  },
+  {
+    nome: "Cidade Noturna & Dinâmica",
+    url: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&auto=format&fit=crop&q=80",
+  },
+];
+
 export function AdminBannersPage() {
-  const [config, setConfig] = useState<ConfigSuperAdmin>(getSuperAdminConfig);
+  const [banners, setBanners] = useState<BannerItem[]>(() => bannerService.getAllBanners());
   const [salvo, setSalvo] = useState(false);
 
   // Formulário de novo banner
-  const [badge, setBadge] = useState("EXCURSÕES • STARLINK VIP");
+  const [categoria, setCategoria] = useState<BannerCategory>("PASSENGER");
+  const [badge, setBadge] = useState("CORRIDAS COM DESCONTO");
   const [titulo, setTitulo] = useState("");
   const [subtitulo, setSubtitulo] = useState("");
-  const [extra, setExtra] = useState("Wi-Fi Grátis a Bordo");
-  const [imagem, setImagem] = useState("");
-  const [linkDestino, setLinkDestino] = useState("/app/linhas");
+  const [extra, setExtra] = useState("Ar-condicionado garantido");
+  const [imagem, setImagem] = useState(IMAGENS_PRESET[0]?.url ?? "");
+  const [linkDestino, setLinkDestino] = useState("/app");
+  const [validacaoDimensoes, setValidacaoDimensoes] = useState<{
+    isValid: boolean;
+    message: string;
+    width?: number;
+    height?: number;
+    aspectRatio?: number;
+  } | null>(null);
 
-  function handleSalvarBanners(novosBanners: BannerApp[]) {
-    const novaConfig = { ...config, banners: novosBanners };
-    setConfig(novaConfig);
-    saveSuperAdminConfig(novaConfig);
+  // Validação em tempo real de dimensões de imagem
+  useEffect(() => {
+    if (imagem && imagem.startsWith("http")) {
+      void bannerService.validateBannerDimensions(imagem).then(setValidacaoDimensoes);
+    } else {
+      setValidacaoDimensoes(null);
+    }
+  }, [imagem]);
+
+  // Inscrição reativa para sincronização com o banco
+  useEffect(() => {
+    return bannerService.subscribe((list) => {
+      setBanners(list);
+    });
+  }, []);
+
+  async function handleCriarBanner(e: FormEvent) {
+    e.preventDefault();
+    if (!titulo.trim() || !subtitulo.trim()) return;
+
+    await bannerService.createBanner({
+      title: titulo.trim(),
+      subtitle: subtitulo.trim(),
+      badge: badge.trim(),
+      image_url: imagem || IMAGENS_PRESET[0]?.url || "",
+      link_url: linkDestino,
+      category: categoria,
+      order_index: banners.length + 1,
+      is_active: true,
+    });
+
+    setTitulo("");
+    setSubtitulo("");
     setSalvo(true);
     setTimeout(() => setSalvo(false), 3000);
   }
 
-  function handleCriarBanner(e: FormEvent) {
-    e.preventDefault();
-    if (!titulo.trim() || !subtitulo.trim()) return;
-
-    const novo: BannerApp = {
-      id: `banner-${Date.now()}`,
-      badge,
-      titulo,
-      subtitulo,
-      extra,
-      imagem:
-        imagem ||
-        "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80",
-      linkDestino,
-      ordem: config.banners.length + 1,
-      ativo: true,
-    };
-
-    handleSalvarBanners([...config.banners, novo]);
-    setTitulo("");
-    setSubtitulo("");
-    setImagem("");
+  async function toggleAtivo(id: string) {
+    await bannerService.toggleBannerStatus(id);
+    setSalvo(true);
+    setTimeout(() => setSalvo(false), 2000);
   }
 
-  function toggleAtivo(id: string) {
-    const atualizados = config.banners.map((b) => (b.id === id ? { ...b, ativo: !b.ativo } : b));
-    handleSalvarBanners(atualizados);
-  }
-
-  function removerBanner(id: string) {
-    const atualizados = config.banners.filter((b) => b.id !== id);
-    handleSalvarBanners(atualizados);
+  async function removerBanner(id: string) {
+    await bannerService.deleteBanner(id);
+    setSalvo(true);
+    setTimeout(() => setSalvo(false), 2000);
   }
 
   return (
     <div className="w-full space-y-8 pb-16">
-      {/* Header em Tela Cheia com Fontes Grandes */}
-      <div className="w-full bg-slate-950 p-5 sm:p-6 rounded-2xl text-white shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
+      {/* Header em Tela Cheia */}
+      <div className="w-full bg-slate-950 p-6 rounded-3xl text-white shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/20 px-4 py-1.5 text-xs sm:text-sm font-black uppercase text-amber-300 border border-amber-400/30">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/20 px-4 py-1.5 text-xs font-black uppercase text-yellow-300 border border-yellow-400/30">
             <ImageIcon className="h-4 w-4" />
-            <span>Marketing & Destaques da Tela Inicial</span>
+            <span>CMS de Campanhas &amp; Banners da Tela Inicial</span>
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-xl sm:text-2xl font-black tracking-tight">
-            Gerenciador de Banners do App
+          <h1 className="text-2xl lg:text-3xl font-black tracking-tight text-white">
+            Carrossel de Imagens do Passageiro
           </h1>
-          <p className="text-base sm:text-lg text-slate-300 max-w-3xl font-medium leading-relaxed">
-            Adicione, edite e ative campanhas promocionais do Moda Center, rotas turísticas e avisos
-            no carrossel do passageiro em tempo real.
+          <p className="text-sm text-slate-300 max-w-3xl font-medium leading-relaxed">
+            Adicione, edite ou desative os slides promocionais que aparecem em tempo real na tela inicial do app de todos os passageiros.
           </p>
         </div>
       </div>
 
       {salvo && (
-        <div className="rounded-2xl bg-emerald-500 text-white p-5 text-base font-bold flex items-center gap-3 shadow-xl animate-in fade-in">
-          <CheckCircle2 className="h-6 w-6" /> Banners sincronizados com sucesso no aplicativo de
-          todos os passageiros!
+        <div className="rounded-2xl bg-emerald-500 text-slate-950 p-4 text-sm font-black flex items-center gap-3 shadow-xl animate-in fade-in">
+          <CheckCircle2 className="h-5 w-5 text-slate-950" /> Banners sincronizados com sucesso no aplicativo do passageiro!
         </div>
       )}
 
-      {/* Grid de 2 Colunas em Tela Cheia */}
+      {/* Grid: Formulário (Coluna Esquerda) + Lista com Pré-visualização (Coluna Direita) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
-        {/* Coluna 1: Criador de Banners (5/12) */}
+        {/* Formulário: Criar Novo Banner (5/12) */}
         <div className="lg:col-span-5">
           <form
             onSubmit={handleCriarBanner}
-            className="w-full rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-sm space-y-6"
+            className="w-full rounded-3xl bg-white p-6 border border-slate-200 shadow-sm space-y-5"
           >
             <div className="border-b border-slate-100 pb-4">
-              <h2 className="text-xl font-black text-slate-900 flex items-center gap-2.5">
-                <Plus className="h-6 w-6 text-[#0d5930]" /> Criar Novo Banner Promocional
+              <h2 className="text-lg font-black text-slate-950 flex items-center gap-2">
+                <Plus className="h-5 w-5 text-amber-500" /> Publicar Novo Slide Promocional
               </h2>
-              <p className="text-sm text-slate-500 mt-1">
-                Preencha os campos para publicar imediatamente no aplicativo.
+              <p className="text-xs text-slate-500 mt-0.5">
+                Os dados aparecerão imediatamente no carrossel da home do app.
               </p>
             </div>
 
-            <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                Badge / Categoria Superior
-              </label>
-              <input
-                value={badge}
-                onChange={(e) => setBadge(e.target.value)}
-                placeholder="Ex: EXCURSÕES • STARLINK VIP"
-                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1.5">
+                  Badge / Categoria
+                </label>
+                <select
+                  value={badge}
+                  onChange={(e) => setBadge(e.target.value)}
+                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-bold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
+                >
+                  <option value="CORRIDAS COM DESCONTO">CORRIDAS COM DESCONTO</option>
+                  <option value="ENTREGAS URBANAS FLASH">ENTREGAS URBANAS FLASH</option>
+                  <option value="MOTORISTAS & ENTREGADORES">MOTORISTAS &amp; ENTREGADORES</option>
+                  <option value="PARTIU MULHER">PARTIU MULHER (SEGURANÇA)</option>
+                  <option value="CASHBACK & BENEFÍCIOS">CASHBACK &amp; BENEFÍCIOS</option>
+                  <option value="NOVIDADES PARTIU">NOVIDADES PARTIU</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1.5">
+                  Público Alvo do Banner
+                </label>
+                <select
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value as BannerCategory)}
+                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-bold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
+                >
+                  <option value="PASSENGER">Passageiro (Home)</option>
+                  <option value="DRIVER">Motorista (Cockpit)</option>
+                  <option value="ALL">Ambos os Apps</option>
+                </select>
+              </div>
             </div>
 
             <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1.5">
                 Título Principal
               </label>
               <input
                 required
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
-                placeholder="Ex: Vem viajar para o Moda Center!"
-                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                placeholder="Ex: Vá de Partiu Pop com 20% OFF"
+                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
               />
             </div>
 
             <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                Subtítulo / Cidades Atendidas
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1.5">
+                Subtítulo / Descrição
               </label>
               <input
                 required
                 value={subtitulo}
                 onChange={(e) => setSubtitulo(e.target.value)}
-                placeholder="Ex: SANTA CRUZ • CARUARU • TORITAMA"
-                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                placeholder="Ex: Use o cupom PARTIU10 na sua próxima viagem"
+                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1.5">
                   Tag Destacada
                 </label>
                 <input
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
-                  placeholder="Ex: Wi-Fi Grátis"
-                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                  placeholder="Ex: R$ 10 OFF"
+                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                  Link de Destino
+                <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1.5">
+                  Ação ao Clicar
                 </label>
                 <select
                   value={linkDestino}
                   onChange={(e) => setLinkDestino(e.target.value)}
-                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm font-bold text-slate-900 outline-none border border-slate-200"
+                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-bold text-slate-900 outline-none border border-slate-200"
                 >
-                  <option value="/app/linhas">Lista de Vans (/app/linhas)</option>
-                  <option value="/app/shop">Shop Afiliados (/app/shop)</option>
-                  <option value="/app/shop-videos">Shop Vídeos (/app/shop-videos)</option>
+                  <option value="/app">Solicitar Corrida (/app)</option>
+                  <option value="/app/encomendas">PARTIU Entrega Flash (/app/encomendas)</option>
+                  <option value="/app/motorista">Cockpit do Motorista (/app/motorista)</option>
+                  <option value="/app/bilhetes">Histórico de Atividades (/app/bilhetes)</option>
+                  <option value="/app/perfil">Carteira &amp; Perfil (/app/perfil)</option>
                 </select>
               </div>
             </div>
 
+            {/* Seletor de Imagens Preset */}
             <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                URL da Imagem em Alta Resolução
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-700 mb-1.5">
+                Escolha uma Foto ou Cole URL (Validação Mobile)
               </label>
+              <div className="grid grid-cols-2 gap-2 mb-2">
+                {IMAGENS_PRESET.map((p, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setImagem(p.url)}
+                    className={`p-2 rounded-xl text-left text-[11px] font-bold border transition flex items-center gap-2 ${
+                      imagem === p.url
+                        ? "bg-amber-50 border-[#FFDE00] text-slate-950 ring-2 ring-[#FFDE00]"
+                        : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <img src={p.url} alt={p.nome} className="w-8 h-8 rounded-lg object-cover" />
+                    <span className="truncate">{p.nome}</span>
+                  </button>
+                ))}
+              </div>
+
               <input
                 value={imagem}
                 onChange={(e) => setImagem(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white"
+                placeholder="Ou cole a URL direta de uma imagem personalizada..."
+                className="w-full rounded-2xl bg-slate-50 px-4 py-2.5 text-xs font-mono text-slate-700 outline-none border border-slate-200 focus:border-[#FFDE00]"
               />
+
+              {/* Feedback de Validação de Dimensões Mobile */}
+              {validacaoDimensoes && (
+                <div
+                  className={`mt-2 p-2.5 rounded-xl text-xs flex items-center gap-2 ${
+                    validacaoDimensoes.isValid
+                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      : "bg-amber-50 text-amber-800 border border-amber-200"
+                  }`}
+                >
+                  <span className="shrink-0">{validacaoDimensoes.isValid ? "✅" : "⚠️"}</span>
+                  <span className="font-medium">{validacaoDimensoes.message}</span>
+                </div>
+              )}
             </div>
 
             <button
               type="submit"
-              className="flex h-11 sm:h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#0d5930] text-base font-black text-white shadow-xl shadow-[#0d5930]/30 hover:brightness-105 active:scale-[0.98] transition-all"
+              className="w-full py-4 rounded-2xl bg-[#FFDE00] hover:bg-[#FDD835] active:scale-[0.99] text-slate-950 font-black text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <Plus className="h-5 w-5" /> Publicar Banner no Aplicativo
+              <Plus className="h-5 w-5" /> Adicionar Slide ao Carrossel
             </button>
           </form>
         </div>
 
-        {/* Coluna 2: Banners Cadastrados e Preview Real (7/12) */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="w-full rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-sm space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div>
-                <h2 className="text-xl font-black text-slate-900">
-                  Banners Cadastrados no Carrossel ({config.banners.length})
-                </h2>
-                <p className="text-sm text-slate-500 mt-1">
-                  Visualize exatamente como os passageiros enxergam cada campanha.
-                </p>
-              </div>
-            </div>
+        {/* Lista de Banners Ativos e Gerenciador (7/12) */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-black text-slate-950 flex items-center gap-2">
+              <Layers className="h-5 w-5 text-amber-500" /> Slides Publicados no App ({banners.length})
+            </h2>
+            <span className="text-xs font-bold text-slate-500">
+              {banners.filter((b) => b.is_active).length} ativos no carrossel
+            </span>
+          </div>
 
-            <div className="space-y-6">
-              {config.banners.map((b) => (
-                <div
-                  key={b.id}
-                  className="rounded-2xl border border-slate-200 shadow-sm overflow-hidden bg-slate-900 text-white relative group"
-                >
-                  <div className="relative aspect-[16/7] w-full overflow-hidden">
-                    <img
-                      src={b.imagem}
-                      alt={b.titulo}
-                      className="h-full w-full object-cover opacity-70 group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-
-                    <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
-                      <div className="flex items-center justify-between">
-                        <span className="rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-xs font-black uppercase tracking-wider text-amber-300 border border-white/20">
-                          {b.badge}
+          <div className="space-y-4">
+            {banners.map((banner, index) => (
+              <div
+                key={banner.id}
+                className={`rounded-3xl border overflow-hidden transition-all shadow-sm ${
+                  banner.is_active ? "bg-white border-slate-200" : "bg-slate-100 border-slate-200 opacity-60"
+                }`}
+              >
+                {/* Visual Preview Real do Slide */}
+                <div className="relative h-44 w-full overflow-hidden bg-slate-900">
+                  <img
+                    src={banner.image_url}
+                    alt={banner.title}
+                    className="w-full h-full object-cover opacity-75"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-5 flex flex-col justify-between text-white">
+                    <div className="flex items-center justify-between">
+                      <span className="px-2.5 py-1 rounded-full bg-[#FFDE00] text-slate-950 font-black text-[10px] uppercase tracking-wider">
+                        {banner.badge}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded-full bg-slate-800 text-yellow-300 font-bold text-[9px] uppercase border border-yellow-400/30">
+                          {banner.category}
                         </span>
-
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-black ${
-                            b.ativo ? "bg-emerald-600 text-white" : "bg-slate-700 text-slate-300"
-                          }`}
-                        >
-                          {b.ativo ? "✓ Ativo no App" : "Pausado"}
+                        <span className="px-2.5 py-0.5 rounded-full bg-black/60 text-white font-mono text-[10px] backdrop-blur-xs">
+                          #{banner.order_index || index + 1}
                         </span>
                       </div>
+                    </div>
 
-                      <div>
-                        <h3 className="text-xl sm:text-2xl font-black">{b.titulo}</h3>
-                        <p className="text-xs sm:text-sm font-bold text-slate-200 mt-0.5">
-                          {b.subtitulo}
-                        </p>
-                        <span className="inline-block text-xs font-extrabold text-amber-400 mt-2 bg-black/40 px-2.5 py-0.5 rounded-lg">
-                          {b.extra}
+                    <div>
+                      <h3 className="text-lg font-black text-white leading-tight drop-shadow-md">
+                        {banner.title}
+                      </h3>
+                      <p className="text-xs text-slate-200 font-medium mt-1 line-clamp-1">
+                        {banner.subtitle}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-[10px] text-amber-300 font-bold">
+                          ➔ {banner.link_url}
                         </span>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="p-4 bg-slate-950 flex items-center justify-between gap-3 border-t border-slate-800">
+                {/* Controles do Banner */}
+                <div className="p-4 bg-white flex items-center justify-between gap-2 border-t border-slate-100">
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => toggleAtivo(b.id)}
-                      className={`flex-1 h-11 rounded-2xl text-xs sm:text-sm font-black transition-all ${
-                        b.ativo
-                          ? "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                          : "bg-emerald-600 text-white hover:bg-emerald-700"
+                      onClick={() => toggleAtivo(banner.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer ${
+                        banner.is_active
+                          ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                          : "bg-slate-200 text-slate-600 hover:bg-slate-300"
                       }`}
                     >
-                      {b.ativo ? "Pausar Banner" : "Ativar Banner no App"}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => removerBanner(b.id)}
-                      className="flex h-11 px-4 items-center justify-center gap-2 rounded-2xl bg-rose-500/20 text-rose-300 border border-rose-500/30 hover:bg-rose-500/30 text-xs sm:text-sm font-bold"
-                    >
-                      <Trash2 className="h-4 w-4" /> Excluir
+                      {banner.is_active ? "● Ativo no App" : "○ Pausado"}
                     </button>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removerBanner(banner.id)}
+                    className="p-2 rounded-xl text-rose-600 hover:bg-rose-50 transition cursor-pointer"
+                    title="Excluir Slide"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

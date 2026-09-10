@@ -1,11 +1,11 @@
 /**
  * ============================================================================
- * UNIVANS HIGH-SCALE & RESILIENCE ENGINE (BYTEBYTEGO ARCHITECTURE SPEC)
+ * PARTIU HIGH-SCALE & RESILIENCE ENGINE (BYTEBYTEGO ARCHITECTURE SPEC)
  * ============================================================================
- * 1. Distributed Seat Locking (Prevenção de Overbooking com TTL de 5 min)
+ * 1. Distributed Seat & Ride Locking (Prevenção de Overbooking / Multi-despacho)
  * 2. Multi-Layer In-Memory Cache (Redução de 98% de carga no banco)
- * 3. Batch Telemetry Ingestion (Processamento de milhões de pings Starlink)
- * 4. Offline-First Boarding Pass Storage (Acesso a bilhetes sem sinal 4G/5G)
+ * 3. Batch Telemetry Ingestion (Processamento de alta escala de pings GPS)
+ * 4. Offline-First Boarding Pass & Trip Storage (Acesso a bilhetes sem sinal 4G/5G)
  */
 
 export interface SeatLock {
@@ -31,8 +31,8 @@ export interface CacheEntry<T> {
 }
 
 // Chaves locais
-const STORAGE_KEY_SEAT_LOCKS = "univans_seat_locks";
-const STORAGE_KEY_OFFLINE_TICKETS = "univans_offline_tickets";
+const STORAGE_KEY_SEAT_LOCKS = "partiu_seat_locks";
+const STORAGE_KEY_OFFLINE_TICKETS = "partiu_offline_tickets";
 
 class HighScaleResilienceEngine {
   private memoryCache: Map<string, CacheEntry<unknown>> = new Map();

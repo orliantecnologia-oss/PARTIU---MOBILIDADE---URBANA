@@ -1,21 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { CheckCircle2, Search, ShieldBan, Truck, XCircle } from "lucide-react";
-import { useVeiculosAdmin, useAtualizarStatusVeiculo } from "@/lib/univans-db";
+import { useVeiculosAdmin, useAtualizarStatusVeiculo } from "@/lib/partiu-db";
 
 export const Route = createFileRoute("/app/admin/frota")({
   head: () => ({
     meta: [
-      { title: "Aprovação de Veículos | UniVans Admin" },
+      { title: "Aprovação de Veículos | PARTIU Admin" },
       {
         name: "description",
         content:
-          "Audite a documentação da frota e aprove, rejeite ou bloqueie os veículos cadastrados pelos motoristas.",
+          "Audite a documentação da frota e aprove, rejeite ou bloqueie os veículos (carros e motos) cadastrados pelos parceiros.",
       },
-      { property: "og:title", content: "Aprovação de Veículos | UniVans Admin" },
+      { property: "og:title", content: "Aprovação de Veículos | PARTIU Admin" },
       {
         property: "og:description",
-        content: "Auditoria e aprovação da frota cooperativa UniVans.",
+        content: "Auditoria e aprovação da frota parceira PARTIU.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

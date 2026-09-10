@@ -1,5 +1,5 @@
 /**
- * Camada de acesso a dados do UniVans — Supabase (PostgreSQL) + React Query.
+ * Camada de acesso a dados do PARTIU — Supabase (PostgreSQL) + React Query.
  * Substitui os stores locais por tabelas reais com RLS e Realtime.
  */
 import { useEffect } from "react";
@@ -7,6 +7,8 @@ import { useQuery, useQueryClient, useMutation, type UseQueryResult } from "@tan
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import type { TelemetriaVeiculo } from "@/lib/superadmin-config";
+import { silentCatchWarn } from "@/lib/structured-logger";
+
 
 export type Linha = Tables<"linhas">;
 export type PontoEmbarque = Tables<"pontos_embarque">;
@@ -537,30 +539,234 @@ export function useMotoristas(): UseQueryResult<
     cpf: string | null;
     phone: string | null;
     avatar_url: string | null;
+    veiculo_modelo?: string | undefined;
+    veiculo_placa?: string | undefined;
+    categoria?: string | undefined;
   }>
 > {
   return useQuery({
     queryKey: ["admin", "motoristas"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("user_id, role")
-        .eq("role", "motorista");
-      if (error) throw new Error(error.message);
-      const ids = (data ?? []).map((r) => r.user_id);
-      if (ids.length === 0) return [];
-      const { data: perfis, error: erroPerfis } = await supabase
-        .from("profiles")
-        .select("id, full_name, cpf, phone, avatar_url")
-        .in("id", ids);
-      if (erroPerfis) throw new Error(erroPerfis.message);
-      return (perfis ?? []) as Array<{
+      const todos: Array<{
         id: string;
         full_name: string | null;
         cpf: string | null;
         phone: string | null;
         avatar_url: string | null;
-      }>;
+        veiculo_modelo?: string | undefined;
+        veiculo_placa?: string | undefined;
+        categoria?: string | undefined;
+      }> = [];
+
+      // 1. Condutores da nova tabela partiu_motoristas
+      try {
+        const { data: partiuCondutores, error: errPartiu } = await (supabase as any)
+          .from("partiu_motoristas")
+          .select("id, nome, cpf, telefone, foto_url, veiculo_marca_modelo, veiculo_placa, categoria_veiculo")
+          .eq("status_aprovacao", "aprovado");
+
+        if (!errPartiu && partiuCondutores) {
+          partiuCondutores.forEach((c: any) => {
+            todos.push({
+              id: c.id,
+              full_name: c.nome,
+              cpf: c.cpf,
+              phone: c.telefone,
+              avatar_url: c.foto_url || null,
+              veiculo_modelo: c.veiculo_marca_modelo,
+              veiculo_placa: c.veiculo_placa,
+              categoria: c.categoria_veiculo,
+            });
+          });
+        }
+      } catch (err) { silentCatchWarn("univans-db", err); }
+
+      // 2. Condutores legados profiles/user_roles
+      try {
+        const { data, error } = await supabase
+          .from("user_roles")
+          .select("user_id, role")
+          .eq("role", "motorista");
+        if (!error && data && data.length > 0) {
+          const ids = data.map((r) => r.user_id);
+          const { data: perfis } = await supabase
+            .from("profiles")
+            .select("id, full_name, cpf, phone, avatar_url")
+            .in("id", ids);
+
+          if (perfis) {
+            perfis.forEach((p) => {
+              if (!todos.some((t) => t.id === p.id)) {
+                todos.push(p);
+              }
+            });
+          }
+        }
+      } catch (err) { silentCatchWarn("univans-db", err); }
+
+      // 3. Fallback do store local se vazio
+      if (todos.length === 0 && typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("partiu_motoristas_store");
+          if (raw) {
+            const list = JSON.parse(raw);
+            list.forEach((m: any) => {
+              todos.push({
+                id: m.id,
+                full_name: m.nome,
+                cpf: m.cpf,
+                phone: m.whatsapp,
+                avatar_url: null,
+                veiculo_modelo: m.modelo,
+                veiculo_placa: m.placa,
+                categoria: m.tipoVeiculo === "moto" ? "MOTO" : "CARRO",
+              });
+            });
+          }
+        } catch (err) { silentCatchWarn("univans-db", err); }
+      }
+
+      return todos;
+    },
+  });
+}
+
+export interface PartiuMotoristaPendente {
+  id: string;
+  nome: string;
+  cpf: string;
+  telefone: string;
+  email: string | null;
+  cnh_numero: string;
+  cnh_categoria: string;
+  cnh_validade: string;
+  possui_ear: boolean;
+  veiculo_marca_modelo: string;
+  veiculo_placa: string;
+  veiculo_ano: number;
+  veiculo_cor: string;
+  categoria_veiculo: string;
+  chave_pix: string | null;
+  tipo_chave_pix: string | null;
+  status_aprovacao: string;
+  created_at: string;
+}
+
+export function usePartiuMotoristasPendentes(): UseQueryResult<PartiuMotoristaPendente[]> {
+  return useQuery({
+    queryKey: ["admin", "motoristas_pendentes"],
+    queryFn: async () => {
+      try {
+        const { data, error } = await (supabase as any)
+          .from("partiu_motoristas")
+          .select("*")
+          .eq("status_aprovacao", "pendente")
+          .order("created_at", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          return data as PartiuMotoristaPendente[];
+        }
+      } catch (err) { silentCatchWarn("univans-db", err); }
+
+      // Fallback local se o banco estiver vazio ou offline
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("partiu_motoristas_store");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            return parsed
+              .filter((m: any) => m.status === "pendente" || !m.status || m.status === "ativo")
+              .map((m: any) => ({
+                id: m.id,
+                nome: m.nome,
+                cpf: m.cpf,
+                telefone: m.whatsapp,
+                email: m.email || null,
+                cnh_numero: m.cnh,
+                cnh_categoria: m.categoriaCNH || "B",
+                cnh_validade: "Em dia",
+                possui_ear: m.possuiEAR ?? true,
+                veiculo_marca_modelo: m.modelo,
+                veiculo_placa: m.placa,
+                veiculo_ano: parseInt(m.ano, 10) || 2023,
+                veiculo_cor: m.cor,
+                categoria_veiculo: m.tipoVeiculo === "moto" ? "MOTO" : "CARRO",
+                chave_pix: m.chavePix || null,
+                tipo_chave_pix: m.tipoChave || null,
+                status_aprovacao: "pendente",
+                created_at: m.cadastradoEm || new Date().toISOString(),
+              }));
+          }
+        } catch {
+          return [];
+        }
+      }
+      return [];
+    },
+  });
+}
+
+export function useAprovarPartiuMotorista() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      try {
+        await (supabase as any)
+          .from("partiu_motoristas")
+          .update({ status_aprovacao: "aprovado" })
+          .eq("id", id);
+      } catch (err) { silentCatchWarn("univans-db", err); }
+
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("partiu_motoristas_store");
+          if (raw) {
+            const list = JSON.parse(raw);
+            const idx = list.findIndex((m: any) => m.id === id);
+            if (idx >= 0) {
+              list[idx].status = "aprovado";
+              localStorage.setItem("partiu_motoristas_store", JSON.stringify(list));
+            }
+          }
+        } catch (err) { silentCatchWarn("univans-db", err); }
+      }
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["admin", "motoristas_pendentes"] });
+      void qc.invalidateQueries({ queryKey: ["admin", "motoristas"] });
+    },
+  });
+}
+
+export function useRejeitarPartiuMotorista() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, motivo }: { id: string; motivo: string }) => {
+      try {
+        await (supabase as any)
+          .from("partiu_motoristas")
+          .update({ status_aprovacao: "rejeitado", motivo_rejeicao: motivo })
+          .eq("id", id);
+      } catch (err) { silentCatchWarn("univans-db", err); }
+
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("partiu_motoristas_store");
+          if (raw) {
+            const list = JSON.parse(raw);
+            const idx = list.findIndex((m: any) => m.id === id);
+            if (idx >= 0) {
+              list[idx].status = "rejeitado";
+              list[idx].motivoRejeicao = motivo;
+              localStorage.setItem("partiu_motoristas_store", JSON.stringify(list));
+            }
+          }
+        } catch (err) { silentCatchWarn("univans-db", err); }
+      }
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ["admin", "motoristas_pendentes"] });
+      void qc.invalidateQueries({ queryKey: ["admin", "motoristas"] });
     },
   });
 }
@@ -642,8 +848,8 @@ export function useTelemetriaFrota(): UseQueryResult<TelemetriaVeiculo[]> {
           tipoDispositivo: "starlink",
           imeiDispositivo: v.veiculo_id ?? v.id,
           starlinkAntenaId: v.veiculo_id ?? v.id,
-          starlinkWifiSsid: v.veiculos?.starlink_wifi_ssid ?? "UniVans_Starlink",
-          starlinkWifiSenha: "univansviajar",
+          starlinkWifiSsid: v.veiculos?.starlink_wifi_ssid ?? "PARTIU_Wifi",
+          starlinkWifiSenha: "partiubrasil",
           lat,
           lng,
           velocidadeKmH: v.status === "em_andamento" || v.status === "em_transito" ? 82 : 0,
@@ -676,13 +882,13 @@ export function useTelemetriaFrota(): UseQueryResult<TelemetriaVeiculo[]> {
 
 function digitosPix(valor: number, txid: string) {
   // Payload PIX simplificado (BR Code estático de demonstração).
-  const chave = "pix@univans.com.br";
+  const chave = "pix@partiu.app";
   const valorStr = valor.toFixed(2);
   return [
     "00020126",
     `0014BR.GOV.BCB.PIX01${String(chave.length).padStart(2, "0")}${chave}`,
     "52040000530398654",
-    `04${valorStr}5802BR5906UNIVANS6009SAO PAULO62`,
+    `04${valorStr}5802BR5906PARTIU6009SAO PAULO62`,
     `${String(txid.length + 4).padStart(2, "0")}05${String(txid.length).padStart(2, "0")}${txid}`,
     "6304ABCD",
   ].join("");

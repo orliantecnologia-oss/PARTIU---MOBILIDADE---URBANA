@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import { silentCatchWarn } from "@/lib/structured-logger";
+
 
 export interface CoordenadasGPS {
   latitude: number;
@@ -107,8 +109,8 @@ export function calcularDistanciaKm(
   return Math.round(R * c * 10) / 10;
 }
 
-export function encontrarPontoMaisProximo(lat: number, lng: number): LocalizacaoDetectada {
-  let maisProximo = PONTOS_GEOGRAFICOS_ALAGOAS[0]!;
+export function encontrarPontoMaisProximo(lat: number, lng: number): LocalizacaoDetectada | null {
+  let maisProximo: LocalizacaoDetectada | null = null;
   let menorDistancia = Infinity;
 
   for (const ponto of PONTOS_GEOGRAFICOS_ALAGOAS) {
@@ -117,6 +119,11 @@ export function encontrarPontoMaisProximo(lat: number, lng: number): Localizacao
       menorDistancia = dist;
       maisProximo = { ...ponto, distanciaKm: dist };
     }
+  }
+
+  // Só associa a ponto de referência pré-definido se o usuário estiver de fato no raio de 30 km
+  if (menorDistancia > 30) {
+    return null;
   }
 
   return maisProximo;
@@ -132,8 +139,7 @@ export function useGeolocation() {
   const solicitarLocalizacao = useCallback(() => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       setErro("Geolocalização não suportada neste dispositivo.");
-      const fallback = PONTOS_GEOGRAFICOS_ALAGOAS[0]!;
-      setLocalDetectado(fallback);
+      setLocalDetectado(null);
       return;
     }
 
@@ -146,36 +152,32 @@ export function useGeolocation() {
         setCoords({ latitude, longitude, precisaoMetros: accuracy });
         setPermissaoConcedida(true);
         try {
-          localStorage.setItem("univans_gps_permitido", "true");
-        } catch {
-          // Ignore storage errors in restricted contexts
-        }
+          localStorage.setItem("partiu_gps_permitido", "true");
+        } catch (err) { silentCatchWarn("use-geolocation", err); }
 
         const ponto = encontrarPontoMaisProximo(latitude, longitude);
         setLocalDetectado(ponto);
         setCarregando(false);
       },
       (err) => {
-        console.warn("GPS Indisponível ou Negado, usando estimativa:", err.message);
+        console.warn("[use-geolocation] GPS físico indisponível ou negado:", err.message);
         setCarregando(false);
         setPermissaoConcedida(false);
-        const fallback = PONTOS_GEOGRAFICOS_ALAGOAS[0]!;
-        setLocalDetectado(fallback);
+        setErro(err.message || "GPS indisponível");
+        setLocalDetectado(null);
       },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 5000 },
     );
   }, []);
 
   useEffect(() => {
     try {
-      const salvo = localStorage.getItem("univans_gps_permitido");
+      const salvo = localStorage.getItem("partiu_gps_permitido") || localStorage.getItem("univans_gps_permitido");
       if (salvo === "true") {
         setPermissaoConcedida(true);
         solicitarLocalizacao();
       }
-    } catch {
-      // Ignore
-    }
+    } catch (err) { silentCatchWarn("use-geolocation", err); }
   }, [solicitarLocalizacao]);
 
   return {

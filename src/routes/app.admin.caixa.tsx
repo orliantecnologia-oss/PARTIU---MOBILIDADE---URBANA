@@ -7,21 +7,21 @@ import {
   useAlterarStatusCaixa,
   useMotoristas,
   calcularSplit,
-} from "@/lib/univans-db";
+} from "@/lib/partiu-db";
 
 export const Route = createFileRoute("/app/admin/caixa")({
   head: () => ({
     meta: [
-      { title: "Fechamento de Caixa | UniVans Admin" },
+      { title: "Fechamento de Caixa | PARTIU Admin" },
       {
         name: "description",
         content:
-          "Feche o caixa dos motoristas com cálculo automático da taxa da cooperativa e do valor líquido a repassar.",
+          "Feche o caixa dos motoristas parceiros com cálculo automático conforme o plano de assinatura ativo (0% Ouro a 5% Free) e repasse via PIX D+0.",
       },
-      { property: "og:title", content: "Fechamento de Caixa | UniVans Admin" },
+      { property: "og:title", content: "Fechamento de Caixa | PARTIU Admin" },
       {
         property: "og:description",
-        content: "Split financeiro da cooperativa UniVans conectado ao banco de dados.",
+        content: "Split financeiro da plataforma PARTIU conectado ao banco de dados.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -88,7 +88,7 @@ export function AdminCaixaPage() {
               Fechamento de caixa
             </h1>
             <p className="text-sm text-muted-foreground">
-              Split da cooperativa gravado direto no banco de dados.
+              Split da plataforma gravado direto no banco de dados.
             </p>
           </div>
           <button
@@ -103,7 +103,7 @@ export function AdminCaixaPage() {
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {[
             ["Bruto consolidado", consolidado.bruto, Wallet],
-            ["Cooperativa", consolidado.cooperativa, Banknote],
+            ["Taxa PARTIU (Plataforma)", consolidado.cooperativa, Banknote],
             ["Repasse motoristas", consolidado.motoristas, Banknote],
           ].map(([rotulo, valor, Icone]) => {
             const I = Icone as typeof Wallet;
@@ -176,7 +176,7 @@ export function AdminCaixaPage() {
               </label>
               <label className="text-sm">
                 <span className="mb-1 block font-semibold text-foreground">
-                  Taxa cooperativa (%)
+                  Taxa da plataforma (%)
                 </span>
                 <input
                   type="number"
@@ -190,7 +190,7 @@ export function AdminCaixaPage() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Cooperativa <strong>{brl(previa.valor_cooperativa)}</strong> · Motorista{" "}
+              Plataforma <strong>{brl(previa.valor_cooperativa)}</strong> · Motorista{" "}
               <strong>{brl(previa.valor_liquido_motorista)}</strong>
             </p>
 
@@ -223,7 +223,7 @@ export function AdminCaixaPage() {
                   {brl(c.total_bruto)}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Taxa {c.taxa_cooperativa_pct}% · cooperativa {brl(c.valor_cooperativa)} ·
+                  Taxa {c.taxa_cooperativa_pct}% · plataforma {brl(c.valor_cooperativa)} ·
                   motorista {brl(c.valor_liquido_motorista)} · {c.status.replace(/_/g, " ")}
                 </p>
               </div>

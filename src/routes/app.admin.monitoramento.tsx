@@ -34,14 +34,14 @@ import {
   HeartPulse,
 } from "lucide-react";
 import { type TelemetriaVeiculo } from "@/lib/superadmin-config";
-import { useTelemetriaFrota } from "@/lib/univans-db";
+import { useTelemetriaFrota } from "@/lib/partiu-db";
 import { UniversalMapView } from "@/components/maps/UniversalMapView";
 import { executarHealthCheckCompleto, type RelatorioSaudeGlobal } from "@/lib/observability";
 
 export const Route = createFileRoute("/app/admin/monitoramento")({
   head: () => ({
     meta: [
-      { title: "Control Room & Observabilidade | UniVans TOS v3.1" },
+      { title: "Control Room & Observabilidade | PARTIU TOS" },
       {
         name: "description",
         content:
@@ -144,7 +144,7 @@ export function MonitoramentoCommandCenter() {
             <span className="text-[10px] uppercase font-bold text-slate-400 block">
               Frota em Rota
             </span>
-            <strong className="text-lg font-black text-emerald-400 leading-tight">28 vans</strong>
+            <strong className="text-lg font-black text-emerald-400 leading-tight">28 condutores</strong>
           </div>
           <div className="rounded-2xl bg-slate-900/90 px-3.5 py-2.5 border border-slate-800 text-center">
             <span className="text-[10px] uppercase font-bold text-slate-400 block">
@@ -220,7 +220,7 @@ export function MonitoramentoCommandCenter() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-200 mt-0.5 font-medium">
-                      Van {inc.placa} ({inc.motorista}) solicitou apoio operacional na rodovia.
+                      Veículo {inc.placa} ({inc.motorista}) solicitou apoio operacional.
                     </p>
                   </div>
                 </div>
@@ -248,11 +248,11 @@ export function MonitoramentoCommandCenter() {
               />
             </div>
 
-            {/* SELETOR DE VANS & PAINEL DE TELEMETRIA HARDWARE (5 COLUNAS DESKTOP) */}
+            {/* SELETOR DE CONDUTORES & TELEMETRIA GPS (5 COLUNAS DESKTOP) */}
             <div className="lg:col-span-5 space-y-4">
               <div className="rounded-3xl bg-white p-4 border border-slate-200/80 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-black text-slate-900">Vans Monitoradas</h3>
+                  <h3 className="text-sm font-black text-slate-900">Condutores no Radar</h3>
                   <span className="text-xs font-bold text-slate-400">
                     {veiculosFiltrados.length} ativas
                   </span>

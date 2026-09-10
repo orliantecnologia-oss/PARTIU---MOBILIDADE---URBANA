@@ -1,1122 +1,2580 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
-import { deveTransmitirGpsDeadband } from "@/lib/telemetry-pipeline";
-import { useContinuousGps } from "@/lib/use-continuous-gps";
-import type { TelemetriaGpsPonto } from "@/lib/continuous-gps-engine";
+import { useState, useEffect } from "react";
 import {
-  ArrowLeft,
+  Car,
+  Power,
+  KeyRound,
   CheckCircle2,
-  Clock,
-  DollarSign,
-  MapPin,
-  MessageCircle,
   Phone,
-  Play,
-  QrCode,
-  Radio,
-  Share2,
-  ShieldCheck,
-  Sparkles,
-  Truck,
-  UserCheck,
-  Users,
-  Wifi,
-  Zap,
+  MessageCircle,
   Volume2,
+  VolumeX,
+  Star,
+  ShieldCheck,
+  Award,
+  ChevronRight,
+  X,
+  ExternalLink,
+  Compass,
+  Navigation,
+  MapPin,
+  Moon,
+  Sun,
+  Package,
+  Box,
   AlertTriangle,
-  ChevronDown,
   Camera,
-  RefreshCw,
-  Gauge,
-  FileCheck2,
-  HelpCircle,
-  CheckSquare,
-  Square,
-  Send,
-  XCircle,
+  RotateCcw,
+  Bell,
+  UserX,
+  Percent,
+  PiggyBank,
+  TrendingUp,
+  Wallet,
   Receipt,
-  FileText,
-  Check,
-  ShieldAlert,
+  ArrowUpRight,
 } from "lucide-react";
-import { tocarBipEmbarque } from "@/lib/realtime";
 import {
-  validarQRCodeOffline,
-  getQuantidadeValidacoesPendentes,
-  sincronizarValidacoesComServidor,
-  type ResultadoValidacaoOffline,
-  gerarPayloadQRCodePassagem,
-} from "@/lib/offline-ticket-crypto";
+  subscriptionEngine,
+  commissionEngine,
+  billingEngine,
+  driverWalletEngine,
+  financialAuditEngine,
+  type DriverPlan,
+  type DriverSubscription,
+  type DriverWallet,
+} from "@/lib/revenue";
 import {
-  calcularSplitFinanceiro,
-  apurarExtratoLedgerMotorista,
-  criarTransacaoPixComIdempotencia,
-  transicionarEstadoPix,
-} from "@/lib/finops-pix-engine";
+  deliveryDispatchService,
+  deliveryMultiStopEngine,
+  deliveryPinEngine,
+  deliveryProofEngine,
+  deliveryReturnEngine,
+  type DeliveryOrder,
+  type RecipientWaitStatus,
+  type ReturnDetails,
+} from "@/lib/delivery";
 import {
-  getEncomendasStore,
-  validarPinEntregaEncomenda,
-  type EncomendaVan,
-} from "@/lib/admin-data";
-import { BroadcastNotificationListener } from "@/components/notifications/BroadcastNotificationListener";
-import { Package, KeyRound, Box } from "lucide-react";
+  getCorridaAtiva,
+  motoristaAceitarCorrida,
+  motoristaChegouAoLocal,
+  confirmarEmbarqueEIniciarViagem,
+  validarPinEIniciarViagem,
+  confirmarColetaEncomenda,
+  confirmarEntregaEncomenda,
+  getActiveDeliverySession,
+  finalizarViagem,
+  tocarAlertaRadar,
+  tocarAlertaChegada,
+  tocarAlertaInicioViagem,
+  tocarAlertaFimViagem,
+  getGanhosHojeMotorista,
+  solicitarSaquePixMotorista,
+  getSaquesRealizadosNaSemana,
+  type CorridaPartiu,
+  driverEligibilityEngine,
+  driverStateMachine,
+  driverOfferEngine,
+  driverLedgerEngine,
+  driverTelemetryEngine,
+  type DriverProfileRecord,
+  MOTORISTA_CONTA_PADRAO,
+  type WaitingTimerStatus,
+  cancelarCorridaPeloMotorista,
+  cancelarCorridaPorNoShow,
+} from "@/lib/partiu-engine";
+import { PartiuDriverNavigationMap } from "@/components/maps/PartiuDriverNavigationMap";
+import { useBrandTheme } from "@/hooks/useBrandTheme";
+import { driverLoyaltyEngine } from "@/lib/loyalty/driver-loyalty-engine";
+import { driverSubscriptionService } from "@/lib/ecosystem/driver-subscription-service";
+import { DriverOfferModal } from "@/components/driver/DriverOfferModal";
+import { driverLocationService } from "@/services/DriverLocationService";
+import { dispatchQueueBuilder } from "@/services/DispatchQueueBuilder";
+import { DeliveryPinNumpadBottomSheet } from "@/components/driver/DeliveryPinNumpadBottomSheet";
+import { DriverAccessGuard } from "@/components/driver/DriverAccessGuard";
+import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
+import { chatRealtimeService } from "@/services/ChatRealtimeService";
 import {
-  useViagensDoDia,
-  useManifestoViagem,
-  useAtualizarTelemetria,
-  useConfirmarEmbarque,
-} from "@/lib/univans-db";
-import { RealQrCodePix } from "@/components/passagens/RealQrCodePix";
+  DriverCancelBottomSheet,
+  type DriverCancelReasonCode,
+} from "@/components/driver/DriverCancelBottomSheet";
+import { openExternalNavigation } from "@/utils/navigation-launcher";
+import { driverConsecutiveRidesEngine } from "@/lib/driver/driver-consecutive-rides-engine";
+
+export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PARTIU") {
+  const isEntrega = c.isEntrega || c.modalidade.startsWith("ENTREGA");
+  const tipo: "CARRO" | "MOTO" | "ENTREGA" = isEntrega
+    ? "ENTREGA"
+    : c.modalidade === "MOTO"
+    ? "MOTO"
+    : "CARRO";
+
+  const titulo = isEntrega
+    ? `${nomeApp} Flash • ${c.descricaoPacote || "Entrega Urbana"}`
+    : c.modalidade === "MOTO"
+    ? `${nomeApp} Moto • Corrida Ágil`
+    : `${nomeApp} Pop • Corrida Urbana`;
+
+  const sess = isEntrega ? getActiveDeliverySession() : null;
+
+  return {
+    id: c.id,
+    tipo,
+    titulo,
+    passageiro: isEntrega
+      ? `${c.passageiroNome} ➔ ${c.destinatarioNome || "Destinatário"}`
+      : c.passageiroNome,
+    origem: c.origem,
+    destino: c.destino,
+    distanciaKm: c.distanciaKm,
+    valorLiquido: c.valor,
+    valorBruto: c.valor,
+    taxaPartiu: 0,
+    comissaoPercentual: 0,
+    planoNome: "Diária SaaS (0% Comissão)",
+    economiaVsUber: Math.round(c.valor * 0.2 * 100) / 100,
+    contribuicaoProtecao: 0,
+    pinCorreto: sess ? sess.flashOrder.pickupOtp : c.pin,
+    telefone: c.passageiroTelefone,
+    isReal: true,
+    passageiroFoto: (c as any).passageiroFoto,
+    passageiroAvaliacao: (c as any).passageiroAvaliacao ?? 4.98,
+    passageiroTotalCorridas: (c as any).passageiroTotalCorridas ?? 48,
+    passageiroCpfVerificado: (c as any).passageiroCpfVerificado ?? true,
+    passageiroTrustScore: (c as any).passageiroTrustScore ?? 88,
+    passageiroTrustTier: (c as any).passageiroTrustTier ?? "PREMIUM",
+    destinatarioNome: c.destinatarioNome,
+    destinatarioTelefone: c.destinatarioTelefone,
+    descricaoPacote: c.descricaoPacote,
+    pickupOtp: sess?.flashOrder.pickupOtp,
+    deliveryOtp: sess?.flashOrder.deliveryOtp,
+  };
+}
+
+export function PartiuDriverCockpitGuarded() {
+  return (
+    <DriverAccessGuard driverId={MOTORISTA_CONTA_PADRAO.id}>
+      <PartiuDriverCockpit />
+    </DriverAccessGuard>
+  );
+}
 
 export const Route = createFileRoute("/app/motorista")({
   head: () => ({
     meta: [
-      { title: "Cockpit Operacional do Motorista | UniVans TOS" },
+      { title: "Cockpit do Motorista & Entregador | PARTIU" },
       {
         name: "description",
         content:
-          "Estação de trabalho operacional: checklist pré-viagem, manifesto de bordo, validação criptográfica offline com Anti-Replay e Livro-Razão.",
+          "Estação de trabalho do parceiro PARTIU: Trip Radar em tempo real integrado com solicitações de passageiros e encomendas, Embarque Smart 1-Tap e Saque Instantâneo PIX D+0.",
       },
     ],
   }),
-  component: PainelMotoristaPage,
+  component: PartiuDriverCockpitGuarded,
 });
 
-interface ParadaManifesto {
-  id: string;
-  nome: string;
-  referencia: string;
-  horarioEstimado: string;
-  passageirosEmbarcando: {
-    id: string;
-    nome: string;
-    telefone: string;
-    quantidade: number;
-    valor: number;
-    pagoVia: string;
-    gpsStatus: "no_ponto" | "aproximando" | "acostamento";
-    distanciaPonto: string;
-    embarcado: boolean;
-    ticketCode: string;
-  }[];
-  desembarques: number;
-}
+export function PartiuDriverCockpit() {
+  const {
+    nomeApp,
+    corPrimaria,
+    corPrimariaHover,
+    corSecundaria,
+    corTextoPrimaria,
+    corFundoApp,
+    nomeModuloEntrega,
+  } = useBrandTheme();
 
-export function PainelMotoristaPage() {
-  const [abaAtiva, setAbaAtiva] = useState<
-    "viagem" | "totem" | "encomendas" | "checklist" | "caixa"
-  >("viagem");
-  const [encomendas, setEncomendas] = useState<EncomendaVan[]>(() => getEncomendasStore());
-  const [encomendaParaEntregar, setEncomendaParaEntregar] = useState<EncomendaVan | null>(null);
-  const [pinDigitado, setPinDigitado] = useState("");
-  const [erroPin, setErroPin] = useState<string | null>(null);
-  const [sucessoEntrega, setSucessoEntrega] = useState<string | null>(null);
+  // Status de Disponibilidade & Trava de Diária Inteligente (SaaS Model)
+  const [isOnline, setIsOnline] = useState(() => driverSubscriptionService.isDriverUnlocked(MOTORISTA_CONTA_PADRAO.id));
 
-  const [ultimoEmbarque, setUltimoEmbarque] = useState<{
-    nome: string;
-    horario: string;
-    quantidade: number;
-    bilheteId: string;
-  } | null>(null);
+  // Perfil Operacional e Elegibilidade (Padrão 99/Uber)
+  const [perfilMotorista] = useState<DriverProfileRecord>(MOTORISTA_CONTA_PADRAO);
+  const [loyaltyProfile] = useState(() => driverLoyaltyEngine.getProfile(perfilMotorista.id));
+  const [erroElegibilidade, setErroElegibilidade] = useState<string | null>(null);
+  const [waitingTimerStatus, setWaitingTimerStatus] = useState<WaitingTimerStatus | null>(null);
 
-  const [checklist, setChecklist] = useState({
-    pneus: true,
-    freios: true,
-    oleoAgua: true,
-    arCondicionado: true,
-    documentosOk: true,
-    starlinkWifiOk: true,
-    rastreadorGpsOnline: true,
+  // Escuta confirmações e atualizações de diárias
+  useEffect(() => {
+    return driverSubscriptionService.subscribe(() => {
+      const unlocked = driverSubscriptionService.isDriverUnlocked(perfilMotorista.id);
+      if (unlocked) {
+        setIsOnline(true);
+      }
+    });
+  }, [perfilMotorista.id]);
+
+  // Modo Noturno / Diurno do Mapa
+  const [modoNoturno, setModoNoturno] = useState(() => {
+    return localStorage.getItem("partiu_driver_modo_noturno") === "true";
   });
 
-  const [statusVan, setStatusVan] = useState<"no_ponto" | "em_transito" | "pausado" | "concluida">(
-    "em_transito",
+  // Controle de Som do Radar de Chamadas
+  const [somAtivo, setSomAtivo] = useState(() => {
+    return localStorage.getItem("partiu_driver_som_radar") !== "false";
+  });
+
+  // Métricas do Dia (D+0)
+  const [ganhosHoje, setGanhosHoje] = useState(() => getGanhosHojeMotorista());
+  const [corridasFeitas, setCorridasFeitas] = useState(9);
+  const [horasOnline] = useState("5h 20m");
+
+  // Estado da Corrida no Cockpit: IDLE -> OFFER -> HEADING_TO_PICKUP -> WAITING_PIN -> IN_PROGRESS
+  const [estadoCockpit, setEstadoCockpit] = useState<
+    "IDLE" | "OFFER" | "HEADING_TO_PICKUP" | "WAITING_PIN" | "IN_PROGRESS"
+  >(() => {
+    const c = getCorridaAtiva();
+    if (!c) return "IDLE";
+    if (c.status === "A_CAMINHO") return "HEADING_TO_PICKUP";
+    if (c.status === "CHEGOU") return "WAITING_PIN";
+    if (c.status === "EM_VIAGEM") return "IN_PROGRESS";
+    if (c.status === "PROCURANDO") return "OFFER";
+    return "IDLE";
+  });
+
+  // Corrida ativa sincronizada
+  const [, setCorridaSincronizada] = useState<CorridaPartiu | null>(() => getCorridaAtiva());
+
+  // Inicia ou pausa transmissão inteligente de localização conforme disponibilidade
+  useEffect(() => {
+    if (isOnline) {
+      void driverLocationService.startTracking(perfilMotorista.id);
+    } else {
+      driverLocationService.stopTracking();
+    }
+    return () => {
+      driverLocationService.stopTracking();
+    };
+  }, [isOnline, perfilMotorista.id]);
+
+  // Atualiza estado de operação do condutor para frequência adaptativa de GPS
+  useEffect(() => {
+    if (!isOnline) {
+      driverLocationService.setOperatingState("OFFLINE");
+    } else if (estadoCockpit === "IN_PROGRESS" || estadoCockpit === "HEADING_TO_PICKUP") {
+      driverLocationService.setOperatingState("ON_TRIP");
+    } else {
+      driverLocationService.setOperatingState("ONLINE_IDLE");
+    }
+  }, [isOnline, estadoCockpit]);
+
+  // Assinatura, Carteira e Receita (Fase 19)
+  const [subscription, setSubscription] = useState<DriverSubscription>(() =>
+    subscriptionEngine.getDriverSubscription(perfilMotorista.id)
   );
-  const [avisoEnviadoId, setAvisoEnviadoId] = useState<string | null>(null);
+  const [driverPlan, setDriverPlan] = useState<DriverPlan | undefined>(() =>
+    subscriptionEngine.getPlanById(subscription.planId)
+  );
+  const [wallet, setWallet] = useState<DriverWallet>(() =>
+    driverWalletEngine.getWallet(perfilMotorista.id)
+  );
+  const [modalPlanosAberto, setModalPlanosAberto] = useState(false);
+  const [modalEconomiaAberto, setModalEconomiaAberto] = useState(false);
+  const [modalRegularizacaoAberto, setModalRegularizacaoAberto] = useState(false);
 
-  function handleConfirmarEntregaPin() {
-    if (!encomendaParaEntregar) return;
-    setErroPin(null);
+  // Oferta Ativa no Trip Radar com Transparência de Taxa (Auditoria 4)
+  const [ofertaAtiva, setOfertaAtiva] = useState<{
+    id: string;
+    tipo: "CARRO" | "MOTO" | "ENTREGA";
+    titulo: string;
+    passageiro: string;
+    origem: string;
+    destino: string;
+    distanciaKm: number;
+    valorLiquido: number;
+    valorBruto?: number | undefined;
+    taxaPartiu?: number | undefined;
+    comissaoPercentual?: number | undefined;
+    planoNome?: string | undefined;
+    economiaVsUber?: number | undefined;
+    contribuicaoProtecao?: number | undefined;
+    pinCorreto: string;
+    telefone?: string | undefined;
+    isReal?: boolean | undefined;
+    passageiroFoto?: string | undefined;
+    passageiroAvaliacao?: number | undefined;
+    passageiroTotalCorridas?: number | undefined;
+    passageiroCpfVerificado?: boolean | undefined;
+    passageiroTrustScore?: number | undefined;
+    passageiroTrustTier?: string | undefined;
+    destinatarioNome?: string | undefined;
+    destinatarioTelefone?: string | undefined;
+    descricaoPacote?: string | undefined;
+    pickupOtp?: string | undefined;
+    deliveryOtp?: string | undefined;
+  } | null>(() => {
+    const c = getCorridaAtiva();
+    if (c && (c.status === "A_CAMINHO" || c.status === "CHEGOU" || c.status === "EM_VIAGEM" || c.status === "PROCURANDO")) {
+      return extrairOfertaDeCorrida(c, "PARTIU");
+    }
+    return null;
+  });
 
-    const res = validarPinEntregaEncomenda(encomendaParaEntregar.id, pinDigitado);
-    if (!res.sucesso) {
-      setErroPin(res.mensagem);
+  const [tempoRegressivo, setTempoRegressivo] = useState(15);
+  const [pinDigitado, setPinDigitado] = useState("");
+  const [erroPin, setErroPin] = useState("");
+  const [modoPinOpcional, setModoPinOpcional] = useState(false);
+  const [modalSaquePix, setModalSaquePix] = useState(false);
+  const [saqueConcluido, setSaqueConcluido] = useState(false);
+  const [mensagemSaque, setMensagemSaque] = useState("");
+  const [saquesRealizadosSemana, setSaquesRealizadosSemana] = useState(0);
+  const [modalPerfilMotorista, setModalPerfilMotorista] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [driverUnreadCount, setDriverUnreadCount] = useState(0);
+
+  // Sincronização em tempo real de mensagens não lidas do condutor
+  useEffect(() => {
+    if (!ofertaAtiva?.id) {
+      setDriverUnreadCount(0);
       return;
     }
-
-    tocarBipEmbarque();
-    setSucessoEntrega(
-      `Entrega confirmada com sucesso! Código ${encomendaParaEntregar.codigoRastreio} baixado.`,
+    setDriverUnreadCount(chatRealtimeService.getUnreadCount(ofertaAtiva.id, "DRIVER"));
+    const cleanup = chatRealtimeService.subscribeToRideChat(
+      ofertaAtiva.id,
+      "DRIVER",
+      () => {
+        setDriverUnreadCount(chatRealtimeService.getUnreadCount(ofertaAtiva.id, "DRIVER"));
+      },
+      (count) => {
+        setDriverUnreadCount(count);
+      }
     );
-    setEncomendas(getEncomendasStore());
-    setTimeout(() => {
-      setEncomendaParaEntregar(null);
-      setPinDigitado("");
-      setSucessoEntrega(null);
-    }, 2000);
+    return cleanup;
+  }, [ofertaAtiva?.id]);
+
+  // Delivery OS states
+  const [modalPinNumpadAberto, setModalPinNumpadAberto] = useState(false);
+  const [pinNumpadMode, setPinNumpadMode] = useState<"PICKUP" | "DROPOFF">("PICKUP");
+  const [modalDevolucaoAberto, setModalDevolucaoAberto] = useState(false);
+  const [waitStatus, setWaitStatus] = useState<RecipientWaitStatus | null>(null);
+  const [emDevolucao, setEmDevolucao] = useState(false);
+  const [returnDetails, setReturnDetails] = useState<ReturnDetails | null>(null);
+  const [modalReturnFinalizarAberto, setModalReturnFinalizarAberto] = useState(false);
+  const [pinDevolucaoDigitado, setPinDevolucaoDigitado] = useState("");
+  const [erroPinDevolucao, setErroPinDevolucao] = useState("");
+  const [fotoDevolucaoUrl] = useState(
+    "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=300&auto=format&fit=crop&q=80"
+  );
+  const [fotoPodUrl] = useState(
+    "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300&auto=format&fit=crop&q=80"
+  );
+  const [currentStopNumber, setCurrentStopNumber] = useState(1);
+
+  // Estados Operacionais P0: Cancelamento Justificado & No-Show
+  const [modalCancelarAberto, setModalCancelarAberto] = useState(false);
+  const [isCancelandoCorrida, setIsCancelandoCorrida] = useState(false);
+  const [modalNoShowConfirmAberto, setModalNoShowConfirmAberto] = useState(false);
+  const [isProcessandoNoShow, setIsProcessandoNoShow] = useState(false);
+
+  // Monitora tempo de espera do destinatário no local de entrega (5 min)
+  useEffect(() => {
+    let interval: any;
+    if (modalDevolucaoAberto && ofertaAtiva?.id) {
+      interval = setInterval(() => {
+        const st = deliveryReturnEngine.updateWaitStatus(ofertaAtiva.id);
+        if (st) setWaitStatus({ ...st });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [modalDevolucaoAberto, ofertaAtiva?.id]);
+
+  // Persistir preferência de som
+  function toggleSom() {
+    setSomAtivo((prev) => {
+      const next = !prev;
+      localStorage.setItem("partiu_driver_som_radar", String(next));
+      return next;
+    });
   }
 
-  // Escutar eventos de auto-embarque emitidos quando o passageiro lê o QR do motorista
-  useEffect(() => {
-    function onEmbarqueConfirmado(e: any) {
-      const detail = e.detail;
-      if (detail) {
-        tocarBipEmbarque();
-        setUltimoEmbarque({
-          nome: detail.passageiroNome || "Passageiro",
-          horario: detail.horario || new Date().toLocaleTimeString("pt-BR"),
-          quantidade: detail.quantidade || 1,
-          bilheteId: detail.bilheteId || "UV-OK",
-        });
+  // Alternar modo noturno
+  function toggleModoNoturno() {
+    setModoNoturno((prev) => {
+      const next = !prev;
+      localStorage.setItem("partiu_driver_modo_noturno", String(next));
+      return next;
+    });
+  }
 
-        // Atualizar manifesto localmente se encontrar passageiro
-        setManifesto((prev) =>
-          prev.map((parada) => ({
-            ...parada,
-            passageirosEmbarcando: parada.passageirosEmbarcando.map((psg) =>
-              psg.nome.toLowerCase().includes((detail.passageiroNome || "").toLowerCase())
-                ? { ...psg, embarcado: true }
-                : psg,
-            ),
-          })),
-        );
+  // Tocar alerta de radar se habilitado
+  function dispararAlertaRadar() {
+    if (somAtivo) {
+      tocarAlertaRadar();
+    }
+  }
+
+  // Sincronização em tempo real com partiu-engine
+  useEffect(() => {
+    function verificarCorrida(c: CorridaPartiu | null) {
+      setCorridaSincronizada(c);
+      if (!c) {
+        if (estadoCockpit !== "IDLE") {
+          setEstadoCockpit("IDLE");
+          setOfertaAtiva(null);
+        }
+        return;
+      }
+
+      if (c.status === "PROCURANDO" && isOnline) {
+        setOfertaAtiva(extrairOfertaDeCorrida(c, nomeApp));
+        setEstadoCockpit("OFFER");
+        setTempoRegressivo(15);
+        dispararAlertaRadar();
+      } else if (c.status === "A_CAMINHO") {
+        setOfertaAtiva((prev) => (prev?.id === c.id ? prev : extrairOfertaDeCorrida(c, nomeApp)));
+        setEstadoCockpit("HEADING_TO_PICKUP");
+      } else if (c.status === "CHEGOU") {
+        setOfertaAtiva((prev) => (prev?.id === c.id ? prev : extrairOfertaDeCorrida(c, nomeApp)));
+        setEstadoCockpit("WAITING_PIN");
+      } else if (c.status === "EM_VIAGEM") {
+        setOfertaAtiva((prev) => (prev?.id === c.id ? prev : extrairOfertaDeCorrida(c, nomeApp)));
+        setEstadoCockpit("IN_PROGRESS");
+      } else if (c.status === "CONCLUIDA") {
+        setEstadoCockpit("IDLE");
+        setOfertaAtiva(null);
+        setGanhosHoje(getGanhosHojeMotorista());
       }
     }
 
-    window.addEventListener("univans:embarque-confirmado", onEmbarqueConfirmado);
-    return () => window.removeEventListener("univans:embarque-confirmado", onEmbarqueConfirmado);
-  }, []);
+    verificarCorrida(getCorridaAtiva());
 
-  const { data: viagensHoje } = useViagensDoDia();
-  const viagemAtiva = viagensHoje?.[0];
-  const { data: passagensBanco } = useManifestoViagem(viagemAtiva?.id);
-  const atualizarTelemetriaMutation = useAtualizarTelemetria();
-  const confirmarEmbarqueMutation = useConfirmarEmbarque();
+    const handleAtualizacao = (e: any) => {
+      verificarCorrida(e.detail);
+    };
 
-  // MOTOR DE GPS CONTÍNUO (Anti-Sleep, Background Keep-Alive e Buffer Offline)
-  const {
-    iniciar: iniciarGpsContinuo,
-    parar: pararGpsContinuo,
-    toggleWakeLock,
-    isAtivo: isGpsContinuoAtivo,
-    isWakeLockAtivo,
-    velocidadeAtualKmh,
-    precisaoMetros,
-    pontosTransmitidos,
-    pontosEmBufferOffline,
-    statusConexao,
-  } = useContinuousGps();
+    const handleStorage = () => {
+      verificarCorrida(getCorridaAtiva());
+    };
 
-  // Iniciar ou parar o rastreamento contínuo conforme status da van
+    const handleClaimRejected = (e: any) => {
+      setEstadoCockpit("IDLE");
+      setOfertaAtiva(null);
+      setErroElegibilidade(e.detail?.motivo || "Outro motorista parceiro aceitou esta corrida no mesmo instante!");
+    };
+
+    window.addEventListener("partiu:corrida-atualizada", handleAtualizacao);
+    window.addEventListener("partiu:claim-rejected", handleClaimRejected);
+    window.addEventListener("storage", handleStorage);
+
+    return () => {
+      window.removeEventListener("partiu:corrida-atualizada", handleAtualizacao);
+      window.removeEventListener("partiu:claim-rejected", handleClaimRejected);
+      window.removeEventListener("storage", handleStorage);
+    };
+  }, [isOnline, somAtivo, nomeApp]);
+
+  // Monitoramento do cronômetro de espera na fase de embarque/coleta (WAITING_PIN)
   useEffect(() => {
-    if (statusVan === "em_transito") {
-      iniciarGpsContinuo({
-        viagemId: viagemAtiva?.id || "trip_01",
-        veiculoId: "van-04",
-        motoristaId: "drv_04_al",
-        placaVeiculo: "RJP-2F14",
-        motoristaNome: "Carlos Eduardo Santos",
-        linhaOrigemDestino: "Igreja Nova ➔ Coruripe ➔ Maceió",
-        deadbandMetros: 20,
-        heartbeatIntervaloMs: 15000,
-        onPonto: async (ponto: TelemetriaGpsPonto) => {
-          if (!viagemAtiva?.id) return true;
-          try {
-            await atualizarTelemetriaMutation.mutateAsync({
-              id: viagemAtiva.id,
-              posicao_lat_atual: ponto.latitude,
-              posicao_lng_atual: ponto.longitude,
-              status: "em_transito",
-            });
-            return true;
-          } catch {
-            return false;
-          }
-        },
-      });
+    let interval: any;
+    if (estadoCockpit === "WAITING_PIN" && ofertaAtiva?.id) {
+      interval = setInterval(() => {
+        const st = driverTelemetryEngine.updateWaitingTimer(ofertaAtiva.id);
+        setWaitingTimerStatus(st);
+      }, 1000);
     } else {
-      pararGpsContinuo();
+      setWaitingTimerStatus(null);
     }
-  }, [
-    statusVan,
-    viagemAtiva?.id,
-    iniciarGpsContinuo,
-    pararGpsContinuo,
-    atualizarTelemetriaMutation,
-  ]);
+    return () => clearInterval(interval);
+  }, [estadoCockpit, ofertaAtiva?.id]);
 
-  const [resultadoValidacao, setResultadoValidacao] = useState<ResultadoValidacaoOffline | null>(
-    null,
-  );
-  const [pendentesSincronizacao, setPendentesSincronizacao] = useState(
-    getQuantidadeValidacoesPendentes(),
-  );
-  const [sincronizando, setSincronizando] = useState(false);
-  const [alertaSosAtivo, setAlertaSosAtivo] = useState(false);
-
-  const [manifesto, setManifesto] = useState<ParadaManifesto[]>([
-    {
-      id: "p-01",
-      nome: "Terminal Central de Igreja Nova",
-      referencia: "Praça Central",
-      horarioEstimado: "07:00",
-      passageirosEmbarcando: [
-        {
-          id: "psg-101",
-          nome: "João Pedro Ferreira",
-          telefone: "(82) 99812-4410",
-          quantidade: 2,
-          valor: 76.0,
-          pagoVia: "PIX",
-          gpsStatus: "no_ponto",
-          distanciaPonto: "No Ponto (Terminal)",
-          embarcado: true,
-          ticketCode: "UV-2026-X801",
-        },
-        {
-          id: "psg-102",
-          nome: "Maria das Graças Silva",
-          telefone: "(82) 99655-3211",
-          quantidade: 1,
-          valor: 38.0,
-          pagoVia: "PIX",
-          gpsStatus: "no_ponto",
-          distanciaPonto: "No Ponto (Terminal)",
-          embarcado: true,
-          ticketCode: "UV-2026-X802",
-        },
-      ],
-      desembarques: 0,
-    },
-    {
-      id: "p-02",
-      nome: "Coruripe (Praça Central / AL-349)",
-      referencia: "Centro Comercial de Coruripe",
-      horarioEstimado: "08:15",
-      passageirosEmbarcando: [
-        {
-          id: "psg-103",
-          nome: "Ana Beatriz Santos",
-          telefone: "(82) 99740-8899",
-          quantidade: 1,
-          valor: 38.0,
-          pagoVia: "PIX",
-          gpsStatus: "no_ponto",
-          distanciaPonto: "A 40m da pista",
-          embarcado: true,
-          ticketCode: "UV-2026-X803",
-        },
-        {
-          id: "psg-104",
-          nome: "Marcos Vinicius Lima",
-          telefone: "(82) 99602-1144",
-          quantidade: 2,
-          valor: 76.0,
-          pagoVia: "PIX",
-          gpsStatus: "aproximando",
-          distanciaPonto: "A 180m do trevo",
-          embarcado: false,
-          ticketCode: "UV-2026-X804",
-        },
-      ],
-      desembarques: 1,
-    },
-    {
-      id: "p-03",
-      nome: "Barra de São Miguel (Trevo AL-101 Sul)",
-      referencia: "Posto Shell da Entrada",
-      horarioEstimado: "09:00",
-      passageirosEmbarcando: [
-        {
-          id: "psg-105",
-          nome: "Carlos Eduardo Oliveira",
-          telefone: "(82) 99841-2940",
-          quantidade: 1,
-          valor: 38.0,
-          pagoVia: "PIX",
-          gpsStatus: "acostamento",
-          distanciaPonto: "No Acostamento (GPS)",
-          embarcado: false,
-          ticketCode: "UV-2026-X805",
-        },
-      ],
-      desembarques: 2,
-    },
-    {
-      id: "p-04",
-      nome: "Maceió (Rodoviária do Feitosa)",
-      referencia: "Plataforma de Desembarque",
-      horarioEstimado: "09:45",
-      passageirosEmbarcando: [],
-      desembarques: 14,
-    },
-  ]);
-
-  const totalPassageiros = manifesto.reduce(
-    (acc, p) => acc + p.passageirosEmbarcando.reduce((s, psg) => s + psg.quantidade, 0),
-    0,
-  );
-  const totalEmbarcados = manifesto.reduce(
-    (acc, p) =>
-      acc +
-      p.passageirosEmbarcando
-        .filter((psg) => psg.embarcado)
-        .reduce((s, psg) => s + psg.quantidade, 0),
-    0,
-  );
-  const faturamentoBruto = manifesto.reduce(
-    (acc, p) => acc + p.passageirosEmbarcando.reduce((s, psg) => s + psg.valor, 0),
-    0,
-  );
-  const splitViagem = calcularSplitFinanceiro(faturamentoBruto);
-  const extratoLedger = apurarExtratoLedgerMotorista("drv_04_al");
-
-  function toggleChecklist(item: keyof typeof checklist) {
-    setChecklist((prev) => ({ ...prev, [item]: !prev[item] }));
+  // Alternar Online/Offline com validação determinística de elegibilidade e Trava de Diária
+  function handleToggleOnline() {
+    if (!isOnline) {
+      // 1. Validação da Trava de Diária Inteligente (SaaS Model)
+      const unlocked = driverSubscriptionService.isDriverUnlocked(perfilMotorista.id);
+      if (!unlocked) {
+        setErroElegibilidade("Acesso operacional bloqueado. Regularize sua assinatura via PIX para rodar.");
+        return;
+      }
+      const currentSub = subscriptionEngine.getDriverSubscription(perfilMotorista.id);
+      if (currentSub.status === "SUSPENDED" || currentSub.status === "REACTIVATION_REQUIRED") {
+        setErroElegibilidade(
+          `Conta suspensa por inadimplência (${currentSub.accumulatedDebtBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}). Regularize via PIX para voltar a rodar.`
+        );
+        setModalRegularizacaoAberto(true);
+        return;
+      }
+      const check = driverEligibilityEngine.evaluateEligibility(perfilMotorista);
+      if (!check.isEligible) {
+        setErroElegibilidade(check.reasons.join(" • "));
+        return;
+      }
+      setErroElegibilidade(null);
+      driverStateMachine.initDriverSession(perfilMotorista.id, "ONLINE");
+      setIsOnline(true);
+    } else {
+      driverStateMachine.initDriverSession(perfilMotorista.id, "OFFLINE");
+      setIsOnline(false);
+      setEstadoCockpit("IDLE");
+      setOfertaAtiva(null);
+    }
   }
 
-  function handleEmbarcar(paradaId: string, passageiroId: string) {
-    setManifesto((prev) =>
-      prev.map((p) => {
-        if (p.id !== paradaId) return p;
-        return {
-          ...p,
-          passageirosEmbarcando: p.passageirosEmbarcando.map((psg) => {
-            if (psg.id === passageiroId) {
-              const novo = !psg.embarcado;
-              if (novo) tocarBipEmbarque();
-              return { ...psg, embarcado: novo };
-            }
-            return psg;
-          }),
-        };
-      }),
-    );
+  // Contagem regressiva de 15 segundos da oferta no Trip Radar
+  useEffect(() => {
+    let interval: any;
+    if (estadoCockpit === "OFFER" && tempoRegressivo > 0) {
+      interval = setInterval(() => {
+        setTempoRegressivo((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setEstadoCockpit("IDLE");
+            setOfertaAtiva(null);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [estadoCockpit, tempoRegressivo]);
+
+  function handleAceitarOferta() {
+    if (ofertaAtiva) {
+      void driverOfferEngine.claimOffer(ofertaAtiva.id, perfilMotorista.id);
+      if (ofertaAtiva.isReal) {
+        motoristaAceitarCorrida();
+      }
+    }
+    setEstadoCockpit("HEADING_TO_PICKUP");
   }
 
-  function handleValidarQRSimulado(
-    ticketCode: string = "UV-2026-X805",
-    nome: string = "Carlos Eduardo Oliveira",
+  function handleRecusarOferta() {
+    if (ofertaAtiva) {
+      driverOfferEngine.rejectOffer(ofertaAtiva.id, perfilMotorista.id, "REJECTED_BY_DRIVER");
+    }
+    setEstadoCockpit("IDLE");
+    setOfertaAtiva(null);
+  }
+
+  function handleChegueiAoLocal() {
+    if (ofertaAtiva?.isReal) {
+      motoristaChegouAoLocal();
+    } else if (somAtivo) {
+      tocarAlertaChegada();
+    }
+
+    // Inicia sessão de espera com 5 minutos (300s) de carência auditada
+    if (ofertaAtiva?.id) {
+      driverTelemetryEngine.startWaitingTimer(perfilMotorista.id, ofertaAtiva.id, 300);
+    }
+
+    setEstadoCockpit("WAITING_PIN");
+    setPinDigitado("");
+    setErroPin("");
+    setModoPinOpcional(false);
+
+    // No módulo Entrega, exige obrigatoriamente validação cega do PIN 1 via Numpad
+    if (ofertaAtiva?.tipo === "ENTREGA") {
+      setPinNumpadMode("PICKUP");
+      setModalPinNumpadAberto(true);
+    }
+  }
+
+  // FASE 2: Cancelamento Operacional do Condutor com Registro Auditado
+  function handleConfirmarCancelamentoMotorista(
+    reasonCode: DriverCancelReasonCode,
+    reasonLabel: string
   ) {
-    const payload = gerarPayloadQRCodePassagem(
-      ticketCode,
-      "trip_01",
-      "user_01",
-      nome,
-      "IGN_MCZ_01",
-      "Trevo da Barra de São Miguel",
-      38.0,
-    );
+    if (!ofertaAtiva) return;
+    setIsCancelandoCorrida(true);
 
-    const resultado = validarQRCodeOffline(payload);
-    setResultadoValidacao(resultado);
-    if (resultado.valido) {
-      tocarBipEmbarque();
-      setPendentesSincronizacao(getQuantidadeValidacoesPendentes());
+    try {
+      cancelarCorridaPeloMotorista({
+        rideId: ofertaAtiva.id,
+        driverId: perfilMotorista.id,
+        reasonCode,
+        reasonLabel,
+      });
 
-      const tx = criarTransacaoPixComIdempotencia(ticketCode, 38.0, "drv_04_al");
-      transicionarEstadoPix(tx.idempotencyKey, "paid");
+      driverStateMachine.safeTransitionRide("ONLINE", perfilMotorista.id, ofertaAtiva.id, "DRIVER", {
+        reasonCode,
+        reasonLabel,
+      });
+
+      setEstadoCockpit("IDLE");
+      setOfertaAtiva(null);
+      setModalCancelarAberto(false);
+      setPinDigitado("");
+      setErroPin("");
+    } catch (err: any) {
+      alert(err.message || "Não foi possível cancelar a corrida.");
+    } finally {
+      setIsCancelandoCorrida(false);
     }
   }
 
-  async function handleSincronizarOffline() {
-    setSincronizando(true);
-    await sincronizarValidacoesComServidor();
-    setPendentesSincronizacao(getQuantidadeValidacoesPendentes());
-    setSincronizando(false);
+  // FASE 3: Cancelamento por No-Show (Passageiro ausente após 5 min de espera)
+  function handleConfirmarNoShow() {
+    if (!ofertaAtiva || isProcessandoNoShow) return;
+    setIsProcessandoNoShow(true);
+
+    try {
+      const waitingMinutes = Math.floor((waitingTimerStatus?.elapsedSeconds || 300) / 60);
+      const res = cancelarCorridaPorNoShow({
+        rideId: ofertaAtiva.id,
+        driverId: perfilMotorista.id,
+        passengerPhone: ofertaAtiva.telefone,
+        waitingMinutes,
+      });
+
+      if (res.sucesso) {
+        // Credita R$ 4,50 imediatamente ao saldo D+0
+        setGanhosHoje((prev) => Number((prev + 4.5).toFixed(2)));
+        driverStateMachine.safeTransitionRide("ONLINE", perfilMotorista.id, ofertaAtiva.id, "DRIVER", {
+          cancellationType: "NO_SHOW",
+          feeCreditedBrl: 4.5,
+        });
+
+        setEstadoCockpit("IDLE");
+        setOfertaAtiva(null);
+        setModalNoShowConfirmAberto(false);
+        setPinDigitado("");
+        setErroPin("");
+        alert("Passageiro não compareceu ao embarque. Taxa de cancelamento de R$ 4,50 creditada ao seu saldo PIX D+0!");
+      }
+    } catch (err: any) {
+      alert(err.message || "Erro ao processar cancelamento por no-show.");
+    } finally {
+      setIsProcessandoNoShow(false);
+    }
   }
 
-  function dispararAlertaAcostamento(psgId: string) {
-    setAvisoEnviadoId(psgId);
-    setTimeout(() => setAvisoEnviadoId(null), 3000);
+  // FASE 4: Navegação Externa (Waze & Google Maps com deep link e fallbacks)
+  function handleNavegarExterno(provedor: "waze" | "google_maps") {
+    if (!ofertaAtiva) return;
+    const enderecoAlvo =
+      estadoCockpit === "HEADING_TO_PICKUP"
+        ? ofertaAtiva.origem
+        : emDevolucao
+        ? ofertaAtiva.origem
+        : ofertaAtiva.destino;
+
+    openExternalNavigation({ address: enderecoAlvo }, provedor);
+  }
+
+  function handlePickupPinSuccess() {
+    setModalPinNumpadAberto(false);
+    if (ofertaAtiva?.isReal) {
+      const sess = getActiveDeliverySession();
+      const pin = sess?.flashOrder.pickupOtp || ofertaAtiva.pinCorreto;
+      confirmarColetaEncomenda(pin);
+    }
+    setErroPin("");
+    setEstadoCockpit("IN_PROGRESS");
+    if (somAtivo) tocarAlertaInicioViagem();
+  }
+
+  function handleDropoffPinSuccess() {
+    setModalPinNumpadAberto(false);
+    handleConcluirEntregaNormal();
+  }
+
+  // FASE 18.1 & 18.2: Confirmação de Embarque Inteligente e Coleta de Encomenda
+  function handleConfirmarEmbarqueSmart() {
+    if (ofertaAtiva?.tipo === "ENTREGA") {
+      setPinNumpadMode("PICKUP");
+      setModalPinNumpadAberto(true);
+      return;
+    }
+
+    if (ofertaAtiva?.isReal) {
+      const res = confirmarEmbarqueEIniciarViagem({
+        overrideGeofence: true,
+      });
+      if (res.sucesso) {
+        setErroPin("");
+        setEstadoCockpit("IN_PROGRESS");
+      } else {
+        setErroPin(res.mensagem || "Não foi possível confirmar o embarque.");
+      }
+    } else {
+      // Modo demonstração / teste
+      setErroPin("");
+      setEstadoCockpit("IN_PROGRESS");
+      if (somAtivo) tocarAlertaInicioViagem();
+    }
+  }
+
+  // Validação direta do PIN (executada tanto ao digitar 4 dígitos quanto no botão)
+  function validarPinDireto(pinValor: string) {
+    if (!pinValor || pinValor.trim().length !== 4) {
+      setErroPin("Digite os 4 números do código PIN.");
+      return;
+    }
+
+    if (ofertaAtiva?.tipo === "ENTREGA") {
+      if (ofertaAtiva.isReal) {
+        const res = confirmarColetaEncomenda(pinValor);
+        if (res.sucesso) {
+          setErroPin("");
+          setEstadoCockpit("IN_PROGRESS");
+        } else {
+          setErroPin(res.mensagem || "Código PIN de coleta incorreto.");
+        }
+      } else {
+        if (ofertaAtiva && pinValor === ofertaAtiva.pinCorreto) {
+          setErroPin("");
+          setEstadoCockpit("IN_PROGRESS");
+          if (somAtivo) tocarAlertaInicioViagem();
+        } else {
+          setErroPin("PIN incorreto. Dica de teste: 4829");
+        }
+      }
+      return;
+    }
+
+    if (ofertaAtiva?.isReal) {
+      const res = validarPinEIniciarViagem(pinValor);
+      if (res.sucesso) {
+        setErroPin("");
+        setEstadoCockpit("IN_PROGRESS");
+      } else {
+        setErroPin(res.mensagem || "Código PIN incorreto.");
+      }
+    } else {
+      if (ofertaAtiva && pinValor === ofertaAtiva.pinCorreto) {
+        setErroPin("");
+        setEstadoCockpit("IN_PROGRESS");
+        if (somAtivo) tocarAlertaInicioViagem();
+      } else {
+        setErroPin("PIN incorreto. Dica de teste: 4829");
+      }
+    }
+  }
+
+  // Teclado Numérico Tátil Veicular
+  function handlePressDigit(digito: string) {
+    if (pinDigitado.length < 4) {
+      const novoPin = pinDigitado + digito;
+      setPinDigitado(novoPin);
+      setErroPin("");
+      if (novoPin.length === 4) {
+        setTimeout(() => validarPinDireto(novoPin), 150);
+      }
+    }
+  }
+
+  function handleBackspaceDigit() {
+    setPinDigitado((prev) => prev.slice(0, -1));
+    setErroPin("");
+  }
+
+  function handleClearDigits() {
+    setPinDigitado("");
+    setErroPin("");
+  }
+
+  function handleConcluirCorrida() {
+    if (ofertaAtiva?.isReal) {
+      if (ofertaAtiva.tipo === "ENTREGA") {
+        const sess = getActiveDeliverySession();
+        const pin = sess?.flashOrder.deliveryOtp || ofertaAtiva.pinCorreto;
+        confirmarEntregaEncomenda(pin);
+      } else {
+        finalizarViagem();
+      }
+    } else if (ofertaAtiva) {
+      driverLedgerEngine.settleTripRide(
+        perfilMotorista.id,
+        ofertaAtiva.id,
+        ofertaAtiva.valorLiquido / 0.88,
+        ofertaAtiva.tipo
+      );
+      if (somAtivo) tocarAlertaFimViagem();
+    }
+    const summary = driverLedgerEngine.getEarningsSummary(perfilMotorista.id);
+    setGanhosHoje(summary.availableBalanceCents / 100);
+    setCorridasFeitas((prev) => prev + 1);
+    setPinDigitado("");
+
+    // Verificação de corrida consecutiva enfileirada (Back-to-Back Handover)
+    const queued = driverConsecutiveRidesEngine.getQueuedRide(perfilMotorista.id);
+    if (queued) {
+      const nextRide = driverConsecutiveRidesEngine.promoteQueuedRideToActive(perfilMotorista.id);
+      if (nextRide) {
+        setOfertaAtiva(extrairOfertaDeCorrida(nextRide, nomeApp));
+        setEstadoCockpit("HEADING_TO_PICKUP");
+        return;
+      }
+    }
+
+    setEstadoCockpit("IDLE");
+    setOfertaAtiva(null);
+  }
+
+  function handleAbrirModalDevolucao() {
+    if (!ofertaAtiva) return;
+    const st = deliveryReturnEngine.startRecipientWait(ofertaAtiva.id, `STOP-${ofertaAtiva.id}`);
+    setWaitStatus(st);
+    setModalDevolucaoAberto(true);
+  }
+
+  function handleRegistrarContato(canal: "CALL" | "MESSAGE" | "BUZZER") {
+    if (!ofertaAtiva) return;
+    const st = deliveryReturnEngine.recordContactAttempt(ofertaAtiva.id, canal);
+    if (st) setWaitStatus({ ...st });
+  }
+
+  function handleIniciarDevolucao() {
+    if (!ofertaAtiva) return;
+    try {
+      const res = deliveryReturnEngine.initiateReturn({
+        deliveryId: ofertaAtiva.id,
+        stopId: `STOP-${ofertaAtiva.id}`,
+        reason: "RECIPIENT_ABSENT",
+        senderContact: {
+          name: ofertaAtiva.passageiro,
+          phone: ofertaAtiva.telefone || "(22) 99605-1620",
+        },
+        pickupAddress: ofertaAtiva.origem,
+        distanceKm: ofertaAtiva.distanciaKm,
+      });
+
+      if (res.success) {
+        setReturnDetails(res.returnDetails);
+        setEmDevolucao(true);
+        setModalDevolucaoAberto(false);
+      }
+    } catch (err: any) {
+      alert(err.message || "Não foi possível iniciar a devolução.");
+    }
+  }
+
+  function handleConcluirDevolucao() {
+    if (!ofertaAtiva || !returnDetails) return;
+    const pinParaValidar = pinDevolucaoDigitado.trim() || returnDetails.returnOtpExpected;
+    const res = deliveryReturnEngine.completeReturn({
+      deliveryId: ofertaAtiva.id,
+      returnOtp: pinParaValidar,
+      photoUrl: fotoDevolucaoUrl,
+      driverId: perfilMotorista.id,
+      latitude: -22.3812,
+      longitude: -41.7821,
+    });
+
+    if (res.success) {
+      driverLedgerEngine.settleTripRide(
+        perfilMotorista.id,
+        `RET-${ofertaAtiva.id}`,
+        returnDetails.driverReturnCompensationBrl / 0.88,
+        "ENTREGA"
+      );
+      const summary = driverLedgerEngine.getEarningsSummary(perfilMotorista.id);
+      setGanhosHoje(summary.availableBalanceCents / 100);
+      setCorridasFeitas((prev) => prev + 1);
+      setModalReturnFinalizarAberto(false);
+      setEmDevolucao(false);
+      setReturnDetails(null);
+      setEstadoCockpit("IDLE");
+      setOfertaAtiva(null);
+      if (somAtivo) tocarAlertaFimViagem();
+      alert(`Devolução concluída! Compensação de R$ ${returnDetails.driverReturnCompensationBrl.toFixed(2)} creditada via PIX D+0.`);
+    } else {
+      setErroPinDevolucao(res.message);
+    }
+  }
+
+  function handleConcluirEntregaNormal() {
+    if (!ofertaAtiva) return;
+
+    deliveryProofEngine.registerProof({
+      deliveryId: ofertaAtiva.id,
+      stopId: `STOP-${currentStopNumber}`,
+      type: "DELIVERY",
+      photoUrl: fotoPodUrl,
+      latitude: -22.3812,
+      longitude: -41.7821,
+      capturedByDriverId: perfilMotorista.id,
+      metadata: { stopIndex: currentStopNumber },
+    });
+
+    const nextStop = deliveryMultiStopEngine.advanceToNextStop(ofertaAtiva.id);
+    if (nextStop) {
+      setCurrentStopNumber((prev) => prev + 1);
+      alert(`Parada ${currentStopNumber} concluída! Deslocando para a próxima parada: ${nextStop.address}`);
+      return;
+    }
+
+    handleConcluirCorrida();
+  }
+
+  function handleAbrirModalSaquePix() {
+    setSaquesRealizadosSemana(getSaquesRealizadosNaSemana(perfilMotorista.id));
+    setModalSaquePix(true);
+  }
+
+  function handleSolicitarSaquePix() {
+    if (ganhosHoje <= 0) return;
+
+    const res = solicitarSaquePixMotorista({
+      driverId: perfilMotorista.id,
+      chavePix: perfilMotorista.chavePix,
+      valorBrutoBrl: ganhosHoje,
+    });
+
+    if (res.sucesso) {
+      driverLedgerEngine.executePixWithdrawal(
+        perfilMotorista.id,
+        res.valorBrutoBrl,
+        perfilMotorista.chavePix
+      );
+      setSaqueConcluido(true);
+      setMensagemSaque(res.mensagem);
+      setGanhosHoje(0);
+      setSaquesRealizadosSemana(res.saquesNaSemana);
+      localStorage.setItem("partiu_motorista_ganhos_hoje", "0.00");
+      setTimeout(() => {
+        setModalSaquePix(false);
+        setSaqueConcluido(false);
+        setMensagemSaque("");
+      }, 2500);
+    } else {
+      alert(res.mensagem || "Não foi possível processar o saque.");
+    }
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 pb-16">
-      <BroadcastNotificationListener />
-      {/* 1. CABEÇALHO DO MOTORISTA */}
-      <header className="sticky top-0 z-30 bg-white/95 px-4 py-3 backdrop-blur-md border-b border-slate-200/80 shadow-2xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Link
-              to="/app"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200"
-              aria-label="Voltar"
+    <div className="relative w-full h-[100dvh] overflow-hidden bg-slate-100 font-sans select-none text-slate-900">
+      {/* ================================================================= */}
+      {/* 1. MAPA VEICULAR FULLSCREEN (DIURNO PADRONIZADO COM O PASSAGEIRO) */}
+      {/* ================================================================= */}
+      <PartiuDriverNavigationMap
+        estado={estadoCockpit}
+        origemEndereco={ofertaAtiva?.origem}
+        destinoEndereco={emDevolucao ? ofertaAtiva?.origem : ofertaAtiva?.destino}
+        modoNoturno={modoNoturno}
+        className="absolute inset-0 z-0"
+      />
+
+      {/* ================================================================= */}
+      {/* 2. TOP HUD FLUTUANTE EM CÁPSULAS BRANCAS VIDRO (PADRÃO PASSAGEIRO) */}
+      {/* ================================================================= */}
+      <header className="absolute top-0 inset-x-0 z-30 pt-[max(0.75rem,env(safe-area-inset-top))] px-3 pb-2.5 flex items-center justify-between pointer-events-none bg-gradient-to-b from-black/25 via-black/10 to-transparent">
+        {/* Perfil Condutor com Cápsula Branca Translúcida */}
+        <button
+          type="button"
+          onClick={() => setModalPerfilMotorista(true)}
+          className="pointer-events-auto flex items-center gap-2 p-1.5 pr-2.5 sm:pr-3 bg-white/95 backdrop-blur-md rounded-full shadow-lg border border-slate-200 hover:border-slate-300 active:scale-95 transition text-slate-950"
+        >
+          <div className="relative shrink-0">
+            <div
+              style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+              className="w-8 h-8 rounded-full font-black flex items-center justify-center text-xs shadow-xs ring-1 ring-black/10"
             >
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-black uppercase tracking-wider text-[#0d5930]">
-                  Cockpit Van #04
-                </span>
-                <span className="text-[9px] font-black bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded border border-amber-200">
-                  RJP-2F14
-                </span>
-              </div>
-              <h1 className="text-xs sm:text-sm font-black text-slate-900">
-                Igreja Nova ➔ Coruripe ➔ Maceió
-              </h1>
+              CS
             </div>
+            <span
+              className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                isOnline ? "bg-emerald-500" : "bg-slate-400"
+              }`}
+            />
           </div>
+          <div className="text-left">
+            <span className="text-xs font-black text-slate-950 block leading-tight truncate max-w-[85px] min-[360px]:max-w-[105px] sm:max-w-none">
+              Carlos E.
+            </span>
+            <span className="text-[10px] font-bold text-amber-600 flex items-center gap-1 leading-none mt-0.5">
+              <Star className="w-2.5 h-2.5 fill-amber-500" />
+              <span>4.98</span>
+              <span className="text-[9px] font-black px-1 rounded bg-amber-50 text-amber-900 border border-amber-200">
+                {loyaltyProfile.badgeIcon} {loyaltyProfile.tierName}
+              </span>
+            </span>
+          </div>
+        </button>
 
+        {/* Ações Direitas: Som, Ganhos D+0, Online/Offline e Modo Passageiro */}
+        <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Botão de Áudio do Radar */}
           <button
             type="button"
-            onClick={() => setAlertaSosAtivo((prev) => !prev)}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-black shadow-xs transition-all ${
-              alertaSosAtivo
-                ? "bg-red-600 text-white animate-pulse"
-                : "bg-red-50 text-red-700 border border-red-200 hover:bg-red-100"
+            onClick={toggleSom}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-90 bg-white/95 backdrop-blur-md border border-slate-200 ${
+              somAtivo ? "text-emerald-600" : "text-slate-400"
             }`}
+            title={somAtivo ? "Som do radar ativado" : "Som silenciado"}
           >
-            <AlertTriangle className="h-4 w-4" />
-            <span>{alertaSosAtivo ? "SOS ATIVO" : "SOS"}</span>
+            {somAtivo ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
-        </div>
 
-        {/* 5 Abas Operacionais */}
-        <div className="grid grid-cols-5 gap-1 mt-3 bg-slate-100 p-1 rounded-2xl border border-slate-200">
+          {/* Badge do Plano do Motorista (Auditoria 2 & 10) */}
           <button
             type="button"
-            onClick={() => setAbaAtiva("viagem")}
-            className={`py-2 text-[10px] sm:text-[11px] font-black rounded-xl transition-all truncate ${
-              abaAtiva === "viagem"
-                ? "bg-[#0d5930] text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            onClick={() => setModalPlanosAberto(true)}
+            className="px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-[11px] font-black text-slate-800 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
+            title="Ver e Gerenciar Plano de Assinatura"
           >
-            🚐 Bordo
+            <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+            <span className="truncate max-w-[70px] sm:max-w-none">{driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%)</span>
           </button>
+
+          {/* Faturamento D+0 com PIX */}
           <button
             type="button"
-            onClick={() => setAbaAtiva("totem")}
-            className={`py-2 text-[10px] sm:text-[11px] font-black rounded-xl transition-all truncate ${
-              abaAtiva === "totem"
-                ? "bg-[#0d5930] text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            onClick={handleAbrirModalSaquePix}
+            className="px-2.5 sm:px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-xs font-black text-slate-950 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
+            title="Ver saldo e sacar via PIX"
           >
-            📲 Totem
+            <span className="text-xs text-amber-500">⚡</span>
+            <span>{ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
           </button>
+
+          {/* Alternar Online/Offline */}
           <button
             type="button"
-            onClick={() => setAbaAtiva("encomendas")}
-            className={`py-2 text-[10px] sm:text-[11px] font-black rounded-xl transition-all truncate ${
-              abaAtiva === "encomendas"
-                ? "bg-[#0d5930] text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
+            onClick={handleToggleOnline}
+            className={`px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 ${
+              isOnline
+                ? "bg-emerald-500 text-slate-950 shadow-emerald-500/20"
+                : "bg-white/95 text-slate-500 border border-slate-200"
             }`}
           >
-            📦 Cargas ({encomendas.filter((e) => e.status !== "entregue_no_terminal").length})
+            <Power className="w-3.5 h-3.5 stroke-[2.5]" />
+            <span className="hidden min-[380px]:inline">{isOnline ? "ONLINE" : "OFF"}</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setAbaAtiva("checklist")}
-            className={`py-2 text-[10px] sm:text-[11px] font-black rounded-xl transition-all truncate ${
-              abaAtiva === "checklist"
-                ? "bg-[#0d5930] text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+
+          {/* Atalho Passageiro */}
+          <Link
+            to="/app"
+            className="w-8 h-8 rounded-full bg-white/95 text-slate-700 hover:text-slate-950 border border-slate-200 flex items-center justify-center transition shadow-md active:scale-95"
+            title="Ir para Modo Passageiro"
           >
-            📋 Check
-          </button>
-          <button
-            type="button"
-            onClick={() => setAbaAtiva("caixa")}
-            className={`py-2 text-[10px] sm:text-[11px] font-black rounded-xl transition-all truncate ${
-              abaAtiva === "caixa"
-                ? "bg-[#0d5930] text-white shadow-xs"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            💰 Caixa
-          </button>
+            <Car className="w-4 h-4" />
+          </Link>
         </div>
       </header>
 
-      {/* 2. CONTEÚDO OPERACIONAL */}
-      <main className="w-full max-w-full sm:max-w-2xl mx-auto p-1.5 sm:px-4 py-2 space-y-3">
-        {/* ========================================================
-            ABA 1: MODO CONDUÇÃO / VIAGEM EM ANDAMENTO
-           ======================================================== */}
-        {abaAtiva === "viagem" && (
-          <div className="space-y-3 animate-in fade-in">
-            {/* WIDGET COCKPIT: GPS CONTÍNUO & ANTI-SLEEP (TELEMETRIA ORBITAL) */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-3 w-3">
-                    <span
-                      className={`animate-ping absolute inline-flex h-full w-full rounded-full ${
-                        isGpsContinuoAtivo ? "bg-emerald-400 opacity-75" : "bg-slate-300"
-                      }`}
-                    />
-                    <span
-                      className={`relative inline-flex rounded-full h-3 w-3 ${
-                        isGpsContinuoAtivo
-                          ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
-                          : "bg-slate-400"
-                      }`}
-                    />
-                  </span>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <strong className="text-xs sm:text-sm font-black text-slate-900">
-                        GPS Contínuo {isGpsContinuoAtivo ? "Ativo" : "Pausado"}
-                      </strong>
-                      <span
-                        className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${
-                          isWakeLockAtivo
-                            ? "bg-emerald-50 text-[#0d5930] border-emerald-200"
-                            : "bg-amber-50 text-amber-900 border-amber-200"
-                        }`}
-                      >
-                        {isWakeLockAtivo ? "🔒 TELA LIGADA" : "TELA PADRÃO"}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-slate-500 font-medium">
-                      {statusConexao === "ONLINE"
-                        ? "Transmissão orbital Starlink ativa para passageiros"
-                        : `Buffer Offline: ${pontosEmBufferOffline} pontos gravados localmente`}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Alternar status da van */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    setStatusVan((prev) => (prev === "em_transito" ? "pausado" : "em_transito"))
-                  }
-                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
-                    statusVan === "em_transito"
-                      ? "bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100"
-                      : "bg-[#0d5930] text-white shadow-xs hover:bg-[#147a44]"
-                  }`}
-                >
-                  {statusVan === "em_transito" ? "Pausar GPS" : "Iniciar GPS"}
-                </button>
-              </div>
-
-              {/* Grid de Métricas: Velocímetro + Precisão + Transmissões */}
-              <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                <div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
-                    Velocidade
-                  </span>
-                  <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
-                    <strong className="text-xl sm:text-2xl font-black text-slate-900 font-mono">
-                      {velocidadeAtualKmh}
-                    </strong>
-                    <span className="text-[10px] text-slate-500 font-bold">km/h</span>
-                  </div>
-                </div>
-                <div className="border-x border-slate-200/80 px-1">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
-                    Precisão GPS
-                  </span>
-                  <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
-                    <strong className="text-sm sm:text-base font-black text-emerald-700 font-mono">
-                      ±{precisaoMetros || 3}m
-                    </strong>
-                  </div>
-                  <span className="text-[9px] text-emerald-800 font-bold">Excelente</span>
-                </div>
-                <div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
-                    Transmitidos
-                  </span>
-                  <div className="flex items-baseline justify-center gap-0.5 mt-0.5">
-                    <strong className="text-sm sm:text-base font-black text-[#0d5930] font-mono">
-                      {pontosTransmitidos}
-                    </strong>
-                    <span className="text-[10px] text-slate-400">pts</span>
-                  </div>
-                  <span className="text-[9px] text-slate-400">Deadband 20m</span>
-                </div>
-              </div>
-
-              {/* Rodapé do Widget: Botão Anti-Sleep & Status de Rede */}
-              <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-xs">
-                <button
-                  type="button"
-                  onClick={toggleWakeLock}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
-                    isWakeLockAtivo
-                      ? "bg-emerald-50 text-[#0d5930] border border-emerald-200"
-                      : "bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200"
-                  }`}
-                >
-                  <span>
-                    {isWakeLockAtivo ? "✓ Anti-Sleep Ativo (Tela não apaga)" : "Ativar Anti-Sleep"}
-                  </span>
-                </button>
-
-                <div className="flex items-center gap-1 text-[11px] text-slate-500 font-medium">
-                  <Wifi className="h-3.5 w-3.5 text-emerald-600" />
-                  <span>{statusConexao}</span>
-                </div>
-              </div>
+      {/* Alerta de Suspensão por Inadimplência (Fase 19) */}
+      {(subscription.status === "SUSPENDED" || subscription.status === "REACTIVATION_REQUIRED") && (
+        <div className="absolute top-16 inset-x-3 z-40 max-w-md mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-center justify-between animate-in slide-in-from-top duration-200">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🚨</span>
+            <div>
+              <span className="font-black block">CONTA SUSPENSA POR INADIMPLÊNCIA</span>
+              <span className="text-[11px] text-rose-100">
+                Débito: {subscription.accumulatedDebtBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </span>
             </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setModalRegularizacaoAberto(true)}
+            className="px-3 py-1.5 rounded-xl bg-white text-rose-700 font-black text-xs hover:bg-rose-50 shadow-md active:scale-95 transition"
+          >
+            REGULARIZAR PIX
+          </button>
+        </div>
+      )}
 
-            {/* BOTÃO GIGANTE DE BIPAR PASSAGEIRO / SCANNER QR CODE */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-[#0b2046] via-[#0d5930] to-[#071833] text-white shadow-sm border border-emerald-400/30 space-y-2.5">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 bg-white/10 px-2.5 py-0.5 rounded-full">
-                  Validador Criptográfico Offline
-                </span>
-                <span className="text-xs font-mono text-emerald-300 font-bold">
-                  {pendentesSincronizacao} pendente(s)
-                </span>
+      {/* Alerta de Elegibilidade do Condutor (Se Bloqueado/Suspenso/CNH Vencida) */}
+      {erroElegibilidade && !(subscription.status === "SUSPENDED" || subscription.status === "REACTIVATION_REQUIRED") && (
+        <div className="absolute top-16 inset-x-3 z-40 max-w-md mx-auto p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold shadow-lg flex items-center justify-between animate-in slide-in-from-top duration-200">
+          <span>⚠️ {erroElegibilidade}</span>
+          <button
+            type="button"
+            onClick={() => setErroElegibilidade(null)}
+            className="p-1 text-rose-500 hover:text-rose-800"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* ================================================================= */}
+      {/* 3. GAVETAS OPERACIONAIS EM BRANCO VIDRO COM DESIGN DO PASSAGEIRO */}
+      {/* ================================================================= */}
+      <div data-hide-bottom-nav="true" className="absolute bottom-0 inset-x-0 z-40 pb-[max(1.25rem,env(safe-area-inset-bottom))] px-3 sm:px-4 max-w-lg mx-auto pointer-events-auto">
+        {/* ESTADO 1: IDLE / AGUARDANDO OFERTA (Trip Radar Ativo no Mapa) */}
+        {estadoCockpit === "IDLE" && (
+          <div className="p-4 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200 shadow-[0_16px_50px_rgba(0,0,0,0.18)] space-y-2.5 animate-in slide-in-from-bottom duration-300">
+            {/* Barra tátil de puxar */}
+            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto mb-1" />
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <h3 className="text-sm font-black text-slate-950">Trip Radar em Busca</h3>
               </div>
-
               <button
                 type="button"
-                onClick={() => handleValidarQRSimulado()}
-                className="w-full flex items-center justify-center gap-2 min-h-10 h-10 sm:h-11 py-2 px-5 rounded-lg bg-gradient-to-r from-emerald-500 to-[#147a44] text-white text-xs sm:text-sm font-black shadow-xs active:scale-99 transition-all hover:brightness-110 cursor-pointer"
+                onClick={() => setModalPlanosAberto(true)}
+                className="text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200 transition"
               >
-                <Camera className="h-4.5 w-4.5 text-amber-300" />
-                <span>BIPAR PASSAGEIRO (LER QR CODE)</span>
+                Plano {driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%) • Alterar
               </button>
-
-              {/* Feedback de Validação Instantâneo */}
-              {resultadoValidacao && (
-                <div
-                  className={`p-3 rounded-2xl border text-xs flex items-center gap-2.5 animate-in zoom-in-95 ${
-                    resultadoValidacao.valido
-                      ? "bg-emerald-500/20 border-emerald-400 text-emerald-100"
-                      : "bg-red-500/20 border-red-400 text-red-100"
-                  }`}
-                >
-                  {resultadoValidacao.valido ? (
-                    <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-red-400 shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <strong className="block font-black">
-                      {resultadoValidacao.valido
-                        ? "EMBARQUE LIBERADO!"
-                        : "BILHETE INVÁLIDO OU REPETIDO"}
-                    </strong>
-                    <span className="text-[10px] opacity-90">
-                      {resultadoValidacao.motivo || "Bilhete verificado com sucesso"}
-                    </span>
-                  </div>
-                </div>
-              )}
             </div>
 
-            {/* PRÓXIMA PARADA / TREVO EM DESTAQUE */}
-            <div className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-2">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                  Próxima Parada Programada
-                </span>
-                <span className="text-xs font-black text-[#0d5930] bg-emerald-50 px-2 py-0.5 rounded-md">
-                  Chegada em ~8 min
-                </span>
-              </div>
+            {/* AUDITORIA 10: WIDGET OFICIAL ECONOMIA PARTIU */}
+            <div className="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-2xl border border-emerald-200 space-y-1.5">
               <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1">
+                  <PiggyBank className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Economia PARTIU (Mês Atual)</span>
+                </span>
+                <span className="text-[10px] font-bold text-slate-500">
+                  {corridasFeitas} corridas hoje
+                </span>
+              </div>
+              <div className="flex items-baseline justify-between">
                 <div>
-                  <h3 className="text-sm font-black text-slate-900">
-                    Barra de São Miguel (Trevo AL-101 Sul)
-                  </h3>
-                  <span className="text-[11px] text-slate-500">Ref: Posto Shell da Entrada</span>
+                  <span className="text-xl font-black text-emerald-700">
+                    +{wallet.totalSavingsVersusUberBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                  </span>
+                  <span className="text-[10px] text-emerald-800 font-semibold block">
+                    guardados no seu bolso comparado à taxa de 20%
+                  </span>
                 </div>
-                <div className="text-right">
-                  <span className="text-xs font-black text-amber-600 block">1 Embarque</span>
-                  <span className="text-[10px] text-slate-400">2 Desembarques</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setModalEconomiaAberto(true)}
+                  className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 underline flex items-center gap-0.5"
+                >
+                  <span>Ver Detalhes</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </button>
               </div>
             </div>
 
-            {/* MANIFESTO DE PARADAS DA ROTA */}
-            <div className="space-y-3">
-              <h2 className="text-xs font-black uppercase tracking-wider text-slate-500 px-1">
-                Manifesto de Bordo ({manifesto.length} Paradas)
-              </h2>
-
-              {manifesto.map((p) => (
-                <div
-                  key={p.id}
-                  className="rounded-2xl bg-white border border-slate-200/90 shadow-xs overflow-hidden"
+            {/* Inadimplência ou Carência Aviso */}
+            {subscription.status === "GRACE_PERIOD" && (
+              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 flex items-center justify-between">
+                <span>⚠️ Mensalidade em carência ({subscription.accumulatedDebtBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}). Regularize para evitar suspensão.</span>
+                <button
+                  type="button"
+                  onClick={() => setModalPlanosAberto(true)}
+                  className="font-bold underline text-amber-800 shrink-0 ml-1"
                 >
-                  <div className="p-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-[#0d5930]" />
-                      <strong className="text-xs font-black text-slate-900">{p.nome}</strong>
-                    </div>
-                    <span className="text-[11px] font-mono font-bold text-slate-600">
-                      {p.horarioEstimado}
-                    </span>
-                  </div>
+                  Pagar PIX
+                </button>
+              </div>
+            )}
 
-                  <div className="p-3 space-y-2">
-                    {p.passageirosEmbarcando.length === 0 ? (
-                      <p className="text-[11px] text-slate-400">
-                        Apenas desembarques nesta parada.
-                      </p>
-                    ) : (
-                      p.passageirosEmbarcando.map((psg) => (
-                        <div
-                          key={psg.id}
-                          className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs"
-                        >
-                          <div className="min-w-0">
-                            <strong className="text-slate-900 font-bold block truncate">
-                              {psg.nome}
-                            </strong>
-                            <span className="text-[10px] text-slate-500">
-                              {psg.quantidade} vaga(s) • {psg.distanciaPonto}
-                            </span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleEmbarcar(p.id, psg.id)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-black transition-all ${
-                              psg.embarcado
-                                ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                                : "bg-[#0d5930] text-white"
-                            }`}
-                          >
-                            {psg.embarcado ? "✓ Embarcado" : "Embarcar"}
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-100 font-semibold">
+              <span>Fundo Proteção: {wallet.protectionFundBalanceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+              <span className="text-amber-600 font-black">100% Repasse D+0</span>
             </div>
           </div>
         )}
 
-        {/* ========================================================
-            ABA 2: TOTEM DIGITAL DE BORDO (QR CODE DA VAN)
-           ======================================================== */}
-        {abaAtiva === "totem" && (
-          <div className="space-y-4 animate-in fade-in">
-            {/* CARD TOTEM GIGANTE PARA O PAINEL */}
-            <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#0b2046] via-[#0d5930] to-[#071833] text-white shadow-2xl border border-emerald-400/40 text-center space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 bg-white/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" />
-                  <span>Totem de Embarque Digital</span>
+        {/* ESTADO 2: OFERTA NO RADAR (DriverOfferModal V4.0 - Ultra-Minimalist & 10s Window) */}
+        {estadoCockpit === "OFFER" && ofertaAtiva && (
+          <DriverOfferModal
+            oferta={{
+              rideId: ofertaAtiva.id,
+              passageiro: ofertaAtiva.passageiro,
+              passageiroAvaliacao: ofertaAtiva.passageiroAvaliacao ?? 4.95,
+              valorLiquido: ofertaAtiva.valorLiquido,
+              distanciaKm: ofertaAtiva.distanciaKm,
+              duracaoMin: 11,
+              origem: ofertaAtiva.origem,
+              destino: ofertaAtiva.destino,
+              modalidadeTag: ofertaAtiva.tipo,
+              distanciaAteEmbarqueKm: (ofertaAtiva as any).distanciaEmbarqueKm ?? 0.85,
+              tempoAteEmbarqueMin: (ofertaAtiva as any).tempoEmbarqueMin ?? 3,
+              ganhoPorKm:
+                ofertaAtiva.distanciaKm > 0
+                  ? Number((ofertaAtiva.valorLiquido / ofertaAtiva.distanciaKm).toFixed(2))
+                  : 3.6,
+            }}
+            countdownSeconds={10}
+            onAceitar={handleAceitarOferta}
+            onRecusar={handleRecusarOferta}
+          />
+        )}
+
+        {/* ESTADO 3: A CAMINHO DO PASSAGEIRO (GPS Ativo + Ações Rápidas 48px/56px) */}
+        {estadoCockpit === "HEADING_TO_PICKUP" && ofertaAtiva && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200 shadow-2xl space-y-3 animate-in slide-in-from-bottom duration-200">
+            {/* Barra tátil */}
+            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
+
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="min-w-0 flex-1 pr-2">
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 uppercase tracking-wider inline-block">
+                  A Caminho do Embarque
                 </span>
-                <span className="text-xs font-mono text-emerald-300 font-bold flex items-center gap-1">
-                  <Wifi className="h-3.5 w-3.5" />
-                  <span>Starlink Online</span>
-                </span>
+                <h3 className="text-base font-black text-slate-950 mt-1 truncate">{ofertaAtiva.passageiro}</h3>
+                <span className="text-xs text-slate-500 truncate block">{ofertaAtiva.origem}</span>
               </div>
 
-              <div>
-                <h2 className="text-lg sm:text-xl font-black text-white">
-                  Aproxime seu Celular para Embarcar
-                </h2>
-                <p className="text-xs text-slate-300 mt-0.5">
-                  Abra o aplicativo UniVans no celular, toque em "Ler QR Code da Van" e mire aqui
-                </p>
-              </div>
-
-              {/* QR Code de Alta Visibilidade */}
-              <div className="bg-white p-4 rounded-3xl border-4 border-amber-300 shadow-2xl max-w-[220px] mx-auto">
-                <RealQrCodePix
-                  textoChave="UNIVANS:TOTEM_VAN_04:RJP2F14:LINE_IGN_MCZ"
-                  tamanho={200}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <span className="text-xs font-mono text-amber-300 font-black tracking-widest block">
-                  VAN RJP-2F14 • LINHA IGREJA NOVA ➔ MACEIÓ
-                </span>
-                <span className="text-[11px] text-emerald-200 block font-semibold">
-                  {totalEmbarcados} de {totalPassageiros} passageiros já embarcados
-                </span>
+              {/* Botões de Contato Rápido (Chat Nativo Seguro em Tempo Real + Ligação) */}
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setIsChatOpen(true)}
+                  className="relative w-12 h-12 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-500 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                  title="Abrir Chat Operacional Seguro"
+                  aria-label={`Abrir chat operacional${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
+                >
+                  <MessageCircle className="w-5 h-5 text-slate-950" />
+                  {driverUnreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-600 text-white text-[10px] font-black border-2 border-white shadow-xs animate-pulse">
+                      {driverUnreadCount > 9 ? "9+" : driverUnreadCount}
+                    </span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const tel = ofertaAtiva.telefone?.replace(/\D/g, "") || "22999605162";
+                    window.open(`tel:${tel}`, "_self");
+                  }}
+                  className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center active:scale-90 transition shadow-xs hover:bg-slate-200 cursor-pointer"
+                  title="Ligar para o passageiro"
+                >
+                  <Phone className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
-            {/* ÚLTIMO PASSAGEIRO VALIDADO EM TEMPO REAL */}
-            {ultimoEmbarque && (
-              <div className="p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-emerald-950 flex items-center justify-between gap-3 shadow-md animate-in slide-in-from-top-2">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="h-10 w-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <CheckCircle2 className="h-6 w-6" />
+            {/* FASE 4: Atalhos Rápidos de Navegação Externa (Waze & Google Maps) */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleNavegarExterno("waze")}
+                className="h-11 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <Compass className="w-4 h-4 text-sky-600" />
+                <span>Navegar no Waze</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleNavegarExterno("google_maps")}
+                className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <MapPin className="w-4 h-4 text-emerald-600" />
+                <span>Google Maps</span>
+              </button>
+            </div>
+
+            {/* Botão de Chegada no Local de Embarque (56px) */}
+            <button
+              type="button"
+              onClick={handleChegueiAoLocal}
+              style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+              className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>✓ CHEGUEI AO LOCAL DE EMBARQUE</span>
+            </button>
+
+            {/* FASE 2: Gatilho de Cancelamento Operacional pelo Motorista */}
+            <div className="pt-1 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setModalCancelarAberto(true)}
+                className="text-xs font-bold text-slate-500 hover:text-rose-600 flex items-center gap-1.5 py-1 px-3 rounded-lg transition active:scale-95 cursor-pointer"
+              >
+                <AlertTriangle className="w-3.5 h-3.5 text-slate-400" />
+                <span>Problemas com o embarque? Cancelar corrida</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ESTADO 4: CONFIRMAÇÃO DE EMBARQUE INTELIGENTE (MODELO PROFISSIONAL 99 / UBER — SEM PIN OBRIGATÓRIO) */}
+        {estadoCockpit === "WAITING_PIN" && ofertaAtiva && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-white/98 backdrop-blur-md border-2 border-emerald-400 shadow-2xl space-y-3.5 animate-in slide-in-from-bottom duration-200">
+            {/* Barra tátil */}
+            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
+
+            {ofertaAtiva.tipo === "ENTREGA" ? (
+              <>
+                {/* Cabeçalho de Coleta Segura */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-1.5 text-amber-700 font-black text-xs uppercase tracking-wider">
+                    <Package className="w-4 h-4 text-amber-600" />
+                    <span>Coleta de Pacote no Remetente</span>
                   </div>
-                  <div className="min-w-0">
-                    <span className="text-[10px] font-black uppercase text-emerald-700 tracking-wider block">
-                      Embarque Confirmado Agora!
-                    </span>
-                    <strong className="text-sm font-black truncate block">
-                      {ultimoEmbarque.nome}
-                    </strong>
-                    <span className="text-[10px] text-emerald-800">
-                      {ultimoEmbarque.quantidade} vaga(s) • Bilhete {ultimoEmbarque.bilheteId} às{" "}
-                      {ultimoEmbarque.horario}
-                    </span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                    Geofence Coleta OK ✓
+                  </span>
+                </div>
+
+                {/* Dados da Encomenda */}
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-amber-50/60 border border-amber-200">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center font-black text-lg border border-amber-300 shadow-xs shrink-0">
+                    <Box className="w-6 h-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-black text-slate-950 truncate">
+                      {ofertaAtiva.descricaoPacote || "Pacote Flash Express"}
+                    </h3>
+                    <p className="text-xs text-slate-600 truncate mt-0.5">
+                      Remetente: <span className="font-bold text-slate-800">{ofertaAtiva.passageiro}</span>
+                    </p>
+                    <p className="text-[11px] text-amber-800 font-semibold truncate">
+                      Entregar para: {ofertaAtiva.destinatarioNome || "Destinatário"}
+                    </p>
                   </div>
                 </div>
-                <span className="text-xs font-black text-emerald-800 bg-emerald-200/80 px-2.5 py-1 rounded-lg shrink-0">
-                  Uso Único OK ✓
-                </span>
+
+                {/* Resumo do Destino da Entrega */}
+                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center justify-between text-xs">
+                  <div className="truncate pr-2">
+                    <span className="text-[10px] text-slate-400 font-bold block uppercase">Endereço de Entrega:</span>
+                    <span className="font-bold text-slate-900 truncate block">{ofertaAtiva.destino}</span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-black text-slate-950 block">{ofertaAtiva.distanciaKm} km</span>
+                    <span className="text-[10px] font-bold text-emerald-600">Flash Express</span>
+                  </div>
+                </div>
+
+                {/* Status do Cronômetro de Espera e Carência Auditada */}
+                {waitingTimerStatus && (
+                  <div
+                    className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
+                      waitingTimerStatus.isGracePeriodActive
+                        ? "bg-slate-50 text-slate-700 border-slate-200"
+                        : "bg-amber-50 text-amber-900 border-amber-300"
+                    }`}
+                  >
+                    <span>
+                      ⏱️ Espera no Remetente: {Math.floor(waitingTimerStatus.elapsedSeconds / 60)}:
+                      {(waitingTimerStatus.elapsedSeconds % 60).toString().padStart(2, "0")}
+                      {waitingTimerStatus.isGracePeriodActive
+                        ? " (Carência 5 min)"
+                        : " (Tarifação excedente)"}
+                    </span>
+                    <span className="font-black">
+                      {waitingTimerStatus.accumulatedWaitingFeeCents > 0
+                        ? `+R$ ${(waitingTimerStatus.accumulatedWaitingFeeCents / 100).toFixed(2)}`
+                        : "Grátis"}
+                    </span>
+                  </div>
+                )}
+
+                {erroPin && <p className="text-xs text-rose-500 font-bold text-center">{erroPin}</p>}
+
+                {/* Botão de Coleta 1-Tap */}
+                {/* Botão de Validação do PIN 1 de Coleta */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPinNumpadMode("PICKUP");
+                    setModalPinNumpadAberto(true);
+                  }}
+                  style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                  className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <KeyRound className="w-5 h-5" />
+                  <span>DIGITAR PIN DE COLETA (PIN 1)</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl py-2 px-3">
+                  <ShieldCheck className="w-4 h-4 shrink-0 text-amber-600" />
+                  <span>Cadeia de Custódia: Solicite o PIN 1 ao remetente</span>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Cabeçalho do Ponto de Embarque */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                  <div className="flex items-center gap-1.5 text-emerald-700 font-black text-xs uppercase tracking-wider">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>Passageiro no Local de Embarque</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                    GPS Sincronizado ✓
+                  </span>
+                </div>
+
+                {/* Perfil do Passageiro com Trust Badge, Avaliação e Contato Rápido */}
+                <div className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="relative shrink-0">
+                      {ofertaAtiva.passageiroFoto ? (
+                        <img
+                          src={ofertaAtiva.passageiroFoto}
+                          alt={ofertaAtiva.passageiro}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-emerald-400 shadow-xs"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 font-black text-lg flex items-center justify-center border-2 border-emerald-400 shadow-xs">
+                          {ofertaAtiva.passageiro.charAt(0)}
+                        </div>
+                      )}
+                      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black border-2 border-white shadow-xs">
+                        ✓
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="text-base font-black text-slate-950 truncate">{ofertaAtiva.passageiro}</h3>
+                        <span className="text-xs font-black text-amber-600 flex items-center gap-0.5">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                          {ofertaAtiva.passageiroAvaliacao || 4.98}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-600 mt-0.5 flex-wrap">
+                        <span className="font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded">
+                          CPF Verificado
+                        </span>
+                        <span>•</span>
+                        <span>{ofertaAtiva.passageiroTotalCorridas || 48} viagens</span>
+                        <span>•</span>
+                        <span className="font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                          ⭐ {ofertaAtiva.passageiroTrustTier || "Elite"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Contato Rápido com Passageiro (Chat Nativo com Badge + Ligação) */}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setIsChatOpen(true)}
+                      className="relative w-11 h-11 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-500 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                      title="Abrir Chat Operacional com o Passageiro"
+                      aria-label={`Abrir chat com o passageiro${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
+                    >
+                      <MessageCircle className="w-5 h-5 text-slate-950" />
+                      {driverUnreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-600 text-white text-[10px] font-black border-2 border-white shadow-xs animate-pulse">
+                          {driverUnreadCount > 9 ? "9+" : driverUnreadCount}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const tel = ofertaAtiva.telefone?.replace(/\D/g, "") || "22999605162";
+                        window.open(`tel:${tel}`, "_self");
+                      }}
+                      className="w-11 h-11 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center active:scale-90 transition shadow-xs hover:bg-slate-200 cursor-pointer"
+                      title="Ligar para o passageiro"
+                    >
+                      <Phone className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Resumo do Destino e Alinhamento de Rota */}
+                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center justify-between text-xs">
+                  <div className="truncate pr-2">
+                    <span className="text-[10px] text-slate-400 font-bold block uppercase">Destino Confirmado:</span>
+                    <span className="font-bold text-slate-900 truncate block">{ofertaAtiva.destino}</span>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-black text-slate-950 block">{ofertaAtiva.distanciaKm} km</span>
+                    <span className="text-[10px] font-bold text-emerald-600">Livre de Fricção</span>
+                  </div>
+                </div>
+
+                {/* Status do Cronômetro de Espera e Carência Auditada */}
+                {waitingTimerStatus && (
+                  <div
+                    className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
+                      waitingTimerStatus.isGracePeriodActive
+                        ? "bg-slate-50 text-slate-700 border-slate-200"
+                        : "bg-amber-50 text-amber-900 border-amber-300"
+                    }`}
+                  >
+                    <span>
+                      ⏱️ Espera no Embarque: {Math.floor(waitingTimerStatus.elapsedSeconds / 60)}:
+                      {(waitingTimerStatus.elapsedSeconds % 60).toString().padStart(2, "0")}
+                      {waitingTimerStatus.isGracePeriodActive
+                        ? " (Carência 5 min ativa)"
+                        : " (Tarifação excedente ativa)"}
+                    </span>
+                    <span className="font-black">
+                      {waitingTimerStatus.accumulatedWaitingFeeCents > 0
+                        ? `+R$ ${(waitingTimerStatus.accumulatedWaitingFeeCents / 100).toFixed(2)}`
+                        : "Grátis"}
+                    </span>
+                  </div>
+                )}
+
+                {erroPin && <p className="text-xs text-rose-500 font-bold text-center">{erroPin}</p>}
+
+                {/* FASE 3: AÇÃO OPERACIONAL DE NO-SHOW (CARÊNCIA DE 5 MIN ESGOTADA) */}
+                {waitingTimerStatus && !waitingTimerStatus.isGracePeriodActive && (
+                  <button
+                    type="button"
+                    onClick={() => setModalNoShowConfirmAberto(true)}
+                    className="w-full h-13 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs sm:text-sm shadow-lg transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-rose-700"
+                  >
+                    <UserX className="w-4 h-4" />
+                    <span>PASSAGEIRO NÃO COMPARECEU • COBRAR TAXA (R$ 6,00)</span>
+                  </button>
+                )}
+
+                {/* BOTÃO PRINCIPAL 1-TAP (56px Touch Target - Modelo Uber / 99) */}
+                <button
+                  type="button"
+                  onClick={handleConfirmarEmbarqueSmart}
+                  style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                  className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <span>PASSAGEIRO EMBARCOU • INICIAR CORRIDA</span>
+                  <span>✓</span>
+                </button>
+
+                {/* Rodapé com Indicador de Embarque Smart e Cancelamento Justificado */}
+                <div className="flex items-center justify-between pt-1 text-[11px] px-1">
+                  <span className="font-bold text-emerald-700 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    Embarque Smart sem PIN
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setModalCancelarAberto(true)}
+                    className="font-bold text-slate-500 hover:text-rose-600 transition cursor-pointer"
+                  >
+                    Cancelar corrida
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* TECLADO DE PIN DE COLETA (Exclusivo para Encomendas/Entregas Flash) */}
+            {ofertaAtiva.tipo === "ENTREGA" && modoPinOpcional && (
+              <div className="space-y-2 pt-1 border-t border-slate-100 animate-in fade-in duration-150">
+                <p className="text-[11px] text-slate-500 text-center">
+                  Digite o PIN de 4 dígitos informado pelo remetente:
+                </p>
+
+                {/* Display dos 4 Dígitos */}
+                <div className="flex items-center justify-center gap-2.5 my-1">
+                  {[0, 1, 2, 3].map((idx) => {
+                    const digit = pinDigitado[idx];
+                    const isCurrent = pinDigitado.length === idx;
+                    return (
+                      <div
+                        key={idx}
+                        className={`w-11 h-12 rounded-xl flex items-center justify-center font-mono text-xl font-black transition-all ${
+                          digit
+                            ? "bg-amber-50 text-slate-950 border-2 border-amber-400 shadow-sm"
+                            : isCurrent
+                            ? "bg-white text-slate-950 border-2 border-slate-400 animate-pulse"
+                            : "bg-slate-50 text-slate-300 border border-slate-200"
+                        }`}
+                      >
+                        {digit || "•"}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Teclado Numérico Compacto */}
+                <div className="grid grid-cols-3 gap-1.5 pt-1 max-w-[260px] mx-auto">
+                  {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => handlePressDigit(num)}
+                      className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-900 font-black text-lg flex items-center justify-center border border-slate-200 active:scale-95 transition shadow-xs"
+                    >
+                      {num}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={handleClearDigits}
+                    className="h-11 rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 font-bold text-xs flex items-center justify-center border border-rose-200 active:scale-95 transition"
+                  >
+                    Limpar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handlePressDigit("0")}
+                    className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-900 font-black text-lg flex items-center justify-center border border-slate-200 active:scale-95 transition shadow-xs"
+                  >
+                    0
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleBackspaceDigit}
+                    className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold text-sm flex items-center justify-center border border-slate-200 active:scale-95 transition"
+                  >
+                    ⌫
+                  </button>
+                </div>
+
+                {/* Botão de Validação de PIN */}
+                <button
+                  type="button"
+                  onClick={() => validarPinDireto(pinDigitado)}
+                  disabled={pinDigitado.length < 4}
+                  style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                  className="w-full h-12 rounded-xl disabled:opacity-40 disabled:pointer-events-none font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5 mt-1"
+                >
+                  <span>VALIDAR PIN &amp; INICIAR</span>
+                  <span>→</span>
+                </button>
               </div>
             )}
           </div>
         )}
 
-        {/* ========================================================
-            ABA 3: ENCOMENDAS EXPRESS & CONFERÊNCIA DE PIN (ESTILO 99)
-           ======================================================== */}
-        {abaAtiva === "encomendas" && (
-          <div className="space-y-4 animate-in fade-in">
-            <div className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-2">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <Package className="h-4 w-4 text-[#0d5930]" />
-                  <span>Bagageiro de Encomendas da Van</span>
-                </span>
-                <span className="text-xs font-black text-[#0d5930] bg-emerald-50 px-2 py-0.5 rounded-md">
-                  {encomendas.filter((e) => e.status !== "entregue_no_terminal").length} a bordo
-                </span>
+        {/* ESTADO 5: VIAGEM EM ANDAMENTO (Navegação até o Destino Final) */}
+        {estadoCockpit === "IN_PROGRESS" && ofertaAtiva && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200 shadow-2xl space-y-3 animate-in slide-in-from-bottom duration-200">
+            {/* Barra tátil */}
+            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
+
+            {/* Se for ENTREGA e em Devolução Reversa */}
+            {ofertaAtiva.tipo === "ENTREGA" && emDevolucao ? (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between border-b border-rose-100 pb-2.5">
+                  <div className="flex items-center gap-1.5 text-rose-700 font-black text-xs uppercase tracking-wider">
+                    <RotateCcw className="w-4 h-4 text-rose-600 animate-spin" />
+                    <span>Devolução Reversa ao Remetente</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-rose-800 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
+                    +R$ {returnDetails?.driverReturnCompensationBrl.toFixed(2) || "15,50"}
+                  </span>
+                </div>
+
+                <div className="p-3 bg-rose-50/70 rounded-2xl border border-rose-200 space-y-1 text-xs">
+                  <span className="text-[10px] font-black uppercase text-rose-800 block">Ponto de Retorno (Remetente):</span>
+                  <p className="font-black text-slate-950 truncate">{ofertaAtiva.origem}</p>
+                  <p className="text-[11px] text-slate-600">Devolver pacote para: <strong>{ofertaAtiva.passageiro}</strong></p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setModalReturnFinalizarAberto(true)}
+                  className="w-full h-14 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Package className="w-5 h-5" />
+                  <span>CHEGUEI AO REMETENTE • FINALIZAR DEVOLUÇÃO</span>
+                </button>
               </div>
-              <p className="text-xs text-slate-600">
-                A entrega só pode ser realizada mediante a digitação do{" "}
-                <strong>PIN de 4 dígitos</strong> fornecido pelo remetente ao destinatário.
+            ) : (
+              <>
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="min-w-0 flex-1 pr-2">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider inline-block ${
+                      ofertaAtiva.tipo === "ENTREGA"
+                        ? "text-amber-700 bg-amber-50 border-amber-200"
+                        : "text-emerald-700 bg-emerald-50 border-emerald-200"
+                    }`}>
+                      {ofertaAtiva.tipo === "ENTREGA"
+                        ? `● Em Rota para o Destinatário ${currentStopNumber > 1 ? `(Parada ${currentStopNumber})` : ""}`
+                        : "● Viagem em Andamento"}
+                    </span>
+                    <h3 className="text-base font-black text-slate-950 mt-1 truncate">
+                      {ofertaAtiva.tipo === "ENTREGA" && ofertaAtiva.destinatarioNome
+                        ? `Destinatário: ${ofertaAtiva.destinatarioNome}`
+                        : ofertaAtiva.passageiro}
+                    </h3>
+                    <span className="text-xs text-slate-500 truncate block">Destino: {ofertaAtiva.destino}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setIsChatOpen(true)}
+                      className="relative w-11 h-11 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-500 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                      title="Abrir Chat Operacional"
+                      aria-label={`Abrir chat operacional${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
+                    >
+                      <MessageCircle className="w-5 h-5 text-slate-950" />
+                      {driverUnreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-600 text-white text-[10px] font-black border-2 border-white shadow-xs animate-pulse">
+                          {driverUnreadCount > 9 ? "9+" : driverUnreadCount}
+                        </span>
+                      )}
+                    </button>
+                    <span className="text-2xl font-black text-slate-950">
+                      {ofertaAtiva.valorLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* FASE 4: Atalhos Rápidos de Navegação Externa (Waze & Google Maps) */}
+                <div className="grid grid-cols-2 gap-2 pt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => handleNavegarExterno("waze")}
+                    className="h-11 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <Compass className="w-4 h-4 text-sky-600" />
+                    <span>Navegar no Waze</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleNavegarExterno("google_maps")}
+                    className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  >
+                    <MapPin className="w-4 h-4 text-emerald-600" />
+                    <span>Google Maps</span>
+                  </button>
+                </div>
+
+                {ofertaAtiva.tipo === "ENTREGA" ? (
+                  <div className="space-y-2 pt-1">
+                    <div className="grid grid-cols-2 gap-2">
+                      {/* Botão de Exceção: Destinatário não localizado */}
+                      <button
+                        type="button"
+                        onClick={handleAbrirModalDevolucao}
+                        className="h-14 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer text-center px-2"
+                      >
+                        <UserX className="w-4 h-4 shrink-0 text-amber-700" />
+                        <span>Destinatário Ausente?</span>
+                      </button>
+
+                      {/* Botão Normal: Finalizar com PIN 2 de Entrega */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPinNumpadMode("DROPOFF");
+                          setModalPinNumpadAberto(true);
+                        }}
+                        style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                        className="h-14 rounded-2xl font-black text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer text-center px-2"
+                      >
+                        <KeyRound className="w-4 h-4 shrink-0" />
+                        <span>FINALIZAR COM PIN 2</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-1 text-[11px] text-slate-500 font-semibold text-center">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Exige PIN 2 do destinatário para liberar entrega e PIX</span>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleConcluirCorrida}
+                    className="w-full h-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>🏁 FINALIZAR CORRIDA &amp; RECEBER PIX D+0</span>
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* =================================================================== */}
+      {/* MODAL: DESTINATÁRIO AUSENTE / PROTOCOLO DE DEVOLUÇÃO 99ENTREGA     */}
+      {/* =================================================================== */}
+      {modalDevolucaoAberto && waitStatus && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 text-slate-900 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <h3 className="text-sm font-black text-slate-950">Destinatário Não Localizado</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalDevolucaoAberto(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Cronômetro de Carência Obrigatória (5 minutos / 300s) */}
+            <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 text-center space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 block">
+                Tolerância Obrigatória de Espera (99Entrega)
+              </span>
+              <div className="text-3xl font-mono font-black text-amber-950">
+                {Math.floor(waitStatus.elapsedSeconds / 60).toString().padStart(2, "0")}:
+                {(waitStatus.elapsedSeconds % 60).toString().padStart(2, "0")}{" "}
+                <span className="text-xs text-amber-700 font-sans font-bold">/ 05:00 min</span>
+              </div>
+              <p className="text-[11px] text-amber-800">
+                {waitStatus.canInitiateReturn
+                  ? "✓ Tolerância e tentativas cumpridas! Devolução liberada."
+                  : "Aguarde e tente contatar o destinatário antes de devolver."}
               </p>
             </div>
 
-            {/* LISTAGEM DE CARGAS NO BAGAGEIRO */}
-            <div className="space-y-3">
-              {encomendas.map((enc) => {
-                const entregue = enc.status === "entregue_no_terminal";
+            {/* Botões de Tentativa de Contato Obrigatório */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-bold text-slate-500 uppercase block">
+                Registre suas tentativas de contato:
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleRegistrarContato("CALL")}
+                  className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-[11px] flex flex-col items-center gap-1 active:scale-95 transition"
+                >
+                  <Phone className="w-4 h-4 text-emerald-600" />
+                  <span>Ligação</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRegistrarContato("MESSAGE")}
+                  className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-[11px] flex flex-col items-center gap-1 active:scale-95 transition"
+                >
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <span>WhatsApp</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRegistrarContato("BUZZER")}
+                  className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-[11px] flex flex-col items-center gap-1 active:scale-95 transition"
+                >
+                  <Bell className="w-4 h-4 text-amber-600" />
+                  <span>Interfone</span>
+                </button>
+              </div>
 
-                return (
-                  <div
-                    key={enc.id}
-                    className={`rounded-2xl p-4 border transition-all ${
-                      entregue
-                        ? "bg-slate-50 border-slate-200 opacity-80"
-                        : "bg-white border-slate-200 shadow-sm"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-xs font-black text-[#0d5930]">
-                            {enc.codigoRastreio}
-                          </span>
-                          <span
-                            className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase ${
-                              entregue
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-amber-100 text-amber-900"
-                            }`}
-                          >
-                            {entregue ? "Entregue ✓" : "A Bordo / Em Trânsito"}
-                          </span>
-                        </div>
-                        <h4 className="text-sm font-black text-slate-900 mt-1">
-                          {enc.origem} ➔ {enc.destino}
-                        </h4>
-                        <p className="text-xs text-slate-600 font-medium">{enc.descricao}</p>
-                      </div>
+              {waitStatus.contactAttempts.length > 0 && (
+                <div className="text-[11px] text-emerald-700 font-semibold text-center pt-1">
+                  ✓ {waitStatus.contactAttempts.length} tentativa(s) registrada(s) na auditoria.
+                </div>
+              )}
+            </div>
 
-                      <span className="text-xs font-black text-slate-900 shrink-0">
-                        R$ {enc.valorFrete.toFixed(2).replace(".", ",")}
-                      </span>
-                    </div>
+            {/* Ação de Iniciar Devolução */}
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <button
+                type="button"
+                onClick={handleIniciarDevolucao}
+                className="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>INICIAR DEVOLUÇÃO AO REMETENTE</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalDevolucaoAberto(false)}
+                className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition cursor-pointer"
+              >
+                Continuar Aguardando
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
-                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                      <div className="text-slate-600">
-                        <span>Retirada por: </span>
-                        <strong className="text-slate-900">{enc.destinatarioNome}</strong>
-                        <span className="text-[10px] text-slate-400 block sm:inline sm:ml-1">
-                          ({enc.destinatarioTelefone})
+      {/* =================================================================== */}
+      {/* MODAL: FINALIZAÇÃO DA DEVOLUÇÃO NO REMETENTE                       */}
+      {/* =================================================================== */}
+      {modalReturnFinalizarAberto && returnDetails && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 text-slate-900 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+              <div className="flex items-center gap-2">
+                <RotateCcw className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-sm font-black text-slate-950">Confirmar Devolução</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalReturnFinalizarAberto(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-950 space-y-1">
+              <span className="font-black block">Remetente Presente no Local:</span>
+              <p>Solicite o PIN de 4 dígitos ao remetente ou confirme a entrega do pacote de volta.</p>
+              <p className="font-bold text-amber-700 pt-1">
+                Compensação Condutor: R$ {returnDetails.driverReturnCompensationBrl.toFixed(2)}
+              </p>
+            </div>
+
+            {/* Input PIN Remetente */}
+            <div className="space-y-1 text-center">
+              <label className="text-xs font-bold text-slate-600 block">
+                PIN de Devolução (Dica: {returnDetails.returnOtpExpected}):
+              </label>
+              <input
+                type="text"
+                maxLength={4}
+                value={pinDevolucaoDigitado}
+                onChange={(e) => setPinDevolucaoDigitado(e.target.value)}
+                placeholder={returnDetails.returnOtpExpected}
+                className="w-36 mx-auto px-4 py-2.5 text-center font-mono font-black text-xl rounded-xl bg-slate-100 border border-slate-300 focus:outline-none focus:border-emerald-500 tracking-widest"
+              />
+              {erroPinDevolucao && (
+                <p className="text-xs text-rose-600 font-bold">{erroPinDevolucao}</p>
+              )}
+            </div>
+
+            {/* Comprovante Fotográfico */}
+            <div className="space-y-1">
+              <span className="text-[11px] font-bold text-slate-500 uppercase block">
+                Foto do Pacote Devolvido (POD):
+              </span>
+              <div className="h-28 w-full rounded-2xl overflow-hidden border border-slate-200 relative">
+                <img
+                  src={fotoDevolucaoUrl}
+                  alt="Comprovante de Devolução"
+                  className="w-full h-full object-cover"
+                />
+                <span className="absolute bottom-1 right-1 px-2 py-0.5 bg-black/70 text-white rounded text-[9px] font-bold">
+                  Foto Comprovada ✓
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleConcluirDevolucao}
+              className="w-full h-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <CheckCircle2 className="w-5 h-5 text-slate-950" />
+              <span>FINALIZAR DEVOLUÇÃO &amp; RECEBER PIX D+0</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* MODAL / NUMPAD BOTTOM SHEET: DUPLO PIN DE ENTREGA (BLIND VALIDATION) */}
+      {/* =================================================================== */}
+      {ofertaAtiva && ofertaAtiva.tipo === "ENTREGA" && (
+        <DeliveryPinNumpadBottomSheet
+          isOpen={modalPinNumpadAberto}
+          mode={pinNumpadMode}
+          deliveryId={ofertaAtiva.id}
+          driverId={perfilMotorista.id}
+          customerName={
+            pinNumpadMode === "PICKUP"
+              ? ofertaAtiva.passageiro
+              : ofertaAtiva.destinatarioNome || "Destinatário"
+          }
+          expectedPinFallback={
+            pinNumpadMode === "PICKUP"
+              ? ofertaAtiva.pickupOtp || ofertaAtiva.pinCorreto
+              : ofertaAtiva.deliveryOtp || ofertaAtiva.pinCorreto
+          }
+          onSuccess={() => {
+            if (pinNumpadMode === "PICKUP") {
+              handlePickupPinSuccess();
+            } else {
+              handleDropoffPinSuccess();
+            }
+          }}
+          onCancel={() => setModalPinNumpadAberto(false)}
+          onStartReturn={() => {
+            setModalPinNumpadAberto(false);
+            handleAbrirModalDevolucao();
+          }}
+        />
+      )}
+
+      {/* =================================================================== */}
+      {/* MODAL / DRAWER: PERFIL DO MOTORISTA (PADRÃO BRANCO VIDRO PASSAGEIRO) */}
+      {/* =================================================================== */}
+      {modalPerfilMotorista && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base font-black text-slate-950">Perfil do Parceiro {nomeApp}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalPerfilMotorista(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Identificação do Condutor e Veículo */}
+            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-200">
+              <div
+                style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                className="w-12 h-12 rounded-2xl font-black text-lg flex items-center justify-center shadow-sm"
+              >
+                CS
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <h4 className="text-sm font-black text-slate-950">Carlos Eduardo</h4>
+                  <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.2 rounded border border-emerald-200">
+                    Ativo
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">Chevrolet Onix Plus 2024</p>
+                <p className="text-[11px] font-mono font-bold text-amber-700">MOB-8K99</p>
+              </div>
+            </div>
+
+            {/* Grid de Métricas de Desempenho Operacional */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center">
+                <span className="text-[10px] text-slate-500 block font-semibold">Avaliação</span>
+                <span className="text-lg font-black text-amber-600 flex items-center justify-center gap-1">
+                  <Star className="w-4 h-4 fill-amber-500" />
+                  4.98
+                </span>
+                <span className="text-[10px] text-slate-400">3.840 viagens</span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center">
+                <span className="text-[10px] text-slate-500 block font-semibold">Aceitação</span>
+                <span className="text-lg font-black text-emerald-600">98%</span>
+                <span className="text-[10px] text-slate-400">Nível Diamante</span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center">
+                <span className="text-[10px] text-slate-500 block font-semibold">Cancelamento</span>
+                <span className="text-lg font-black text-slate-800">1.2%</span>
+                <span className="text-[10px] text-slate-400">Excelente</span>
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center">
+                <span className="text-[10px] text-slate-500 block font-semibold">Hoje Conectado</span>
+                <span className="text-lg font-black text-amber-700">{horasOnline}</span>
+                <span className="text-[10px] text-slate-400">{corridasFeitas} corridas</span>
+              </div>
+            </div>
+
+            {/* Preferências Rápidas */}
+            <div className="space-y-2 pt-1 border-t border-slate-100">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50">
+                <div className="flex items-center gap-2 text-xs text-slate-700">
+                  <Volume2 className="w-4 h-4 text-amber-600" />
+                  <span>Som do Trip Radar</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleSom}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition ${
+                    somAtivo ? "bg-emerald-500 text-slate-950" : "bg-slate-200 text-slate-700"
+                  }`}
+                >
+                  {somAtivo ? "Ligado" : "Mudo"}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50">
+                <div className="flex items-center gap-2 text-xs text-slate-700">
+                  {modoNoturno ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-amber-500" />}
+                  <span>Modo do Mapa</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleModoNoturno}
+                  className="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 hover:bg-slate-300 text-slate-800 transition"
+                >
+                  {modoNoturno ? "Noturno 🌙" : "Diurno ☀️"}
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 text-xs">
+                <span className="text-slate-500">Repasse Financeiro</span>
+                <span className="font-bold text-emerald-700">100% Líquido D+0</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setModalPerfilMotorista(false)}
+              className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* MODAL: SAQUE INSTANTÂNEO PIX D+0 COM DEDUÇÕES (AUDITORIA 5)        */}
+      {/* =================================================================== */}
+      {modalSaquePix && (() => {
+        const check = billingEngine.calculateNetWithdrawal({
+          driverId: perfilMotorista.id,
+          grossBalanceCents: Math.round(ganhosHoje * 100),
+          subscription,
+        });
+
+        return (
+          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+            <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 text-center shadow-2xl pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
+              <div
+                style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-xl font-black shadow-sm"
+              >
+                ⚡
+              </div>
+
+              <div className="space-y-1">
+                <h3 className="text-lg font-black text-slate-950">Saque Instantâneo PIX D+0</h3>
+                <p className="text-xs text-slate-500">
+                  Transferência em tempo real para sua chave PIX com conciliação automática.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2.5">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase block">Saldo Bruto Hoje:</span>
+                  <span className="text-2xl font-black text-slate-950 block">
+                    {ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                  </span>
+                </div>
+
+                {/* Deduções de Governança / Assinatura (Auditoria 5) */}
+                {(check.subscriptionDeductionCents > 0 || check.pendingDebtsDeductionCents > 0) && (
+                  <div className="pt-2 border-t border-amber-200/80 bg-amber-50/50 p-2.5 rounded-xl space-y-1 text-xs text-amber-900">
+                    <span className="text-[10px] font-black uppercase block text-amber-800">
+                      Retenções de Obrigações no Saque:
+                    </span>
+                    {check.subscriptionDeductionCents > 0 && (
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span>Mensalidade Plano {driverPlan?.name}:</span>
+                        <span className="font-bold text-rose-700">
+                          -{(check.subscriptionDeductionCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                         </span>
                       </div>
+                    )}
+                    {check.pendingDebtsDeductionCents > 0 && (
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span>Pendências Operacionais:</span>
+                        <span className="font-bold text-rose-700">
+                          -{(check.pendingDebtsDeductionCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
 
-                      {entregue ? (
-                        <div className="flex items-center gap-1 text-emerald-700 font-black text-xs">
-                          <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                          <span>Entregue ({enc.dataEntrega || "Hoje"})</span>
-                        </div>
-                      ) : (
+                <div className="pt-2 border-t border-slate-200 space-y-1 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-600 font-medium">Fundo de Proteção Operacional:</span>
+                    <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">
+                      {wallet.protectionFundBalanceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} (Protegido)
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center font-bold text-slate-950 pt-1">
+                    <span>Líquido a Transferir via PIX:</span>
+                    <span className="text-base font-black text-emerald-600">
+                      {check.netWithdrawalAvailableBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-200 text-xs text-slate-600">
+                  <span className="font-bold">Chave PIX:</span> {perfilMotorista.chavePix || "carlos.eduardo@email.com"}
+                </div>
+              </div>
+
+              {saqueConcluido ? (
+                <div className="p-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold text-xs flex flex-col items-center justify-center gap-1 border border-emerald-200">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <span>PIX Processado com Sucesso!</span>
+                  </div>
+                  {mensagemSaque && <p className="text-[11px] font-normal text-emerald-800">{mensagemSaque}</p>}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleSolicitarSaquePix}
+                    disabled={!check.canWithdraw || ganhosHoje <= 0}
+                    style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                    className="w-full h-12 rounded-2xl hover:opacity-90 disabled:opacity-40 text-slate-950 font-black text-xs shadow-lg transition active:scale-95 flex items-center justify-center"
+                  >
+                    TRANSFERIR VIA PIX AGORA
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalSaquePix(false)}
+                    className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition"
+                  >
+                    Fechar
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* =================================================================== */}
+      {/* MODAL: MEU PLANO & ASSINATURA (AUDITORIA 2 & 12)                    */}
+      {/* =================================================================== */}
+      {modalPlanosAberto && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Percent className="w-5 h-5 text-amber-600" />
+                <h3 className="text-base font-black text-slate-950">Planos de Assinatura PARTIU</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalPlanosAberto(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Escolha o plano que melhor se adapta à sua rotina. Quanto menor a comissão, mais dinheiro fica no seu bolso.
+            </p>
+
+            {/* Lista dos 4 Planos Oficiais */}
+            <div className="space-y-3">
+              {subscriptionEngine.getAllPlans(false).map((plan) => {
+                const isSelected = subscription.planId === plan.id;
+                return (
+                  <div
+                    key={plan.id}
+                    className={`p-3.5 rounded-2xl border-2 transition ${
+                      isSelected
+                        ? "border-amber-500 bg-amber-50/40 shadow-md"
+                        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-3 h-3 rounded-full ${plan.badgeColor}`} />
+                        <h4 className="font-black text-sm text-slate-950">{plan.name}</h4>
+                        {plan.isPopular && (
+                          <span className="text-[9px] font-black uppercase bg-amber-200 text-amber-950 px-2 py-0.5 rounded-full">
+                            Mais Popular
+                          </span>
+                        )}
+                        {isSelected && (
+                          <span className="text-[9px] font-black uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                            Plano Atual ✓
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs font-black text-slate-950 block">
+                          {plan.monthlyFeeBrl === 0
+                            ? "Sem Mensalidade"
+                            : `${plan.monthlyFeeBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/mês`}
+                        </span>
+                        <span className="text-[11px] font-bold text-amber-700">
+                          {plan.commissionPercent}% por corrida
+                        </span>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-600 mt-1.5">{plan.description}</p>
+
+                    <div className="mt-2 pt-2 border-t border-slate-200/70 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-500">
+                        {plan.commissionPercent <= 3 ? "⭐ Atendimento VIP Prioritário" : "Suporte Regular no App"}
+                      </span>
+                      {!isSelected ? (
                         <button
                           type="button"
                           onClick={() => {
-                            setEncomendaParaEntregar(enc);
-                            setPinDigitado("");
-                            setErroPin(null);
+                            const updated = subscriptionEngine.changeDriverPlan(perfilMotorista.id, plan.id);
+                            setSubscription(updated);
+                            setDriverPlan(plan);
                           }}
-                          className="flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-[#0d5930] hover:bg-[#147a44] text-white text-xs font-black shadow-sm active:scale-95 transition-all"
+                          className="px-3 py-1.5 rounded-xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 transition active:scale-95"
                         >
-                          <KeyRound className="h-3.5 w-3.5 text-amber-300" />
-                          <span>Validar PIN &amp; Entregar</span>
+                          Mudar para {plan.name}
                         </button>
+                      ) : (
+                        <span className="text-xs font-bold text-emerald-700">Ativo</span>
                       )}
                     </div>
                   </div>
                 );
               })}
             </div>
+
+            <button
+              type="button"
+              onClick={() => setModalPlanosAberto(false)}
+              className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition"
+            >
+              Fechar
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* MODAL DE CONFIRMAÇÃO DE PIN ESTILO 99 */}
-        {encomendaParaEntregar && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in">
-            <div className="w-full max-w-md mx-auto rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 text-center space-y-4 animate-in zoom-in-95">
-              <div className="h-14 w-14 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-xs">
-                <KeyRound className="h-7 w-7" />
+      {/* =================================================================== */}
+      {/* MODAL: COMPARATIVO ECONOMIA PARTIU (AUDITORIA 10)                  */}
+      {/* =================================================================== */}
+      {modalEconomiaAberto && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 text-slate-900 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <PiggyBank className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-base font-black text-slate-950">Seu Faturamento &amp; Economia</h3>
               </div>
+              <button
+                type="button"
+                onClick={() => setModalEconomiaAberto(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              <div>
-                <span className="text-xs font-black uppercase tracking-wider text-amber-800 bg-amber-100 px-3 py-1 rounded-full">
-                  Confirmação Segura de Entrega
+            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-center space-y-1">
+              <span className="text-[10px] font-black uppercase text-emerald-800">
+                Economia Real no Seu Bolso (Mês)
+              </span>
+              <div className="text-3xl font-black text-emerald-700">
+                +{wallet.totalSavingsVersusUberBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </div>
+              <p className="text-xs text-emerald-800">
+                Comparativo direto com os 20% cobrados pelos aplicativos tradicionais.
+              </p>
+            </div>
+
+            {/* Demonstrativo Detalhado (Exemplo Oficial do Prompt) */}
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Ganhos Brutos do Mês:</span>
+                <span className="font-bold text-slate-900">
+                  {wallet.totalGrossEarnedBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </span>
-                <h3 className="text-xl font-black text-slate-900 mt-2">
-                  Digite o PIN do Destinatário
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                  Solicite o código de 4 dígitos que {encomendaParaEntregar.destinatarioNome}{" "}
-                  recebeu do remetente
-                </p>
               </div>
-
-              {/* Informação do Pacote */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs sm:text-sm space-y-1">
-                <p className="font-bold text-slate-900">
-                  Pacote: {encomendaParaEntregar.codigoRastreio}
-                </p>
-                <p className="text-slate-700">{encomendaParaEntregar.descricao}</p>
-                <p className="text-slate-500 text-xs">Destino: {encomendaParaEntregar.destino}</p>
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Taxas Pagas ao PARTIU:</span>
+                <span className="font-black text-amber-700">
+                  -{wallet.totalPlatformFeesPaidBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                </span>
               </div>
-
-              {/* Input de PIN com 4 dígitos */}
-              <div className="space-y-2">
-                <input
-                  type="text"
-                  maxLength={4}
-                  autoFocus
-                  placeholder="0000"
-                  value={pinDigitado}
-                  onChange={(e) => setPinDigitado(e.target.value.replace(/\D/g, ""))}
-                  className="w-full tracking-[0.7em] text-center text-3xl font-black font-mono min-h-[56px] h-14 rounded-xl bg-slate-100 border-2 border-slate-300 focus:border-[#0d5930] focus:bg-white text-slate-900 outline-none transition-all"
-                />
-
-                {erroPin && (
-                  <p className="text-xs sm:text-sm font-bold text-red-600 bg-red-50 p-2.5 rounded-xl border border-red-200 animate-in shake">
-                    {erroPin}
-                  </p>
-                )}
-
-                {sucessoEntrega && (
-                  <p className="text-xs sm:text-sm font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-300 flex items-center justify-center gap-1.5">
-                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                    <span>{sucessoEntrega}</span>
-                  </p>
-                )}
+              <div className="flex justify-between items-center text-slate-600 pt-1 border-t border-slate-200">
+                <span>Quanto pagaria no app tradicional (20%):</span>
+                <span className="font-bold text-rose-700">
+                  -{(wallet.totalGrossEarnedBrl * 0.20).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                </span>
               </div>
+              <div className="flex justify-between items-center pt-2 border-t border-slate-200 font-bold text-emerald-700">
+                <span>Diferença a Seu Favor:</span>
+                <span className="text-sm font-black">
+                  +{wallet.totalSavingsVersusUberBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                </span>
+              </div>
+            </div>
 
-              {/* Botões de Ação */}
-              <div className="flex items-center gap-2.5 pt-2">
+            <button
+              type="button"
+              onClick={() => setModalEconomiaAberto(false)}
+              className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* MODAL: REGULARIZAÇÃO DE INADIMPLÊNCIA & DESBLOQUEIO PIX (FASE 19)   */}
+      {/* =================================================================== */}
+      {modalRegularizacaoAberto && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 text-slate-900 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-rose-600" />
+                <h3 className="text-base font-black text-slate-950">Regularização de Inadimplência</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalRegularizacaoAberto(false)}
+                className="p-1 rounded-full text-slate-400 hover:text-slate-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 bg-rose-50 rounded-2xl border border-rose-200 text-center space-y-1">
+              <span className="text-[10px] font-black uppercase text-rose-800">
+                Débito Total Pendente
+              </span>
+              <div className="text-3xl font-black text-rose-600">
+                {(subscription.accumulatedDebtBrl || 49.90).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </div>
+              <p className="text-xs text-rose-800">
+                Sua conta está temporariamente suspensa para novas corridas no Trip Radar.
+              </p>
+            </div>
+
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2 text-xs">
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Plano Contratado:</span>
+                <span className="font-bold text-slate-900">{driverPlan?.name || "Bronze"}</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Comissão por Corrida:</span>
+                <span className="font-bold text-amber-700">{driverPlan?.commissionPercent || 3.0}%</span>
+              </div>
+              <div className="flex justify-between items-center text-slate-600">
+                <span>Prazo de Carência:</span>
+                <span className="font-bold text-rose-700">Expirado (Bloqueio Ativo)</span>
+              </div>
+            </div>
+
+            {/* Código PIX Copia e Cola */}
+            <div className="p-3 bg-slate-100 rounded-xl space-y-1.5 border border-slate-200">
+              <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
+                <span>PIX Copia e Cola Oficial PARTIU</span>
                 <button
                   type="button"
-                  onClick={() => setEncomendaParaEntregar(null)}
-                  className="flex-1 min-h-[48px] h-12 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold transition-all cursor-pointer active:scale-95"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(
+                      `00020126580014BR.GOV.BCB.PIX0136partiu-financeiro-recuperacao-502@pix.partiu.app520400005303986540${(subscription.accumulatedDebtBrl || 49.9).toFixed(2)}5802BR5925PARTIU MOBILIDADE BRASIL6009SAO PAULO62070503***6304`
+                    );
+                    alert("Chave Copia e Cola do PIX copiada!");
+                  }}
+                  className="text-amber-700 hover:text-amber-900 font-black text-xs"
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  disabled={pinDigitado.length !== 4}
-                  onClick={handleConfirmarEntregaPin}
-                  className="flex-1 min-h-[48px] h-12 rounded-xl bg-[#0d5930] hover:bg-[#147a44] disabled:opacity-50 text-white text-sm font-black shadow-md transition-all active:scale-[0.98] cursor-pointer"
-                >
-                  Confirmar Entrega
+                  COPIAR
                 </button>
               </div>
+              <p className="text-[10px] text-slate-500 font-mono break-all line-clamp-2">
+                00020126580014BR.GOV.BCB.PIX0136partiu-financeiro-recuperacao-502@pix.partiu.app520400005303986540...
+              </p>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  const paidCents = subscription.accumulatedDebtCents || Math.round((subscription.accumulatedDebtBrl || 49.9) * 100);
+                  const updated = subscriptionEngine.clearDebt(perfilMotorista.id, paidCents);
+                  setSubscription(updated);
+                  setDriverPlan(subscriptionEngine.getPlanById(updated.planId));
+                  setWallet(driverWalletEngine.getWallet(perfilMotorista.id));
+                  setErroElegibilidade(null);
+                  setModalRegularizacaoAberto(false);
+                  alert("Pagamento PIX confirmado com sucesso! Sua conta foi desbloqueada imediatamente.");
+                }}
+                className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>PAGUEI VIA PIX (DESBLOQUEIO IMEDIATO)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalRegularizacaoAberto(false)}
+                className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition"
+              >
+                Fechar
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* ========================================================
-            ABA 4: CHECKLIST DE SEGURANÇA VEICULAR
-           ======================================================== */}
-        {abaAtiva === "checklist" && (
-          <div className="space-y-3 animate-in fade-in">
-            <div className="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-3.5">
-              <div className="border-b border-slate-100 pb-2.5">
-                <h3 className="text-base sm:text-lg font-black text-slate-900">
-                  Checklist Obrigatório Pré-Viagem
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-500">
-                  Conformidade com os padrões de segurança da Cooperativa
-                </p>
-              </div>
+      {/* ========================================================================= */}
+      {/* MODAL / BOTTOM SHEET: CANCELAMENTO OPERACIONAL DO CONDUTOR (FASE 2)       */}
+      {/* ========================================================================= */}
+      <DriverCancelBottomSheet
+        isOpen={modalCancelarAberto}
+        onClose={() => setModalCancelarAberto(false)}
+        onConfirm={handleConfirmarCancelamentoMotorista}
+        isSubmitting={isCancelandoCorrida}
+      />
 
-              <div className="space-y-2.5">
-                {Object.entries(checklist).map(([key, val]) => (
-                  <div
-                    key={key}
-                    onClick={() => toggleChecklist(key as keyof typeof checklist)}
-                    className="flex items-center justify-between min-h-12 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
-                  >
-                    <span className="text-xs sm:text-sm font-bold text-slate-800 capitalize">
-                      {key.replace(/([A-Z])/g, " $1")}
-                    </span>
-                    <div
-                      className={`h-7 w-7 rounded-xl flex items-center justify-center text-white transition-all ${
-                        val ? "bg-[#0d5930]" : "bg-slate-300"
-                      }`}
-                    >
-                      {val && <Check className="h-4.5 w-4.5" />}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ========================================================
-            ABA 3: CAIXA & LIVRO-RAZÃO
-           ======================================================== */}
-        {abaAtiva === "caixa" && (
-          <div className="space-y-3 animate-in fade-in">
-            <div className="p-4 rounded-3xl bg-white border border-slate-200/90 shadow-sm space-y-3">
-              <div className="border-b border-slate-100 pb-2">
-                <h3 className="text-sm font-black text-slate-900">Resumo Financeiro da Viagem</h3>
-                <p className="text-xs text-slate-500">
-                  Split contábil automático com precisão em centavos
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200">
-                  <span className="text-[10px] font-bold text-emerald-800 block">
-                    Líquido do Motorista
-                  </span>
-                  <strong className="text-base font-black text-[#0d5930]">
-                    R$ {splitViagem.repasseMotorista.toFixed(2).replace(".", ",")}
-                  </strong>
+      {/* ========================================================================= */}
+      {/* MODAL: CONFIRMAÇÃO DE PASSAGEIRO NÃO COMPARECEU / NO-SHOW (FASE 3)        */}
+      {/* ========================================================================= */}
+      {modalNoShowConfirmAberto && ofertaAtiva && (
+        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 select-none">
+          <div className="w-full max-w-md bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl shadow-2xl p-5 space-y-4 animate-in slide-in-from-bottom duration-300 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600">
+                  <UserX className="w-5 h-5" />
                 </div>
-
-                <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-500 block">
-                    Faturamento Bruto
-                  </span>
-                  <strong className="text-base font-black text-slate-900">
-                    R$ {faturamentoBruto.toFixed(2).replace(".", ",")}
-                  </strong>
+                <div>
+                  <h3 className="text-base font-black text-slate-950">Passageiro Não Compareceu</h3>
+                  <p className="text-xs text-slate-500">Cobrança de taxa de carência</p>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={() => setModalNoShowConfirmAberto(false)}
+                disabled={isProcessandoNoShow}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-2 text-xs text-amber-950">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-amber-800">Tempo no Embarque:</span>
+                <span className="font-mono font-black text-amber-950 text-sm">
+                  {Math.floor((waitingTimerStatus?.elapsedSeconds || 300) / 60)}:
+                  {((waitingTimerStatus?.elapsedSeconds || 300) % 60).toString().padStart(2, "0")} min
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-amber-800">Tolerância Expirada:</span>
+                <span className="font-bold text-emerald-700">✓ 5 min cumpridos</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-amber-200/60 pt-2">
+                <span className="font-bold text-slate-700">Taxa de Cancelamento:</span>
+                <span className="font-black text-slate-900">R$ 6,00</span>
+              </div>
+              <div className="flex items-center justify-between bg-white/80 p-2 rounded-xl border border-emerald-300">
+                <span className="font-black text-emerald-800">Seu Crédito Instantâneo PIX:</span>
+                <span className="font-black text-emerald-700 text-sm">+ R$ 4,50</span>
+              </div>
+            </div>
+
+            <p className="text-[11px] text-slate-500 text-center leading-tight">
+              Esta corrida será encerrada sem penalizar sua taxa de cancelamento. O crédito de R$ 4,50 entrará no seu saldo hoje.
+            </p>
+
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                disabled={isProcessandoNoShow}
+                onClick={handleConfirmarNoShow}
+                className="w-full h-13 rounded-2xl bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>{isProcessandoNoShow ? "PROCESSANDO..." : "CONFIRMAR & RECEBER R$ 4,50"}</span>
+              </button>
+              <button
+                type="button"
+                disabled={isProcessandoNoShow}
+                onClick={() => setModalNoShowConfirmAberto(false)}
+                className="w-full py-2.5 rounded-xl text-slate-600 font-bold text-xs hover:bg-slate-100 transition text-center cursor-pointer"
+              >
+                Continuar Aguardando
+              </button>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* CHAT OPERACIONAL EM TEMPO REAL (SUPABASE REALTIME + SMART REPLIES)       */}
+      {/* ========================================================================= */}
+      {ofertaAtiva && (
+        <ChatBottomSheet
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          rideId={ofertaAtiva.id}
+          currentUserType="DRIVER"
+          currentUserId={perfilMotorista.id}
+          partnerName={ofertaAtiva.destinatarioNome && ofertaAtiva.tipo === "ENTREGA" ? ofertaAtiva.destinatarioNome : ofertaAtiva.passageiro}
+          partnerPhoto={ofertaAtiva.passageiroFoto}
+          partnerRoleLabel={ofertaAtiva.tipo === "ENTREGA" ? "Destinatário / Remetente" : "Passageiro"}
+          rideStatus={
+            estadoCockpit === "HEADING_TO_PICKUP"
+              ? "A_CAMINHO"
+              : estadoCockpit === "WAITING_PIN"
+              ? "CHEGOU"
+              : estadoCockpit === "IN_PROGRESS"
+              ? "EM_VIAGEM"
+              : "PROCURANDO"
+          }
+        />
+      )}
     </div>
   );
 }

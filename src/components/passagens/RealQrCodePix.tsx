@@ -9,7 +9,7 @@ interface RealQrCodePixProps {
 }
 
 export function RealQrCodePix({
-  textoChave = "00020126580014br.gov.bcb.pix0136univans-coop-alagoas",
+  textoChave = "00020126580014br.gov.bcb.pix0136partiu-mobilidade-brasil",
   tamanho = 150,
   tipo = "pix",
   logoCentral = true,
@@ -62,7 +62,7 @@ export function RealQrCodePix({
         </div>
       )}
 
-      {/* Ícone Central Oficial do PIX ou da UniVans */}
+      {/* Ícone Central Oficial do PIX ou do PARTIU */}
       {logoCentral && qrDataUrl && (
         <div className="absolute inset-0 m-auto h-7 w-7 rounded-lg bg-white p-1 shadow-md border border-slate-200 flex items-center justify-center pointer-events-none">
           {tipo === "pix" ? (
@@ -70,7 +70,9 @@ export function RealQrCodePix({
               <path d="M400.9 220.7L305.8 125.6c-27.4-27.4-72.2-27.4-99.6 0L111.1 220.7c-27.4 27.4-27.4 72.2 0 99.6l95.1 95.1c27.4 27.4 72.2 27.4 99.6 0l95.1-95.1c27.4-27.4 27.4-72.2 0-99.6zm-144.9 161.4c-4.4 0-8.8-1.7-12.2-5.1l-95.1-95.1c-6.7-6.7-6.7-17.7 0-24.4l95.1-95.1c6.7-6.7 17.7-6.7 24.4 0l95.1 95.1c6.7 6.7 6.7 17.7 0 24.4l-95.1 95.1c-3.4 3.4-7.8 5.1-12.2 5.1z" />
             </svg>
           ) : (
-            <img src="/univans-logo.jpg" alt="UniVans" className="h-4 w-4 object-contain" />
+            <div className="h-4 w-4 rounded bg-[#FFDE00] flex items-center justify-center font-black text-slate-950 text-[9px]">
+              P
+            </div>
           )}
         </div>
       )}

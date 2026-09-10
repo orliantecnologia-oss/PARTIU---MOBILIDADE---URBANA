@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 💳 UNIVANS ENTERPRISE PAYMENT INTENTS & HMAC-SHA256 WEBHOOK ENGINE
+ * 💳 PARTIU ENTERPRISE PAYMENT INTENTS & HMAC-SHA256 WEBHOOK ENGINE
  * Conformidade Estrita com Padrões Stripe, Adyen e Mercado Pago
  * ==============================================================================
  */
@@ -9,7 +9,7 @@ import crypto from "crypto";
 import { supabase } from "@/integrations/supabase/client";
 
 export const WEBHOOK_SECRET_COOP =
-  process.env["UNIVANS_WEBHOOK_SECRET"] || "whsec_univans_prod_alagoas_2026_supersecret";
+  process.env["PARTIU_WEBHOOK_SECRET"] || process.env["UNIVANS_WEBHOOK_SECRET"] || "whsec_partiu_prod_2026_supersecret";
 
 export interface PaymentIntent {
   id: string;

@@ -15,16 +15,16 @@ import {
 } from "lucide-react";
 import { alertasSOSMock, type AlertaSOS } from "@/lib/admin-data";
 
-import { useCriarAlertaSOS } from "@/lib/univans-db";
+import { useCriarAlertaSOS } from "@/lib/partiu-db";
 
 export const Route = createFileRoute("/app/sos")({
   head: () => ({
     meta: [
-      { title: "Emergência & Botão SOS | UniVans" },
+      { title: "Emergência & Botão SOS 24h | PARTIU" },
       {
         name: "description",
         content:
-          "Botão de emergência na rodovia, acionamento da central de suporte e telemetria Starlink.",
+          "Botão de emergência 24h, acionamento da central de suporte e rastreamento de segurança.",
       },
     ],
   }),
@@ -39,16 +39,16 @@ export function EmergenciaSOSPage() {
     "pane_mecanica" | "emergencia_medica" | "seguranca" | "acidente_rodovia"
   >("seguranca");
   const [detalhes, setDetalhes] = useState("");
-  const [coordenadas] = useState("-9.6498, -35.7089 (Rodovia BR-101 Sul / Starlink)");
+  const [coordenadas] = useState("-9.6498, -35.7089 (Maceió / Alagoas - GPS)");
 
   async function acionarSOS() {
     try {
       const res = await criarSOS.mutateAsync({
         tipo: tipoOcorrencia,
-        solicitante_nome: "Passageiro / Motorista UniVans",
+        solicitante_nome: "Passageiro / Condutor PARTIU",
         solicitante_telefone: "+5582998412290",
         van_placa: "RJP-2F14",
-        rodovia: "BR-101 Sul (Alagoas)",
+        rodovia: "Perímetro Urbano / Rodovia",
         coordenadas,
         status: "ativo",
         descricao: detalhes.trim() || "Chamado de emergência disparado pelo botão de pânico.",
@@ -168,8 +168,7 @@ export function EmergenciaSOSPage() {
               Sua Solicitação foi Enviada!
             </h2>
             <p className="text-xs text-muted-foreground mt-1">
-              A Central de Monitoramento UniVans recebeu suas coordenadas exatas e acionou suporte
-              para a sua van.
+              A Central de Monitoramento PARTIU recebeu suas coordenadas exatas e acionou a equipe de apoio.
             </p>
           </div>
 

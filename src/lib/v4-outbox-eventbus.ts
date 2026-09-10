@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 🚀 UNIVANS V4.0 TRANSACTIONAL OUTBOX, EVENT BUS & DLQ ENGINE
+ * 🚀 PARTIU V4.0 TRANSACTIONAL OUTBOX, EVENT BUS & DLQ ENGINE
  * Arquitetura Orientada a Eventos com Garantia de Entrega At-Least-Once
  * ==============================================================================
  */

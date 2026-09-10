@@ -35,10 +35,13 @@ jobs:
       - name: 2. Security & Domain Certification Test Suite (npm test)
         run: npm test
 
-      - name: 3. Nitro SSR Production Build (npm run build)
+      - name: 3. Dependency Vulnerability Audit (High/Critical)
+        run: npm audit --audit-level=high || true
+
+      - name: 4. Nitro SSR Production Build (npm run build)
         run: npm run build
 
-      - name: 4. Client Bundle Secret Scan Verification
+      - name: 5. Client Bundle Secret Scan Verification
         run: |
           echo "Verificando se nenhuma chave privada vazou no bundle de produção..."
           if grep -rnw ".output/public" -e "BEGIN PRIVATE KEY" 2>/dev/null; then

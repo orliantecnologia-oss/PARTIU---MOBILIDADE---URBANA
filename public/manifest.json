@@ -1,14 +1,14 @@
 {
-  "name": "UniVans - Cooperativa de Vans de Alagoas",
-  "short_name": "UniVans",
-  "description": "Sistema de gestão de frotas de vans, horários em tempo real, encomendas e telemetria Starlink.",
+  "name": "PARTIU - Mobilidade Urbana & Entregas Flash",
+  "short_name": "PARTIU",
+  "description": "Para onde você for, Partiu! Corridas de carro e moto com tarifa justa, entregas flash expressas e acompanhamento em tempo real.",
   "start_url": "/app",
   "display": "standalone",
   "orientation": "portrait",
   "lang": "pt-BR",
   "categories": ["travel", "transportation"],
-  "background_color": "#083d21",
-  "theme_color": "#0d5930",
+  "background_color": "#0b0f17",
+  "theme_color": "#FFDE00",
   "icons": [
     {
       "src": "/favicon.ico",
@@ -30,24 +30,24 @@
   ],
   "shortcuts": [
     {
-      "name": "Horários & Linhas",
-      "url": "/app/linhas",
-      "description": "Consulte saídas e vagas de vans"
+      "name": "Pedir Corrida",
+      "url": "/app",
+      "description": "Solicite carros e motos em minutos"
     },
     {
-      "name": "Enviar Encomenda",
+      "name": "PARTIU Flash (Entregas)",
       "url": "/app/encomendas",
-      "description": "Despacho expresso pelo bagageiro"
+      "description": "Despacho expresso com código PIN"
     },
     {
-      "name": "Emergência SOS",
-      "url": "/app/sos",
-      "description": "Acionamento de socorro na rodovia"
-    },
-    {
-      "name": "Painel do Motorista",
+      "name": "Cockpit do Motorista",
       "url": "/app/motorista",
-      "description": "Controle de assentos e passageiros"
+      "description": "Trip Radar e corridas para atender"
+    },
+    {
+      "name": "Histórico & Atividade",
+      "url": "/app/bilhetes",
+      "description": "Veja suas viagens e recibos"
     }
   ]
 }

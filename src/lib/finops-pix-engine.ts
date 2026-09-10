@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 💳 UNIVANS FINOPS & BALANCED DOUBLE-ENTRY LEDGER ENGINE (v3.2)
+ * 💳 PARTIU FINOPS & BALANCED DOUBLE-ENTRY LEDGER ENGINE (v3.2)
  * Plano de Contas Oficial, Journal Equilibrado (Total Débitos = Total Créditos)
  * ==============================================================================
  */
@@ -16,12 +16,12 @@ export const CHART_OF_ACCOUNTS = {
   },
   PASSIVO_REPASSE_MOTORISTA: {
     codigo: "2.1.01.01",
-    nome: "Contas a Pagar — Repasses a Cooperados / Motoristas",
+    nome: "Contas a Pagar — Repasses a Motoristas Parceiros",
     naturezaEsperada: "CREDIT",
   },
   RECEITA_TAXA_COOPERATIVA: {
     codigo: "3.1.01.01",
-    nome: "Receita Operacional Bruta — Taxa de Gestão da Cooperativa (8.5%)",
+    nome: "Receita Operacional Bruta — Taxa da Plataforma PARTIU",
     naturezaEsperada: "CREDIT",
   },
   DESPESA_TARIFA_PSP: {
@@ -100,11 +100,11 @@ export interface ExtratoContabilMotorista {
   lancamentos: EntradaLedgerContabil[];
 }
 
-const STORAGE_PIX_KEY = "univans_finops_pix_transactions";
-const STORAGE_JOURNALS_KEY = "univans_financial_journals_v3_2";
+const STORAGE_PIX_KEY = "partiu_finops_pix_transactions";
+const STORAGE_JOURNALS_KEY = "partiu_financial_journals";
 const MEMORY_PIX_STORE: TransacaoPixDetalhada[] = [];
 const MEMORY_JOURNALS_STORE: JournalTransacaoContabil[] = [];
-const DEFAULT_COOP_FEE_PERCENT = 8.5;
+const DEFAULT_COOP_FEE_PERCENT = 5.0; // Padrão Plano Free (5.0%). Condutores nos planos pagos usam 3% (Bronze), 1% (Prata) ou 0% (Ouro)
 const DEFAULT_PSP_FIXED_FEE = 0.45;
 
 /**
@@ -134,7 +134,7 @@ export function criarTransacaoPixComIdempotencia(
   ticketId: string,
   valor: number,
   driverId: string = "drv_04_al",
-  organizationId: string = "UNIVANS_AL",
+  organizationId: string = "PARTIU_MOBILIDADE",
   taxaPercent: number = DEFAULT_COOP_FEE_PERCENT,
 ): TransacaoPixDetalhada {
   const agora = new Date();
@@ -143,7 +143,7 @@ export function criarTransacaoPixComIdempotencia(
 
   const split = calcularSplitFinanceiro(valor, taxaPercent);
 
-  const pixCopiaECola = `00020126580014BR.GOV.BCB.PIX0136univans-alagoas-pix-recebimento@coop.br520400005303986540${valor.toFixed(2)}5802BR5925UNIVANS COOPERATIVA AL6006MACEIO62070503***6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  const pixCopiaECola = `00020126580014BR.GOV.BCB.PIX0136partiu-pix-recebimento@partiu.app520400005303986540${valor.toFixed(2)}5802BR5925PARTIU MOBILIDADE BR6006MACEIO62070503***6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
   const transacao: TransacaoPixDetalhada = {
     id: "tx_" + Math.random().toString(36).substring(2, 11),
@@ -259,7 +259,7 @@ function gerarJournalContabilEquilibrado(tx: TransacaoPixDetalhada): JournalTran
       contaCodigo: CHART_OF_ACCOUNTS.RECEITA_TAXA_COOPERATIVA.codigo,
       contaNome: CHART_OF_ACCOUNTS.RECEITA_TAXA_COOPERATIVA.nome,
       valor: tx.valorTaxaCooperativa,
-      descricao: `Taxa de administração cooperativa 8.5% (#${tx.ticketId})`,
+      descricao: `Taxa da plataforma PARTIU ${tx.taxaCooperativaPercent}% (#${tx.ticketId})`,
       registradoEm: agora,
     },
     // 4. Crédito no Passivo de Contas a Pagar ao Motorista
@@ -275,7 +275,7 @@ function gerarJournalContabilEquilibrado(tx: TransacaoPixDetalhada): JournalTran
       contaCodigo: CHART_OF_ACCOUNTS.PASSIVO_REPASSE_MOTORISTA.codigo,
       contaNome: CHART_OF_ACCOUNTS.PASSIVO_REPASSE_MOTORISTA.nome,
       valor: tx.valorRepasseMotorista,
-      descricao: `Repasse líquido devido ao cooperado motorista (#${tx.ticketId})`,
+      descricao: `Repasse líquido devido ao motorista parceiro (#${tx.ticketId})`,
       registradoEm: agora,
     },
     // 5. Crédito de compensação no Ativo Transitório PSP (Tarifa retida na fonte)

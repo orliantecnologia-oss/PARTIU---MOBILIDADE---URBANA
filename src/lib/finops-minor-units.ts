@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 💰 UNIVANS FINOPS MINOR-UNITS & REFUND ENGINE (v4.0)
+ * 💰 PARTIU FINOPS MINOR-UNITS & REFUND ENGINE (v4.0)
  * Operações Monetárias em Centavos Inteiros e Motor Imutável de Estornos
  * ==============================================================================
  */

@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 🚨 UNIVANS SOS CRITICAL PATH STATE MACHINE & PRIORITY DISPATCH (v4.0)
+ * 🚨 PARTIU SOS CRITICAL PATH STATE MACHINE & PRIORITY DISPATCH (v4.0)
  * Gestão de Emergências com Alta Prioridade, Trilha de Auditoria e Escalada
  * ==============================================================================
  */

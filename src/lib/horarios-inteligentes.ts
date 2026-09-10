@@ -1,7 +1,7 @@
 import { getPontosEmbarqueConfig, type PontoEmbarqueConfig } from "./pontos-embarque-store";
 /**
- * MÓDULO INTELIGENTE DE HORÁRIOS, DISTÂNCIAS, PARADAS & VAN MAIS PRÓXIMA EM TEMPO REAL
- * UniVans Mobility & Dispatch Engine - 100% Funcional e Preparado para APIs Externas
+ * MÓDULO INTELIGENTE DE HORÁRIOS, DISTÂNCIAS, PARADAS & VEÍCULO MAIS PRÓXIMO EM TEMPO REAL
+ * PARTIU Mobility & Dispatch Engine - 100% Funcional e Preparado para APIs Externas
  */
 
 import { getBilhetesPassagens } from "./passagens-store";
@@ -174,7 +174,7 @@ export const ROTAS_OFICIAIS: RotaBase[] = [
       {
         id: "mcz-tab-01",
         nome: "Maceió (Terminal Rodoviário / Feitosa)",
-        referencia: "Plataforma Principal UniVans",
+        referencia: "Plataforma Central PARTIU",
         minutosAposSaida: 0,
         tipo: "origem",
       },
@@ -436,7 +436,7 @@ export const FROTA_VANS_MOCK = [
     motorista: "Carlos Eduardo Santos",
     telefone: "(82) 99614-2810",
     foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    wifi: "UniVans_Starlink_04",
+    wifi: "PARTIU_Wifi_04",
   },
   {
     placa: "QTT-8H91",
@@ -444,7 +444,7 @@ export const FROTA_VANS_MOCK = [
     motorista: "Marcos Vinicius Lima",
     telefone: "(82) 99822-5409",
     foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-    wifi: "UniVans_Starlink_12",
+    wifi: "PARTIU_Wifi_12",
   },
   {
     placa: "RKL-9A33",
@@ -452,7 +452,7 @@ export const FROTA_VANS_MOCK = [
     motorista: "José Roberto Silva",
     telefone: "(82) 99740-1288",
     foto: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
-    wifi: "UniVans_Starlink_08",
+    wifi: "PARTIU_Wifi_08",
   },
   {
     placa: "SND-4B21",
@@ -460,7 +460,7 @@ export const FROTA_VANS_MOCK = [
     motorista: "Antônio Ferreira",
     telefone: "(82) 99602-9931",
     foto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    wifi: "UniVans_Starlink_19",
+    wifi: "PARTIU_Wifi_19",
   },
   {
     placa: "KLP-7M50",
@@ -468,7 +468,7 @@ export const FROTA_VANS_MOCK = [
     motorista: "Fernando Costa",
     telefone: "(82) 99655-4420",
     foto: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80",
-    wifi: "UniVans_Starlink_02",
+    wifi: "PARTIU_Wifi_02",
   },
 ];
 

@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 🛰️ UNIVANS MULTI-VARIABLE TELEMETRY & SPATIAL ANOMALY ENGINE (v3.4)
+ * 🛰️ PARTIU MULTI-VARIABLE TELEMETRY & SPATIAL ANOMALY ENGINE (v3.4)
  * Análise Multi-Vetorial (Velocidade, Aceleração, Precisão GPS, Regressão Temporal)
  * ==============================================================================
  */

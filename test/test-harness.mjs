@@ -37,6 +37,48 @@ export async function waitForAllTests() {
 
 export function expect(actual) {
   return {
+    get not() {
+      return {
+        toBe(expected) {
+          if (actual === expected) {
+            throw new Error(`Expected '${actual}' NOT to be '${expected}'`);
+          }
+        },
+        toEqual(expected) {
+          if (JSON.stringify(actual) === JSON.stringify(expected)) {
+            throw new Error(`Expected '${JSON.stringify(actual)}' NOT to equal '${JSON.stringify(expected)}'`);
+          }
+        },
+        toThrow() {
+          if (typeof actual === "function") {
+            try {
+              actual();
+            } catch (err) {
+              throw new Error(`Expected function NOT to throw, but it threw: ${err?.message || err}`);
+            }
+          }
+        },
+        toContain(expected) {
+          if (actual?.includes?.(expected)) {
+            throw new Error(`Expected '${actual}' NOT to contain '${expected}'`);
+          }
+        },
+      };
+    },
+    toThrow() {
+      if (typeof actual !== "function") {
+        throw new Error(`Expected a function but got ${typeof actual}`);
+      }
+      let threw = false;
+      try {
+        actual();
+      } catch (err) {
+        threw = true;
+      }
+      if (!threw) {
+        throw new Error("Expected function to throw, but it did not throw");
+      }
+    },
     toBe(expected) {
       if (actual !== expected) {
         throw new Error(`Expected '${expected}' but got '${actual}'`);
@@ -78,6 +120,27 @@ export function expect(actual) {
     toBeTruthy() {
       if (!actual) {
         throw new Error(`Expected value to be truthy but got ${actual}`);
+      }
+    },
+    toBeGreaterThanOrEqual(expected) {
+      if (actual < expected) {
+        throw new Error(`Expected ${actual} to be greater than or equal to ${expected}`);
+      }
+    },
+    toBeLessThanOrEqual(expected) {
+      if (actual > expected) {
+        throw new Error(`Expected ${actual} to be less than or equal to ${expected}`);
+      }
+    },
+    toBeUndefined() {
+      if (actual !== undefined) {
+        throw new Error(`Expected undefined but got ${actual}`);
+      }
+    },
+    toMatch(regex) {
+      const reg = typeof regex === "string" ? new RegExp(regex) : regex;
+      if (!reg.test(String(actual))) {
+        throw new Error(`Expected '${actual}' to match ${reg}`);
       }
     },
     toContain(expected) {

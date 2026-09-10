@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 📜 UNIVANS STRUCTURED JSON LOGGER (v3.3)
+ * 📜 PARTIU STRUCTURED JSON LOGGER (v3.3)
  * Logs Estruturados, Mascaramento de Dados Sensíveis e Rastreabilidade por Correlation ID
  * ==============================================================================
  */
@@ -59,7 +59,7 @@ export class StructuredLogger {
   private serviceName: string;
   private environment: string;
 
-  constructor(serviceName: string = "univans-core", environment: string = "production") {
+  constructor(serviceName: string = "partiu-core", environment: string = "production") {
     this.serviceName = serviceName;
     this.environment = environment;
   }
@@ -109,4 +109,21 @@ export class StructuredLogger {
   }
 }
 
-export const appLogger = new StructuredLogger("univans-tos-app", "production");
+export const appLogger = new StructuredLogger("partiu-app", "production");
+
+/**
+ * Substituto seguro para `catch {}` silencioso.
+ * Loga o erro de forma estruturada sem interromper o fluxo.
+ * Uso: `} catch (err) { silentCatchWarn("contexto", err); }`
+ *
+ * AUDIT FIX (CRIT-003): Empty catch blocks swallow errors silently,
+ * making production troubleshooting impossible.
+ */
+export function silentCatchWarn(context: string, err?: unknown): void {
+  const message =
+    err instanceof Error ? err.message : typeof err === "string" ? err : "unknown error";
+  appLogger.warn(`silent-catch:${context}`, {
+    errorCode: "SILENT_CATCH",
+    metadata: { originalError: message },
+  });
+}

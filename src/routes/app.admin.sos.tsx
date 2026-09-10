@@ -14,16 +14,16 @@ import {
   Wrench,
 } from "lucide-react";
 import { alertasSOSMock, type AlertaSOS } from "@/lib/admin-data";
-import { useAlertasSOS, useAtualizarStatusSOS, useAlertasSOSRealtime } from "@/lib/univans-db";
+import { useAlertasSOS, useAtualizarStatusSOS, useAlertasSOSRealtime } from "@/lib/partiu-db";
 
 export const Route = createFileRoute("/app/admin/sos")({
   head: () => ({
     meta: [
-      { title: "Central de Incidentes SOS | Painel Admin" },
+      { title: "Central de Incidentes SOS | PARTIU Admin" },
       {
         name: "description",
         content:
-          "Monitoramento em tempo real de chamados de emergência, socorro mecânico e segurança na rodovia.",
+          "Monitoramento em tempo real de chamados de emergência, suporte ao condutor e segurança urbana.",
       },
     ],
   }),
@@ -174,7 +174,7 @@ export function AdminSOSPage() {
                 )}
               </div>
 
-              {/* Ações do Gestor da Cooperativa */}
+              {/* Ações da Central de Segurança PARTIU */}
               <div className="flex flex-col gap-2 pt-2 border-t border-border/40">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <a
@@ -207,12 +207,12 @@ export function AdminSOSPage() {
                     onClick={() => {
                       alterarStatus(item.id, "em_atendimento");
                       alert(
-                        `🚨 Resgate Acionado! A van vazia mais próxima foi notificada via Starlink e está se deslocando para ${item.rodovia}.`,
+                        `🚨 Apoio Acionado! A base operacional e condutores parceiros próximos foram notificados para auxílio em ${item.rodovia}.`,
                       );
                     }}
-                    className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black shadow-md transition-all active:scale-[0.99]"
+                    className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#FFDE00] hover:bg-[#ffe338] text-slate-950 text-xs font-black shadow-md transition-all active:scale-[0.99]"
                   >
-                    <Truck className="h-4 w-4" /> Despachar Van Mais Próxima para Apoio/Resgate
+                    <ShieldAlert className="h-4 w-4" /> Acionar Apoio de Campo & Resgate
                   </button>
                 )}
               </div>

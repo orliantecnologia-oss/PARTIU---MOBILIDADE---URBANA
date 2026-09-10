@@ -20,6 +20,8 @@ import {
   obterNotificacoesParaCategoria,
 } from "@/lib/broadcast-notifications";
 import { getBeneficiarioGratuidade } from "@/lib/passagens-store";
+import { silentCatchWarn } from "@/lib/structured-logger";
+
 
 function tocarSinalNotificacao() {
   try {
@@ -37,9 +39,7 @@ function tocarSinalNotificacao() {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.35);
-  } catch {
-    // Silencioso se bloqueado por autoplay policy
-  }
+  } catch (err) { silentCatchWarn("BroadcastNotificationListener", err); }
 }
 
 export function BroadcastNotificationListener() {
@@ -81,8 +81,10 @@ export function BroadcastNotificationListener() {
       }
     }
 
+    window.addEventListener("partiu:nova_notificacao_broadcast", handleNovaNotificacao);
     window.addEventListener("univans:nova_notificacao_broadcast", handleNovaNotificacao);
     return () => {
+      window.removeEventListener("partiu:nova_notificacao_broadcast", handleNovaNotificacao);
       window.removeEventListener("univans:nova_notificacao_broadcast", handleNovaNotificacao);
     };
   }, [detectarCategoriaAtual]);
@@ -96,22 +98,27 @@ export function BroadcastNotificationListener() {
       // Exibe a mais recente
       const maisRecente = naoLidas[0];
       if (maisRecente) {
-        const visualizadaNaSessao = sessionStorage.getItem(`univans_visto_${maisRecente.id}`);
+        const visualizadaNaSessao = sessionStorage.getItem(`partiu_visto_${maisRecente.id}`);
         if (!visualizadaNaSessao) {
           setNotificacaoAtiva(maisRecente);
-          sessionStorage.setItem(`univans_visto_${maisRecente.id}`, "true");
+          sessionStorage.setItem(`partiu_visto_${maisRecente.id}`, "true");
         }
       }
     }
   }, [detectarCategoriaAtual]);
+
+  // No fluxo principal de corridas e encomendas, notificações são acessadas pelo sino do cabeçalho
+  // Nunca sobrepor modais intrusivos durante a definição de rota e solicitação de corrida
+  const isPassengerFlow = pathname === "/app" || pathname === "/app/" || pathname.startsWith("/app/encomendas");
+  if (isPassengerFlow) return null;
 
   if (!notificacaoAtiva) return null;
 
   function handleFechar() {
     if (notificacaoAtiva) {
       marcarNotificacaoComoLida(notificacaoAtiva.id);
+      setNotificacaoAtiva(null);
     }
-    setNotificacaoAtiva(null);
   }
 
   function handleAcessar() {
@@ -127,10 +134,10 @@ export function BroadcastNotificationListener() {
     CategoriaDestinatario,
     { label: string; bg: string; text: string }
   > = {
-    todos: { label: "COMUNICADO GERAL", bg: "bg-slate-800", text: "text-slate-100" },
-    usuario: { label: "PASSAGEIROS UNIVANS", bg: "bg-emerald-700", text: "text-white" },
-    gratis: { label: "PASSE LIVRE & GRATUIDADE", bg: "bg-indigo-700", text: "text-white" },
-    motorista: { label: "EXCLUSIVO MOTORISTAS", bg: "bg-amber-600", text: "text-white" },
+    todos: { label: "COMUNICADO GERAL", bg: "bg-slate-800", text: "text-slate-100 font-black" },
+    usuario: { label: "PASSAGEIROS PARTIU", bg: "bg-[#FFDE00]", text: "text-slate-950 font-black" },
+    gratis: { label: "CUPONS & BENEFÍCIOS", bg: "bg-emerald-500", text: "text-slate-950 font-black" },
+    motorista: { label: "CONDUTORES & ENTREGADORES", bg: "bg-cyan-400", text: "text-slate-950 font-black" },
   };
 
   const estilosUrgencia = {

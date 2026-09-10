@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 🔔 UNIVANS WEB PUSH NOTIFICATION ENGINE
+ * 🔔 PARTIU WEB PUSH NOTIFICATION ENGINE
  * Gerenciamento de Permissões, Service Worker e Disparos de Notificações Push
  * ==============================================================================
  */
@@ -119,7 +119,7 @@ export async function dispararNotificacaoPush({
   corpo,
   rota = "/app/bilhetes",
   icone = "/icon-192.png",
-  tag = "univans-push",
+  tag = "partiu-push",
 }: OpcoesNotificacao): Promise<boolean> {
   if (typeof window === "undefined" || !("Notification" in window)) {
     return false;

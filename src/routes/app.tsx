@@ -19,8 +19,8 @@ export const Route = createFileRoute("/app")({
     }
 
     // Suporte a Acesso Demo Local para testes imediatos
-    if (typeof window !== "undefined" && localStorage.getItem("univans_demo_user") === "true") {
-      return { user: { id: "demo-user-1", email: "admin@univans.com.br" } };
+    if (typeof window !== "undefined" && localStorage.getItem("partiu_demo_user") === "true") {
+      return { user: { id: "demo-user-1", email: "demo@partiu.app.br" } };
     }
 
     try {
@@ -68,8 +68,8 @@ function AppLayout() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background w-full flex flex-col relative">
-      <div className="w-full flex-1 px-1.5 sm:px-2 pb-[calc(6rem+env(safe-area-inset-bottom,0px))]">
+    <div className="h-[100dvh] max-h-[100dvh] bg-slate-100 dark:bg-slate-950 w-full flex flex-col relative overflow-hidden">
+      <div className="w-full flex-1 min-h-0 flex flex-col">
         <Outlet />
       </div>
       <BottomNav />

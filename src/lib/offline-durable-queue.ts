@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * ⛓️ UNIVANS OFFLINE DURABLE QUEUE & CRYPTO HASH CHAIN ENGINE (v3.4)
+ * ⛓️ PARTIU OFFLINE DURABLE QUEUE & CRYPTO HASH CHAIN ENGINE (v3.4)
  * Encadeamento Criptográfico Monotônico, Detecção de Gaps de Sequência e Protocolo ACK
  * ==============================================================================
  */
@@ -31,14 +31,17 @@ export interface DurableOfflineEvent<T = unknown> {
   conflictReason?: string | undefined;
 }
 
-const STORAGE_DURABLE_QUEUE_KEY = "univans_durable_offline_event_queue_v3_4";
-const MAX_DURABLE_EVENTS = 2000;
+const STORAGE_DURABLE_QUEUE_KEY = "partiu_durable_offline_event_queue_v3_4";
+const LEGACY_STORAGE_DURABLE_QUEUE_KEY = "univans_durable_offline_event_queue_v3_4";
+const MAX_DURABLE_EVENTS = 1000;
+const MAX_STORAGE_EVENTS = 100; // Limite seguro para localStorage móvel sem travar a UI thread
 const MEMORY_DURABLE_QUEUE: DurableOfflineEvent[] = [];
+let debounceStorageTimer: any = null;
 
 export function getDurableEventQueue(): DurableOfflineEvent[] {
   if (typeof window !== "undefined") {
     try {
-      const raw = localStorage.getItem(STORAGE_DURABLE_QUEUE_KEY);
+      const raw = localStorage.getItem(STORAGE_DURABLE_QUEUE_KEY) || localStorage.getItem(LEGACY_STORAGE_DURABLE_QUEUE_KEY);
       return raw ? JSON.parse(raw) : MEMORY_DURABLE_QUEUE;
     } catch {
       return MEMORY_DURABLE_QUEUE;
@@ -50,17 +53,21 @@ export function getDurableEventQueue(): DurableOfflineEvent[] {
 export function saveDurableEventQueue(queue: DurableOfflineEvent[]) {
   if (MEMORY_DURABLE_QUEUE !== queue) {
     MEMORY_DURABLE_QUEUE.length = 0;
-    MEMORY_DURABLE_QUEUE.push(...queue);
+    MEMORY_DURABLE_QUEUE.push(...queue.slice(-MAX_DURABLE_EVENTS));
   }
   if (typeof window !== "undefined") {
-    try {
-      localStorage.setItem(
-        STORAGE_DURABLE_QUEUE_KEY,
-        JSON.stringify(queue.slice(-MAX_DURABLE_EVENTS)),
-      );
-    } catch (e) {
-      console.error("Erro ao salvar Fila Durável Offline:", e);
-    }
+    // Throttled debounce para não travar a main thread durante streaming intenso de GPS
+    if (debounceStorageTimer) clearTimeout(debounceStorageTimer);
+    debounceStorageTimer = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          STORAGE_DURABLE_QUEUE_KEY,
+          JSON.stringify(MEMORY_DURABLE_QUEUE.slice(-MAX_STORAGE_EVENTS)),
+        );
+      } catch (e) {
+        console.warn("[OfflineQueue] Quota protegida, mantendo fila prioritária em memória:", e);
+      }
+    }, 150);
   }
 }
 

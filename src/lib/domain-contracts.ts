@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 📑 UNIVANS TRANSPORT OPERATING SYSTEM (TOS) — DOMAIN CONTRACTS (v3.2)
+ * 📑 PARTIU MOBILIDADE URBANA & ENTREGAS — DOMAIN CONTRACTS (v3.2)
  * Catálogo de Códigos de Erro, Source of Truth Matrix e Contratos de Eventos
  * ==============================================================================
  */
@@ -54,12 +54,12 @@ export function createDomainError(
 
 // 2. SOURCE OF TRUTH MATRIX
 export const SOURCE_OF_TRUTH_MATRIX = {
-  PAYMENT: "PSP (Gateway) + Backend UniVans",
-  TICKET: "Backend UniVans (PostgreSQL Database)",
+  PAYMENT: "PSP (Gateway) + Backend PARTIU",
+  TICKET: "Backend PARTIU (PostgreSQL Database)",
   OFFLINE_VALIDATION: "Primária: Dispositivo Autorizado | Definitiva: Backend após Sincronização",
   GPS_TELEMETRY: "Primária: Dispositivo/IoT Autorizado | Persistência: PostGIS",
-  TRIP_STATUS: "Backend UniVans (State Machine)",
-  VEHICLE_STATE: "Backend UniVans + Eventos de Telemetria",
+  TRIP_STATUS: "Backend PARTIU (State Machine)",
+  VEHICLE_STATE: "Backend PARTIU + Eventos de Telemetria",
   FINANCIAL_LEDGER: "Ledger Financeiro Imutável (Double-Entry Journal)",
   USER_IDENTITY: "Supabase Auth / Sistema de Identidade",
   AUTHORIZATION: "RBAC Multi-Tenant Engine (Row Level Security)",
@@ -112,7 +112,7 @@ export function createDomainEvent<T>(
     eventType,
     version: "3.2.0",
     occurredAt: new Date().toISOString(),
-    producer: "univans-core-backend",
+    producer: "partiu-core-backend",
     organizationId,
     aggregateType,
     aggregateId,

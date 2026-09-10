@@ -68,10 +68,22 @@ export interface PagamentoPendente {
   expiraEm: string; // ISO string
 }
 
+const STORAGE_BILHETES = "partiu_bilhetes_passageiro";
+const LEGACY_STORAGE_BILHETES = "univans_bilhetes_passageiro";
+
+const STORAGE_PENDENCIAS = "partiu_pendencias_passageiro";
+const LEGACY_STORAGE_PENDENCIAS = "univans_pendencias_passageiro";
+
+const STORAGE_HISTORICO_TOTEM = "partiu_historico_embarques_totem";
+const LEGACY_STORAGE_HISTORICO_TOTEM = "univans_historico_embarques_totem";
+
+const STORAGE_BENEFICIARIO = "partiu_beneficiario_gratuidade";
+const LEGACY_STORAGE_BENEFICIARIO = "univans_beneficiario_gratuidade";
+
 const BILHETE_PADRAO: BilhetePassagem = {
-  id: "CVAN-884192",
+  id: "PARTIU-884192",
   linhaId: "1",
-  origem: "Maceió (Terminal)",
+  origem: "Maceió (Centro)",
   destino: "Arapiraca (Rodoviária)",
   dataViagem: "Hoje",
   horarioSaida: "14:30",
@@ -85,13 +97,13 @@ const BILHETE_PADRAO: BilhetePassagem = {
   status: "confirmado",
   pontoEmbarque: "Maceió • Trevo do Tabuleiro",
   pontoEmbarqueReferencia: "Av. Fernandes Lima (Antigo Makro)",
-  vanModelo: "Mercedes Sprinter VIP Executiva",
+  vanModelo: "Toyota Corolla (Partiu Pop)",
   vanPlaca: "RJP-2F14",
   motoristaNome: "Carlos Eduardo Santos",
   motoristaFoto:
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  starlinkWifi: "UniVans_Starlink_01",
-  codigoQr: "CVAN-884192-MACEIO-ARAPIRACA-1PASS",
+  starlinkWifi: "PARTIU_Wifi_01",
+  codigoQr: "PARTIU-884192-MACEIO-ARAPIRACA-1PASS",
   criadoEm: new Date().toISOString(),
 };
 
@@ -108,25 +120,24 @@ const PENDENCIA_INICIAL: PagamentoPendente = {
   quantidadePassagens: 2,
   valorTotal: 76.0,
   chavePix:
-    "00020126580014br.gov.bcb.pix0136univans-pix-checkout-8841925204000053039865802BR5925UNIVANS COOP ALAGOAS AL6009MACEIO62070503***6304E8A2",
+    "00020126580014br.gov.bcb.pix0136partiu-pix-checkout-8841925204000053039865802BR5920PARTIU MOBILIDADE BR6009MACEIO62070503***6304E8A2",
   passageiroNome: "Maria Clara Albuquerque",
   passageiroWhatsApp: "(82) 99841-2940",
   passageiroCpf: "084.129.414-88",
-  vanModelo: "Mercedes Sprinter VIP Executiva",
+  vanModelo: "Toyota Corolla (Partiu Pop)",
   vanPlaca: "RJP-2F14",
   motoristaNome: "Carlos Eduardo Santos",
   motoristaFoto:
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  starlinkWifi: "UniVans_Starlink_01",
+  starlinkWifi: "PARTIU_Wifi_01",
   criadoEm: new Date().toISOString(),
-  // Expira em 15 minutos a partir de agora
   expiraEm: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
 };
 
 export function getBilhetesPassagens(): BilhetePassagem[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = localStorage.getItem("univans_bilhetes_passageiro");
+    const raw = localStorage.getItem(STORAGE_BILHETES) || localStorage.getItem(LEGACY_STORAGE_BILHETES);
     if (!raw) {
       return [];
     }
@@ -139,13 +150,12 @@ export function getBilhetesPassagens(): BilhetePassagem[] {
 /**
  * 🔒 REGRA DE SEGURANÇA E ACESSO AO RADAR EM TEMPO REAL:
  * Apenas passageiros com ao menos uma passagem ativa (confirmada ou em trânsito)
- * têm permissão para rastrear a van em movimento ao vivo.
+ * têm permissão para rastrear o veículo em movimento ao vivo.
  */
 export function temPassagemAtivaParaRadar(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    // Permitir motorista ou superadmin ver o radar irrestritamente
-    const tipoUser = localStorage.getItem("univans_user_tipo");
+    const tipoUser = localStorage.getItem("partiu_user_tipo") || localStorage.getItem("univans_user_tipo");
     if (tipoUser === "motorista" || tipoUser === "admin" || tipoUser === "superadmin") {
       return true;
     }
@@ -168,7 +178,7 @@ export function salvarNovoBilhete(
     novo.id ||
     (novo.formaPagamento === "GRATUIDADE_GOV"
       ? "CGOV-" + Math.floor(100000 + Math.random() * 900000)
-      : "CVAN-" + Math.floor(100000 + Math.random() * 900000));
+      : "PARTIU-" + Math.floor(100000 + Math.random() * 900000));
 
   const bilheteCompleto: BilhetePassagem = {
     ...novo,
@@ -184,7 +194,7 @@ export function salvarNovoBilhete(
     try {
       const atuais = getBilhetesPassagens();
       const atualizados = [bilheteCompleto, ...atuais];
-      localStorage.setItem("univans_bilhetes_passageiro", JSON.stringify(atualizados));
+      localStorage.setItem(STORAGE_BILHETES, JSON.stringify(atualizados));
     } catch (e) {
       console.error("Erro ao salvar bilhete no localStorage:", e);
     }
@@ -196,7 +206,7 @@ export function salvarNovoBilhete(
 export function getBeneficiarioGratuidade(): BeneficiarioGratuidadeGov | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = localStorage.getItem("univans_beneficiario_gratuidade");
+    const raw = localStorage.getItem(STORAGE_BENEFICIARIO) || localStorage.getItem(LEGACY_STORAGE_BENEFICIARIO);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -213,9 +223,9 @@ export function salvarBeneficiarioGratuidade(
   };
   if (typeof window !== "undefined") {
     try {
-      localStorage.setItem("univans_beneficiario_gratuidade", JSON.stringify(beneficiario));
-      localStorage.setItem("univans_user_tipo", "beneficiario_gratuidade");
-      localStorage.setItem("univans_user_nome", dados.nome);
+      localStorage.setItem(STORAGE_BENEFICIARIO, JSON.stringify(beneficiario));
+      localStorage.setItem("partiu_user_tipo", "beneficiario_gratuidade");
+      localStorage.setItem("partiu_user_nome", dados.nome);
     } catch (e) {
       console.error("Erro ao salvar beneficiário:", e);
     }
@@ -225,7 +235,6 @@ export function salvarBeneficiarioGratuidade(
 
 /**
  * Conta quantas gratuidades foram emitidas para uma rota e data específica.
- * A lei estipula cota máxima de 2 assentos gratuitos por van.
  */
 export function contarGratuidadesNaViagem(
   linhaId: string,
@@ -262,7 +271,7 @@ export function confirmarPresencaPassagem(bilheteId: string): BilhetePassagem[] 
       }
       return b;
     });
-    localStorage.setItem("univans_bilhetes_passageiro", JSON.stringify(atualizados));
+    localStorage.setItem(STORAGE_BILHETES, JSON.stringify(atualizados));
     return atualizados;
   } catch {
     return [];
@@ -274,7 +283,7 @@ export function excluirBilhete(bilheteId: string): BilhetePassagem[] {
   try {
     const atuais = getBilhetesPassagens();
     const atualizados = atuais.filter((b) => b.id !== bilheteId);
-    localStorage.setItem("univans_bilhetes_passageiro", JSON.stringify(atualizados));
+    localStorage.setItem(STORAGE_BILHETES, JSON.stringify(atualizados));
     return atualizados;
   } catch {
     return [];
@@ -284,9 +293,12 @@ export function excluirBilhete(bilheteId: string): BilhetePassagem[] {
 export function limparTodosBilhetes(): BilhetePassagem[] {
   if (typeof window === "undefined") return [];
   try {
-    localStorage.removeItem("univans_bilhetes_passageiro");
-    localStorage.removeItem("univans_pendencias_passageiro");
-    localStorage.removeItem("univans_historico_embarques_totem");
+    localStorage.removeItem(STORAGE_BILHETES);
+    localStorage.removeItem(LEGACY_STORAGE_BILHETES);
+    localStorage.removeItem(STORAGE_PENDENCIAS);
+    localStorage.removeItem(LEGACY_STORAGE_PENDENCIAS);
+    localStorage.removeItem(STORAGE_HISTORICO_TOTEM);
+    localStorage.removeItem(LEGACY_STORAGE_HISTORICO_TOTEM);
     return [];
   } catch {
     return [];
@@ -294,8 +306,7 @@ export function limparTodosBilhetes(): BilhetePassagem[] {
 }
 
 /**
- * 📲 VALIDAÇÃO DE PASSAGEM DE USO ÚNICO VIA TOTEM/QR DA VAN
- * O passageiro lê o QR Code gerado no celular do motorista e valida seu bilhete.
+ * 📲 VALIDAÇÃO DE PASSAGEM DE USO ÚNICO VIA QR CODE
  */
 export interface ResultadoEmbarqueVan {
   sucesso: boolean;
@@ -321,7 +332,6 @@ export function validarEmbarquePeloQRDaVan(
       : atuais.find((b) => b.status === "confirmado");
 
     if (!bilhete) {
-      // Se não encontrou confirmado, verifica se já está embarcado
       const jaEmbarcado = bilheteIdEspecifico
         ? atuais.find((b) => b.id === bilheteIdEspecifico && b.status === "embarcado")
         : atuais.find((b) => b.status === "embarcado");
@@ -337,7 +347,7 @@ export function validarEmbarquePeloQRDaVan(
 
       return {
         sucesso: false,
-        mensagem: "Nenhum bilhete ativo encontrado para esta van.",
+        mensagem: "Nenhum bilhete ativo encontrado para este veículo.",
       };
     }
 
@@ -345,7 +355,7 @@ export function validarEmbarquePeloQRDaVan(
       return {
         sucesso: false,
         jaUtilizado: true,
-        mensagem: "BILHETE JÁ UTILIZADO! Uso único já consumido para este assento.",
+        mensagem: "BILHETE JÁ UTILIZADO! Uso único já consumido.",
         bilhete,
       };
     }
@@ -360,25 +370,24 @@ export function validarEmbarquePeloQRDaVan(
     };
 
     const atualizados = atuais.map((b) => (b.id === bilhete.id ? bilheteAtualizado : b));
-    localStorage.setItem("univans_bilhetes_passageiro", JSON.stringify(atualizados));
+    localStorage.setItem(STORAGE_BILHETES, JSON.stringify(atualizados));
 
-    // Notificar o cockpit do motorista em tempo real via evento local
-    const eventoEmbarque = new CustomEvent("univans:embarque-confirmado", {
-      detail: {
-        bilheteId: bilheteAtualizado.id,
-        passageiroNome: bilheteAtualizado.passageiroNome,
-        quantidade: bilheteAtualizado.quantidadePassagens,
-        valorTotal: bilheteAtualizado.valorTotal,
-        pontoEmbarque: bilheteAtualizado.pontoEmbarque,
-        horario: new Date().toLocaleTimeString("pt-BR"),
-        qrPayloadVan,
-      },
-    });
-    window.dispatchEvent(eventoEmbarque);
+    // Notificar motorista e passageiro em tempo real via eventos locais
+    const eventDetail = {
+      bilheteId: bilheteAtualizado.id,
+      passageiroNome: bilheteAtualizado.passageiroNome,
+      quantidade: bilheteAtualizado.quantidadePassagens,
+      valorTotal: bilheteAtualizado.valorTotal,
+      pontoEmbarque: bilheteAtualizado.pontoEmbarque,
+      horario: new Date().toLocaleTimeString("pt-BR"),
+      qrPayloadVan,
+    };
+    window.dispatchEvent(new CustomEvent("partiu:embarque-confirmado", { detail: eventDetail }));
+    window.dispatchEvent(new CustomEvent("univans:embarque-confirmado", { detail: eventDetail }));
 
     // Também salvar no histórico para persistência
     const historicoEmbarques = JSON.parse(
-      localStorage.getItem("univans_historico_embarques_totem") || "[]",
+      localStorage.getItem(STORAGE_HISTORICO_TOTEM) || localStorage.getItem(LEGACY_STORAGE_HISTORICO_TOTEM) || "[]",
     );
     historicoEmbarques.unshift({
       id: "emb-" + Date.now(),
@@ -387,7 +396,7 @@ export function validarEmbarquePeloQRDaVan(
       timestamp: agoraIso,
     });
     localStorage.setItem(
-      "univans_historico_embarques_totem",
+      STORAGE_HISTORICO_TOTEM,
       JSON.stringify(historicoEmbarques.slice(0, 50)),
     );
 
@@ -406,19 +415,17 @@ export function validarEmbarquePeloQRDaVan(
 
 /**
  * ⏱️ MOTOR DE GESTÃO & LIMPEZA AUTOMÁTICA DE PAGAMENTOS PENDENTES
- * Passagens cujo PIX expirou ou cujo horário de saída da van já passou são
- * IMEDIATAMENTE REMOVIDAS para não poluir a aba de pendências.
  */
 export function getPendenciasAtivas(): PagamentoPendente[] {
   if (typeof window === "undefined") return [PENDENCIA_INICIAL];
 
   try {
-    const raw = localStorage.getItem("univans_pendencias_passageiro");
+    const raw = localStorage.getItem(STORAGE_PENDENCIAS) || localStorage.getItem(LEGACY_STORAGE_PENDENCIAS);
     let lista: PagamentoPendente[] = [];
 
     if (!raw) {
       lista = [PENDENCIA_INICIAL];
-      localStorage.setItem("univans_pendencias_passageiro", JSON.stringify(lista));
+      localStorage.setItem(STORAGE_PENDENCIAS, JSON.stringify(lista));
     } else {
       lista = JSON.parse(raw);
     }
@@ -431,9 +438,8 @@ export function getPendenciasAtivas(): PagamentoPendente[] {
       return expiraTimestamp > agora;
     });
 
-    // Se houve itens expirados excluídos, atualiza o localStorage imediatamente
     if (validas.length !== lista.length) {
-      localStorage.setItem("univans_pendencias_passageiro", JSON.stringify(validas));
+      localStorage.setItem(STORAGE_PENDENCIAS, JSON.stringify(validas));
     }
 
     return validas;
@@ -461,7 +467,7 @@ export function salvarNovaPendencia(
     try {
       const atuais = getPendenciasAtivas();
       const atualizadas = [nova, ...atuais];
-      localStorage.setItem("univans_pendencias_passageiro", JSON.stringify(atualizadas));
+      localStorage.setItem(STORAGE_PENDENCIAS, JSON.stringify(atualizadas));
     } catch (e) {
       console.error("Erro ao salvar pendência no localStorage:", e);
     }
@@ -475,7 +481,7 @@ export function removerPendencia(id: string): PagamentoPendente[] {
   try {
     const atuais = getPendenciasAtivas();
     const filtradas = atuais.filter((p) => p.id !== id);
-    localStorage.setItem("univans_pendencias_passageiro", JSON.stringify(filtradas));
+    localStorage.setItem(STORAGE_PENDENCIAS, JSON.stringify(filtradas));
     return filtradas;
   } catch {
     return [];
@@ -484,9 +490,10 @@ export function removerPendencia(id: string): PagamentoPendente[] {
 
 export function confirmarPagamentoPendencia(id: string): BilhetePassagem | null {
   if (typeof window === "undefined") return null;
+
   try {
-    const atuais = getPendenciasAtivas();
-    const pendencia = atuais.find((p) => p.id === id);
+    const pendencias = getPendenciasAtivas();
+    const pendencia = pendencias.find((p) => p.id === id);
     if (!pendencia) return null;
 
     // 1. Criar o bilhete oficial confirmado

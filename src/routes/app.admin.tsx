@@ -1,40 +1,24 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import {
-  BarChart3,
   Bell,
-  BellRing,
-  CheckCircle2,
+  Car,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   CreditCard,
   Crown,
   DollarSign,
-  ExternalLink,
-  History,
-  Image,
   Key,
-  Layers,
   LayoutDashboard,
-  Lock,
   LogOut,
-  MapPin,
+  Megaphone,
   Menu,
-  Package,
   PanelLeftClose,
   PanelLeftOpen,
   Radio,
-  Search,
-  ShieldAlert,
-  ShieldCheck,
-  ShoppingBag,
   Sliders,
   Sparkles,
-  Truck,
   UserCheck,
   Users,
-  Wifi,
   X,
   Zap,
 } from "lucide-react";
@@ -42,13 +26,14 @@ import {
   getAdminRole,
   setAdminRole,
   getRoleMetadata,
-  isOwner,
   isAutenticadoAdmin,
   logoutAdmin,
   getContaAtiva,
   atualizarCredenciaisContaAtiva,
+  canAccessModule,
   type AdminRole,
   type AdminAccount,
+  type AdminModuleId,
 } from "@/lib/admin-rbac";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -62,125 +47,77 @@ interface ItemMenuAdmin {
   label: string;
   icon: any;
   exact: boolean;
-  badge?: string | undefined;
-  exclusivoOwner?: boolean;
-}
-
-interface GrupoMenuAdmin {
-  id: string;
-  titulo: string;
-  exclusivoOwner?: boolean;
-  itens: ItemMenuAdmin[];
+  badge?: string;
+  moduleId: AdminModuleId;
+  descricao: string;
 }
 
 /**
- * 🏛️ ESTRUTURA PROFISSIONAL DE NAVEGAÇÃO REORGANIZADA
- * Separação: VISÃO GERAL → OPERAÇÃO → CADASTROS & FROTA → APLICATIVO → CONFIGURAÇÕES → FINANCEIRO (OWNER) → GOVERNANÇA (OWNER)
+ * 🏛️ CENTRAL DE OPERAÇÕES NACIONAL PARTIU — ESTRUTURA OFICIAL V4
+ * Estritamente 6 Módulos Operacionais Principais (Padrão Uber / 99 / Stripe)
  */
-const gruposMenuBase: GrupoMenuAdmin[] = [
+const MENU_PRINCIPAL: ItemMenuAdmin[] = [
   {
-    id: "visao_geral",
-    titulo: "Visão Geral",
-    itens: [{ to: "/app/admin", label: "Dashboard", icon: LayoutDashboard, exact: true }],
+    to: "/app/admin",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    exact: true,
+    moduleId: "dashboard",
+    descricao: "Centro nervoso & Mapa em tempo real",
   },
   {
-    id: "operacao",
-    titulo: "Operação & Satélite",
-    itens: [
-      {
-        to: "/app/admin/monitoramento",
-        label: "Radar GPS & Starlink",
-        icon: Radio,
-        exact: false,
-        badge: "Ao Vivo",
-      },
-      { to: "/app/admin/sos", label: "Central SOS & Rodovia", icon: ShieldAlert, exact: false },
-      { to: "/app/admin/despacho", label: "Cargas & Despacho (PIN)", icon: Package, exact: false },
-      { to: "/app/admin/historico", label: "Histórico de Rotas", icon: History, exact: false },
-    ],
+    to: "/app/admin/operacao",
+    label: "Operação",
+    icon: Radio,
+    exact: false,
+    badge: "Ao Vivo",
+    moduleId: "operacao",
+    descricao: "Corridas, Entregas & Fila SOS",
   },
   {
-    id: "cadastros_frota",
-    titulo: "Cadastros & Frota",
-    itens: [
-      {
-        to: "/app/admin/passageiros",
-        label: "Passageiros & Passe Livre",
-        icon: UserCheck,
-        exact: false,
-      },
-      { to: "/app/admin/motoristas", label: "Motoristas Cooperados", icon: Users, exact: false },
-      { to: "/app/admin/frota", label: "Vans & Vistorias", icon: Truck, exact: false },
-      { to: "/app/admin/linhas", label: "Linhas & Rotas", icon: MapPin, exact: false },
-      { to: "/app/admin/pontos", label: "Trevos & Pontos", icon: Layers, exact: false },
-      {
-        to: "/app/admin/aprovacoes",
-        label: "Aprovações Pendentes",
-        icon: CheckCircle2,
-        exact: false,
-        badge: "Fila",
-      },
-    ],
+    to: "/app/admin/motoristas",
+    label: "Motoristas",
+    icon: Users,
+    exact: false,
+    badge: "Carro/Moto",
+    moduleId: "motoristas",
+    descricao: "Frota & Aprovação Inteligente",
   },
   {
-    id: "app_experiencia",
-    titulo: "Experiência do App",
-    itens: [
-      {
-        to: "/app/admin/banners",
-        label: "Banners & Comunicados",
-        icon: Image,
-        exact: false,
-        badge: "CMS",
-      },
-      {
-        to: "/app/admin/notificacoes",
-        label: "Disparo de Notificações",
-        icon: BellRing,
-        exact: false,
-        badge: "Push",
-      },
-      {
-        to: "/app/admin/afiliados",
-        label: "Afiliados & Campanhas",
-        icon: ShoppingBag,
-        exact: false,
-      },
-    ],
+    to: "/app/admin/financeiro",
+    label: "Financeiro",
+    icon: DollarSign,
+    exact: false,
+    badge: "D+0",
+    moduleId: "financeiro",
+    descricao: "Consolidado, Diárias SaaS & Tarifas",
   },
   {
-    id: "configuracoes",
-    titulo: "Configurações",
-    itens: [
-      {
-        to: "/app/admin/configuracoes",
-        label: "Parâmetros Operacionais",
-        icon: Sliders,
-        exact: false,
-      },
-    ],
+    to: "/app/admin/marketing",
+    label: "Marketing",
+    icon: Megaphone,
+    exact: false,
+    badge: "CMS",
+    moduleId: "marketing",
+    descricao: "Banners Mobile, Cupons & Push",
   },
   {
-    id: "financeiro_owner",
-    titulo: "Financeiro & Splits",
-    exclusivoOwner: true,
-    itens: [
-      {
-        to: "/app/admin/financeiro",
-        label: "Centro Financeiro & Splits",
-        icon: CreditCard,
-        exact: false,
-        exclusivoOwner: true,
-      },
-      {
-        to: "/app/admin/caixa",
-        label: "Fechamento de Caixa",
-        icon: DollarSign,
-        exact: false,
-        exclusivoOwner: true,
-      },
-    ],
+    to: "/app/admin/configuracoes",
+    label: "Configurações",
+    icon: Sliders,
+    exact: false,
+    badge: "White Label",
+    moduleId: "configuracoes",
+    descricao: "Modo Essencial & Assistente de Cidades",
   },
+];
+
+const ROLES_DISPONIVEIS: { id: AdminRole; label: string; badge: string }[] = [
+  { id: "super_admin", label: "Super Admin", badge: "bg-amber-500 text-slate-950" },
+  { id: "admin", label: "Administrador", badge: "bg-blue-600 text-white" },
+  { id: "franqueado", label: "Franqueado", badge: "bg-indigo-600 text-white" },
+  { id: "operador", label: "Operador", badge: "bg-emerald-600 text-white" },
+  { id: "suporte", label: "Suporte / SOS", badge: "bg-rose-600 text-white" },
 ];
 
 export function SuperAdminLayout() {
@@ -198,20 +135,12 @@ export function SuperAdminLayout() {
 
   const [menuAbertoMobile, setMenuAbertoMobile] = useState(false);
   const [recolhido, setRecolhido] = useState(false);
-  const [categoriasAbertas, setCategoriasAbertas] = useState<Record<string, boolean>>({
-    visao_geral: true,
-    operacao: true,
-    cadastros_frota: true,
-    app_experiencia: true,
-    configuracoes: true,
-    financeiro_owner: true,
-  });
 
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const href = pathname;
   const isLoginRoute = pathname === "/app/admin/login" || pathname.startsWith("/app/admin/login");
 
-  // 1. Proteger rotas filhas do Admin se não for a rota de login
+  // Proteger rotas filhas do Admin se não for a rota de login
   useEffect(() => {
     if (!isLoginRoute && !isAutenticadoAdmin()) {
       void navigate({ to: "/app/admin/login" });
@@ -229,11 +158,11 @@ export function SuperAdminLayout() {
     function onAccountChange() {
       setContaAtiva(getContaAtiva());
     }
-    window.addEventListener("univans:role-changed", onRoleChange);
-    window.addEventListener("univans:account-updated", onAccountChange);
+    window.addEventListener("partiu:role-changed", onRoleChange);
+    window.addEventListener("partiu:account-updated", onAccountChange);
     return () => {
-      window.removeEventListener("univans:role-changed", onRoleChange);
-      window.removeEventListener("univans:account-updated", onAccountChange);
+      window.removeEventListener("partiu:role-changed", onRoleChange);
+      window.removeEventListener("partiu:account-updated", onAccountChange);
     };
   }, []);
 
@@ -265,529 +194,413 @@ export function SuperAdminLayout() {
       setMensagemConta({ tipo: "erro", texto: res.mensagem });
       return;
     }
-    setMensagemConta({ tipo: "sucesso", texto: "Credenciais e dados atualizados com sucesso!" });
+    setMensagemConta({ tipo: "sucesso", texto: "Credenciais atualizadas com sucesso!" });
     setContaAtiva(getContaAtiva());
     setTimeout(() => {
       setModalContaAberto(false);
     }, 1200);
   }
 
-  function toggleCategoria(id: string) {
-    setCategoriasAbertas((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  }
-
   const roleMeta = getRoleMetadata(roleAtiva);
 
-  // Filtrar grupos e itens de menu de acordo com a hierarquia RBAC
-  const gruposMenuFiltrados = gruposMenuBase
-    .filter((grupo) => {
-      // Se for grupo exclusivo do OWNER, só exibe para OWNER
-      if (grupo.exclusivoOwner && roleAtiva !== "OWNER") {
-        return false;
-      }
-      return true;
-    })
-    .map((grupo) => ({
-      ...grupo,
-      itens: grupo.itens.filter((item) => {
-        if (item.exclusivoOwner && roleAtiva !== "OWNER") {
-          return false;
-        }
-        return true;
-      }),
-    }));
+  // Filtrar estritamente os módulos autorizados para o perfil ativo
+  const menuFiltrado = MENU_PRINCIPAL.filter((item) => canAccessModule(item.moduleId, roleAtiva));
 
-  // Se estiver na tela de login, renderiza apenas a tela limpa sem sidebar/topbar
   if (isLoginRoute) {
     return <Outlet />;
   }
 
   return (
-    <div className="min-h-screen w-full bg-[#f8faf9] flex flex-col md:flex-row text-slate-900">
-      {/* 1. Sidebar Fixa no Desktop com Botão de Recolher e Barra de Rolagem */}
+    <div className="min-h-screen w-full bg-[#f8faf9] flex flex-col md:flex-row text-slate-900 font-sans">
+      {/* 1. Sidebar Fixa no Desktop (6 Módulos Oficiais) */}
       <aside
         className={`hidden md:flex flex-col justify-between bg-slate-950 text-white border-r border-slate-800 shrink-0 sticky top-0 h-screen transition-all duration-300 z-40 ${
           recolhido ? "w-20 p-2.5" : "w-64 lg:w-72 p-4"
         }`}
       >
         <div className="space-y-4 flex-1 flex flex-col min-h-0">
-          {/* Logo, Identidade & Botão de Recolher */}
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          {/* Topo da Sidebar: Logo & Botão de Recolher */}
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
             {!recolhido ? (
-              <Link to="/app/admin" className="flex items-center gap-2.5">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#0d5930] to-emerald-500 text-white shadow-md shrink-0">
-                  <Truck className="h-5 w-5" />
+              <Link to="/app/admin" className="flex items-center gap-2.5 min-w-0">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 shrink-0 font-black">
+                  <Zap className="h-5 w-5 fill-slate-950 stroke-[2.5]" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-lg font-black tracking-tight leading-none text-white truncate">
-                    Uni<span className="text-emerald-400">Vans</span>
+                  <p className="text-base font-black tracking-tight leading-none text-white truncate">
+                    PARTIU <span className="text-[#FFDE00]">OPERATIONS</span>
                   </p>
-                  <span className="text-[10px] font-black tracking-wider uppercase text-amber-400 mt-0.5 block truncate">
+                  <span className="text-[10px] font-black tracking-wider uppercase text-amber-400 mt-1 block truncate">
                     {roleMeta.titulo}
                   </span>
                 </div>
               </Link>
             ) : (
               <div className="mx-auto">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#0d5930] to-emerald-500 text-white shadow-md">
-                  <Truck className="h-6 w-6" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 shadow-md">
+                  <Zap className="h-5 w-5 fill-slate-950 stroke-[2.5]" />
                 </div>
               </div>
             )}
 
-            {/* Botão de Recolher / Expandir a Sidebar */}
             <button
               type="button"
               onClick={() => setRecolhido(!recolhido)}
               className={`flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 transition-all border border-slate-800 cursor-pointer ${
                 recolhido ? "mx-auto mt-1" : ""
               }`}
-              title={recolhido ? "Expandir Menu Lateral" : "Recolher Menu Lateral"}
+              title={recolhido ? "Expandir Menu" : "Recolher Menu"}
             >
-              {recolhido ? (
-                <PanelLeftOpen className="h-5 w-5" />
-              ) : (
-                <PanelLeftClose className="h-5 w-5" />
-              )}
+              {recolhido ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
             </button>
           </div>
 
-          {/* Seletor Rápido de Hierarquia RBAC (Owner vs Admin) */}
+          {/* Seletor de Perfil RBAC (5 Perfis Nacionais) */}
           {!recolhido && (
-            <div className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5">
-              <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 block">
-                Nível de Acesso Ativo (RBAC)
-              </span>
-              <div className="grid grid-cols-2 gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => handleTrocarRole("OWNER")}
-                  className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-black transition-all ${
-                    roleAtiva === "OWNER"
-                      ? "bg-amber-500 text-slate-950 shadow-xs font-black"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                  title="Proprietário: Vê faturamento, lucro e governança"
-                >
-                  <Crown className="h-3 w-3" />
-                  <span>Owner</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleTrocarRole("ADMIN")}
-                  className={`flex items-center justify-center gap-1 py-1.5 rounded-lg text-[10px] font-black transition-all ${
-                    roleAtiva === "ADMIN"
-                      ? "bg-blue-600 text-white shadow-xs font-black"
-                      : "text-slate-400 hover:text-white"
-                  }`}
-                  title="Administrador: Operação e frota sem finanças sensíveis"
-                >
-                  <UserCheck className="h-3 w-3" />
-                  <span>Admin</span>
-                </button>
+            <div className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800/90 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-[9px] font-black uppercase tracking-wider text-slate-400">
+                  Perfil Operacional (RBAC)
+                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               </div>
+              <select
+                value={roleAtiva}
+                onChange={(e) => handleTrocarRole(e.target.value as AdminRole)}
+                className="w-full bg-slate-950 border border-slate-800 text-xs font-bold text-white rounded-xl px-2.5 py-1.5 focus:ring-1 focus:ring-amber-400 focus:outline-hidden"
+              >
+                {ROLES_DISPONIVEIS.map((r) => (
+                  <option key={r.id} value={r.id} className="bg-slate-950 text-white font-bold">
+                    {r.label}
+                  </option>
+                ))}
+              </select>
             </div>
           )}
 
-          {/* Links de Navegação com Barra de Rolagem Suave */}
-          <nav className="flex-1 overflow-y-auto pr-1 space-y-4 custom-admin-scrollbar">
-            {gruposMenuFiltrados.map((grupo) => {
-              const isAberta = categoriasAbertas[grupo.id] ?? true;
+          {/* 6 MÓDULOS OFICIAIS DE NAVEGAÇÃO */}
+          <nav className="flex-1 overflow-y-auto space-y-1.5 custom-admin-scrollbar pr-0.5">
+            {!recolhido && (
+              <p className="px-2 pt-1 text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Menu de Operações ({menuFiltrado.length})
+              </p>
+            )}
+
+            {menuFiltrado.map((item) => {
+              const Icon = item.icon;
+              const isAtivo = item.exact
+                ? href === item.to || href === item.to + "/"
+                : href.startsWith(item.to);
 
               return (
-                <div key={grupo.id} className="space-y-1">
-                  {!recolhido ? (
-                    <button
-                      type="button"
-                      onClick={() => toggleCategoria(grupo.id)}
-                      className="w-full flex items-center justify-between px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 hover:text-slate-200 transition-all cursor-pointer"
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`group flex items-center justify-between rounded-2xl px-3 py-2.5 text-xs font-bold transition-all relative ${
+                    isAtivo
+                      ? "bg-[#FFDE00] text-slate-950 shadow-md shadow-yellow-500/10 font-black"
+                      : "text-slate-300 hover:bg-slate-900 hover:text-white"
+                  } ${recolhido ? "justify-center px-2" : ""}`}
+                  title={recolhido ? item.label : undefined}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon
+                      className={`h-4 w-4 shrink-0 transition-transform group-hover:scale-110 ${
+                        isAtivo ? "text-slate-950 stroke-[2.5]" : "text-slate-400"
+                      }`}
+                    />
+                    {!recolhido && (
+                      <div className="truncate">
+                        <p className="truncate leading-none">{item.label}</p>
+                        <span className={`text-[10px] block font-medium truncate mt-0.5 ${
+                          isAtivo ? "text-slate-800" : "text-slate-500"
+                        }`}>
+                          {item.descricao}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {!recolhido && item.badge && (
+                    <span
+                      className={`ml-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider shrink-0 ${
+                        isAtivo
+                          ? "bg-slate-950 text-yellow-300"
+                          : "bg-slate-800 text-slate-300"
+                      }`}
                     >
-                      <span>{grupo.titulo}</span>
-                      <ChevronDown
-                        className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                          isAberta ? "rotate-0" : "-rotate-90"
-                        }`}
-                      />
-                    </button>
-                  ) : (
-                    <div className="border-t border-slate-800/80 my-2" />
+                      {item.badge}
+                    </span>
                   )}
-
-                  {(isAberta || recolhido) && (
-                    <div className="space-y-1">
-                      {grupo.itens.map((item) => {
-                        const Icon = item.icon;
-                        const isAtivo = item.exact
-                          ? href === item.to || href === item.to + "/"
-                          : href.startsWith(item.to);
-
-                        return (
-                          <Link
-                            key={item.to}
-                            to={item.to}
-                            className={`flex items-center ${
-                              recolhido ? "justify-center p-2.5" : "justify-between px-3 py-2"
-                            } rounded-xl text-xs font-bold transition-all group ${
-                              isAtivo
-                                ? "bg-gradient-to-r from-[#0d5930] to-[#13733e] text-white shadow-md shadow-[#0d5930]/30 font-black"
-                                : "text-slate-300 hover:bg-slate-900 hover:text-white"
-                            }`}
-                            title={recolhido ? item.label : undefined}
-                          >
-                            <div className="flex items-center gap-3">
-                              <Icon
-                                className={`h-4 w-4 shrink-0 ${
-                                  isAtivo
-                                    ? "text-emerald-300"
-                                    : "text-slate-400 group-hover:text-white"
-                                }`}
-                              />
-                              {!recolhido && <span className="truncate">{item.label}</span>}
-                            </div>
-
-                            {!recolhido && item.badge && (
-                              <span
-                                className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider shrink-0 ${
-                                  item.badge === "Ao Vivo"
-                                    ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse"
-                                    : item.badge === "Fila"
-                                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                                      : "bg-slate-800 text-slate-300"
-                                }`}
-                              >
-                                {item.badge}
-                              </span>
-                            )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                </Link>
               );
             })}
           </nav>
         </div>
 
-        {/* Rodapé da Sidebar */}
-        <div className="pt-3 border-t border-slate-800 space-y-2 shrink-0">
+        {/* Rodapé da Sidebar: Sessão & Logout */}
+        <div className="border-t border-slate-800/80 pt-3 mt-2 space-y-2">
           {!recolhido ? (
-            <>
-              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-slate-900/80 border border-slate-800">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
-                  <span className="text-[11px] font-black text-white truncate">
-                    Starlink Satélite
-                  </span>
-                </div>
-                <span className="text-[10px] font-black text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-md">
-                  Online
-                </span>
+            <div className="flex items-center justify-between bg-slate-900/60 p-2.5 rounded-2xl border border-slate-800/60">
+              <div className="min-w-0 pr-2">
+                <p className="text-xs font-bold text-white truncate">{contaAtiva.nome}</p>
+                <p className="text-[10px] text-slate-400 truncate">{contaAtiva.email}</p>
               </div>
-
-              <Link
-                to="/app"
-                className="flex items-center justify-center gap-2 w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs font-black text-slate-200 transition-all border border-slate-800"
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="h-8 w-8 rounded-xl bg-slate-800 hover:bg-red-950 text-slate-400 hover:text-red-300 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                title="Sair"
               >
-                <ExternalLink className="h-3.5 w-3.5" /> Ir ao App do Passageiro
-              </Link>
-            </>
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           ) : (
-            <Link
-              to="/app"
-              className="flex items-center justify-center h-10 w-10 mx-auto rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 transition-all border border-slate-800"
-              title="Ir ao App do Passageiro"
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="mx-auto h-9 w-9 rounded-xl bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-red-300 flex items-center justify-center transition-all cursor-pointer"
+              title="Sair"
             >
-              <ExternalLink className="h-4 w-4" />
-            </Link>
+              <LogOut className="h-4 w-4" />
+            </button>
           )}
         </div>
       </aside>
 
-      {/* 2. Conteúdo Principal e Topbar */}
+      {/* 2. Container Principal & Topbar */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="w-full bg-white/95 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-          <div className="flex items-center gap-3">
+        <header className="min-h-16 pt-[env(safe-area-inset-top,0px)] bg-white border-b border-slate-200/80 px-3 sm:px-8 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+          <div className="flex items-center gap-2 sm:gap-3 py-2">
             <button
               type="button"
               onClick={() => setMenuAbertoMobile(true)}
-              className="md:hidden flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all"
+              className="flex md:hidden h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition cursor-pointer shrink-0"
+              aria-label="Abrir Menu de Navegação"
             >
               <Menu className="h-5 w-5" />
             </button>
 
-            <div className="flex items-center gap-2">
-              <span
-                className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${roleMeta.badgeColor}`}
-              >
-                {roleMeta.titulo}
-              </span>
+            <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-slate-500">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-slate-900 font-black">Central Nacional Ativa:</span>
+              <span className="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-md font-mono">1.000 Cidades</span>
+            </div>
 
-              {/* Trilha de Navegação (Breadcrumb Dinâmico) */}
-              <div className="hidden lg:flex items-center gap-1.5 text-xs font-bold text-slate-400 pl-2 border-l border-slate-200">
-                <Link to="/app/admin" className="hover:text-slate-700 transition-colors">
-                  UniVans Admin
-                </Link>
-                {href !== "/app/admin" && (
-                  <>
-                    <span>/</span>
-                    <span className="text-slate-800 capitalize">
-                      {href.replace("/app/admin/", "").replace(/_/g, " ")}
-                    </span>
-                  </>
-                )}
-              </div>
+            <div className="flex sm:hidden items-center gap-1.5 min-w-0">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="text-[11px] font-black text-slate-900 truncate">PARTIU Ops</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Seletor de Perfil no Topbar para testes rápidos */}
-            <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
-              <button
-                type="button"
-                onClick={() => handleTrocarRole("OWNER")}
-                className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
-                  roleAtiva === "OWNER"
-                    ? "bg-amber-500 text-slate-950 shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                👑 Owner
-              </button>
-              <button
-                type="button"
-                onClick={() => handleTrocarRole("ADMIN")}
-                className={`px-3 py-1 rounded-lg text-xs font-black transition-all ${
-                  roleAtiva === "ADMIN"
-                    ? "bg-blue-600 text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                👤 Admin
-              </button>
-            </div>
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0 py-2">
+            {/* Atalho Rápido para Operação ao Vivo */}
+            <Link
+              to="/app/admin/operacao"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-900 text-xs font-black border border-emerald-200/80 hover:bg-emerald-100 active:scale-95 transition-all"
+            >
+              <Radio className="h-3.5 w-3.5 animate-pulse text-emerald-600 shrink-0" />
+              <span className="hidden sm:inline">Operação Realtime</span>
+              <span className="sm:hidden text-[10px]">Ao Vivo</span>
+            </Link>
 
-            {/* Botão de Gestão de Conta & Credenciais */}
+            {/* Minha Conta */}
             <button
               type="button"
               onClick={abrirModalConta}
-              className="flex h-9 items-center gap-2 rounded-xl bg-slate-100 hover:bg-slate-200 px-3 text-xs font-black text-slate-800 transition-all border border-slate-200"
-              title="Gerenciar E-mail e Senha de Acesso"
+              className="flex h-9 items-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 px-2.5 sm:px-3 text-xs font-bold text-slate-800 transition-all border border-slate-200 cursor-pointer"
             >
-              <Key className="h-3.5 w-3.5 text-amber-600" />
+              <Key className="h-3.5 w-3.5 text-amber-600 shrink-0" />
               <span className="hidden lg:inline">{contaAtiva.email}</span>
-              <span className="lg:hidden">Conta</span>
+              <span className="lg:hidden text-[11px]">Conta</span>
             </button>
 
-            <Link
-              to="/app/admin/monitoramento"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-[#0d5930] text-xs font-black border border-emerald-200/80 hover:bg-emerald-100 transition-all"
-            >
-              <Radio className="h-3.5 w-3.5 animate-pulse text-emerald-600" />
-              <span className="hidden md:inline">Radar Satélite</span>
-            </Link>
-
+            {/* Sair */}
             <button
               type="button"
               onClick={handleLogout}
-              className="flex h-9 px-3 items-center gap-1 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-red-900 transition-all"
-              title="Sair do Painel de Controle"
+              className="flex h-9 px-2.5 sm:px-3 items-center gap-1 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-red-900 active:scale-95 transition-all cursor-pointer"
+              title="Sair da Conta"
             >
-              <LogOut className="h-3.5 w-3.5" />
+              <LogOut className="h-3.5 w-3.5 shrink-0" />
               <span className="hidden sm:inline">Sair</span>
             </button>
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-safe">
           <Outlet />
         </main>
       </div>
 
-      {/* 3. Drawer Mobile */}
+      {/* 3. Drawer Mobile (Apenas os 6 Módulos) */}
       {menuAbertoMobile && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           <div
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs transition-opacity"
             onClick={() => setMenuAbertoMobile(false)}
           />
-          <div className="relative w-80 bg-slate-950 text-white flex flex-col justify-between p-5 h-full overflow-y-auto no-scrollbar shadow-2xl z-10">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0d5930] text-white">
-                    <Truck className="h-5 w-5" />
+          <div className="relative w-[85vw] max-w-xs bg-slate-950 text-white flex flex-col justify-between p-4 sm:p-5 h-full overflow-y-auto shadow-2xl z-10 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <div className="space-y-4 sm:space-y-5">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFDE00] text-slate-950 font-black shrink-0">
+                    <Zap className="h-4.5 w-4.5 fill-slate-950" />
                   </div>
-                  <div>
-                    <p className="text-base font-black text-white">UniVans Admin</p>
-                    <span className="text-[10px] text-amber-400 font-bold uppercase">
-                      {roleMeta.titulo}
-                    </span>
+                  <div className="min-w-0">
+                    <p className="text-sm font-black text-white leading-tight truncate">PARTIU Admin</p>
+                    <span className="text-[9px] text-amber-400 font-bold uppercase truncate block">{roleMeta.titulo}</span>
                   </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setMenuAbertoMobile(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-slate-400 hover:text-white"
+                  className="h-8 w-8 rounded-xl bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center active:scale-95 shrink-0"
+                  aria-label="Fechar Menu"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
 
-              {/* Seletor Mobile */}
-              <div className="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => handleTrocarRole("OWNER")}
-                  className={`py-2 rounded-lg text-xs font-black ${
-                    roleAtiva === "OWNER" ? "bg-amber-500 text-slate-950" : "text-slate-400"
-                  }`}
+              {/* Seletor Mobile de Role */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-black uppercase text-slate-400 block">Perfil de Acesso:</span>
+                <select
+                  value={roleAtiva}
+                  onChange={(e) => handleTrocarRole(e.target.value as AdminRole)}
+                  className="w-full bg-slate-900 border border-slate-800 text-xs font-bold text-white rounded-xl p-2"
                 >
-                  Owner
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleTrocarRole("ADMIN")}
-                  className={`py-2 rounded-lg text-xs font-black ${
-                    roleAtiva === "ADMIN" ? "bg-blue-600 text-white" : "text-slate-400"
-                  }`}
-                >
-                  Admin
-                </button>
+                  {ROLES_DISPONIVEIS.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              <nav className="space-y-4">
-                {gruposMenuFiltrados.map((grupo) => (
-                  <div key={grupo.id} className="space-y-1">
-                    <p className="px-3 text-xs font-black uppercase tracking-wider text-slate-400">
-                      {grupo.titulo}
-                    </p>
-                    {grupo.itens.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <Link
-                          key={item.to}
-                          to={item.to}
-                          onClick={() => setMenuAbertoMobile(false)}
-                          className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-900 hover:text-white"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Icon className="h-4 w-4 text-slate-400" />
-                            <span>{item.label}</span>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ))}
+              <nav className="space-y-1 pt-2">
+                {menuFiltrado.map((item) => {
+                  const Icon = item.icon;
+                  const isAtivo = item.exact
+                    ? href === item.to || href === item.to + "/"
+                    : href.startsWith(item.to);
+
+                  return (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setMenuAbertoMobile(false)}
+                      className={`flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition-all ${
+                        isAtivo
+                          ? "bg-[#FFDE00] text-slate-950 font-black"
+                          : "text-slate-300 hover:bg-slate-900 hover:text-white"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`h-4 w-4 ${isAtivo ? "text-slate-950" : "text-slate-400"}`} />
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-900 text-yellow-300 font-bold">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
               </nav>
+            </div>
+
+            <div className="border-t border-slate-800 pt-3">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-900 text-red-400 text-xs font-bold hover:bg-red-950"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sair da Conta</span>
+              </button>
             </div>
           </div>
         </div>
       )}
-      {/* MODAL DE ALTERAÇÃO DE E-MAIL E SENHA DA CONTA ADMINISTRATIVA */}
+
+      {/* MODAL CONTA */}
       {modalContaAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md mx-auto rounded-3xl bg-white p-5 sm:p-7 shadow-2xl border border-slate-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2.5 text-[#0d5930]">
-                <Key className="h-6 w-6 text-amber-500" />
-                <div>
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                    Minha Conta &amp; Credenciais
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Sessão ativa: {roleMeta.titulo}
-                  </p>
-                </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div className="flex items-center gap-2">
+                <Key className="h-5 w-5 text-amber-500" />
+                <h3 className="text-base font-black text-slate-900">Credenciais Administrativas</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setModalContaAberto(false)}
-                className="h-11 w-11 flex items-center justify-center rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-                aria-label="Fechar"
+                className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-500"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
 
-            {mensagemConta && (
-              <div
-                className={`p-3.5 rounded-2xl text-xs sm:text-sm flex items-center gap-2 ${
-                  mensagemConta.tipo === "sucesso"
-                    ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
-                    : "bg-red-50 text-red-900 border border-red-200"
-                }`}
-              >
-                {mensagemConta.tipo === "sucesso" ? (
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
-                ) : (
-                  <ShieldAlert className="h-5 w-5 text-red-600 shrink-0" />
-                )}
-                <span>{mensagemConta.texto}</span>
-              </div>
-            )}
+            <form onSubmit={handleSalvarConta} className="space-y-3 text-xs">
+              {mensagemConta && (
+                <div
+                  className={`p-3 rounded-xl ${
+                    mensagemConta.tipo === "sucesso"
+                      ? "bg-emerald-50 text-emerald-900 border border-emerald-200"
+                      : "bg-red-50 text-red-900 border border-red-200"
+                  }`}
+                >
+                  {mensagemConta.texto}
+                </div>
+              )}
 
-            <form onSubmit={handleSalvarConta} className="space-y-3.5">
               <div>
-                <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mb-1">
-                  Nome do Titular
-                </label>
+                <label className="block font-bold text-slate-700 mb-1">Nome:</label>
                 <input
                   type="text"
-                  required
                   value={novoNome}
                   onChange={(e) => setNovoNome(e.target.value)}
-                  className="w-full min-h-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-base font-medium text-slate-900 outline-none focus:border-[#0d5930] focus:bg-white transition-colors"
+                  className="w-full h-10 px-3 rounded-xl border border-slate-300 font-medium focus:ring-2 focus:ring-slate-950"
                 />
               </div>
 
               <div>
-                <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mb-1">
-                  E-mail de Login Corporativo
-                </label>
+                <label className="block font-bold text-slate-700 mb-1">E-mail de Acesso:</label>
                 <input
                   type="email"
-                  required
                   value={novoEmail}
                   onChange={(e) => setNovoEmail(e.target.value)}
-                  className="w-full min-h-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-base font-medium text-slate-900 outline-none focus:border-[#0d5930] focus:bg-white transition-colors"
+                  className="w-full h-10 px-3 rounded-xl border border-slate-300 font-medium focus:ring-2 focus:ring-slate-950"
                 />
               </div>
 
               <div>
-                <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-600 mb-1">
-                  Nova Senha de Acesso (Opcional)
-                </label>
+                <label className="block font-bold text-slate-700 mb-1">Nova Senha (Opcional):</label>
                 <input
                   type="password"
-                  placeholder="Deixe em branco para manter a senha atual"
+                  placeholder="Deixe em branco para manter a atual"
                   value={novaSenha}
                   onChange={(e) => setNovaSenha(e.target.value)}
-                  className="w-full min-h-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 px-4 py-2.5 text-base font-medium text-slate-900 outline-none focus:border-[#0d5930] focus:bg-white transition-colors"
+                  className="w-full h-10 px-3 rounded-xl border border-slate-300 font-medium focus:ring-2 focus:ring-slate-950"
                 />
-                <span className="text-xs text-slate-400 mt-1 block">
-                  Mínimo de 4 caracteres. A senha será aplicada para os próximos logins.
-                </span>
               </div>
 
-              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
+              <div className="grid grid-cols-2 gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setModalContaAberto(false)}
-                  className="min-h-12 px-5 py-2.5 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="h-11 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="min-h-12 px-5 py-2.5 rounded-xl bg-[#0d5930] hover:bg-emerald-800 text-white text-sm font-black shadow-xs transition-all cursor-pointer"
+                  className="h-11 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 shadow-xs"
                 >
-                  Salvar Alterações
+                  Salvar Dados
                 </button>
               </div>
             </form>

@@ -1042,6 +1042,48 @@ describe("22. Broadcast Notifications & Multi-Category Routing Engine", () => {
   });
 });
 
+// Suítes Oficiais V4: Routing Engine, ETA Engine, Dynamic Pricing & Antifraud Shield
+import "./partiu-pricing-routing-v4.test.ts";
+
+// Suíte Oficial V4: Real-Time Dispatch Engine & PostGIS Matching Core
+import "./partiu-dispatch-engine-v4.test.ts";
+
+// Suíte Oficial V4: Delivery Dual PIN Security & Custody Chain Engine
+import "./partiu-delivery-dual-pin.test.ts";
+
+// Suíte Oficial V4: Driver Access Engine, Subscription Paywall & Automated Activation
+import "./driver-access-engine-v4.test.ts";
+
+// Suíte Oficial V4: National Admin Operations Cockpit, RBAC & Express Onboarding
+import "./national-admin-operations-v4.test.ts";
+
+// Suíte Oficial V4: Progressive Dispatch Engine, Multi-Tier Radar & Timeout Recovery
+import "./progressive-dispatch-radar.test.ts";
+
+// Suítes Oficiais V4: Live Ringing Engine, Driver Trust Center & Network Resilience
+import "./live-ringing-driver-trust.test.ts";
+
+// Suíte Oficial V4: Realtime Ephemeral In-App Chat, Rate-Limiting, PII Sanitization & Outbox Queue
+import "./partiu-realtime-chat.test.ts";
+
+// Suíte Oficial V4: Motorista a Caminho (En Route Experience) — Uber/99 Standard
+import "./partiu-en-route-experience.test.ts";
+
+// Suíte Oficial V4: Infraestrutura Geoespacial Mapbox de Padrão Nacional (Uber/99/Lyft Standard)
+import "./geospatial-infrastructure.test.ts";
+
+// Suíte Oficial V4: Lógica Central de Corridas (Core Ride Logistics) — Mapbox, PostGIS & Mobile Apps
+import "./core-ride-logistics.test.ts";
+
+// Suíte Oficial V6: Hardening Operacional P0 do Motorista (Cancelamento, No-Show, Waze/Maps e State Machine)
+import "./driver-operational-p0.test.ts";
+
+// Suíte Oficial V6: Confiabilidade Operacional 12h, Background GPS, Offline Sync e Back-to-Back Dispatch
+import "./driver-reliability-12h.test.ts";
+
+// Suíte Oficial V6: Auditoria Arquitetural e Capacidade Municipal (10.000 Motoristas)
+import "./city-scale-architectural-audit.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");

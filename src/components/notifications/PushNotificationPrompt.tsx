@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "@tanstack/react-router";
 import {
   Bell,
   BellRing,
@@ -18,8 +19,15 @@ import {
 } from "@/lib/push-notifications";
 
 export function PushNotificationPrompt() {
+  const location = useLocation();
+  const pathname = location.pathname;
   const [permissao, setPermissao] = useState<NotificationPermission>("default");
   const [visivel, setVisivel] = useState(false);
+
+  // Na Home de corridas e de encomendas, o botão de notificações já está no topo (clean, sem cobrir o mapa).
+  // Nunca interromper o passageiro com popups no caminho crítico de solicitação (Auditoria 6)
+  const isPassengerFlow = pathname === "/app" || pathname === "/app/" || pathname.startsWith("/app/encomendas");
+  if (isPassengerFlow) return null;
   const [testado, setTestado] = useState(false);
   const [mostrarInstrucaoInApp, setMostrarInstrucaoInApp] = useState(false);
   const [linkCopiado, setLinkCopiado] = useState(false);
@@ -30,7 +38,7 @@ export function PushNotificationPrompt() {
     setPermissao(status);
 
     // Mostra o prompt se o usuário ainda não decidiu ou se quiser permitir teste
-    const descartado = sessionStorage.getItem("univans_push_prompt_dismissed");
+    const descartado = sessionStorage.getItem("partiu_push_prompt_dismissed") || sessionStorage.getItem("univans_push_prompt_dismissed");
     let timer: ReturnType<typeof setTimeout> | undefined;
     if (status !== "granted" && !descartado) {
       timer = setTimeout(() => setVisivel(true), 2500);
@@ -45,7 +53,7 @@ export function PushNotificationPrompt() {
     const resultado = await solicitarPermissaoPush();
     if (resultado.sucesso) {
       setPermissao("granted");
-      await notificarAproximacaoTrevo("Mercedes Sprinter VIP #02", 6, "Trevo do Francês");
+      await notificarAproximacaoTrevo("Chevrolet Onix (Partiu Pop)", 3, "Ponto de Embarque");
       setTestado(true);
       setTimeout(() => setVisivel(false), 4000);
     } else if (resultado.motivo === "in_app_browser") {
@@ -57,7 +65,7 @@ export function PushNotificationPrompt() {
 
   function handleFechar() {
     setVisivel(false);
-    sessionStorage.setItem("univans_push_prompt_dismissed", "true");
+    sessionStorage.setItem("partiu_push_prompt_dismissed", "true");
   }
 
   if (!visivel) return null;
@@ -94,8 +102,7 @@ export function PushNotificationPrompt() {
         </div>
 
         <p className="text-[11px] text-slate-300 leading-relaxed relative z-10">
-          Você será avisado no celular quando a van estiver a 6 minutos do ponto de embarque, mesmo
-          com a tela bloqueada.
+          Você será avisado no celular quando seu motorista parceiro estiver se aproximando do ponto de embarque.
         </p>
 
         {mostrarInstrucaoInApp ? (
@@ -107,7 +114,7 @@ export function PushNotificationPrompt() {
               </div>
               <p className="text-[11px] text-slate-200 leading-relaxed">
                 O navegador interno do Facebook bloqueia notificações em segundo plano. Para receber
-                alertas quando a van estiver chegando:
+                alertas quando o motorista estiver chegando:
               </p>
               <ol className="text-[11px] text-amber-100 list-decimal list-inside space-y-1 font-semibold pt-1">
                 <li>
@@ -171,7 +178,7 @@ export function PushNotificationPrompt() {
               <button
                 type="button"
                 onClick={handleAtivar}
-                className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] hover:brightness-110 text-white text-xs font-black shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl bg-[#FFDE00] hover:bg-[#ffe633] text-slate-950 text-xs font-black shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Bell className="h-3.5 w-3.5" />
                 <span>Ativar Notificações Push</span>

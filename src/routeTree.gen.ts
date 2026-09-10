@@ -20,18 +20,13 @@ import { Route as EscolherTipoCadastroRouteImport } from './routes/escolher-tipo
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppAdminRouteImport } from './routes/app.admin'
 import { Route as AppBilhetesRouteImport } from './routes/app.bilhetes'
-import { Route as AppDemandaRouteImport } from './routes/app.demanda'
 import { Route as AppEncomendasRouteImport } from './routes/app.encomendas'
-import { Route as AppLinhasRouteImport } from './routes/app.linhas'
 import { Route as AppMotoristaRouteImport } from './routes/app.motorista'
-import { Route as AppPasseUniversitarioRouteImport } from './routes/app.passe-universitario'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppRotaRouteImport } from './routes/app.rota'
-import { Route as AppShopRouteImport } from './routes/app.shop'
-import { Route as AppShopVideosRouteImport } from './routes/app.shop-videos'
 import { Route as AppSosRouteImport } from './routes/app.sos'
 import { Route as AppViagemRouteImport } from './routes/app.viagem'
-import { Route as AppViagensRouteImport } from './routes/app.viagens'
+import { Route as RastreioTokenRouteImport } from './routes/rastreio.$token'
 import { Route as AppAdminIndexRouteImport } from './routes/app.admin.index'
 import { Route as AppAdminAfiliadosRouteImport } from './routes/app.admin.afiliados'
 import { Route as AppAdminAprovacoesRouteImport } from './routes/app.admin.aprovacoes'
@@ -41,18 +36,23 @@ import { Route as AppAdminConfiguracoesRouteImport } from './routes/app.admin.co
 import { Route as AppAdminDespachoRouteImport } from './routes/app.admin.despacho'
 import { Route as AppAdminFinanceiroRouteImport } from './routes/app.admin.financeiro'
 import { Route as AppAdminFrotaRouteImport } from './routes/app.admin.frota'
+import { Route as AppAdminGrowthRouteImport } from './routes/app.admin.growth'
 import { Route as AppAdminHistoricoRouteImport } from './routes/app.admin.historico'
 import { Route as AppAdminLinhasRouteImport } from './routes/app.admin.linhas'
 import { Route as AppAdminLocaisRouteImport } from './routes/app.admin.locais'
 import { Route as AppAdminLoginRouteImport } from './routes/app.admin.login'
+import { Route as AppAdminMarketingRouteImport } from './routes/app.admin.marketing'
+import { Route as AppAdminMonetizacaoRouteImport } from './routes/app.admin.monetizacao'
 import { Route as AppAdminMonitoramentoRouteImport } from './routes/app.admin.monitoramento'
 import { Route as AppAdminMotoristasRouteImport } from './routes/app.admin.motoristas'
 import { Route as AppAdminNotificacoesRouteImport } from './routes/app.admin.notificacoes'
+import { Route as AppAdminOperacaoRouteImport } from './routes/app.admin.operacao'
 import { Route as AppAdminPassageirosRouteImport } from './routes/app.admin.passageiros'
 import { Route as AppAdminPontosRouteImport } from './routes/app.admin.pontos'
 import { Route as AppAdminRotaRouteImport } from './routes/app.admin.rota'
 import { Route as AppAdminSosRouteImport } from './routes/app.admin.sos'
 import { Route as AppAdminVeiculoRouteImport } from './routes/app.admin.veiculo'
+import { Route as AppAdminWhitelabelRouteImport } from './routes/app.admin.whitelabel'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -109,29 +109,14 @@ const AppBilhetesRoute = AppBilhetesRouteImport.update({
   path: '/bilhetes',
   getParentRoute: () => AppRoute,
 } as any)
-const AppDemandaRoute = AppDemandaRouteImport.update({
-  id: '/demanda',
-  path: '/demanda',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppEncomendasRoute = AppEncomendasRouteImport.update({
   id: '/encomendas',
   path: '/encomendas',
   getParentRoute: () => AppRoute,
 } as any)
-const AppLinhasRoute = AppLinhasRouteImport.update({
-  id: '/linhas',
-  path: '/linhas',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppMotoristaRoute = AppMotoristaRouteImport.update({
   id: '/motorista',
   path: '/motorista',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPasseUniversitarioRoute = AppPasseUniversitarioRouteImport.update({
-  id: '/passe-universitario',
-  path: '/passe-universitario',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPerfilRoute = AppPerfilRouteImport.update({
@@ -144,16 +129,6 @@ const AppRotaRoute = AppRotaRouteImport.update({
   path: '/rota',
   getParentRoute: () => AppRoute,
 } as any)
-const AppShopRoute = AppShopRouteImport.update({
-  id: '/shop',
-  path: '/shop',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppShopVideosRoute = AppShopVideosRouteImport.update({
-  id: '/shop-videos',
-  path: '/shop-videos',
-  getParentRoute: () => AppRoute,
-} as any)
 const AppSosRoute = AppSosRouteImport.update({
   id: '/sos',
   path: '/sos',
@@ -164,10 +139,10 @@ const AppViagemRoute = AppViagemRouteImport.update({
   path: '/viagem',
   getParentRoute: () => AppRoute,
 } as any)
-const AppViagensRoute = AppViagensRouteImport.update({
-  id: '/viagens',
-  path: '/viagens',
-  getParentRoute: () => AppRoute,
+const RastreioTokenRoute = RastreioTokenRouteImport.update({
+  id: '/rastreio/$token',
+  path: '/rastreio/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   id: '/',
@@ -214,6 +189,11 @@ const AppAdminFrotaRoute = AppAdminFrotaRouteImport.update({
   path: '/frota',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminGrowthRoute = AppAdminGrowthRouteImport.update({
+  id: '/growth',
+  path: '/growth',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminHistoricoRoute = AppAdminHistoricoRouteImport.update({
   id: '/historico',
   path: '/historico',
@@ -234,6 +214,16 @@ const AppAdminLoginRoute = AppAdminLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminMarketingRoute = AppAdminMarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMonetizacaoRoute = AppAdminMonetizacaoRouteImport.update({
+  id: '/monetizacao',
+  path: '/monetizacao',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppAdminMonitoramentoRoute = AppAdminMonitoramentoRouteImport.update({
   id: '/monitoramento',
   path: '/monitoramento',
@@ -247,6 +237,11 @@ const AppAdminMotoristasRoute = AppAdminMotoristasRouteImport.update({
 const AppAdminNotificacoesRoute = AppAdminNotificacoesRouteImport.update({
   id: '/notificacoes',
   path: '/notificacoes',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminOperacaoRoute = AppAdminOperacaoRouteImport.update({
+  id: '/operacao',
+  path: '/operacao',
   getParentRoute: () => AppAdminRoute,
 } as any)
 const AppAdminPassageirosRoute = AppAdminPassageirosRouteImport.update({
@@ -274,6 +269,11 @@ const AppAdminVeiculoRoute = AppAdminVeiculoRouteImport.update({
   path: '/veiculo',
   getParentRoute: () => AppAdminRoute,
 } as any)
+const AppAdminWhitelabelRoute = AppAdminWhitelabelRouteImport.update({
+  id: '/whitelabel',
+  path: '/whitelabel',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -286,18 +286,13 @@ export interface FileRoutesByFullPath {
   '/escolher-tipo-cadastro': typeof EscolherTipoCadastroRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/bilhetes': typeof AppBilhetesRoute
-  '/app/demanda': typeof AppDemandaRoute
   '/app/encomendas': typeof AppEncomendasRoute
-  '/app/linhas': typeof AppLinhasRoute
   '/app/motorista': typeof AppMotoristaRoute
-  '/app/passe-universitario': typeof AppPasseUniversitarioRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app/rota': typeof AppRotaRoute
-  '/app/shop': typeof AppShopRoute
-  '/app/shop-videos': typeof AppShopVideosRoute
   '/app/sos': typeof AppSosRoute
   '/app/viagem': typeof AppViagemRoute
-  '/app/viagens': typeof AppViagensRoute
+  '/rastreio/$token': typeof RastreioTokenRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/afiliados': typeof AppAdminAfiliadosRoute
   '/app/admin/aprovacoes': typeof AppAdminAprovacoesRoute
@@ -307,18 +302,23 @@ export interface FileRoutesByFullPath {
   '/app/admin/despacho': typeof AppAdminDespachoRoute
   '/app/admin/financeiro': typeof AppAdminFinanceiroRoute
   '/app/admin/frota': typeof AppAdminFrotaRoute
+  '/app/admin/growth': typeof AppAdminGrowthRoute
   '/app/admin/historico': typeof AppAdminHistoricoRoute
   '/app/admin/linhas': typeof AppAdminLinhasRoute
   '/app/admin/locais': typeof AppAdminLocaisRoute
   '/app/admin/login': typeof AppAdminLoginRoute
+  '/app/admin/marketing': typeof AppAdminMarketingRoute
+  '/app/admin/monetizacao': typeof AppAdminMonetizacaoRoute
   '/app/admin/monitoramento': typeof AppAdminMonitoramentoRoute
   '/app/admin/motoristas': typeof AppAdminMotoristasRoute
   '/app/admin/notificacoes': typeof AppAdminNotificacoesRoute
+  '/app/admin/operacao': typeof AppAdminOperacaoRoute
   '/app/admin/passageiros': typeof AppAdminPassageirosRoute
   '/app/admin/pontos': typeof AppAdminPontosRoute
   '/app/admin/rota': typeof AppAdminRotaRoute
   '/app/admin/sos': typeof AppAdminSosRoute
   '/app/admin/veiculo': typeof AppAdminVeiculoRoute
+  '/app/admin/whitelabel': typeof AppAdminWhitelabelRoute
   '/app/admin/': typeof AppAdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -330,18 +330,13 @@ export interface FileRoutesByTo {
   '/design-system': typeof DesignSystemRoute
   '/escolher-tipo-cadastro': typeof EscolherTipoCadastroRoute
   '/app/bilhetes': typeof AppBilhetesRoute
-  '/app/demanda': typeof AppDemandaRoute
   '/app/encomendas': typeof AppEncomendasRoute
-  '/app/linhas': typeof AppLinhasRoute
   '/app/motorista': typeof AppMotoristaRoute
-  '/app/passe-universitario': typeof AppPasseUniversitarioRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app/rota': typeof AppRotaRoute
-  '/app/shop': typeof AppShopRoute
-  '/app/shop-videos': typeof AppShopVideosRoute
   '/app/sos': typeof AppSosRoute
   '/app/viagem': typeof AppViagemRoute
-  '/app/viagens': typeof AppViagensRoute
+  '/rastreio/$token': typeof RastreioTokenRoute
   '/app': typeof AppIndexRoute
   '/app/admin/afiliados': typeof AppAdminAfiliadosRoute
   '/app/admin/aprovacoes': typeof AppAdminAprovacoesRoute
@@ -351,18 +346,23 @@ export interface FileRoutesByTo {
   '/app/admin/despacho': typeof AppAdminDespachoRoute
   '/app/admin/financeiro': typeof AppAdminFinanceiroRoute
   '/app/admin/frota': typeof AppAdminFrotaRoute
+  '/app/admin/growth': typeof AppAdminGrowthRoute
   '/app/admin/historico': typeof AppAdminHistoricoRoute
   '/app/admin/linhas': typeof AppAdminLinhasRoute
   '/app/admin/locais': typeof AppAdminLocaisRoute
   '/app/admin/login': typeof AppAdminLoginRoute
+  '/app/admin/marketing': typeof AppAdminMarketingRoute
+  '/app/admin/monetizacao': typeof AppAdminMonetizacaoRoute
   '/app/admin/monitoramento': typeof AppAdminMonitoramentoRoute
   '/app/admin/motoristas': typeof AppAdminMotoristasRoute
   '/app/admin/notificacoes': typeof AppAdminNotificacoesRoute
+  '/app/admin/operacao': typeof AppAdminOperacaoRoute
   '/app/admin/passageiros': typeof AppAdminPassageirosRoute
   '/app/admin/pontos': typeof AppAdminPontosRoute
   '/app/admin/rota': typeof AppAdminRotaRoute
   '/app/admin/sos': typeof AppAdminSosRoute
   '/app/admin/veiculo': typeof AppAdminVeiculoRoute
+  '/app/admin/whitelabel': typeof AppAdminWhitelabelRoute
   '/app/admin': typeof AppAdminIndexRoute
 }
 export interface FileRoutesById {
@@ -377,18 +377,13 @@ export interface FileRoutesById {
   '/escolher-tipo-cadastro': typeof EscolherTipoCadastroRoute
   '/app/admin': typeof AppAdminRouteWithChildren
   '/app/bilhetes': typeof AppBilhetesRoute
-  '/app/demanda': typeof AppDemandaRoute
   '/app/encomendas': typeof AppEncomendasRoute
-  '/app/linhas': typeof AppLinhasRoute
   '/app/motorista': typeof AppMotoristaRoute
-  '/app/passe-universitario': typeof AppPasseUniversitarioRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app/rota': typeof AppRotaRoute
-  '/app/shop': typeof AppShopRoute
-  '/app/shop-videos': typeof AppShopVideosRoute
   '/app/sos': typeof AppSosRoute
   '/app/viagem': typeof AppViagemRoute
-  '/app/viagens': typeof AppViagensRoute
+  '/rastreio/$token': typeof RastreioTokenRoute
   '/app/': typeof AppIndexRoute
   '/app/admin/afiliados': typeof AppAdminAfiliadosRoute
   '/app/admin/aprovacoes': typeof AppAdminAprovacoesRoute
@@ -398,18 +393,23 @@ export interface FileRoutesById {
   '/app/admin/despacho': typeof AppAdminDespachoRoute
   '/app/admin/financeiro': typeof AppAdminFinanceiroRoute
   '/app/admin/frota': typeof AppAdminFrotaRoute
+  '/app/admin/growth': typeof AppAdminGrowthRoute
   '/app/admin/historico': typeof AppAdminHistoricoRoute
   '/app/admin/linhas': typeof AppAdminLinhasRoute
   '/app/admin/locais': typeof AppAdminLocaisRoute
   '/app/admin/login': typeof AppAdminLoginRoute
+  '/app/admin/marketing': typeof AppAdminMarketingRoute
+  '/app/admin/monetizacao': typeof AppAdminMonetizacaoRoute
   '/app/admin/monitoramento': typeof AppAdminMonitoramentoRoute
   '/app/admin/motoristas': typeof AppAdminMotoristasRoute
   '/app/admin/notificacoes': typeof AppAdminNotificacoesRoute
+  '/app/admin/operacao': typeof AppAdminOperacaoRoute
   '/app/admin/passageiros': typeof AppAdminPassageirosRoute
   '/app/admin/pontos': typeof AppAdminPontosRoute
   '/app/admin/rota': typeof AppAdminRotaRoute
   '/app/admin/sos': typeof AppAdminSosRoute
   '/app/admin/veiculo': typeof AppAdminVeiculoRoute
+  '/app/admin/whitelabel': typeof AppAdminWhitelabelRoute
   '/app/admin/': typeof AppAdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -425,18 +425,13 @@ export interface FileRouteTypes {
     | '/escolher-tipo-cadastro'
     | '/app/admin'
     | '/app/bilhetes'
-    | '/app/demanda'
     | '/app/encomendas'
-    | '/app/linhas'
     | '/app/motorista'
-    | '/app/passe-universitario'
     | '/app/perfil'
     | '/app/rota'
-    | '/app/shop'
-    | '/app/shop-videos'
     | '/app/sos'
     | '/app/viagem'
-    | '/app/viagens'
+    | '/rastreio/$token'
     | '/app/'
     | '/app/admin/afiliados'
     | '/app/admin/aprovacoes'
@@ -446,18 +441,23 @@ export interface FileRouteTypes {
     | '/app/admin/despacho'
     | '/app/admin/financeiro'
     | '/app/admin/frota'
+    | '/app/admin/growth'
     | '/app/admin/historico'
     | '/app/admin/linhas'
     | '/app/admin/locais'
     | '/app/admin/login'
+    | '/app/admin/marketing'
+    | '/app/admin/monetizacao'
     | '/app/admin/monitoramento'
     | '/app/admin/motoristas'
     | '/app/admin/notificacoes'
+    | '/app/admin/operacao'
     | '/app/admin/passageiros'
     | '/app/admin/pontos'
     | '/app/admin/rota'
     | '/app/admin/sos'
     | '/app/admin/veiculo'
+    | '/app/admin/whitelabel'
     | '/app/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -469,18 +469,13 @@ export interface FileRouteTypes {
     | '/design-system'
     | '/escolher-tipo-cadastro'
     | '/app/bilhetes'
-    | '/app/demanda'
     | '/app/encomendas'
-    | '/app/linhas'
     | '/app/motorista'
-    | '/app/passe-universitario'
     | '/app/perfil'
     | '/app/rota'
-    | '/app/shop'
-    | '/app/shop-videos'
     | '/app/sos'
     | '/app/viagem'
-    | '/app/viagens'
+    | '/rastreio/$token'
     | '/app'
     | '/app/admin/afiliados'
     | '/app/admin/aprovacoes'
@@ -490,18 +485,23 @@ export interface FileRouteTypes {
     | '/app/admin/despacho'
     | '/app/admin/financeiro'
     | '/app/admin/frota'
+    | '/app/admin/growth'
     | '/app/admin/historico'
     | '/app/admin/linhas'
     | '/app/admin/locais'
     | '/app/admin/login'
+    | '/app/admin/marketing'
+    | '/app/admin/monetizacao'
     | '/app/admin/monitoramento'
     | '/app/admin/motoristas'
     | '/app/admin/notificacoes'
+    | '/app/admin/operacao'
     | '/app/admin/passageiros'
     | '/app/admin/pontos'
     | '/app/admin/rota'
     | '/app/admin/sos'
     | '/app/admin/veiculo'
+    | '/app/admin/whitelabel'
     | '/app/admin'
   id:
     | '__root__'
@@ -515,18 +515,13 @@ export interface FileRouteTypes {
     | '/escolher-tipo-cadastro'
     | '/app/admin'
     | '/app/bilhetes'
-    | '/app/demanda'
     | '/app/encomendas'
-    | '/app/linhas'
     | '/app/motorista'
-    | '/app/passe-universitario'
     | '/app/perfil'
     | '/app/rota'
-    | '/app/shop'
-    | '/app/shop-videos'
     | '/app/sos'
     | '/app/viagem'
-    | '/app/viagens'
+    | '/rastreio/$token'
     | '/app/'
     | '/app/admin/afiliados'
     | '/app/admin/aprovacoes'
@@ -536,18 +531,23 @@ export interface FileRouteTypes {
     | '/app/admin/despacho'
     | '/app/admin/financeiro'
     | '/app/admin/frota'
+    | '/app/admin/growth'
     | '/app/admin/historico'
     | '/app/admin/linhas'
     | '/app/admin/locais'
     | '/app/admin/login'
+    | '/app/admin/marketing'
+    | '/app/admin/monetizacao'
     | '/app/admin/monitoramento'
     | '/app/admin/motoristas'
     | '/app/admin/notificacoes'
+    | '/app/admin/operacao'
     | '/app/admin/passageiros'
     | '/app/admin/pontos'
     | '/app/admin/rota'
     | '/app/admin/sos'
     | '/app/admin/veiculo'
+    | '/app/admin/whitelabel'
     | '/app/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -560,6 +560,7 @@ export interface RootRouteChildren {
   CadastroPassageiroRoute: typeof CadastroPassageiroRoute
   DesignSystemRoute: typeof DesignSystemRoute
   EscolherTipoCadastroRoute: typeof EscolherTipoCadastroRoute
+  RastreioTokenRoute: typeof RastreioTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -641,13 +642,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBilhetesRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/demanda': {
-      id: '/app/demanda'
-      path: '/demanda'
-      fullPath: '/app/demanda'
-      preLoaderRoute: typeof AppDemandaRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/encomendas': {
       id: '/app/encomendas'
       path: '/encomendas'
@@ -655,25 +649,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEncomendasRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/linhas': {
-      id: '/app/linhas'
-      path: '/linhas'
-      fullPath: '/app/linhas'
-      preLoaderRoute: typeof AppLinhasRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/motorista': {
       id: '/app/motorista'
       path: '/motorista'
       fullPath: '/app/motorista'
       preLoaderRoute: typeof AppMotoristaRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/passe-universitario': {
-      id: '/app/passe-universitario'
-      path: '/passe-universitario'
-      fullPath: '/app/passe-universitario'
-      preLoaderRoute: typeof AppPasseUniversitarioRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/perfil': {
@@ -690,20 +670,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRotaRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/shop': {
-      id: '/app/shop'
-      path: '/shop'
-      fullPath: '/app/shop'
-      preLoaderRoute: typeof AppShopRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/app/shop-videos': {
-      id: '/app/shop-videos'
-      path: '/shop-videos'
-      fullPath: '/app/shop-videos'
-      preLoaderRoute: typeof AppShopVideosRouteImport
-      parentRoute: typeof AppRoute
-    }
     '/app/sos': {
       id: '/app/sos'
       path: '/sos'
@@ -718,12 +684,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppViagemRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/viagens': {
-      id: '/app/viagens'
-      path: '/viagens'
-      fullPath: '/app/viagens'
-      preLoaderRoute: typeof AppViagensRouteImport
-      parentRoute: typeof AppRoute
+    '/rastreio/$token': {
+      id: '/rastreio/$token'
+      path: '/rastreio/$token'
+      fullPath: '/rastreio/$token'
+      preLoaderRoute: typeof RastreioTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/app/admin/': {
       id: '/app/admin/'
@@ -788,6 +754,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminFrotaRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/growth': {
+      id: '/app/admin/growth'
+      path: '/growth'
+      fullPath: '/app/admin/growth'
+      preLoaderRoute: typeof AppAdminGrowthRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/historico': {
       id: '/app/admin/historico'
       path: '/historico'
@@ -816,6 +789,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminLoginRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/marketing': {
+      id: '/app/admin/marketing'
+      path: '/marketing'
+      fullPath: '/app/admin/marketing'
+      preLoaderRoute: typeof AppAdminMarketingRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/app/admin/monetizacao': {
+      id: '/app/admin/monetizacao'
+      path: '/monetizacao'
+      fullPath: '/app/admin/monetizacao'
+      preLoaderRoute: typeof AppAdminMonetizacaoRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/app/admin/monitoramento': {
       id: '/app/admin/monitoramento'
       path: '/monitoramento'
@@ -835,6 +822,13 @@ declare module '@tanstack/react-router' {
       path: '/notificacoes'
       fullPath: '/app/admin/notificacoes'
       preLoaderRoute: typeof AppAdminNotificacoesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/app/admin/operacao': {
+      id: '/app/admin/operacao'
+      path: '/operacao'
+      fullPath: '/app/admin/operacao'
+      preLoaderRoute: typeof AppAdminOperacaoRouteImport
       parentRoute: typeof AppAdminRoute
     }
     '/app/admin/passageiros': {
@@ -872,6 +866,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminVeiculoRouteImport
       parentRoute: typeof AppAdminRoute
     }
+    '/app/admin/whitelabel': {
+      id: '/app/admin/whitelabel'
+      path: '/whitelabel'
+      fullPath: '/app/admin/whitelabel'
+      preLoaderRoute: typeof AppAdminWhitelabelRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
   }
 }
 
@@ -884,18 +885,23 @@ interface AppAdminRouteChildren {
   AppAdminDespachoRoute: typeof AppAdminDespachoRoute
   AppAdminFinanceiroRoute: typeof AppAdminFinanceiroRoute
   AppAdminFrotaRoute: typeof AppAdminFrotaRoute
+  AppAdminGrowthRoute: typeof AppAdminGrowthRoute
   AppAdminHistoricoRoute: typeof AppAdminHistoricoRoute
   AppAdminLinhasRoute: typeof AppAdminLinhasRoute
   AppAdminLocaisRoute: typeof AppAdminLocaisRoute
   AppAdminLoginRoute: typeof AppAdminLoginRoute
+  AppAdminMarketingRoute: typeof AppAdminMarketingRoute
+  AppAdminMonetizacaoRoute: typeof AppAdminMonetizacaoRoute
   AppAdminMonitoramentoRoute: typeof AppAdminMonitoramentoRoute
   AppAdminMotoristasRoute: typeof AppAdminMotoristasRoute
   AppAdminNotificacoesRoute: typeof AppAdminNotificacoesRoute
+  AppAdminOperacaoRoute: typeof AppAdminOperacaoRoute
   AppAdminPassageirosRoute: typeof AppAdminPassageirosRoute
   AppAdminPontosRoute: typeof AppAdminPontosRoute
   AppAdminRotaRoute: typeof AppAdminRotaRoute
   AppAdminSosRoute: typeof AppAdminSosRoute
   AppAdminVeiculoRoute: typeof AppAdminVeiculoRoute
+  AppAdminWhitelabelRoute: typeof AppAdminWhitelabelRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
 }
 
@@ -908,18 +914,23 @@ const AppAdminRouteChildren: AppAdminRouteChildren = {
   AppAdminDespachoRoute: AppAdminDespachoRoute,
   AppAdminFinanceiroRoute: AppAdminFinanceiroRoute,
   AppAdminFrotaRoute: AppAdminFrotaRoute,
+  AppAdminGrowthRoute: AppAdminGrowthRoute,
   AppAdminHistoricoRoute: AppAdminHistoricoRoute,
   AppAdminLinhasRoute: AppAdminLinhasRoute,
   AppAdminLocaisRoute: AppAdminLocaisRoute,
   AppAdminLoginRoute: AppAdminLoginRoute,
+  AppAdminMarketingRoute: AppAdminMarketingRoute,
+  AppAdminMonetizacaoRoute: AppAdminMonetizacaoRoute,
   AppAdminMonitoramentoRoute: AppAdminMonitoramentoRoute,
   AppAdminMotoristasRoute: AppAdminMotoristasRoute,
   AppAdminNotificacoesRoute: AppAdminNotificacoesRoute,
+  AppAdminOperacaoRoute: AppAdminOperacaoRoute,
   AppAdminPassageirosRoute: AppAdminPassageirosRoute,
   AppAdminPontosRoute: AppAdminPontosRoute,
   AppAdminRotaRoute: AppAdminRotaRoute,
   AppAdminSosRoute: AppAdminSosRoute,
   AppAdminVeiculoRoute: AppAdminVeiculoRoute,
+  AppAdminWhitelabelRoute: AppAdminWhitelabelRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
 }
 
@@ -930,36 +941,24 @@ const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRouteWithChildren
   AppBilhetesRoute: typeof AppBilhetesRoute
-  AppDemandaRoute: typeof AppDemandaRoute
   AppEncomendasRoute: typeof AppEncomendasRoute
-  AppLinhasRoute: typeof AppLinhasRoute
   AppMotoristaRoute: typeof AppMotoristaRoute
-  AppPasseUniversitarioRoute: typeof AppPasseUniversitarioRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppRotaRoute: typeof AppRotaRoute
-  AppShopRoute: typeof AppShopRoute
-  AppShopVideosRoute: typeof AppShopVideosRoute
   AppSosRoute: typeof AppSosRoute
   AppViagemRoute: typeof AppViagemRoute
-  AppViagensRoute: typeof AppViagensRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRouteWithChildren,
   AppBilhetesRoute: AppBilhetesRoute,
-  AppDemandaRoute: AppDemandaRoute,
   AppEncomendasRoute: AppEncomendasRoute,
-  AppLinhasRoute: AppLinhasRoute,
   AppMotoristaRoute: AppMotoristaRoute,
-  AppPasseUniversitarioRoute: AppPasseUniversitarioRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppRotaRoute: AppRotaRoute,
-  AppShopRoute: AppShopRoute,
-  AppShopVideosRoute: AppShopVideosRoute,
   AppSosRoute: AppSosRoute,
   AppViagemRoute: AppViagemRoute,
-  AppViagensRoute: AppViagensRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
@@ -974,6 +973,7 @@ const rootRouteChildren: RootRouteChildren = {
   CadastroPassageiroRoute: CadastroPassageiroRoute,
   DesignSystemRoute: DesignSystemRoute,
   EscolherTipoCadastroRoute: EscolherTipoCadastroRoute,
+  RastreioTokenRoute: RastreioTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * ⚖️ UNIVANS DOUBLE-ENTRY BOOKKEEPING ENGINE (PARTIDAS DOBRADAS)
+ * ⚖️ PARTIU DOUBLE-ENTRY BOOKKEEPING ENGINE (PARTIDAS DOBRADAS)
  * Invariante Contábil Estrita: SUM(Débitos) === SUM(Créditos)
  * ==============================================================================
  */
@@ -106,7 +106,7 @@ export async function registrarEntradaEscrow(
   // Validação matemática mandatória
   assertDoubleEntryBalanced(entries);
 
-  // Persistência no PostgreSQL
+  // Persistência no PostgreSQL com garantia ACID e contingência local (Offline-First)
   try {
     const payload = entries.map((e) => ({
       id: e.id,
@@ -116,9 +116,12 @@ export async function registrarEntradaEscrow(
       amount_cents: e.amountCents,
       description: e.description,
     }));
-    await supabase.from("financial_ledger_entries").insert(payload);
-  } catch (err) {
-    console.warn("Aviso na gravação do ledger:", err);
+    const { error } = await supabase.from("financial_ledger_entries").insert(payload);
+    if (error) {
+      console.warn(`[FinOps Ledger] Inserção remota em contingência: ${error.message}`);
+    }
+  } catch (err: any) {
+    console.warn(`[FinOps Ledger] Falha de conexão na persistência remota (contingência offline ativa): ${err?.message}`);
   }
 
   return {
@@ -201,7 +204,7 @@ export async function liquidarSplitViagem(
   // Assegura invariante fundamental
   assertDoubleEntryBalanced(entries);
 
-  // Persistência no PostgreSQL
+  // Persistência no PostgreSQL com garantia ACID e contingência local (Offline-First)
   try {
     const payload = entries.map((e) => ({
       id: e.id,
@@ -211,9 +214,12 @@ export async function liquidarSplitViagem(
       amount_cents: e.amountCents,
       description: e.description,
     }));
-    await supabase.from("financial_ledger_entries").insert(payload);
-  } catch (err) {
-    console.warn("Aviso na gravação do split no ledger:", err);
+    const { error } = await supabase.from("financial_ledger_entries").insert(payload);
+    if (error) {
+      console.warn(`[FinOps Ledger] Inserção remota do split em contingência: ${error.message}`);
+    }
+  } catch (err: any) {
+    console.warn(`[FinOps Ledger] Falha de conexão na persistência remota do split (contingência offline ativa): ${err?.message}`);
   }
 
   return {

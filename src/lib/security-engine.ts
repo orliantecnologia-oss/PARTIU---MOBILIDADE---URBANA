@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 🛡️ UNIVANS RATE LIMITER & SECURITY ENGINE (v3.3)
+ * 🛡️ PARTIU RATE LIMITER & SECURITY ENGINE (v3.3)
  * Proteção contra Abuso de API, Brute-Force, Replay Attacks e OWASP Hardening
  * ==============================================================================
  */

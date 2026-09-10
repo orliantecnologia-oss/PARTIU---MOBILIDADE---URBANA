@@ -210,7 +210,7 @@ export function ModalScannerPassageiro({ aberto, onFechar, bilheteId, onSucesso 
             <button
               type="button"
               disabled={processando || resultado?.sucesso}
-              onClick={() => handleProcessarValidacao("UNIVANS:TOTEM_VAN_04:RJP2F14:LINE_IGN_MCZ")}
+              onClick={() => handleProcessarValidacao("PARTIU:TOTEM_04:RJP2F14:CORRIDA_01")}
               className="w-full min-h-12 h-12 px-5 rounded-2xl bg-[#0d5930] hover:bg-[#147a44] text-white text-sm sm:text-base font-black shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
             >
               {processando ? (

@@ -1,7 +1,7 @@
 /**
  * ==============================================================================
- * 🔄 UNIVANS ENTERPRISE STATE MACHINES (v3.3)
- * Máquinas de Estado Formais para Trip, Ticket, Passenger, Device, Vehicle, Payment
+ * 🔄 PARTIU ENTERPRISE STATE MACHINES (v3.3)
+ * Máquinas de Estado Formais para Trip, Ride, Ticket, Passenger, Device, Vehicle, Payment
  * ==============================================================================
  */
 

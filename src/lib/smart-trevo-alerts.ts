@@ -1,7 +1,7 @@
 /**
  * ==============================================================================
- * 🛰️ UNIVANS SMART TREVO ARRIVAL ENGINE
- * Motor de Predição e Alertas Inteligentes de Chegada nos Trevos Rodoviários
+ * 🛰️ PARTIU SMART ARRIVAL & HOTSPOT ENGINE
+ * Motor de Predição e Alertas Inteligentes de Chegada nos Trevos e Pontos Chave
  * ==============================================================================
  */
 

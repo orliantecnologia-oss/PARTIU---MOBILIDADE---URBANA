@@ -8,21 +8,21 @@ import {
   useExcluirPonto,
   useRealtimeTabela,
   type PontoEmbarque,
-} from "@/lib/univans-db";
+} from "@/lib/partiu-db";
 
 export const Route = createFileRoute("/app/admin/pontos")({
   head: () => ({
     meta: [
-      { title: "Pontos de Embarque | UniVans Admin" },
+      { title: "Hotspots & Pontos Chave | PARTIU Admin" },
       {
         name: "description",
         content:
-          "Cadastre trevos, postos e terminais de embarque por linha, com referência, horário e ordem de parada.",
+          "Cadastre trevos, shoppings, aeroportos e pontos de embarque rápido com referência e coordenadas.",
       },
-      { property: "og:title", content: "Pontos de Embarque | UniVans Admin" },
+      { property: "og:title", content: "Hotspots & Pontos Chave | PARTIU Admin" },
       {
         property: "og:description",
-        content: "Gestão dos pontos de embarque da cooperativa UniVans em tempo real.",
+        content: "Gestão dos hotspots e pontos estratégicos urbanos da rede PARTIU em tempo real.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -32,11 +32,15 @@ export const Route = createFileRoute("/app/admin/pontos")({
 });
 
 const TIPOS = [
-  ["trevo_rodoviario", "Trevo rodoviário"],
-  ["posto_combustivel", "Posto de combustível"],
-  ["terminal_rodoviario", "Terminal rodoviário"],
-  ["praca_central", "Praça central"],
-  ["ponto_urbano_vip", "Ponto urbano VIP"],
+  ["shopping_mall", "Shopping & Centro Comercial"],
+  ["aeroporto_terminal", "Aeroporto & Terminal Rodoviário"],
+  ["universidade_polo", "Faculdade & Universidade"],
+  ["arena_eventos", "Arena de Shows & Eventos"],
+  ["hospital_saude", "Hospital & Pronto-Socorro"],
+  ["polo_gastronomico", "Bares & Gastronomia"],
+  ["posto_combustivel", "Posto de Combustível & Apoio"],
+  ["trevo_rodoviario", "Trevo / Acesso Rodoviário"],
+  ["ponto_urbano_vip", "Ponto Urbano VIP"],
 ] as const;
 
 type FormPonto = {

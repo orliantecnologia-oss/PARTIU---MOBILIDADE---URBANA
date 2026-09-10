@@ -34,11 +34,11 @@ import {
 export const Route = createFileRoute("/app/admin/notificacoes")({
   head: () => ({
     meta: [
-      { title: "Central de Disparo de Notificações | UniVans Admin" },
+      { title: "Central de Disparo de Notificações | PARTIU Admin" },
       {
         name: "description",
         content:
-          "Disparo de notificações push e comunicados segmentados para usuários, gratuidades e motoristas.",
+          "Disparo de notificações push e comunicados segmentados para usuários, motoristas e entregadores.",
       },
     ],
   }),
@@ -89,7 +89,7 @@ export function AdminNotificacoesScreen() {
         categoria,
         urgencia,
         rotaDestino: rotaDestino.trim() || "/app",
-        enviadoPor: "Diretoria UniVans Alagoas",
+        enviadoPor: "Diretoria PARTIU Brasil",
       });
 
       setNotificacoes(listarNotificacoesBroadcast());
@@ -146,8 +146,8 @@ export function AdminNotificacoesScreen() {
     },
     {
       id: "motorista" as CategoriaDestinatario,
-      titulo: "Motorista Cooperado",
-      subtitulo: "Condutores de vans e operadores de linha",
+      titulo: "Motoristas & Entregadores",
+      subtitulo: "Condutores parceiros (Carro, Moto e Flash)",
       icone: Layers,
       badgeCor: "bg-amber-600 text-white",
       corCard: "hover:border-amber-600",
@@ -446,13 +446,11 @@ export function AdminNotificacoesScreen() {
             <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl space-y-2">
               <div className="flex items-center justify-between text-[11px] text-slate-300">
                 <div className="flex items-center gap-1.5">
-                  <img
-                    src="/univans-logo.jpg"
-                    alt="UniVans"
-                    className="h-4 w-4 rounded-md object-contain"
-                  />
-                  <span className="font-black text-white">UniVans Alagoas</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-bold uppercase">
+                  <div className="h-4 w-4 rounded-md bg-[#FFDE00] flex items-center justify-center font-black text-slate-950 text-[9px]">
+                    P
+                  </div>
+                  <span className="font-black text-white">PARTIU Notificações</span>
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold uppercase">
                     {categoria}
                   </span>
                 </div>

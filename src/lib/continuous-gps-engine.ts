@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * 🛰️ UNIVANS CONTINUOUS GPS & TELEMETRY ENGINE (v4.0)
+ * 🛰️ PARTIU CONTINUOUS GPS & TELEMETRY ENGINE (v4.0)
  * Sistema de Rastreamento Contínuo com Anti-Sleep, Background Keep-Alive,
  * Filtro de Deadband Inteligente e Resiliência Offline para Motoristas.
  * ==============================================================================
@@ -8,6 +8,8 @@
 
 import { deveTransmitirGpsDeadband, calcularDistanciaMetros } from "./telemetry-pipeline";
 import { enqueueDurableOfflineEvent } from "./offline-durable-queue";
+import { silentCatchWarn } from "@/lib/structured-logger";
+
 
 export interface TelemetriaGpsPonto {
   latitude: number;
@@ -166,9 +168,7 @@ class ContinuousGpsManager {
     if (this.wakeLockSentinel) {
       try {
         this.wakeLockSentinel.release();
-      } catch {
-        // Ignore
-      }
+      } catch (err) { silentCatchWarn("continuous-gps-engine", err); }
       this.wakeLockSentinel = null;
       this.atualizarEstado({ wakeLockAtivo: false });
     }
@@ -185,9 +185,9 @@ class ContinuousGpsManager {
       // Configurar metadados do MediaSession no Android / iOS
       if ("mediaSession" in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: "UniVans — Van em Rota (GPS Contínuo)",
-          artist: `${this.config?.placaVeiculo || "Van Starlink"} • Motorista ${this.config?.motoristaNome || "Operacional"}`,
-          album: this.config?.linhaOrigemDestino || "Corredor Rodoviário UniVans",
+          title: "PARTIU — Condutor em Rota (GPS Contínuo)",
+          artist: `${this.config?.placaVeiculo || "Veículo PARTIU"} • Motorista ${this.config?.motoristaNome || "Parceiro"}`,
+          album: this.config?.linhaOrigemDestino || "Rede de Mobilidade PARTIU",
           artwork: [
             { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
             { src: "/logo.svg", sizes: "512x512", type: "image/svg+xml" },
@@ -233,9 +233,7 @@ class ContinuousGpsManager {
     if (this.audioContext) {
       try {
         this.audioContext.close();
-      } catch {
-        // Ignore
-      }
+      } catch (err) { silentCatchWarn("continuous-gps-engine", err); }
       this.audioContext = null;
     }
 

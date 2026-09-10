@@ -1,7 +1,7 @@
 /**
  * ==============================================================================
- * 🔑 UNIVANS GLOBAL IDEMPOTENCY ENGINE (v4.0)
- * Proteção Transacional Contra Duplicação e Validação de Request Hash Mismatch
+ * 🛡️ PARTIU GLOBAL IDEMPOTENCY ENGINE (v4.0)
+ * Prevenção Estrita de Duplicação e Atomic Lock Multi-Entidade
  * ==============================================================================
  */
 
@@ -46,6 +46,8 @@ export interface IdempotencyRecord<T = unknown> {
 
 import crypto from "crypto";
 import { supabase } from "@/integrations/supabase/client";
+import { silentCatchWarn } from "@/lib/structured-logger";
+
 
 const LOCAL_FALLBACK_STORE = new Map<string, IdempotencyRecord>();
 const DEFAULT_EXPIRATION_HOURS = 24;
@@ -83,9 +85,7 @@ export async function getIdempotencyRecord<T>(key: string): Promise<IdempotencyR
         expiresAt: data.expires_at,
       };
     }
-  } catch {
-    // Continua para fallback local
-  }
+  } catch (err) { silentCatchWarn("global-idempotency", err); }
 
   // 2. Fallback local em memória
   const record = LOCAL_FALLBACK_STORE.get(key);
@@ -164,9 +164,7 @@ export async function executeWithIdempotency<T>(
       status: "IN_FLIGHT",
       expires_at: expires.toISOString(),
     });
-  } catch {
-    // Continua com execução segura
-  }
+  } catch (err) { silentCatchWarn("global-idempotency", err); }
 
   try {
     const result = await executor();
@@ -185,9 +183,7 @@ export async function executeWithIdempotency<T>(
           response_payload: (result as any) ?? null,
         })
         .eq("key", idempotencyKey);
-    } catch {
-      // Ignora erro de rede pós-execução
-    }
+    } catch (err) { silentCatchWarn("global-idempotency", err); }
 
     return { executed: true, duplicate: false, result };
   } catch (err) {
@@ -201,9 +197,7 @@ export async function executeWithIdempotency<T>(
           status: "REJECTED",
         })
         .eq("key", idempotencyKey);
-    } catch {
-      // Ignora
-    }
+    } catch (err) { silentCatchWarn("global-idempotency", err); }
 
     throw err;
   }

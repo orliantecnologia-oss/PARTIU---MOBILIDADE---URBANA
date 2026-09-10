@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { IdCard, Phone, Plus, Ticket, UserPlus, Users } from "lucide-react";
+import { Car, IdCard, Phone, Plus, Ticket, UserPlus, Users } from "lucide-react";
 import {
   atualizarPassageiro,
   cadastrarPassageiro,
@@ -13,16 +13,16 @@ import {
 export const Route = createFileRoute("/app/admin/passageiros")({
   head: () => ({
     meta: [
-      { title: "Cadastro de Passageiros | UniVans Admin" },
+      { title: "Cadastro de Passageiros | PARTIU Admin" },
       {
         name: "description",
         content:
-          "Cadastre passageiros, vincule CPF e WhatsApp e libere acesso automático aos bilhetes no app.",
+          "Cadastre passageiros, vincule CPF e WhatsApp e libere acesso automático a corridas no app.",
       },
-      { property: "og:title", content: "Cadastro de Passageiros | UniVans Admin" },
+      { property: "og:title", content: "Cadastro de Passageiros | PARTIU Admin" },
       {
         property: "og:description",
-        content: "Gestão de passageiros da cooperativa com CPF, WhatsApp e acesso aos bilhetes.",
+        content: "Gestão de passageiros do app PARTIU com CPF, WhatsApp e histórico de corridas.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/app/admin/passageiros")({
 });
 
 const CAMPO =
-  "mt-1 w-full min-h-12 h-12 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-medium text-slate-800 focus:border-[#0d5930] outline-none transition-colors";
+  "mt-1 w-full min-h-12 h-12 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-medium text-slate-800 focus:border-[#FFDE00] outline-none transition-colors";
 
 function AdminPassageiros() {
   const qc = useQueryClient();
@@ -73,17 +73,17 @@ function AdminPassageiros() {
     <div className="space-y-6 p-4 md:p-6 max-w-5xl mx-auto">
       <header>
         <h1 className="flex items-center gap-2 text-xl sm:text-2xl font-black text-slate-900">
-          <Users className="h-6 w-6 text-[#0d5930]" /> Cadastro de passageiros
+          <Users className="h-6 w-6 text-amber-500" /> Cadastro de passageiros
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-slate-500">
-          Crie o acesso do passageiro, vincule CPF e WhatsApp. Ao entrar, ele já usa a área de
-          bilhetes.
+          Crie o acesso do passageiro, vincule CPF e WhatsApp. Ao entrar, ele já pode solicitar
+          corridas e entregas expressas no app PARTIU.
         </p>
       </header>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
         <h2 className="flex items-center gap-2 text-sm sm:text-base font-black text-slate-800">
-          <UserPlus className="h-5 w-5 text-[#0d5930]" /> Novo passageiro
+          <UserPlus className="h-5 w-5 text-amber-500" /> Novo passageiro
         </h2>
         <div className="mt-3 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
           {(
@@ -113,7 +113,7 @@ function AdminPassageiros() {
           type="button"
           disabled={criar.isPending}
           onClick={() => criar.mutate(form)}
-          className="mt-4 min-h-12 inline-flex items-center gap-2 rounded-xl bg-[#0d5930] px-5 py-3 text-sm sm:text-base font-black text-white hover:brightness-105 disabled:opacity-50 cursor-pointer transition-all shadow-xs"
+          className="mt-4 min-h-12 inline-flex items-center gap-2 rounded-xl bg-[#FFDE00] px-5 py-3 text-sm sm:text-base font-black text-slate-950 hover:bg-[#ffe338] disabled:opacity-50 cursor-pointer transition-all shadow-xs"
         >
           <Plus className="h-5 w-5" />
           {criar.isPending ? "Cadastrando..." : "Cadastrar e liberar acesso"}
@@ -123,7 +123,7 @@ function AdminPassageiros() {
         )}
         {criar.isSuccess && (
           <p className="mt-2 text-xs font-bold text-emerald-700">
-            Passageiro cadastrado com acesso a /app/bilhetes.
+            Passageiro cadastrado com sucesso! Pronto para solicitar corridas no app.
           </p>
         )}
       </section>
@@ -132,10 +132,10 @@ function AdminPassageiros() {
         <div className="flex items-center justify-between border-b border-slate-100 p-4">
           <h2 className="text-sm font-black text-slate-800">Passageiros ({passageiros.length})</h2>
           <Link
-            to="/app/bilhetes"
-            className="inline-flex items-center gap-1.5 text-xs font-black text-[#0d5930]"
+            to="/app"
+            className="inline-flex items-center gap-1.5 text-xs font-black text-slate-800 hover:text-amber-500 transition-colors"
           >
-            <Ticket className="h-4 w-4" /> Ver área de bilhetes
+            <Car className="h-4 w-4 text-amber-500" /> Abrir App do Passageiro
           </Link>
         </div>
 
@@ -174,7 +174,7 @@ function AdminPassageiros() {
                           whatsapp: editando.phone ?? "",
                         })
                       }
-                      className="flex-1 rounded-xl bg-[#0d5930] px-3 py-2 text-xs font-black text-white"
+                      className="flex-1 rounded-xl bg-[#FFDE00] px-3 py-2 text-xs font-black text-slate-950 hover:bg-[#ffe338]"
                     >
                       Salvar
                     </button>

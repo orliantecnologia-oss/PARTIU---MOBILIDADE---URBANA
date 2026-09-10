@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * ⚖️ UNIVANS FINOPS RECONCILIATION & AUDIT ENGINE (v3.3)
+ * ⚖️ PARTIU FINOPS RECONCILIATION & AUDIT ENGINE (v3.3)
  * Conciliação PSP vs Payments vs Ledger vs Settlement & Invariantes Contábeis
  * ==============================================================================
  */

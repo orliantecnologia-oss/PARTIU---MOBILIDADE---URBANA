@@ -149,7 +149,7 @@ export function HomeRegionalRadar({ onSelecionarPontoOrigem }: HomeRegionalRadar
             </div>
             <div className="flex items-center gap-2 pt-1">
               <Link
-                to="/app/linhas"
+                to="/app"
                 className="px-3.5 py-2 rounded-xl bg-[#0d5930] hover:bg-[#147a44] text-white text-xs font-black shadow-md active:scale-95 transition-all"
               >
                 Comprar Passagem
@@ -210,7 +210,7 @@ export function HomeRegionalRadar({ onSelecionarPontoOrigem }: HomeRegionalRadar
           </div>
 
           <Link
-            to="/app/linhas"
+            to="/app"
             className="flex items-center gap-1.5 min-h-[44px] h-11 px-4 py-2 rounded-xl bg-[#0d5930] hover:bg-[#147a44] text-white text-xs sm:text-sm font-black shrink-0 active:scale-95 transition-all shadow-xs"
           >
             <span>Ver Horários</span>

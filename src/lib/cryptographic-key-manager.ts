@@ -34,7 +34,7 @@ const KEY_STORE = new Map<string, CryptoKeyMetadata>([
   [
     REVOKED_OLD_KEY_ID,
     {
-      keyId: "key_univans_v1_leaked",
+      keyId: "key_partiu_v1_leaked",
       version: REVOKED_OLD_KEY_ID,
       algorithm: "Ed25519",
       publicKey: K1_PUB,
@@ -47,7 +47,7 @@ const KEY_STORE = new Map<string, CryptoKeyMetadata>([
   [
     ACTIVE_KEY_ID,
     {
-      keyId: "key_univans_v3_active",
+      keyId: "key_partiu_v3_active",
       version: ACTIVE_KEY_ID,
       algorithm: "Ed25519",
       publicKey: K2_PUB,
@@ -59,7 +59,7 @@ const KEY_STORE = new Map<string, CryptoKeyMetadata>([
   [
     "v0-compromised-2026",
     {
-      keyId: "key_univans_v0_compromised",
+      keyId: "key_partiu_v0_compromised",
       version: "v0-compromised-2026",
       algorithm: "Ed25519",
       publicKey: K1_PUB,

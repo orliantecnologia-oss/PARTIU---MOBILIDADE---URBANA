@@ -1,26 +1,22 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
-  CheckCircle2,
-  Clock,
-  Lock,
-  MapPin,
+  Car,
+  Bike,
   Package,
   ShieldCheck,
-  Sparkles,
-  Truck,
-  User,
   Zap,
 } from "lucide-react";
 
 export const Route = createFileRoute("/escolher-tipo-cadastro")({
   head: () => ({
     meta: [
-      { title: "Escolha seu Perfil | Pega a Van & UniVans" },
+      { title: "Como deseja se cadastrar? | PARTIU" },
       {
         name: "description",
-        content: "Acesse o sistema de vans intermunicipais como passageiro ou motorista parceiro.",
+        content:
+          "Cadastre-se no PARTIU como passageiro para pedir corridas ou como motorista/entregador parceiro para faturar com seu veículo.",
       },
     ],
   }),
@@ -28,144 +24,129 @@ export const Route = createFileRoute("/escolher-tipo-cadastro")({
 });
 
 export function EscolherTipoCadastroPage() {
-  const navigate = useNavigate();
-
   return (
-    <div className="min-h-[100dvh] bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
-      {/* Top Header com Voltar */}
-      <div className="mx-auto w-full max-w-full sm:max-w-md flex items-center justify-between px-1 sm:px-0">
+    <div className="min-h-[100dvh] bg-[#0b0f17] text-white flex flex-col justify-between p-4 sm:p-6 w-full pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
+      {/* Top Header */}
+      <div className="mx-auto w-full max-w-md flex items-center justify-between">
         <Link
           to="/"
-          className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-700 shadow-2xs active:scale-95 transition-all cursor-pointer"
-          aria-label="Voltar para a página inicial"
+          className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 shadow-xs active:scale-95 transition-all cursor-pointer hover:text-white"
+          aria-label="Voltar para o início"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <span className="text-xs font-black uppercase tracking-wider text-[#0d5930]">
-          Selecione seu Perfil
+        <span className="text-xs font-black uppercase tracking-wider text-[#FFDE00]">
+          Criar Nova Conta
         </span>
-        <div className="w-9" />
+        <div className="w-11" />
       </div>
 
-      <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-2">
+      <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-6">
         {/* Logo e Título */}
-        <div className="text-center mb-5">
-          <div className="mx-auto flex h-14 w-auto items-center justify-center rounded-2xl bg-white p-2 border border-slate-200 shadow-md mb-2">
-            <img
-              src="/univans-logo.jpg"
-              alt="UniVans Coop Alagoas"
-              className="h-10 w-auto object-contain"
-            />
+        <div className="text-center mb-7">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFDE00] text-slate-950 shadow-lg shadow-[#FFDE00]/20 mb-3">
+            <Zap className="h-7 w-7 fill-slate-950 stroke-[2.5]" />
           </div>
-          <span className="inline-flex items-center gap-1 text-[10px] font-black text-[#0d5930] uppercase tracking-wider">
-            <Sparkles className="h-3 w-3 text-[#e5a93c]" /> UniVans Coop Alagoas
+          <span className="inline-flex items-center gap-1.5 text-xs font-black text-[#FFDE00] uppercase tracking-wider">
+            <ShieldCheck className="h-4 w-4" /> PARTIU Mobilidade & Entregas
           </span>
-          <h1 className="text-xl font-black text-slate-900 mt-0.5">Como deseja acessar?</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Selecione uma opção para continuar</p>
+          <h1 className="text-2xl font-black text-white mt-1">Como deseja usar o Partiu?</h1>
+          <p className="text-xs text-slate-400 mt-1">
+            Selecione uma modalidade para continuar seu cadastro
+          </p>
         </div>
 
-        {/* Cards de Escolha de Perfil */}
+        {/* Cards de Opção */}
         <div className="space-y-3">
           {/* Opção 1: Sou Passageiro */}
           <Link
             to="/cadastro-passageiro"
-            className="group flex items-center gap-3.5 rounded-xl bg-white p-4 shadow-xs border border-slate-200/90 transition-all hover:border-[#0d5930] active:scale-[0.98] min-h-[68px] cursor-pointer"
+            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#FFDE00]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#0d5930] transition-colors group-hover:bg-[#0d5930] group-hover:text-white">
-              <User className="h-6 w-6" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#FFDE00] text-slate-950 font-black shadow-xs group-hover:scale-105 transition-transform">
+              <Car className="h-6 w-6 stroke-[2.5]" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm sm:text-base font-black text-slate-900">Sou Passageiro</p>
-              <p className="text-xs text-slate-500 font-medium">
-                Encontrar rotas, horários e viajar
+              <div className="flex items-center gap-2">
+                <p className="text-base font-black text-white">Quero ser Passageiro</p>
+                <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                  Popular
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">
+                Chame carros ou motos com tarifa justa, PIN e rastreamento ao vivo.
               </p>
             </div>
-            <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-[#0d5930] transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#FFDE00] transition-transform group-hover:translate-x-1" />
           </Link>
 
           {/* Opção 2: Sou Motorista */}
           <Link
             to="/cadastro-motorista"
-            className="group flex items-center gap-3.5 rounded-xl bg-white p-4 shadow-xs border border-slate-200/90 transition-all hover:border-[#0d5930] active:scale-[0.98] min-h-[68px] cursor-pointer"
+            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#FFDE00]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-[#0d5930] transition-colors group-hover:bg-[#0d5930] group-hover:text-white">
-              <Truck className="h-6 w-6" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black shadow-xs group-hover:scale-105 transition-transform">
+              <Car className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm sm:text-base font-black text-slate-900">Sou Motorista</p>
-              <p className="text-xs text-slate-500 font-medium">Cadastrar van, horários e vagas</p>
+              <p className="text-base font-black text-white">Motorista Parceiro (Carro)</p>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">
+                Dirija com seu automóvel, fature no seu ritmo e receba via PIX D+0.
+              </p>
             </div>
-            <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-[#0d5930] transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#FFDE00] transition-transform group-hover:translate-x-1" />
           </Link>
 
-          {/* Opção 3: Passe Livre Governamental (Gratuidade por Lei) */}
+          {/* Opção 3: Sou Entregador ou Moto */}
           <Link
-            to="/cadastro-gratuidade"
-            className="group flex items-center gap-3.5 rounded-xl bg-gradient-to-r from-emerald-50/90 to-amber-50/50 p-4 shadow-xs border-2 border-emerald-300 transition-all hover:border-[#0d5930] active:scale-[0.98] min-h-[68px] cursor-pointer"
+            to="/cadastro-motorista"
+            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#FFDE00]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0d5930] text-white transition-colors group-hover:bg-[#147a44]">
-              <ShieldCheck className="h-6 w-6 text-amber-300" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-black shadow-xs group-hover:scale-105 transition-transform">
+              <Bike className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <p className="text-sm sm:text-base font-black text-slate-900">
-                  Passe Livre Governamental
-                </p>
-                <span className="text-xs font-black uppercase text-[#0d5930] bg-emerald-100 px-2 py-0.5 rounded">
-                  Lei 100% Gratuito
+              <div className="flex items-center gap-2">
+                <p className="text-base font-black text-white">Partiu Moto & Entregador</p>
+                <span className="text-[10px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                  Flash
                 </span>
               </div>
-              <p className="text-xs text-slate-600 font-medium">
-                Idosos 60+, PCD e Estudante CadÚnico (2 vagas/van)
+              <p className="text-xs text-slate-400 font-medium mt-0.5">
+                Corridas rápidas de moto e entregas expressas de pacotes.
               </p>
             </div>
-            <ArrowRight className="h-5 w-5 text-[#0d5930] transition-transform group-hover:translate-x-1" />
-          </Link>
-
-          {/* Opção 4: Acesso Direto aos Horários */}
-          <Link
-            to="/app/linhas"
-            className="group flex items-center gap-3.5 rounded-xl bg-white p-4 shadow-xs border border-slate-200/90 transition-all hover:border-amber-500 active:scale-[0.98] min-h-[68px] cursor-pointer"
-          >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 transition-colors group-hover:bg-amber-500 group-hover:text-white">
-              <Clock className="h-6 w-6" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm sm:text-base font-black text-slate-900">
-                Consultar Horários & Linhas
-              </p>
-              <p className="text-xs text-slate-500 font-medium">
-                Ver próximas saídas e vagas livres
-              </p>
-            </div>
-            <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-amber-600 transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#FFDE00] transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
-        {/* Link de Entrada */}
-        <div className="mt-5 text-center space-y-2">
-          <Link
-            to="/auth"
-            search={{ redirect: "/app" }}
-            className="inline-block text-xs font-black text-[#0d5930] hover:underline"
-          >
-            Já tem uma conta? Entrar no Sistema
-          </Link>
+        {/* Link para Login */}
+        <div className="mt-8 text-center">
+          <p className="text-xs text-slate-400">
+            Já possui uma conta ativa no PARTIU?{" "}
+            <Link
+              to="/auth"
+              search={{ redirect: "/app" }}
+              className="text-[#FFDE00] font-black hover:underline ml-1"
+            >
+              Fazer Login
+            </Link>
+          </p>
         </div>
       </div>
 
       {/* Rodapé Operacional */}
-      <div className="mx-auto w-full max-w-sm pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
-        <Link to="/app/motorista" className="hover:text-slate-900 font-bold">
-          Painel de Bordo
+      <div className="mx-auto w-full max-w-md pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-500">
+        <Link to="/app" className="hover:text-slate-300 font-bold">
+          App Passageiro
         </Link>
         <span>•</span>
-        <Link to="/app/admin" className="hover:text-slate-900 font-bold">
-          Painel Admin
+        <Link to="/app/motorista" className="hover:text-slate-300 font-bold">
+          Cockpit Motorista
         </Link>
         <span>•</span>
-        <Link to="/app/sos" className="hover:text-rose-600 font-bold">
-          SOS Emergência
+        <Link to="/app/admin/login" className="hover:text-slate-300 font-bold">
+          Admin
         </Link>
       </div>
     </div>

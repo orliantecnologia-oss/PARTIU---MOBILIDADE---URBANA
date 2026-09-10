@@ -100,26 +100,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content:
           "width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content",
       },
-      { name: "theme-color", content: "#0d5930" },
+      { name: "theme-color", content: "#FFDE00" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { title: "UniVans - Gestão de Frotas de Vans & Linhas" },
+      { title: "PARTIU - Para onde você for, Partiu! Mobilidade & Entregas" },
       {
         name: "description",
         content:
-          "Sistema de transporte intermunicipal de vans, horários em tempo real, encomendas e telemetria Starlink.",
+          "Para onde você for, Partiu! Carro, moto e entregas expressas com tarifa justa, verificação de PIN de segurança e repasse instantâneo via PIX D+0.",
       },
-      { name: "author", content: "UniVans" },
-      { property: "og:title", content: "UniVans - Gestão de Frotas de Vans" },
+      { name: "author", content: "PARTIU Mobilidade" },
+      { property: "og:title", content: "PARTIU - Mobilidade Urbana & Entregas" },
       {
         property: "og:description",
         content:
-          "Sistema de transporte intermunicipal de vans, horários em tempo real, encomendas e telemetria Starlink.",
+          "Carro, moto e entregas com tarifa justa, código PIN de segurança e rastreamento em tempo real.",
       },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: "https://apk-uni-vans-coop.vercel.app/icon-512.png" },
+      { property: "og:image", content: "/icon-512.png" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://apk-uni-vans-coop.vercel.app/icon-512.png" },
+      { name: "twitter:image", content: "/icon-512.png" },
     ],
     links: [
       {

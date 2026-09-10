@@ -1,7 +1,7 @@
 /**
  * ==============================================================================
- * 🏢 UNIVANS MULTI-TENANT SECURITY & ZERO-TRUST RLS GUARD ENGINE (v3.4)
- * Isolamento Criptográfico e Contratual de Dados entre Cooperativas
+ * 🏢 PARTIU MULTI-TENANT SECURITY & ZERO-TRUST RLS GUARD ENGINE (v3.4)
+ * Isolamento Criptográfico e Contratual de Dados entre Operações e Cidades
  * ==============================================================================
  */
 

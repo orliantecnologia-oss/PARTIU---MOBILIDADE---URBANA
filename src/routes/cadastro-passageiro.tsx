@@ -8,22 +8,22 @@ import {
   MapPin,
   MessageCircle,
   Phone,
-  Radio,
   ShieldCheck,
-  Sparkles,
   User,
   Zap,
 } from "lucide-react";
 import { useGeolocation } from "@/lib/use-geolocation";
+import { silentCatchWarn } from "@/lib/structured-logger";
+
 
 export const Route = createFileRoute("/cadastro-passageiro")({
   head: () => ({
     meta: [
-      { title: "Cadastro de Passageiro com GPS | UniVans" },
+      { title: "Cadastro de Passageiro | PARTIU" },
       {
         name: "description",
         content:
-          "Crie sua conta de passageiro UniVans com localização ativa para embarque rápido e acompanhamento da van em tempo real.",
+          "Crie sua conta de passageiro no PARTIU com localização GPS ativa para pedir corridas urbanas e entregas expressas.",
       },
     ],
   }),
@@ -37,10 +37,9 @@ export function CadastroPassageiroPage() {
   const [senha, setSenha] = useState("123456");
   const [telefone, setTelefone] = useState("(82) 99841-2940");
   const [cpf, setCpf] = useState("084.192.524-88");
-  const [cidadeFavorita, setCidadeFavorita] = useState("Igreja Nova ⇄ Maceió");
+  const [cidade, setCidade] = useState("Maceió e Região");
   const [receberWhatsApp, setReceberWhatsApp] = useState(true);
   const [sucesso, setSucesso] = useState(false);
-  const [erroGPS, setErroGPS] = useState(false);
 
   const {
     localDetectado,
@@ -52,71 +51,70 @@ export function CadastroPassageiroPage() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
-    // Requisito Obrigatório: Permissão de Localização para Embarque Rápido
     if (!permissaoConcedida) {
       solicitarLocalizacao();
-      setErroGPS(true);
-      // Se não permitiu na hora, forçamos o registro com o ponto padrão detectado
     }
 
-    // Salvar perfil de passageiro com GPS ativo
     try {
       const perfilPassageiro = {
         nome,
         email,
         telefone,
         cpf,
-        cidadeFavorita,
+        cidade,
         receberWhatsApp,
         gpsAtivo: true,
-        pontoEmbarque: localDetectado
-          ? localDetectado.pontoEmbarque
-          : "Maceió (Trevo do Tabuleiro)",
+        pontoEmbarque: localDetectado ? localDetectado.pontoEmbarque : "Local Atual (GPS)",
         cadastradoEm: new Date().toISOString(),
       };
-      localStorage.setItem("univans_perfil_passageiro", JSON.stringify(perfilPassageiro));
-      localStorage.setItem("univans_gps_permitido", "true");
-    } catch {
-      // Ignore
-    }
+      localStorage.setItem("partiu_perfil_passageiro", JSON.stringify(perfilPassageiro));
+      localStorage.setItem("partiu_user_nome", nome);
+      localStorage.setItem("partiu_user_telefone", telefone);
+      localStorage.setItem("partiu_gps_permitido", "true");
+    } catch (err) { silentCatchWarn("cadastro-passageiro", err); }
 
     setSucesso(true);
   }
 
   return (
-    <div className="min-h-[100dvh] bg-[#f8faf9] flex flex-col justify-between p-2 sm:p-6 w-full pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
-      {/* Top Header com Voltar */}
-      <div className="mx-auto w-full max-w-full sm:max-w-md flex items-center justify-between px-1 sm:px-0">
+    <div className="min-h-[100dvh] bg-[#0b0f17] text-white flex flex-col justify-between p-4 sm:p-6 w-full pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
+      {/* Top Header */}
+      <div className="mx-auto w-full max-w-md flex items-center justify-between">
         <Link
-          to="/"
-          className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-700 shadow-xs active:scale-95 transition-transform"
+          to="/escolher-tipo-cadastro"
+          className="flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 shadow-xs active:scale-95 transition-all cursor-pointer hover:text-white"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-5 w-5" />
         </Link>
-        <span className="text-xs font-black uppercase tracking-wider text-[#0d5930] flex items-center gap-1">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          Cadastro com GPS Ativo
+        <span className="text-xs font-black uppercase tracking-wider text-[#FFDE00] flex items-center gap-1">
+          <ShieldCheck className="h-4 w-4" />
+          Passageiro PARTIU
         </span>
         <div className="w-11" />
       </div>
 
-      <main className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-3">
+      <main className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-4">
         {!sucesso ? (
           <form
             onSubmit={handleSubmit}
-            className="rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-7 shadow-xl border border-slate-200/80 space-y-3.5"
+            className="rounded-3xl bg-slate-900/90 p-5 sm:p-7 shadow-2xl border border-slate-800 space-y-4 backdrop-blur-xl"
           >
-            <div className="text-left border-b border-slate-100 pb-3">
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
-                Crie sua Conta
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">
-                Reserve vagas, avise o motorista no ponto e pague via PIX
+            <div className="text-left border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="h-8 w-8 rounded-xl bg-[#FFDE00] flex items-center justify-center text-slate-950 font-black">
+                  <Zap className="h-4 w-4 fill-slate-950 stroke-[2.5]" />
+                </div>
+                <h1 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                  Cadastro de Passageiro
+                </h1>
+              </div>
+              <p className="text-xs text-slate-400 font-medium">
+                Chame carros e motos com verificação PIN, GPS ao vivo e desconto na 1ª corrida.
               </p>
             </div>
 
             <div className="space-y-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-300">
                 Nome Completo
               </label>
               <input
@@ -124,14 +122,14 @@ export function CadastroPassageiroPage() {
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 placeholder="Ex: Carlos Silva"
-                className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-colors"
+                className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-600">
-                  WhatsApp (Receber Bilhete)
+                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-300">
+                  Celular / WhatsApp
                 </label>
                 <input
                   required
@@ -139,25 +137,25 @@ export function CadastroPassageiroPage() {
                   value={telefone}
                   onChange={(e) => setTelefone(e.target.value)}
                   placeholder="(82) 99999-9999"
-                  className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-colors"
+                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                 />
               </div>
               <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-300">
                   CPF
                 </label>
                 <input
                   value={cpf}
                   onChange={(e) => setCpf(e.target.value)}
                   placeholder="000.000.000-00"
-                  className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-colors"
+                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-300">
                   E-mail
                 </label>
                 <input
@@ -166,11 +164,11 @@ export function CadastroPassageiroPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
-                  className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-colors"
+                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                 />
               </div>
               <div className="space-y-1">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+                <label className="block text-[11px] font-black uppercase tracking-wider text-slate-300">
                   Senha
                 </label>
                 <input
@@ -179,135 +177,102 @@ export function CadastroPassageiroPage() {
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
                   placeholder="Mínimo 6 dígitos"
-                  className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-colors"
+                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
-                Linha Mais Frequente
-              </label>
-              <select
-                value={cidadeFavorita}
-                onChange={(e) => setCidadeFavorita(e.target.value)}
-                className="w-full min-h-[48px] h-12 rounded-xl bg-slate-50 px-4 py-2 text-sm sm:text-base font-medium text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] transition-colors cursor-pointer"
-              >
-                <option value="Igreja Nova ⇄ Maceió">Igreja Nova ⇄ Coruripe ⇄ Maceió</option>
-                <option value="Maceió ⇄ Arapiraca">Maceió ⇄ Arapiraca</option>
-                <option value="Tapera ⇄ Toritama">Tapera ⇄ Toritama (Moda Center)</option>
-                <option value="Maceió ⇄ Penedo">Maceió ⇄ Penedo</option>
-              </select>
-            </div>
-
-            {/* Rastreamento de Localização em Tempo Real (Estilo Uber/99 - Obrigatório) */}
-            <div className="rounded-2xl bg-gradient-to-br from-emerald-50 to-blue-50/70 p-4 border-2 border-emerald-300 space-y-3">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#0d5930] text-white shrink-0 shadow-xs">
-                    <MapPin className="h-5 w-5 text-amber-300 animate-bounce" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <strong className="text-sm font-black text-slate-900 leading-tight">
-                        Localização em Tempo Real
-                      </strong>
-                      <span className="text-xs font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
-                        Obrigatório
-                      </span>
-                    </div>
-                    <span className="text-xs text-slate-600 font-medium leading-relaxed block mt-0.5">
-                      Permite que a van localize seu ponto de embarque e avise quando estiver
-                      chegando (Padrão Uber).
-                    </span>
-                  </div>
+            {/* Localização GPS */}
+            <div className="rounded-2xl bg-slate-950 p-3.5 border border-slate-800 space-y-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFDE00] text-slate-950 shrink-0 font-black">
+                  <MapPin className="h-5 w-5 fill-slate-950" />
+                </div>
+                <div>
+                  <strong className="text-xs font-black text-white">Localização para Corridas</strong>
+                  <p className="text-[11px] text-slate-400">
+                    O motorista saberá com precisão onde te buscar
+                  </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs sm:text-sm bg-white p-3 rounded-xl border border-emerald-200 text-emerald-900 font-bold">
-                <span className="truncate mr-2">
+              <div className="flex items-center justify-between text-xs bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                <span className="truncate mr-2 text-slate-300 font-medium">
                   {permissaoConcedida && localDetectado
-                    ? `📍 Ponto: ${localDetectado.pontoEmbarque}`
+                    ? `📍 ${localDetectado.pontoEmbarque}`
                     : carregandoGPS
-                      ? "🛰️ Calibrando GPS do aparelho..."
-                      : "📍 Clique em Ativar GPS para concluir"}
+                      ? "🛰️ Calibrando GPS..."
+                      : "📍 Localização automática"}
                 </span>
                 <button
                   type="button"
                   onClick={solicitarLocalizacao}
-                  className="min-h-[40px] text-[#0d5930] font-black bg-emerald-50 hover:bg-emerald-100 px-3.5 py-1.5 rounded-xl border border-emerald-200 shrink-0 transition-all active:scale-95 cursor-pointer"
+                  className="text-xs text-slate-950 font-black bg-[#FFDE00] hover:bg-[#ffe633] px-3 py-1.5 rounded-lg shrink-0 transition-all active:scale-95 cursor-pointer"
                 >
-                  {permissaoConcedida ? "Calibrado ✓" : "Ativar GPS"}
+                  {permissaoConcedida ? "Ativo ✓" : "Ativar GPS"}
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-2.5 pt-1">
+            <div className="flex items-center gap-2 pt-1">
               <input
                 type="checkbox"
                 id="wppUpdates"
                 checked={receberWhatsApp}
                 onChange={(e) => setReceberWhatsApp(e.target.checked)}
-                className="h-4.5 w-4.5 rounded accent-[#0d5930] cursor-pointer"
+                className="h-4 w-4 rounded accent-[#FFDE00] cursor-pointer"
               />
               <label
                 htmlFor="wppUpdates"
-                className="text-xs sm:text-sm text-slate-700 font-semibold cursor-pointer leading-normal"
+                className="text-xs text-slate-400 font-medium cursor-pointer"
               >
-                Receber bilhete digital com QR Code no WhatsApp
+                Receber comprovantes de corrida e código PIN via WhatsApp
               </label>
             </div>
 
             <button
               type="submit"
-              className="flex min-h-[48px] h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-sm sm:text-base font-black text-white shadow-sm transition-all hover:brightness-105 active:scale-[0.98] mt-2 cursor-pointer"
+              className="flex min-h-[48px] h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#FFDE00] text-sm font-black text-slate-950 shadow-md shadow-[#FFDE00]/20 transition-all hover:bg-[#ffe633] active:scale-[0.98] mt-2 cursor-pointer"
             >
-              <CheckCircle2 className="h-5 w-5 text-amber-300" /> Criar Conta com GPS Ativo
+              <CheckCircle2 className="h-5 w-5" /> Concluir Cadastro
             </button>
 
-            <div className="text-center pt-2">
+            <div className="text-center pt-1">
               <Link
                 to="/auth"
                 search={{ redirect: "/app" }}
-                className="text-xs sm:text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors py-1 inline-block"
+                className="text-xs font-bold text-slate-400 hover:text-white transition-colors py-1 inline-block"
               >
-                Já tem uma conta? <span className="text-[#0d5930] underline font-bold">Entrar</span>
+                Já tem uma conta? <span className="text-[#FFDE00] font-black underline">Fazer login</span>
               </Link>
             </div>
           </form>
         ) : (
-          <div className="rounded-3xl bg-white p-6 text-center shadow-2xl border border-slate-200 space-y-3 animate-in zoom-in-95">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-[#0d5930]">
-              <CheckCircle2 className="h-8 w-8" />
+          <div className="rounded-3xl bg-slate-900 p-7 text-center shadow-2xl border border-slate-800 space-y-4 animate-in zoom-in-95">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFDE00] text-slate-950 shadow-lg shadow-[#FFDE00]/20">
+              <CheckCircle2 className="h-8 w-8 stroke-[2.5]" />
             </div>
 
-            <h2 className="text-xl font-black text-slate-900">Conta Criada com GPS Ativo!</h2>
-            <p className="text-xs text-slate-600">
-              Bem-vindo, <span className="font-bold text-slate-900">{nome}</span>! Seu ponto de
-              embarque padrão foi configurado em{" "}
-              <strong>{localDetectado ? localDetectado.pontoEmbarque : "Maceió"}</strong>.
+            <h2 className="text-xl font-black text-white">Conta Criada com Sucesso!</h2>
+            <p className="text-xs text-slate-300">
+              Bem-vindo ao PARTIU, <span className="font-black text-white">{nome}</span>! Seu
+              cadastro está pronto para você pedir corridas e entregas agora mesmo.
             </p>
 
-            <div className="pt-2 space-y-2">
-              <Link
-                to="/app/linhas"
-                className="flex h-11 w-full items-center justify-center rounded-xl bg-[#0d5930] text-xs font-black text-white shadow-md hover:brightness-105"
-              >
-                Buscar Van Mais Próxima
-              </Link>
+            <div className="pt-3 space-y-2">
               <Link
                 to="/app"
-                className="flex h-11 w-full items-center justify-center rounded-xl bg-slate-100 text-xs font-bold text-slate-700 hover:bg-slate-200"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#FFDE00] text-xs font-black text-slate-950 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
               >
-                Ir para o Início
+                Pedir Minha Primeira Corrida
               </Link>
             </div>
           </div>
         )}
       </main>
 
-      <div className="text-center text-[10px] text-slate-400">
-        UniVans Coop Alagoas • Rastreamento &amp; Despacho em Tempo Real
+      <div className="text-center text-[11px] text-slate-600">
+        PARTIU Mobilidade Urbana & Entregas Flash • Tecnologia Nacional
       </div>
     </div>
   );

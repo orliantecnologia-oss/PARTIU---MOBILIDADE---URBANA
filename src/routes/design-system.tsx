@@ -5,16 +5,16 @@ export const Route = createFileRoute("/design-system")({
   component: DesignSystemPage,
   head: () => ({
     meta: [
-      { title: "Design System | Frota de Van" },
+      { title: "Design System | PARTIU Mobilidade Urbana" },
       {
         name: "description",
         content:
-          "Tokens de cor, tipografia, raios, sombras e componentes base do aplicativo Frota de Van.",
+          "Tokens de cor, tipografia, raios, sombras e componentes base do aplicativo PARTIU Mobilidade Urbana.",
       },
-      { property: "og:title", content: "Design System | Frota de Van" },
+      { property: "og:title", content: "Design System | PARTIU Mobilidade Urbana" },
       {
         property: "og:description",
-        content: "Referência visual dos tokens e componentes usados no app Frota de Van.",
+        content: "Referência visual dos tokens e componentes usados no app PARTIU Mobilidade Urbana.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -126,7 +126,7 @@ function DesignSystemPage() {
         <div className="mx-auto w-full max-w-4xl space-y-12">
           <header className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-              Frota de Van
+              PARTIU Mobilidade Urbana
             </p>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Design System</h1>
             <p className="text-sm text-muted-foreground">

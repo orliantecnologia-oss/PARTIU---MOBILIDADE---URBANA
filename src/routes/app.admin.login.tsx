@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import {
   ArrowRight,
+  Car,
   CheckCircle2,
   Crown,
   Lock,
@@ -17,11 +18,11 @@ export const Route = createFileRoute("/app/admin/login")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Login Administrativo & Control Center | UniVans" },
+      { title: "Login Administrativo & Control Center | PARTIU" },
       {
         name: "description",
         content:
-          "Área de autenticação restrita para o Proprietário (Owner) e Administradores da cooperativa UniVans.",
+          "Área de autenticação restrita para o Proprietário (Owner) e Administradores da plataforma PARTIU.",
       },
     ],
   }),
@@ -61,11 +62,11 @@ function AdminLoginPage() {
 
   function preencherCredencialRapida(tipo: "dono" | "admin") {
     if (tipo === "dono") {
-      setEmail("dono@univans.com.br");
-      setSenha("dono123");
+      setEmail("dono@partiu.app");
+      setSenha("");
     } else {
-      setEmail("admin@univans.com.br");
-      setSenha("admin123");
+      setEmail("admin@partiu.app");
+      setSenha("");
     }
     setErro(null);
   }
@@ -77,7 +78,7 @@ function AdminLoginPage() {
         className="absolute inset-0 opacity-10 pointer-events-none"
         style={{
           backgroundImage:
-            "linear-gradient(#0d5930 1px, transparent 1px), linear-gradient(90deg, #0d5930 1px, transparent 1px)",
+            "linear-gradient(#FFDE00 1px, transparent 1px), linear-gradient(90deg, #FFDE00 1px, transparent 1px)",
           backgroundSize: "40px 40px",
         }}
       />
@@ -85,21 +86,21 @@ function AdminLoginPage() {
       <div className="relative z-10 w-full max-w-md space-y-6">
         {/* Header com Logo Oficial e Badge */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3.5 py-1 text-xs font-black uppercase text-emerald-300 border border-emerald-500/30">
-            <Radio className="h-3.5 w-3.5 animate-pulse text-emerald-400" />
-            <span>Painel de Comando Operacional • Starlink</span>
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/20 px-3.5 py-1 text-xs font-black uppercase text-yellow-300 border border-yellow-400/30">
+            <Car className="h-3.5 w-3.5 text-yellow-400" />
+            <span>Painel de Comando Executivo • PARTIU</span>
           </div>
 
           <div className="flex items-center justify-center gap-2.5 pt-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#0d5930] to-emerald-500 text-white shadow-xl">
-              <Truck className="h-6 w-6" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFDE00] text-slate-950 shadow-xl font-black">
+              <Car className="h-6 w-6" />
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-black tracking-tight leading-none">
-                Uni<span className="text-emerald-400">Vans</span> Control
+              <h1 className="text-2xl font-black tracking-tight leading-none text-white">
+                PARTIU <span className="text-[#FFDE00]">Admin</span>
               </h1>
               <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-1">
-                Backoffice &amp; Gestão Cooperativa
+                Backoffice &amp; Gestão de Mobilidade
               </p>
             </div>
           </div>
@@ -138,7 +139,7 @@ function AdminLoginPage() {
                 <input
                   type="email"
                   required
-                  placeholder="ex: dono@univans.com.br"
+                  placeholder="ex: dono@partiu.app"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full rounded-2xl bg-slate-950 border border-slate-800 pl-10 pr-4 py-3 text-xs font-bold text-white placeholder:text-slate-600 outline-none focus:border-emerald-500 transition-colors"
@@ -186,10 +187,10 @@ function AdminLoginPage() {
               >
                 <div className="flex items-center gap-1.5 text-amber-400 mb-1">
                   <Crown className="h-4 w-4" />
-                  <span className="text-xs font-black">👑 Dono</span>
+                  <span className="text-xs font-black">👑 Dono (Owner)</span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-mono">dono@univans.com.br</p>
-                <p className="text-[9px] text-emerald-400 font-mono">Acesso Seguro (SHA-256)</p>
+                <p className="text-[10px] text-slate-400 font-mono">dono@partiu.app</p>
+                <p className="text-[9px] text-emerald-400 font-mono">Acesso Total D+0</p>
               </button>
 
               <button
@@ -199,10 +200,10 @@ function AdminLoginPage() {
               >
                 <div className="flex items-center gap-1.5 text-blue-400 mb-1">
                   <User className="h-4 w-4" />
-                  <span className="text-xs font-black">👤 Administrador</span>
+                  <span className="text-xs font-black">👤 Operações</span>
                 </div>
-                <p className="text-[10px] text-slate-400 font-mono">admin@univans.com.br</p>
-                <p className="text-[9px] text-emerald-400 font-mono">Acesso Seguro (SHA-256)</p>
+                <p className="text-[10px] text-slate-400 font-mono">admin@partiu.app</p>
+                <p className="text-[9px] text-emerald-400 font-mono">Despacho &amp; Frota</p>
               </button>
             </div>
           </div>

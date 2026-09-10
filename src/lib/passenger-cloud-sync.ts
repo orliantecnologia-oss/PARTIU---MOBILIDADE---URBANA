@@ -1,6 +1,6 @@
 /**
  * ==============================================================================
- * ☁️ UNIVANS PASSENGER CLOUD SYNC & PHONE AUTH ENGINE (v4.0)
+ * ☁️ PARTIU PASSENGER CLOUD SYNC & PHONE AUTH ENGINE (v4.0)
  * Persistência em Nuvem (PostgreSQL Supabase), Normalização E.164 e Sincronização Híbrida
  * ==============================================================================
  */
@@ -78,15 +78,15 @@ export function converterPassagemBancoParaBilhete(
     valorTotal: row.valor_total,
     formaPagamento: (row.forma_pagamento as any) || "PIX",
     status: isEmbarcado ? "embarcado" : isConfirmado ? "confirmado" : "cancelado",
-    pontoEmbarque: extras?.pontoEmbarque || "Ponto Autorizado UniVans",
-    pontoEmbarqueReferencia: extras?.pontoEmbarqueReferencia || "Rodovia / Trevo",
-    vanModelo: extras?.vanModelo || "Mercedes Sprinter VIP",
+    pontoEmbarque: extras?.pontoEmbarque || "Ponto de Encontro PARTIU",
+    pontoEmbarqueReferencia: extras?.pontoEmbarqueReferencia || "Ponto Urbano",
+    vanModelo: extras?.vanModelo || "Toyota Corolla (Partiu Pop)",
     vanPlaca: extras?.vanPlaca || "RJP-2F14",
     motoristaNome: extras?.motoristaNome || "Carlos Eduardo Santos",
     motoristaFoto:
       extras?.motoristaFoto ||
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    starlinkWifi: extras?.starlinkWifi || "UniVans_Starlink_01",
+    starlinkWifi: extras?.starlinkWifi || "PARTIU_Wifi_01",
     codigoQr: row.codigo_qr || row.codigo_bilhete,
     criadoEm: row.created_at,
     presencaConfirmada: isEmbarcado,
@@ -203,6 +203,7 @@ export async function sincronizarPassagensNuvem(
 
     // Salvar cache local atualizado
     if (typeof window !== "undefined") {
+      localStorage.setItem("partiu_bilhetes_passageiro", JSON.stringify(unificados));
       localStorage.setItem("univans_bilhetes_passageiro", JSON.stringify(unificados));
     }
 

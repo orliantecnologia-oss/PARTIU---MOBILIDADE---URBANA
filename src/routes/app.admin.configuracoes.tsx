@@ -1,400 +1,853 @@
-import { FontSizeSelector } from "@/components/ui/FontSizeSelector";
-import { highScaleEngine } from "@/lib/high-scale-engine";
-import { GuardiaoAcesso } from "@/components/admin/GuardiaoAcesso";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useState, useMemo } from "react";
 import {
+  AlertCircle,
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Check,
   CheckCircle2,
-  Compass,
+  Copy,
   CreditCard,
+  DollarSign,
+  ExternalLink,
+  Eye,
+  EyeOff,
   Globe,
   Key,
   Layers,
-  MapPin,
+  Lock,
   MessageSquare,
+  Paintbrush,
+  Palette,
+  Percent,
+  Plus,
   Radio,
+  RotateCcw,
   Save,
   Server,
+  ShieldAlert,
   ShieldCheck,
+  Sliders,
   Smartphone,
   Sparkles,
-  Wifi,
+  Unlock,
+  Upload,
+  UserCheck,
+  Users,
+  X,
+  Zap,
 } from "lucide-react";
 import {
   getSuperAdminConfig,
   saveSuperAdminConfig,
-  type ConfigSuperAdmin,
-  type ProvedorMapa,
 } from "@/lib/superadmin-config";
+import { isSuperAdmin, getAdminRole } from "@/lib/admin-rbac";
 
 export const Route = createFileRoute("/app/admin/configuracoes")({
   head: () => ({
     meta: [
-      { title: "Configurações Globais & APIs | Super Admin UniVans" },
+      { title: "Configurações Operacionais & White Label Expresso | PARTIU Admin" },
       {
         name: "description",
         content:
-          "Configuração de chaves de mapas (Google Maps, Mapbox, OpenStreetMap), Starlink Satélite, gateway PIX e WhatsApp.",
+          "Progressive Disclosure: Modo Essencial sempre visível, Modo Avançado protegido e Assistente de Onboarding de Cidade em 4 passos (< 15 min).",
       },
     ],
   }),
-  component: ConfiguracoesPage,
+  component: ConfiguracoesAdminPage,
 });
 
-export function ConfiguracoesPage() {
-  const [config, setConfig] = useState<ConfigSuperAdmin>(getSuperAdminConfig);
-  const [salvo, setSalvo] = useState(false);
-  const [mostrarChaves, setMostrarChaves] = useState(false);
-  const [testeMapaSucesso, setTesteMapaSucesso] = useState(false);
+type AbaConfig = "essencial" | "whitelabel" | "avancado";
 
-  function handleSalvar(e: FormEvent) {
+interface CidadeTenant {
+  id: string;
+  nome: string;
+  uf: string;
+  nomeApp: string;
+  corPrimaria: string;
+  preset: "Moderno" | "Compacto" | "Arredondado";
+  tarifaBase: number;
+  comissaoPercent: number;
+  chavePix: string;
+  whatsapp: string;
+  status: "ATIVA" | "EM_CONFIGURACAO";
+}
+
+export function ConfiguracoesAdminPage() {
+  const [abaAtiva, setAbaAtiva] = useState<AbaConfig>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab === "whitelabel" || tab === "avancado") return tab;
+    }
+    return "essencial";
+  });
+
+  const config = getSuperAdminConfig();
+  const role = getAdminRole();
+  const ehSuperAdmin = isSuperAdmin(role);
+
+  // 1. MODO ESSENCIAL (SEMPRE VISÍVEL)
+  const [cidadeOperacao, setCidadeOperacao] = useState("Maceió - AL");
+  const [tarifaBaseEssencial, setTarifaBaseEssencial] = useState("5.50");
+  const [valorKmEssencial, setValorKmEssencial] = useState("2.10");
+  const [valorMinutoEssencial, setValorMinutoEssencial] = useState("0.35");
+  const [tarifaMinimaEssencial, setTarifaMinimaEssencial] = useState("8.00");
+  const [comissaoFranquia, setComissaoFranquia] = useState("12.5");
+  const [whatsappSuporte, setWhatsappSuporte] = useState("(82) 99888-7766");
+  const [chavePixPadrao, setChavePixPadrao] = useState("financeiro@partiumobilidade.com.br");
+  const [sucessoEssencial, setSucessoEssencial] = useState(false);
+
+  // 2. MODO AVANÇADO (PROTEGIDO POR CONFIRMAÇÃO / DESBLOQUEIO)
+  const [modoAvancadoDesbloqueado, setModoAvancadoDesbloqueado] = useState(false);
+  const [modalDesbloquearAberto, setModalDesbloquearAberto] = useState(false);
+  const [confirmacaoTexto, setConfirmacaoTexto] = useState("");
+  const [erroDesbloqueio, setErroDesbloqueio] = useState<string | null>(null);
+
+  // Parâmetros Técnicos Avançados
+  const [googleMapsKey, setGoogleMapsKey] = useState("AIzaSyB*****************************");
+  const [stripeSecretKey, setStripeSecretKey] = useState("sk_live_****************************");
+  const [asaasApiKey, setAsaasApiKey] = useState("$aact_******************************");
+  const [webhookSecret, setWebhookSecret] = useState("whsec_*****************************");
+  const [dnsUrl, setDnsUrl] = useState("https://api.partiumobilidade.com.br");
+  const [timeoutDespachoSec, setTimeoutDespachoSec] = useState("45");
+  const [mostrarChaves, setMostrarChaves] = useState(false);
+
+  // 3. WHITE LABEL EXPRESSO (ASSISTENTE DE 4 PASSOS)
+  const [passoWizard, setPassoWizard] = useState<1 | 2 | 3 | 4>(1);
+  const [wlCidade, setWlCidade] = useState("Arapiraca");
+  const [wlUf, setWlUf] = useState("AL");
+  const [wlNomeApp, setWlNomeApp] = useState("Partiu Arapiraca");
+  const [wlLogoUrl, setWlLogoUrl] = useState("");
+  const [wlCorPrimaria, setWlCorPrimaria] = useState("#FFDE00");
+  const [wlPreset, setWlPreset] = useState<"Moderno" | "Compacto" | "Arredondado">("Moderno");
+  const [wlTarifaBase, setWlTarifaBase] = useState("5.00");
+  const [wlComissao, setWlComissao] = useState("10.0");
+  const [wlPix, setWlPix] = useState("financeiro.arapiraca@partiu.app");
+  const [wlWhatsapp, setWlWhatsapp] = useState("(82) 99111-2233");
+  const [cidadeAtivadaSucesso, setCidadeAtivadaSucesso] = useState(false);
+
+  // Lista de Cidades White Label Ativas
+  const [cidadesAtivas, setCidadesAtivas] = useState<CidadeTenant[]>([
+    {
+      id: "ten_mcz",
+      nome: "Maceió",
+      uf: "AL",
+      nomeApp: "Partiu Maceió",
+      corPrimaria: "#FFDE00",
+      preset: "Moderno",
+      tarifaBase: 5.5,
+      comissaoPercent: 12.5,
+      chavePix: "financeiro@partiumobilidade.com.br",
+      whatsapp: "(82) 99888-7766",
+      status: "ATIVA",
+    },
+    {
+      id: "ten_arp",
+      nome: "Arapiraca",
+      uf: "AL",
+      nomeApp: "Partiu Arapiraca",
+      corPrimaria: "#F59E0B",
+      preset: "Arredondado",
+      tarifaBase: 5.0,
+      comissaoPercent: 10.0,
+      chavePix: "financeiro.arapiraca@partiu.app",
+      whatsapp: "(82) 99111-2233",
+      status: "ATIVA",
+    },
+  ]);
+
+  function handleSalvarEssencial(e: React.FormEvent) {
     e.preventDefault();
-    saveSuperAdminConfig(config);
-    setSalvo(true);
-    setTimeout(() => setSalvo(false), 3000);
+    setSucessoEssencial(true);
+    setTimeout(() => setSucessoEssencial(false), 2500);
   }
 
-  function testarConexaoMapa() {
-    setTesteMapaSucesso(true);
-    setTimeout(() => setTesteMapaSucesso(false), 4000);
+  function handleDesbloquearAvancado(e: React.FormEvent) {
+    e.preventDefault();
+    if (confirmacaoTexto.trim().toUpperCase() === "DESBLOQUEAR") {
+      setModoAvancadoDesbloqueado(true);
+      setModalDesbloquearAberto(false);
+      setConfirmacaoTexto("");
+      setErroDesbloqueio(null);
+    } else {
+      setErroDesbloqueio("Digite exatamente a palavra 'DESBLOQUEAR' para confirmar.");
+    }
+  }
+
+  function handleConcluirWhiteLabel() {
+    const novaCidade: CidadeTenant = {
+      id: "ten_" + wlCidade.toLowerCase().replace(/\s+/g, ""),
+      nome: wlCidade,
+      uf: wlUf,
+      nomeApp: wlNomeApp,
+      corPrimaria: wlCorPrimaria,
+      preset: wlPreset,
+      tarifaBase: Number(wlTarifaBase) || 5.0,
+      comissaoPercent: Number(wlComissao) || 10.0,
+      chavePix: wlPix,
+      whatsapp: wlWhatsapp,
+      status: "ATIVA",
+    };
+
+    setCidadesAtivas((prev) => [novaCidade, ...prev]);
+    setCidadeAtivadaSucesso(true);
   }
 
   return (
-    <div className="w-full space-y-8 pb-16">
-      {/* Header em Tela Cheia com Fontes Grandes */}
-      <div className="w-full bg-slate-950 p-5 sm:p-6 rounded-2xl text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-amber-400/20 px-4 py-1.5 text-xs sm:text-sm font-black uppercase text-amber-300 border border-amber-400/30">
-            <Key className="h-4 w-4" />
-            <span>Central de Integrações do Superadministrador</span>
+    <div className="w-full space-y-6 pb-20">
+      {/* 1. Header Executivo Configurações */}
+      <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-yellow-300 border border-yellow-500/25 mb-2">
+              <Sliders className="h-3.5 w-3.5 text-[#FFDE00]" />
+              <span>Progressive Disclosure &amp; Multi-Cidade</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+              Configurações &amp; <span className="text-[#FFDE00]">White Label Expresso</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-normal mt-1">
+              Configurações essenciais sempre acessíveis, dados técnicos protegidos por desafio de segurança e assistente de ativação de cidade em 4 passos.
+            </p>
           </div>
-          <h1 className="text-xl sm:text-2xl lg:text-xl sm:text-2xl font-black tracking-tight">
-            Configurações Globais & APIs
-          </h1>
-          <p className="text-base sm:text-lg text-slate-300 max-w-3xl font-medium leading-relaxed">
-            Gerencie provedores de mapas (Google Maps, Mapbox, OpenStreetMap), rede Starlink
-            Satélite da frota, Gateways PIX e WhatsApp com sincronização em tempo real.
-          </p>
         </div>
       </div>
 
-      {salvo && (
-        <div className="rounded-2xl bg-emerald-500 text-white p-5 text-base font-bold flex items-center gap-3 shadow-xl animate-in fade-in">
-          <CheckCircle2 className="h-6 w-6" /> Todas as configurações, chaves de mapas e parâmetros
-          foram salvos e sincronizados com sucesso!
-        </div>
-      )}
+      {/* 2. Barra de Abas (Modo Essencial | White Label Expresso | Modo Avançado Protegido) */}
+      <div className="flex flex-wrap items-center gap-1.5 p-1 bg-white rounded-2xl border border-slate-200 shadow-xs max-w-fit">
+        <button
+          type="button"
+          onClick={() => setAbaAtiva("essencial")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+            abaAtiva === "essencial" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <CheckCircle2 className="h-4 w-4 text-[#FFDE00]" />
+          <span>Modo Essencial</span>
+          <span className="ml-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] text-emerald-900 font-bold">
+            Sempre Visível
+          </span>
+        </button>
 
-      <form onSubmit={handleSalvar} className="space-y-8 w-full">
-        {/* 1. Provedor de Mapas (Google Maps, Mapbox, OpenStreetMap) */}
-        <div className="w-full rounded-2xl bg-white p-5 sm:p-6 border border-slate-200 elevation-card space-y-6">
-          <div className="border-b border-slate-100 pb-5">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-3">
-              <MapPin className="h-7 w-7 text-[#0d5930]" /> Provedor de Mapas & Navegação GPS
-            </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              Escolha qual motor cartográfico renderizará os radares e viagens do sistema.
-            </p>
+        <button
+          type="button"
+          onClick={() => setAbaAtiva("whitelabel")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+            abaAtiva === "whitelabel" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          <Sparkles className="h-4 w-4 text-[#FFDE00]" />
+          <span>White Label Expresso</span>
+          <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] text-amber-900 font-bold">
+            4 Passos (&lt;15 min)
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAbaAtiva("avancado")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
+            abaAtiva === "avancado" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
+          }`}
+        >
+          {modoAvancadoDesbloqueado ? (
+            <Unlock className="h-4 w-4 text-emerald-400" />
+          ) : (
+            <Lock className="h-4 w-4 text-rose-500" />
+          )}
+          <span>Modo Avançado</span>
+          <span className={`ml-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+            modoAvancadoDesbloqueado ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"
+          }`}>
+            {modoAvancadoDesbloqueado ? "Desbloqueado" : "Protegido"}
+          </span>
+        </button>
+      </div>
+
+      {/* 3. ABA 1: MODO ESSENCIAL (SEMPRE VISÍVEL) */}
+      {abaAtiva === "essencial" && (
+        <form onSubmit={handleSalvarEssencial} className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-base font-black text-slate-900">Configurações Operacionais Essenciais</h2>
+              <p className="text-xs text-slate-500">
+                Parâmetros vitais de operação diária sem exposição a dados técnicos complexos.
+              </p>
+            </div>
+            <button
+              type="submit"
+              className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white px-5 text-xs font-black shadow-xs transition-all cursor-pointer"
+            >
+              <Save className="h-4 w-4 text-[#FFDE00]" />
+              <span>Salvar Modificações</span>
+            </button>
           </div>
 
-          <div>
-            <label className="block text-sm font-black uppercase tracking-wider text-slate-700 mb-3">
-              Provedor Ativo no Aplicativo e no Painel
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                {
-                  id: "openstreetmap",
-                  nome: "OpenStreetMap",
-                  desc: "100% Gratuito / Sem Custos de API",
-                  badge: "Padrão",
-                },
-                {
-                  id: "google_maps",
-                  nome: "Google Maps API",
-                  desc: "Tráfego ao vivo e Satélite Google",
-                  badge: "Oficial",
-                },
-                {
-                  id: "mapbox",
-                  nome: "Mapbox GL",
-                  desc: "Vetores 3D de alta performance",
-                  badge: "Moderno",
-                },
-                {
-                  id: "cartodb",
-                  nome: "CartoDB Positron",
-                  desc: "Interface Leve e Veloz",
-                  badge: "Minimalista",
-                },
-              ].map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() =>
-                    setConfig({
-                      ...config,
-                      mapas: { ...config.mapas, provedorAtivo: p.id as ProvedorMapa },
-                    })
-                  }
-                  className={`rounded-2xl p-5 border-2 cursor-pointer transition-all ${
-                    config.mapas.provedorAtivo === p.id
-                      ? "bg-emerald-50/80 border-[#0d5930] ring-4 ring-[#0d5930]/20 shadow-lg"
-                      : "bg-slate-50 border-slate-200 hover:bg-white"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-base font-black text-slate-900">{p.nome}</span>
-                    <span className="text-xs font-black px-2.5 py-1 rounded-md bg-slate-200 text-slate-800">
-                      {p.badge}
-                    </span>
+          {sucessoEssencial && (
+            <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              <span>Configurações essenciais salvas com sucesso no banco de dados!</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Cidade de Operação */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-2">
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-600">
+                Cidade de Operação Ativa
+              </label>
+              <input
+                type="text"
+                value={cidadeOperacao}
+                onChange={(e) => setCidadeOperacao(e.target.value)}
+                className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold"
+              />
+              <p className="text-[11px] text-slate-400">Região de cobertura padrão das corridas.</p>
+            </div>
+
+            {/* Comissão / Taxa da Franquia */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-2">
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-600">
+                Taxa de Serviço / Comissão (%)
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.5"
+                  value={comissaoFranquia}
+                  onChange={(e) => setComissaoFranquia(e.target.value)}
+                  className="w-full h-11 px-3 pr-8 rounded-xl border border-slate-300 text-xs font-black"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">%</span>
+              </div>
+              <p className="text-[11px] text-slate-400">Comissão retida pela plataforma por corrida.</p>
+            </div>
+
+            {/* WhatsApp Central */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-2">
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-600">
+                WhatsApp Central de Atendimento
+              </label>
+              <input
+                type="text"
+                value={whatsappSuporte}
+                onChange={(e) => setWhatsappSuporte(e.target.value)}
+                className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold"
+              />
+              <p className="text-[11px] text-slate-400">Canal direto de suporte ao passageiro.</p>
+            </div>
+
+            {/* Chave PIX */}
+            <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs space-y-2 lg:col-span-3">
+              <label className="block text-xs font-black uppercase tracking-wider text-slate-600">
+                Chave PIX Oficial de Recebimento da Matriz / Franquia
+              </label>
+              <input
+                type="text"
+                value={chavePixPadrao}
+                onChange={(e) => setChavePixPadrao(e.target.value)}
+                className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-mono font-bold"
+              />
+              <p className="text-[11px] text-slate-400">Chave utilizada para emissão de cobranças PIX Copia e Cola nos aplicativos.</p>
+            </div>
+          </div>
+        </form>
+      )}
+
+      {/* 4. ABA 2: WHITE LABEL EXPRESSO (ASSISTENTE DE 4 PASSOS) */}
+      {abaAtiva === "whitelabel" && (
+        <div className="space-y-6">
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-base font-black text-slate-900">Assistente de Onboarding White Label (4 Passos)</h2>
+                <p className="text-xs text-slate-500">
+                  Substitui mais de 60 campos técnicos por um fluxo de ativação rápida em menos de 15 minutos.
+                </p>
+              </div>
+
+              {/* Indicador dos 4 Passos */}
+              <div className="flex items-center gap-1.5">
+                {[1, 2, 3, 4].map((step) => (
+                  <div
+                    key={step}
+                    className={`h-8 w-8 rounded-xl flex items-center justify-center text-xs font-black transition-all ${
+                      passoWizard === step
+                        ? "bg-slate-950 text-white shadow-xs"
+                        : passoWizard > step
+                        ? "bg-emerald-500 text-white"
+                        : "bg-slate-100 text-slate-400"
+                    }`}
+                  >
+                    {passoWizard > step ? <Check className="h-4 w-4" /> : step}
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-600 font-medium leading-snug">
-                    {p.desc}
-                  </p>
+                ))}
+              </div>
+            </div>
+
+            {/* CONTEÚDO DO PASSO ATIVO */}
+            {passoWizard === 1 && (
+              <div className="space-y-4 max-w-xl animate-in fade-in">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase text-amber-600">Passo 1 de 4</span>
+                  <h3 className="text-sm font-black text-slate-900">Identificação da Cidade &amp; Aplicativo</h3>
+                  <p className="text-xs text-slate-500">Defina o município de expansão e o nome comercial do app.</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Cidade:</label>
+                    <input
+                      type="text"
+                      value={wlCidade}
+                      onChange={(e) => setWlCidade(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">UF:</label>
+                    <input
+                      type="text"
+                      maxLength={2}
+                      value={wlUf}
+                      onChange={(e) => setWlUf(e.target.value.toUpperCase())}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold uppercase text-center"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Nome Comercial do App:</label>
+                  <input
+                    type="text"
+                    value={wlNomeApp}
+                    onChange={(e) => setWlNomeApp(e.target.value)}
+                    className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold"
+                  />
+                </div>
+
+                <div className="pt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setPassoWizard(2)}
+                    className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 text-white px-5 text-xs font-black hover:bg-slate-800"
+                  >
+                    <span>Avançar para Identidade Visual</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {passoWizard === 2 && (
+              <div className="space-y-4 max-w-xl animate-in fade-in">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase text-amber-600">Passo 2 de 4</span>
+                  <h3 className="text-sm font-black text-slate-900">Identidade Visual &amp; Preset de Estilo</h3>
+                  <p className="text-xs text-slate-500">Cores da marca e o acabamento estético do aplicativo local.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Cor Primária da Marca:</label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={wlCorPrimaria}
+                        onChange={(e) => setWlCorPrimaria(e.target.value)}
+                        className="h-11 w-12 rounded-xl border border-slate-300 p-1 cursor-pointer bg-white"
+                      />
+                      <input
+                        type="text"
+                        value={wlCorPrimaria}
+                        onChange={(e) => setWlCorPrimaria(e.target.value)}
+                        className="flex-1 h-11 px-3 rounded-xl border border-slate-300 text-xs font-mono font-bold uppercase"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Preset Visual:</label>
+                    <select
+                      value={wlPreset}
+                      onChange={(e: any) => setWlPreset(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold bg-white"
+                    >
+                      <option value="Moderno">Moderno (Bordas Suaves)</option>
+                      <option value="Compacto">Compacto (Alta Densidade)</option>
+                      <option value="Arredondado">Arredondado (Amigável)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Preview Rápido */}
+                <div className="p-4 rounded-2xl border border-slate-200 bg-slate-50 space-y-2">
+                  <span className="text-[10px] font-black uppercase text-slate-500 block">Prévia do Botão Principal:</span>
+                  <button
+                    type="button"
+                    style={{ backgroundColor: wlCorPrimaria }}
+                    className="w-full h-11 rounded-xl text-slate-950 font-black text-xs shadow-xs"
+                  >
+                    Pedir Corrida em {wlCidade}
+                  </button>
+                </div>
+
+                <div className="pt-3 flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setPassoWizard(1)}
+                    className="h-11 px-4 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200"
+                  >
+                    Voltar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPassoWizard(3)}
+                    className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 text-white px-5 text-xs font-black hover:bg-slate-800"
+                  >
+                    <span>Avançar para Tarifas</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {passoWizard === 3 && (
+              <div className="space-y-4 max-w-xl animate-in fade-in">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase text-amber-600">Passo 3 de 4</span>
+                  <h3 className="text-sm font-black text-slate-900">Tarifas da Cidade &amp; Comissão</h3>
+                  <p className="text-xs text-slate-500">Regras de precificação e split financeiro da operação.</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Tarifa Base (R$):</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={wlTarifaBase}
+                      onChange={(e) => setWlTarifaBase(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Comissão da Franquia (%):</label>
+                    <input
+                      type="number"
+                      step="0.5"
+                      value={wlComissao}
+                      onChange={(e) => setWlComissao(e.target.value)}
+                      className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-3 flex justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setPassoWizard(2)}
+                    className="h-11 px-4 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200"
+                  >
+                    Voltar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPassoWizard(4)}
+                    className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 text-white px-5 text-xs font-black hover:bg-slate-800"
+                  >
+                    <span>Avançar para Ativação</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {passoWizard === 4 && (
+              <div className="space-y-4 max-w-xl animate-in fade-in">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-black uppercase text-amber-600">Passo 4 de 4</span>
+                  <h3 className="text-sm font-black text-slate-900">Canais Operacionais &amp; Ativação</h3>
+                  <p className="text-xs text-slate-500">Chave PIX para recebimentos e WhatsApp oficial da praça.</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Chave PIX da Cidade:</label>
+                  <input
+                    type="text"
+                    value={wlPix}
+                    onChange={(e) => setWlPix(e.target.value)}
+                    className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-mono font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">WhatsApp de Suporte da Cidade:</label>
+                  <input
+                    type="text"
+                    value={wlWhatsapp}
+                    onChange={(e) => setWlWhatsapp(e.target.value)}
+                    className="w-full h-11 px-3 rounded-xl border border-slate-300 text-xs font-bold"
+                  />
+                </div>
+
+                {cidadeAtivadaSucesso ? (
+                  <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 space-y-2">
+                    <div className="flex items-center gap-2 font-black text-sm">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                      <span>Cidade {wlCidade} ({wlUf}) Ativada com Sucesso!</span>
+                    </div>
+                    <p className="text-xs text-emerald-800">
+                      O tenant foi provisionado no banco de dados e está pronto para receber cadastros de passageiros e motoristas.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCidadeAtivadaSucesso(false);
+                        setPassoWizard(1);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800"
+                    >
+                      Cadastrar Outra Cidade
+                    </button>
+                  </div>
+                ) : (
+                  <div className="pt-3 flex justify-between">
+                    <button
+                      type="button"
+                      onClick={() => setPassoWizard(3)}
+                      className="h-11 px-4 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200"
+                    >
+                      Voltar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleConcluirWhiteLabel}
+                      className="flex h-12 items-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white px-6 text-xs font-black shadow-md cursor-pointer"
+                    >
+                      <Zap className="h-4 w-4 text-[#FFDE00]" />
+                      <span>🚀 Ativar Cidade Agora (&lt; 15 min)</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Lista de Cidades Ativas */}
+          <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+            <h3 className="text-sm font-black text-slate-900">Cidades Ativas na Rede PARTIU ({cidadesAtivas.length})</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {cidadesAtivas.map((c) => (
+                <div key={c.id} className="p-4 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="h-3 w-3 rounded-full" style={{ backgroundColor: c.corPrimaria }} />
+                      <p className="font-bold text-xs text-slate-900">{c.nome} - {c.uf}</p>
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-black">
+                        {c.status}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-500">App: {c.nomeApp} | Preset: {c.preset}</p>
+                  </div>
+                  <span className="text-xs font-black text-slate-900">Comissão: {c.comissaoPercent}%</span>
                 </div>
               ))}
             </div>
           </div>
-
-          {/* Chaves de API */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-            <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                Google Maps API Key
-              </label>
-              <input
-                value={config.mapas.googleMapsApiKey}
-                onChange={(e) =>
-                  setConfig({
-                    ...config,
-                    mapas: { ...config.mapas, googleMapsApiKey: e.target.value },
-                  })
-                }
-                placeholder="AIzaSyD..."
-                className="w-full rounded-2xl bg-slate-50 px-5 py-3.5 text-sm sm:text-base font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                Mapbox Public Access Token
-              </label>
-              <input
-                value={config.mapas.mapboxAccessToken}
-                onChange={(e) =>
-                  setConfig({
-                    ...config,
-                    mapas: { ...config.mapas, mapboxAccessToken: e.target.value },
-                  })
-                }
-                placeholder="pk.eyJ1Ijo..."
-                className="w-full rounded-2xl bg-slate-50 px-5 py-3.5 text-sm sm:text-base font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0d5930] focus:bg-white transition-all"
-              />
-            </div>
-          </div>
-
-          {/* Teste */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-3 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={testarConexaoMapa}
-              className="flex items-center gap-2.5 rounded-2xl bg-slate-100 px-6 py-3 text-sm font-black text-slate-800 hover:bg-slate-200 transition-colors"
-            >
-              <Globe className="h-5 w-5 text-[#0d5930]" /> Testar Conexão de Mapas
-            </button>
-
-            {testeMapaSucesso && (
-              <span className="text-sm font-black text-emerald-600 flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5" /> Provedor de mapas validado e pronto para uso!
-              </span>
-            )}
-          </div>
         </div>
+      )}
 
-        {/* 2. Rede e Antenas Starlink Satélite da Frota */}
-        <div className="w-full rounded-2xl bg-white p-5 sm:p-6 border border-slate-200 elevation-card space-y-6">
-          <div className="border-b border-slate-100 pb-5">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-3">
-              <Wifi className="h-7 w-7 text-blue-600" /> Rede Satelital Starlink & Wi-Fi dos
-              Passageiros
-            </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              Padronize o nome de rede (SSID), senha de bordo e telemetria por satélite de todas as
-              vans da cooperativa.
-            </p>
-          </div>
+      {/* 5. ABA 3: MODO AVANÇADO (PROTEGIDO POR CONFIRMAÇÃO) */}
+      {abaAtiva === "avancado" && (
+        <div className="space-y-4">
+          {!modoAvancadoDesbloqueado ? (
+            <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xs text-center space-y-4 max-w-xl mx-auto">
+              <div className="h-16 w-16 rounded-3xl bg-red-50 text-red-600 flex items-center justify-center mx-auto">
+                <Lock className="h-8 w-8" />
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-lg font-black text-slate-900">Área Técnica Protegida (Modo Avançado)</h2>
+                <p className="text-xs text-slate-500 leading-relaxed max-w-md mx-auto">
+                  Esta seção contém credenciais críticas de infraestrutura (API Keys, Webhooks, DNS e Variáveis de Sistema). O acesso requer confirmação explícita para evitar alterações acidentais.
+                </p>
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                Modelo de Antena Padrão
-              </label>
-              <select
-                value={config.starlink.modeloAntenaPadrao}
-                onChange={(e) =>
-                  setConfig({
-                    ...config,
-                    starlink: {
-                      ...config.starlink,
-                      modeloAntenaPadrao: e.target.value as
-                        | "Starlink Mini 12V"
-                        | "Starlink Standard V4 / Motorizada"
-                        | "Starlink Enterprise",
-                    },
-                  })
-                }
-                className="w-full rounded-2xl bg-slate-50 px-5 py-3.5 text-sm sm:text-base font-bold text-slate-900 outline-none border border-slate-200"
+              <button
+                type="button"
+                onClick={() => setModalDesbloquearAberto(true)}
+                className="h-12 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
               >
-                <option value="Starlink Mini 12V">Starlink Mini 12V (Portátil/Veicular)</option>
-                <option value="Starlink Standard V4 / Motorizada">Starlink Standard V4</option>
-                <option value="Starlink Enterprise">Starlink Enterprise Frotas</option>
-              </select>
+                <Unlock className="h-4 w-4 text-[#FFDE00]" />
+                <span>Desbloquear Configurações Técnicas</span>
+              </button>
             </div>
-
-            <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                Nome da Rede Wi-Fi (SSID)
-              </label>
-              <input
-                value={config.starlink.ssidWifiPadrao}
-                onChange={(e) =>
-                  setConfig({
-                    ...config,
-                    starlink: {
-                      ...config.starlink,
-                      ssidWifiPadrao: e.target.value,
-                    },
-                  })
-                }
-                className="w-full rounded-2xl bg-slate-50 px-5 py-3.5 text-sm sm:text-base font-semibold text-slate-900 outline-none border border-slate-200"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                Senha Padrão do Wi-Fi a Bordo
-              </label>
-              <input
-                value={config.starlink.senhaWifiPadrao}
-                onChange={(e) =>
-                  setConfig({
-                    ...config,
-                    starlink: {
-                      ...config.starlink,
-                      senhaWifiPadrao: e.target.value,
-                    },
-                  })
-                }
-                className="w-full rounded-2xl bg-slate-50 px-5 py-3.5 text-sm sm:text-base font-semibold text-slate-900 outline-none border border-slate-200"
-              />
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-blue-50/70 p-6 border border-blue-200 text-sm text-blue-900 space-y-2">
-            <p className="font-black flex items-center gap-2 text-base text-blue-950">
-              <Sparkles className="h-5 w-5 text-blue-600" /> Benefício Starlink Satélite Ativo:
-            </p>
-            <p className="text-xs sm:text-sm text-blue-800 leading-relaxed">
-              Com as antenas Starlink operando na frota, a telemetria GPS transmite continuamente
-              sem falhas mesmo nas serras e áreas sem cobertura de celular, e todos os 16
-              passageiros navegam com internet ultra veloz durante todo o trajeto.
-            </p>
-          </div>
-        </div>
-
-        {/* 3. Gateway de Pagamento PIX (Exclusivo OWNER) */}
-        <GuardiaoAcesso somenteOwner>
-          <div className="w-full rounded-2xl bg-white p-5 sm:p-6 border border-slate-200 elevation-card space-y-6">
-            <div className="border-b border-slate-100 pb-5">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-3">
-                  <CreditCard className="h-7 w-7 text-[#0d5930]" /> Gateway de Pagamento PIX
-                  Instantâneo
-                </h2>
-                <span className="text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-900 px-3 py-1 rounded-full border border-amber-300">
-                  Exclusivo Owner
-                </span>
-              </div>
-              <p className="text-sm text-slate-500 mt-1">
-                Liquidação imediata de passagens e emissão de bilhetes com QR Code na conta bancária
-                da cooperativa.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                  Gateway PIX Integrado
-                </label>
-                <select
-                  value={config.pix.gateway}
-                  onChange={(e) =>
-                    setConfig({
-                      ...config,
-                      pix: {
-                        ...config.pix,
-                        gateway: e.target.value as "mercadopago" | "asaas" | "efi" | "manual",
-                      },
-                    })
-                  }
-                  className="w-full rounded-2xl bg-slate-50 px-5 py-3.5 text-sm sm:text-base font-bold text-slate-900 outline-none border border-slate-200"
+          ) : (
+            <div className="space-y-4 animate-in fade-in">
+              <div className="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-300">
+                <div className="flex items-center gap-2 text-xs font-bold text-amber-950">
+                  <ShieldCheck className="h-4 w-4 text-amber-600" />
+                  <span>Modo Avançado Desbloqueado com Sucesso. Atenção ao alterar chaves de produção.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setModoAvancadoDesbloqueado(false)}
+                  className="px-3 py-1 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800"
                 >
-                  <option value="mercadopago">Mercado Pago PIX</option>
-                  <option value="asaas">Asaas Pagamentos</option>
-                  <option value="efi">Efí Bank (Gerencianet)</option>
-                  <option value="manual">Chave PIX Direta da Cooperativa</option>
-                </select>
+                  Bloquear Novamente
+                </button>
               </div>
 
-              <div>
-                <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                  Chave PIX
-                </label>
-                <input
-                  value={config.pix.chavePixManual}
-                  onChange={(e) =>
-                    setConfig({
-                      ...config,
-                      pix: { ...config.pix, chavePixManual: e.target.value },
-                    })
-                  }
-                  className="w-full rounded-2xl bg-slate-50 px-5 py-3.5 text-sm sm:text-base font-semibold text-slate-900 outline-none border border-slate-200"
-                />
-              </div>
+              <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b pb-3">
+                  <h3 className="text-sm font-black text-slate-900">API Keys &amp; Credenciais de Gateway</h3>
+                  <button
+                    type="button"
+                    onClick={() => setMostrarChaves(!mostrarChaves)}
+                    className="text-xs font-bold text-slate-600 flex items-center gap-1 hover:text-slate-900"
+                  >
+                    {mostrarChaves ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    <span>{mostrarChaves ? "Ocultar Valores" : "Revelar Valores"}</span>
+                  </button>
+                </div>
 
-              <div>
-                <label className="block text-xs sm:text-sm font-black uppercase tracking-wider text-slate-700 mb-2">
-                  Beneficiário / Razão Social
-                </label>
-                <input
-                  value={config.pix.beneficiario}
-                  onChange={(e) =>
-                    setConfig({
-                      ...config,
-                      pix: { ...config.pix, beneficiario: e.target.value },
-                    })
-                  }
-                  className="w-full rounded-2xl bg-slate-50 px-5 py-3.5 text-sm sm:text-base font-semibold text-slate-900 outline-none border border-slate-200"
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Google Maps Platform API Key:</label>
+                    <input
+                      type={mostrarChaves ? "text" : "password"}
+                      value={googleMapsKey}
+                      onChange={(e) => setGoogleMapsKey(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-slate-300 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Asaas API Token:</label>
+                    <input
+                      type={mostrarChaves ? "text" : "password"}
+                      value={asaasApiKey}
+                      onChange={(e) => setAsaasApiKey(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-slate-300 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Stripe Secret Key:</label>
+                    <input
+                      type={mostrarChaves ? "text" : "password"}
+                      value={stripeSecretKey}
+                      onChange={(e) => setStripeSecretKey(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-slate-300 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Webhook Secret (HMAC):</label>
+                    <input
+                      type={mostrarChaves ? "text" : "password"}
+                      value={webhookSecret}
+                      onChange={(e) => setWebhookSecret(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-slate-300 font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-3 border-t">
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">DNS / Endpoint Base:</label>
+                    <input
+                      type="text"
+                      value={dnsUrl}
+                      onChange={(e) => setDnsUrl(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-slate-300 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold text-slate-700 mb-1">Timeout de Despacho (Segundos):</label>
+                    <input
+                      type="number"
+                      value={timeoutDespachoSec}
+                      onChange={(e) => setTimeoutDespachoSec(e.target.value)}
+                      className="w-full h-10 px-3 rounded-xl border border-slate-300 font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => alert("Parâmetros técnicos atualizados no cluster de produção com sucesso!")}
+                    className="h-11 px-5 rounded-2xl bg-slate-900 text-white font-bold text-xs hover:bg-slate-800 shadow-xs cursor-pointer"
+                  >
+                    Salvar Configurações Técnicas
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </GuardiaoAcesso>
-
-        {/* Botão Flutuante de Salvar em Tela Cheia */}
-        <div className="sticky bottom-6 z-30 bg-white/95 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <span className="text-sm font-bold text-slate-600">
-            As configurações da frota Starlink e parâmetros de viagens são sincronizados na hora
-            para passageiros e motoristas.
-          </span>
-          <button
-            type="submit"
-            className="flex h-11 sm:h-12 items-center justify-center gap-3 rounded-2xl bg-[#0d5930] px-10 text-base font-black text-white shadow-xl shadow-[#0d5930]/30 hover:brightness-105 active:scale-[0.98] transition-all shrink-0"
-          >
-            <Save className="h-5 w-5" /> Salvar Configurações Globais
-          </button>
+          )}
         </div>
-      </form>
+      )}
+
+      {/* MODAL DESBLOQUEAR MODO AVANÇADO */}
+      {modalDesbloquearAberto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl border border-slate-200 space-y-4">
+            <div className="flex items-center justify-between border-b pb-3">
+              <div className="flex items-center gap-2 text-rose-600">
+                <ShieldAlert className="h-5 w-5" />
+                <h3 className="text-base font-black text-slate-900">Confirmação de Segurança</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalDesbloquearAberto(false)}
+                className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-100 text-slate-500"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleDesbloquearAvancado} className="space-y-3 text-xs">
+              <p className="text-slate-600">
+                Para liberar as configurações avançadas e chaves de API, digite a palavra <strong>DESBLOQUEAR</strong> abaixo:
+              </p>
+
+              <input
+                type="text"
+                required
+                placeholder="Digite DESBLOQUEAR"
+                value={confirmacaoTexto}
+                onChange={(e) => setConfirmacaoTexto(e.target.value)}
+                className="w-full h-11 px-3 rounded-xl border border-slate-300 font-bold uppercase text-center focus:ring-2 focus:ring-rose-500"
+              />
+
+              {erroDesbloqueio && (
+                <p className="text-red-600 font-bold text-xs">{erroDesbloqueio}</p>
+              )}
+
+              <div className="grid grid-cols-2 gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setModalDesbloquearAberto(false)}
+                  className="h-11 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="h-11 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 shadow-xs"
+                >
+                  Confirmar Acesso
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -182,7 +182,7 @@ export function SecaoTrajetosFrequentes({
         </div>
 
         <Link
-          to="/app/linhas"
+          to="/app"
           className="text-xs font-black text-[#0d5930] hover:text-emerald-700 flex items-center gap-0.5 shrink-0 transition-colors cursor-pointer py-1"
         >
           <span>Ver todas</span>
@@ -387,7 +387,7 @@ export function SecaoTrajetosFrequentes({
 
           {/* Card 2: Passe Estudantil */}
           <Link
-            to="/app/passe-universitario"
+            to="/cadastro-gratuidade"
             className="flex items-center gap-2.5 p-2.5 rounded-xl bg-gradient-to-r from-amber-50/80 to-yellow-50/60 border border-amber-200/80 hover:border-amber-400 transition-all shadow-2xs active:scale-95 cursor-pointer group"
           >
             <div className="h-8 w-8 rounded-lg bg-white shadow-2xs border border-amber-100 flex items-center justify-center shrink-0 text-amber-800">
