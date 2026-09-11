@@ -96,6 +96,7 @@ import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
 import { DriverPixWithdrawalModal } from "@/components/driver/DriverPixWithdrawalModal";
 import { DriverDestinationModal } from "@/components/driver/DriverDestinationModal";
 import { VirtualTaximeterModal } from "@/components/driver/VirtualTaximeterModal";
+import { DriverWelcomeGate } from "@/components/driver/DriverWelcomeGate";
 import { driverDestinationModeService, type DriverDestination } from "@/services/DriverDestinationModeService";
 import { h3DispatchEngine, geofenceArrivalService } from "@/lib/spatial";
 import { chatRealtimeService } from "@/services/ChatRealtimeService";
@@ -167,7 +168,33 @@ export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PART
 }
 
 export function PartiuDriverCockpitGuarded() {
-  const activeUser = typeof window !== "undefined" ? (supabaseAuthService?.getCurrentUser?.() || supabaseAuthService?.getStoredSession?.() || null) : null;
+  const [isDemo, setIsDemo] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return (
+      localStorage.getItem("partiu_driver_demo_mode") === "true" ||
+      localStorage.getItem("partiu_driver_demo") === "true" ||
+      localStorage.getItem("partiu_demo_user") === "true"
+    );
+  });
+
+  const activeUser = typeof window !== "undefined" 
+    ? (supabaseAuthService?.getCurrentUser?.() || supabaseAuthService?.getStoredSession?.() || null) 
+    : null;
+  const isRegisteredDriver = activeUser?.role === "MOTORISTA" || (typeof window !== "undefined" && Boolean(localStorage.getItem("partiu_motorista_ativo")));
+
+  if (!isRegisteredDriver && !isDemo) {
+    return (
+      <DriverWelcomeGate
+        onEnterDemo={() => {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("partiu_driver_demo_mode", "true");
+          }
+          setIsDemo(true);
+        }}
+      />
+    );
+  }
+
   const effectiveDriverId = activeUser?.role === "MOTORISTA" ? activeUser.id : MOTORISTA_CONTA_PADRAO.id;
 
   return (
@@ -216,6 +243,7 @@ export function PartiuDriverCockpit() {
     const isUnlocked = driverSubscriptionService.isDriverUnlocked(effectiveDriverId) ||
       driverSubscriptionService.isDriverUnlocked(MOTORISTA_CONTA_PADRAO.id);
     const isDemo = typeof window !== "undefined" && (
+      localStorage.getItem("partiu_driver_demo_mode") === "true" ||
       localStorage.getItem("partiu_driver_demo") === "true" ||
       localStorage.getItem("partiu_demo_user") === "true"
     );
