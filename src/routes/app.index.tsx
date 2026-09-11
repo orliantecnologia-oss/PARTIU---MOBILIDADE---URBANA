@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { Check } from "lucide-react";
 import {
   PassengerRideProvider,
   usePassengerRide,
@@ -79,6 +80,8 @@ function PartiuPassengerHomeContent() {
   const [modalPushAberto, setModalPushAberto] = useState(false);
   const [pushStatus, setPushStatus] = useState<NotificationPermission>("default");
   const [userName, setUserName] = useState("Rodrigo");
+  const [modalCamadasAberto, setModalCamadasAberto] = useState(false);
+  const [estiloMapaAtivo, setEstiloMapaAtivo] = useState<"streets" | "traffic" | "satellite">("streets");
 
   // Histórico de destinos recentes do passageiro
   const [recentAddresses, setRecentAddresses] = useState<RecentAddressItem[]>(() => {
@@ -365,6 +368,9 @@ function PartiuPassengerHomeContent() {
           hideRecenter={false}
           userAccuracyMeters={userAccuracyMeters}
           cameraPadding={dynamicCameraPadding}
+          activeMapStyle={estiloMapaAtivo}
+          onSelectMapStyle={setEstiloMapaAtivo}
+          onOpenLayersModal={() => setModalCamadasAberto(true)}
         />
       </div>
 
@@ -391,31 +397,30 @@ function PartiuPassengerHomeContent() {
               <div className="w-10 h-1 bg-slate-300 rounded-full" />
             </div>
 
-            {/* Conteúdo com Scroll Suave: Card "Para onde vamos?" + Histórico 2 itens + Banners */}
-            <div className="flex-1 overflow-y-auto px-4 py-1 space-y-2.5">
-              <div className="max-w-lg mx-auto space-y-2.5">
-                {/* Input "Para onde vamos?" ultra-compacto com histórico de 2 endereços */}
-                <DestinationCard
-                  onSearchClick={startSearch}
-                  onEditPickupClick={startEditingPickup}
-                  onAdjustPinOnMap={proceedToConfirmPickup}
-                  onSelectAddress={(item) => selectDestination(item.endereco, item.coords)}
-                  currentAddress={origem}
-                  userAccuracyMeters={userAccuracyMeters}
-                  recentAddresses={recentAddresses}
-                />
-
-                {/* Carrossel de Banners Promocionais */}
-                {activeBanners && activeBanners.length > 0 && (
-                  <PromoCarousel
-                    banners={activeBanners}
-                    autoPlayIntervalMs={3000}
-                  />
-                )}
-              </div>
+            {/* BLOCO 1 (DESTINO): Card "Para onde vamos?" + Histórico de 2 endereços */}
+            <div className="w-full max-w-lg mx-auto px-4 shrink-0 mb-1.5">
+              <DestinationCard
+                onSearchClick={startSearch}
+                onEditPickupClick={startEditingPickup}
+                onAdjustPinOnMap={proceedToConfirmPickup}
+                onSelectAddress={(item) => selectDestination(item.endereco, item.coords)}
+                currentAddress={origem}
+                userAccuracyMeters={userAccuracyMeters}
+                recentAddresses={recentAddresses}
+              />
             </div>
 
-            {/* Barra de Navegação Inferior Fixa Ancorada no Rodapé */}
+            {/* BLOCO 2 (BANNERS): Carrossel de Banners Promocionais (Apenas Scroll Horizontal) */}
+            {activeBanners && activeBanners.length > 0 && (
+              <div className="w-full max-w-lg mx-auto px-4 flex-1 min-h-0 flex flex-col justify-center overflow-hidden">
+                <PromoCarousel
+                  banners={activeBanners}
+                  autoPlayIntervalMs={3000}
+                />
+              </div>
+            )}
+
+            {/* RODAPÉ: Barra de Navegação Inferior Fixa Ancorada na Base */}
             <div className="w-full shrink-0 border-t border-slate-100 bg-white">
               <HomeBottomNav activeTab="corridas" />
             </div>
@@ -479,6 +484,108 @@ function PartiuPassengerHomeContent() {
 
       {/* GAVETA LATERAL DE NAVEGAÇÃO */}
       <AppDrawer open={drawerAberto} onClose={() => setDrawerAberto(false)} />
+
+      {/* ========================================================================= */}
+      {/* MODAL RAIZ: SELETOR DE ESTILO DE MAPA (RUAS, TRÂNSITO, SATÉLITE)          */}
+      {/* Z-INDEX 9999 + ELEVATION 99 - LIVRE DE QUALQUER OVERFLOW HIDDEN          */}
+      {/* ========================================================================= */}
+      {modalCamadasAberto && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
+          style={{ zIndex: 9999, ...({ elevation: 99 } as React.CSSProperties) }}
+          onClick={() => setModalCamadasAberto(false)}
+        >
+          <div
+            className="bg-white/98 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xs p-4 space-y-3 animate-in zoom-in-95 duration-200 pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div>
+                <h4 className="text-sm font-black text-slate-900">Estilo do Mapa</h4>
+                <p className="text-[11px] text-slate-500 font-medium">Escolha a visualização que preferir</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setModalCamadasAberto(false)}
+                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs cursor-pointer transition-colors"
+                title="Fechar"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setEstiloMapaAtivo("streets");
+                  setModalCamadasAberto(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
+                  estiloMapaAtivo === "streets"
+                    ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"
+                    : "text-slate-700 hover:bg-slate-100 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">🗺️</span>
+                  <div>
+                    <div className="font-bold text-slate-900">Nomes das Ruas</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Padrão Google Maps limpo</div>
+                  </div>
+                </div>
+                {estiloMapaAtivo === "streets" && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEstiloMapaAtivo("traffic");
+                  setModalCamadasAberto(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
+                  estiloMapaAtivo === "traffic"
+                    ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"
+                    : "text-slate-700 hover:bg-slate-100 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">🚗</span>
+                  <div>
+                    <div className="font-bold text-slate-900">Trânsito & Vias</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Linhas com fluxo em tempo real</div>
+                  </div>
+                </div>
+                {estiloMapaAtivo === "traffic" && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setEstiloMapaAtivo("satellite");
+                  setModalCamadasAberto(false);
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
+                  estiloMapaAtivo === "satellite"
+                    ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"
+                    : "text-slate-700 hover:bg-slate-100 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg">🛰️</span>
+                  <div>
+                    <div className="font-bold text-slate-900">Satélite Real</div>
+                    <div className="text-[10px] text-slate-400 font-normal">Imagens aéreas de alta definição</div>
+                  </div>
+                </div>
+                {estiloMapaAtivo === "satellite" && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import mapboxgl from "mapbox-gl";
 import { Navigation, Compass, LocateFixed, Layers, Check } from "lucide-react";
 import type { MotoristaInfo, ModalidadePartiu } from "@/lib/partiu-engine";
@@ -95,6 +96,9 @@ export interface PartiuRideMapProps {
   cameraPadding?: { top?: number; bottom?: number; left?: number; right?: number } | undefined;
   onUserLocationChange?: ((coords: [number, number], heading?: number) => void) | undefined;
   onLocationPermissionDenied?: (() => void) | undefined;
+  activeMapStyle?: "streets" | "traffic" | "satellite" | undefined;
+  onSelectMapStyle?: ((style: "streets" | "traffic" | "satellite") => void) | undefined;
+  onOpenLayersModal?: (() => void) | undefined;
 }
 
 export function PartiuRideMap({
@@ -113,6 +117,9 @@ export function PartiuRideMap({
   cameraPadding,
   onUserLocationChange,
   onLocationPermissionDenied,
+  activeMapStyle,
+  onSelectMapStyle,
+  onOpenLayersModal,
 }: PartiuRideMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -1150,8 +1157,15 @@ export function PartiuRideMap({
       ? { bottom: `${cameraPadding.bottom + 76}px` }
       : undefined;
 
+  useEffect(() => {
+    if (activeMapStyle && activeMapStyle !== activeStyleKey) {
+      handleSelectStyle(activeMapStyle);
+    }
+  }, [activeMapStyle]);
+
   const handleSelectStyle = async (newStyle: "streets" | "traffic" | "satellite") => {
     setActiveStyleKey(newStyle);
+    onSelectMapStyle?.(newStyle);
     setShowLayersMenu(false);
     const map = mapRef.current;
     if (!map) return;
@@ -1291,70 +1305,113 @@ export function PartiuRideMap({
           !layersMenuStyle ? "bottom-20" : ""
         }`}
       >
-        {showLayersMenu && (
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-200/90 p-2 flex flex-col gap-1 min-w-[180px] animate-in fade-in slide-in-from-right-2 duration-200">
-            <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-0.5">
-              Estilo do Mapa
-            </div>
-            <button
-              type="button"
-              onClick={() => handleSelectStyle("streets")}
-              className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-left ${
-                activeStyleKey === "streets"
-                  ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span>🗺️</span>
-                <span>Nomes das Ruas</span>
-              </div>
-              {activeStyleKey === "streets" && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSelectStyle("traffic")}
-              className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-left ${
-                activeStyleKey === "traffic"
-                  ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span>🚗</span>
-                <span>Trânsito & Vias</span>
-              </div>
-              {activeStyleKey === "traffic" && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSelectStyle("satellite")}
-              className={`flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all text-left ${
-                activeStyleKey === "satellite"
-                  ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200"
-                  : "text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <span>🛰️</span>
-                <span>Satélite Real</span>
-              </div>
-              {activeStyleKey === "satellite" && <Check className="w-3.5 h-3.5 text-blue-600 shrink-0" />}
-            </button>
-          </div>
-        )}
-
         <button
           type="button"
-          onClick={() => setShowLayersMenu((prev) => !prev)}
-          className={`w-11 h-11 rounded-full bg-white/95 backdrop-blur-md text-slate-800 shadow-xl border border-slate-200/80 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-black/5 ${
-            showLayersMenu ? "ring-blue-500 text-blue-600" : ""
-          }`}
+          onClick={() => {
+            if (onOpenLayersModal) {
+              onOpenLayersModal();
+            } else {
+              setShowLayersMenu((prev) => !prev);
+            }
+          }}
+          className="w-11 h-11 rounded-full bg-white/95 backdrop-blur-md text-slate-800 shadow-xl border border-slate-200/80 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-black/5"
           title="Alternar estilo do mapa (Nomes de Ruas, Trânsito, Satélite)"
         >
           <Layers className="w-5 h-5 text-slate-700" />
         </button>
       </div>
+
+      {/* Modal Fallback de Camadas via Portal (Renderizado na raiz caso não gerenciado pelo pai) */}
+      {showLayersMenu &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
+            style={{ zIndex: 9999, ...({ elevation: 99 } as React.CSSProperties) }}
+            onClick={() => setShowLayersMenu(false)}
+          >
+            <div
+              className="bg-white/98 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xs p-4 space-y-3 animate-in zoom-in-95 duration-200 pointer-events-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div>
+                  <h4 className="text-sm font-black text-slate-900">Estilo do Mapa</h4>
+                  <p className="text-[11px] text-slate-500 font-medium">Escolha a visualização que preferir</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowLayersMenu(false)}
+                  className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs cursor-pointer transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-1.5">
+                <button
+                  type="button"
+                  onClick={() => handleSelectStyle("streets")}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    activeStyleKey === "streets"
+                      ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"
+                      : "text-slate-700 hover:bg-slate-100 border border-transparent"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">🗺️</span>
+                    <div>
+                      <div className="font-bold text-slate-900">Nomes das Ruas</div>
+                      <div className="text-[10px] text-slate-400 font-normal">Padrão Google Maps limpo</div>
+                    </div>
+                  </div>
+                  {activeStyleKey === "streets" && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectStyle("traffic")}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    activeStyleKey === "traffic"
+                      ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"
+                      : "text-slate-700 hover:bg-slate-100 border border-transparent"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">🚗</span>
+                    <div>
+                      <div className="font-bold text-slate-900">Trânsito & Vias</div>
+                      <div className="text-[10px] text-slate-400 font-normal">Linhas com fluxo em tempo real</div>
+                    </div>
+                  </div>
+                  {activeStyleKey === "traffic" && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleSelectStyle("satellite")}
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
+                    activeStyleKey === "satellite"
+                      ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"
+                      : "text-slate-700 hover:bg-slate-100 border border-transparent"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">🛰️</span>
+                    <div>
+                      <div className="font-bold text-slate-900">Satélite Real</div>
+                      <div className="text-[10px] text-slate-400 font-normal">Imagens aéreas de alta definição</div>
+                    </div>
+                  </div>
+                  {activeStyleKey === "satellite" && <Check className="w-4 h-4 text-blue-600 shrink-0" />}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* Botão Flutuante: Centralizar no Passageiro (Estilo 99 / Uber) */}
       {!hideRecenter && (
