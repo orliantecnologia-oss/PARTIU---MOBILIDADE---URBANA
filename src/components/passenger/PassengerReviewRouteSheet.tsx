@@ -52,8 +52,10 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
     setPagamentoNaMaquininha,
     viajanteOutraPessoa,
     nomeOutroPassageiro,
+    telefoneOutroPassageiro,
     setViajanteOutraPessoa,
     setNomeOutroPassageiro,
+    setTelefoneOutroPassageiro,
     paradaIntermediaria,
     setParadaIntermediaria,
     horarioDesembarquePrevisto,
@@ -768,14 +770,36 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             </div>
 
             {viajanteOutraPessoa && (
-              <input
-                type="text"
-                value={nomeOutroPassageiro}
-                onChange={(e) => setNomeOutroPassageiro(e.target.value)}
-                placeholder="Nome completo do passageiro..."
-                className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#0088FF]"
-                autoFocus
-              />
+              <div className="space-y-2.5">
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    Nome de quem vai embarcar
+                  </label>
+                  <input
+                    type="text"
+                    value={nomeOutroPassageiro}
+                    onChange={(e) => setNomeOutroPassageiro(e.target.value)}
+                    placeholder="Nome completo (ex: Maria Silva)..."
+                    className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#0088FF]"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    Telefone para o motorista ligar / WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    value={telefoneOutroPassageiro}
+                    onChange={(e) => setTelefoneOutroPassageiro(e.target.value)}
+                    placeholder="(22) 99999-9999"
+                    className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#0088FF]"
+                  />
+                </div>
+                <p className="text-[10.5px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-100">
+                  💡 O motorista verá que a corrida foi pedida por você e poderá falar diretamente com quem vai embarcar.
+                </p>
+              </div>
             )}
 
             <button

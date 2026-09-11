@@ -86,8 +86,10 @@ interface PassengerRideContextValue {
   setPagamentoNaMaquininha: (val: boolean) => void;
   viajanteOutraPessoa: boolean;
   nomeOutroPassageiro: string;
+  telefoneOutroPassageiro: string;
   setViajanteOutraPessoa: (val: boolean) => void;
   setNomeOutroPassageiro: (nome: string) => void;
+  setTelefoneOutroPassageiro: (tel: string) => void;
   paradaIntermediaria: string | null;
   setParadaIntermediaria: (parada: string | null) => void;
   horarioDesembarquePrevisto: string;
@@ -487,6 +489,7 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
   const [pagamentoNaMaquininha, setPagamentoNaMaquininha] = useState(false);
   const [viajanteOutraPessoa, setViajanteOutraPessoa] = useState(false);
   const [nomeOutroPassageiro, setNomeOutroPassageiro] = useState("");
+  const [telefoneOutroPassageiro, setTelefoneOutroPassageiro] = useState("");
   const [paradaIntermediaria, setParadaIntermediaria] = useState<string | null>(null);
 
   // Coordenadas do condutor em rota (alimentadas pelo realtime oficial de motoristas)
@@ -882,6 +885,9 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
     const modalidadeEnvio =
       categoriaVeiculo === "MOTO" ? "MOTO" : categoriaVeiculo === "CARRO" ? "POP" : categoriaVeiculo;
 
+    const isOutraPessoa = viajanteOutraPessoa && Boolean(nomeOutroPassageiro.trim());
+    const telPassageiro = isOutraPessoa && telefoneOutroPassageiro.trim() ? telefoneOutroPassageiro.trim() : "(22) 99876-5432";
+
     const novaCorrida = criarNovaCorrida({
       origem,
       destino,
@@ -890,11 +896,16 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       distanciaKm,
       duracaoMin: activeQuote.tripDurationMinutes || duracaoMin,
       formaPagamento: formaPagamento === "pix" ? "pix" : "dinheiro",
-      passageiroNome: viajanteOutraPessoa && nomeOutroPassageiro.trim() ? nomeOutroPassageiro.trim() : "Rodrigo Gomes",
-      passageiroTelefone: "(22) 99876-5432",
+      passageiroNome: isOutraPessoa ? nomeOutroPassageiro.trim() : "Rodrigo Gomes",
+      passageiroTelefone: telPassageiro,
       isFemaleOnly: preferences.isFemaleOnly,
       origemCoords: { lat: origemCoords[1], lng: origemCoords[0] },
       destinoCoords: { lat: destinoCoords[1], lng: destinoCoords[0] },
+      isForOtherPerson: isOutraPessoa,
+      otherPersonName: isOutraPessoa ? nomeOutroPassageiro.trim() : undefined,
+      otherPersonPhone: isOutraPessoa ? telPassageiro : undefined,
+      solicitanteNome: "Rodrigo Gomes",
+      solicitanteTelefone: "(22) 99876-5432",
     });
 
     setActiveRide(novaCorrida);
@@ -929,6 +940,8 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
     formaPagamento,
     viajanteOutraPessoa,
     nomeOutroPassageiro,
+    telefoneOutroPassageiro,
+    preferences.isFemaleOnly,
   ]);
 
   // Escuta eventos de despacho progressivo em tempo real e aceite
@@ -1107,8 +1120,10 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       setPagamentoNaMaquininha,
       viajanteOutraPessoa,
       nomeOutroPassageiro,
+      telefoneOutroPassageiro,
       setViajanteOutraPessoa,
       setNomeOutroPassageiro,
+      setTelefoneOutroPassageiro,
       paradaIntermediaria,
       setParadaIntermediaria,
       horarioDesembarquePrevisto,
@@ -1176,6 +1191,7 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       pagamentoNaMaquininha,
       viajanteOutraPessoa,
       nomeOutroPassageiro,
+      telefoneOutroPassageiro,
       paradaIntermediaria,
       horarioDesembarquePrevisto,
       etaCalculado,

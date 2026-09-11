@@ -93,6 +93,7 @@ import { dispatchQueueBuilder } from "@/services/DispatchQueueBuilder";
 import { DeliveryPinNumpadBottomSheet } from "@/components/driver/DeliveryPinNumpadBottomSheet";
 import { DriverAccessGuard } from "@/components/driver/DriverAccessGuard";
 import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
+import { DriverPixWithdrawalModal } from "@/components/driver/DriverPixWithdrawalModal";
 import { h3DispatchEngine, geofenceArrivalService } from "@/lib/spatial";
 import { chatRealtimeService } from "@/services/ChatRealtimeService";
 import {
@@ -124,6 +125,8 @@ export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PART
     titulo,
     passageiro: isEntrega
       ? `${c.passageiroNome} ➔ ${c.destinatarioNome || "Destinatário"}`
+      : c.isForOtherPerson
+      ? `${c.otherPersonName || c.passageiroNome} (Pedido por ${c.solicitanteNome || "Passageiro"})`
       : c.passageiroNome,
     origem: c.origem,
     destino: c.destino,
@@ -136,7 +139,12 @@ export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PART
     economiaVsUber: Math.round(c.valor * 0.2 * 100) / 100,
     contribuicaoProtecao: 0,
     pinCorreto: sess ? sess.flashOrder.pickupOtp : c.pin,
-    telefone: c.passageiroTelefone,
+    telefone: c.isForOtherPerson && c.otherPersonPhone ? c.otherPersonPhone : c.passageiroTelefone,
+    isForOtherPerson: Boolean(c.isForOtherPerson),
+    otherPersonName: c.otherPersonName,
+    otherPersonPhone: c.otherPersonPhone,
+    solicitanteNome: c.solicitanteNome,
+    solicitanteTelefone: c.solicitanteTelefone,
     isReal: true,
     passageiroFoto: (c as any).passageiroFoto,
     passageiroAvaliacao: (c as any).passageiroAvaliacao ?? 4.98,
@@ -2118,118 +2126,19 @@ export function PartiuDriverCockpit() {
       )}
 
       {/* =================================================================== */}
-      {/* MODAL: SAQUE INSTANTÂNEO PIX D+0 COM DEDUÇÕES (AUDITORIA 5)        */}
+      {/* MODAL OFICIAL: SAQUE PIX INSTANTÂNEO COM VALIDAÇÃO ESTREITA E D+0 */}
       {/* =================================================================== */}
-      {modalSaquePix && (() => {
-        const check = billingEngine.calculateNetWithdrawal({
-          driverId: perfilMotorista.id,
-          grossBalanceCents: Math.round(ganhosHoje * 100),
-          subscription,
-        });
-
-        return (
-          <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-            <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 text-center shadow-2xl pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
-              <div
-                style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
-                className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-xl font-black shadow-sm"
-              >
-                ⚡
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="text-lg font-black text-slate-950">Saque Instantâneo PIX D+0</h3>
-                <p className="text-xs text-slate-500">
-                  Transferência em tempo real para sua chave PIX com conciliação automática.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-left space-y-2.5">
-                <div>
-                  <span className="text-[10px] text-slate-500 font-bold uppercase block">Saldo Bruto Hoje:</span>
-                  <span className="text-2xl font-black text-slate-950 block">
-                    {ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                  </span>
-                </div>
-
-                {/* Deduções de Governança / Assinatura (Auditoria 5) */}
-                {(check.subscriptionDeductionCents > 0 || check.pendingDebtsDeductionCents > 0) && (
-                  <div className="pt-2 border-t border-amber-200/80 bg-primary-50/50 p-2.5 rounded-xl space-y-1 text-xs text-amber-900">
-                    <span className="text-[10px] font-black uppercase block text-amber-800">
-                      Retenções de Obrigações no Saque:
-                    </span>
-                    {check.subscriptionDeductionCents > 0 && (
-                      <div className="flex justify-between items-center text-[11px]">
-                        <span>Mensalidade Plano {driverPlan?.name}:</span>
-                        <span className="font-bold text-rose-700">
-                          -{(check.subscriptionDeductionCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                        </span>
-                      </div>
-                    )}
-                    {check.pendingDebtsDeductionCents > 0 && (
-                      <div className="flex justify-between items-center text-[11px]">
-                        <span>Pendências Operacionais:</span>
-                        <span className="font-bold text-rose-700">
-                          -{(check.pendingDebtsDeductionCents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div className="pt-2 border-t border-slate-200 space-y-1 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600 font-medium">Fundo de Proteção Operacional:</span>
-                    <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">
-                      {wallet.protectionFundBalanceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} (Protegido)
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center font-bold text-slate-950 pt-1">
-                    <span>Líquido a Transferir via PIX:</span>
-                    <span className="text-base font-black text-emerald-600">
-                      {check.netWithdrawalAvailableBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-slate-200 text-xs text-slate-600">
-                  <span className="font-bold">Chave PIX:</span> {perfilMotorista.chavePix || "carlos.eduardo@email.com"}
-                </div>
-              </div>
-
-              {saqueConcluido ? (
-                <div className="p-3 rounded-xl bg-emerald-50 text-emerald-700 font-bold text-xs flex flex-col items-center justify-center gap-1 border border-emerald-200">
-                  <div className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>PIX Processado com Sucesso!</span>
-                  </div>
-                  {mensagemSaque && <p className="text-[11px] font-normal text-emerald-800">{mensagemSaque}</p>}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={handleSolicitarSaquePix}
-                    disabled={!check.canWithdraw || ganhosHoje <= 0}
-                    style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
-                    className="w-full h-12 rounded-2xl hover:opacity-90 disabled:opacity-40 text-slate-950 font-black text-xs shadow-lg transition active:scale-95 flex items-center justify-center"
-                  >
-                    TRANSFERIR VIA PIX AGORA
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalSaquePix(false)}
-                    className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs transition"
-                  >
-                    Fechar
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+      <DriverPixWithdrawalModal
+        isOpen={modalSaquePix}
+        onClose={() => setModalSaquePix(false)}
+        driverId={perfilMotorista.id}
+        saldoDisponivelBrl={ganhosHoje}
+        chavePixPadrao={perfilMotorista.chavePix}
+        onWithdrawalSuccess={(newBalance) => {
+          setGanhosHoje(newBalance);
+          setWallet(driverWalletEngine.getWallet(perfilMotorista.id));
+        }}
+      />
 
       {/* =================================================================== */}
       {/* MODAL: MEU PLANO & ASSINATURA (AUDITORIA 2 & 12)                    */}

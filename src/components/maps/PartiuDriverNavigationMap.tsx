@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
-import { Navigation, Compass, ExternalLink, MapPin, Gauge } from "lucide-react";
+import { Navigation, Compass, ExternalLink, MapPin, Gauge, Flame } from "lucide-react";
 import { mapboxService } from "@/services/MapboxService";
 import { directionsService } from "@/services/DirectionsService";
 import { calculateBearing } from "@/utils/gis-interpolation";
 import { silentCatchWarn } from "@/lib/structured-logger";
 import { DriverLocationService } from "@/services/DriverLocationService";
 import { MapboxConfig } from "@/config/MapboxConfig";
+import { h3DemandHeatmapEngine } from "@/lib/spatial";
 
 const MAPBOX_TOKEN = MapboxConfig.getAccessToken();
 
@@ -148,6 +149,38 @@ export function PartiuDriverNavigationMap({
             "line-opacity": 0.95,
           },
         });
+
+        // Camada Térmica de Demanda Hexagonal H3 (Resolução 8)
+        try {
+          const demandGeoJson = h3DemandHeatmapEngine.generateDemandHeatmapGeoJson();
+          map.addSource("h3-demand-source", {
+            type: "geojson",
+            data: demandGeoJson,
+          });
+
+          map.addLayer({
+            id: "h3-demand-fill",
+            type: "fill",
+            source: "h3-demand-source",
+            paint: {
+              "fill-color": ["get", "fillColor"],
+              "fill-opacity": ["get", "fillOpacity"],
+            },
+          });
+
+          map.addLayer({
+            id: "h3-demand-outline",
+            type: "line",
+            source: "h3-demand-source",
+            paint: {
+              "line-color": ["get", "fillColor"],
+              "line-width": 1.5,
+              "line-opacity": 0.8,
+            },
+          });
+        } catch (err) {
+          silentCatchWarn("PartiuDriverNavigationMap.h3Demand", err);
+        }
       });
     } catch (e) {
       console.warn("[PartiuDriverMap] Erro de inicialização do Mapbox:", e);
@@ -356,6 +389,23 @@ export function PartiuDriverNavigationMap({
     }
   }, [mapLoaded, estado, activeRouteCoords, currentDriverPos, currentHeading, pickupCoords, destinationCoords]);
 
+  // 3.1 VISIBILIDADE DO HEATMAP DE DEMANDA H3 (ATIVO EM IDLE / BUSCA DE CORRIDA)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded) return;
+    const isDemandVisible = estado === "IDLE" || estado === "OFFER";
+    try {
+      if (map.getLayer("h3-demand-fill")) {
+        map.setLayoutProperty("h3-demand-fill", "visibility", isDemandVisible ? "visible" : "none");
+      }
+      if (map.getLayer("h3-demand-outline")) {
+        map.setLayoutProperty("h3-demand-outline", "visibility", isDemandVisible ? "visible" : "none");
+      }
+    } catch (err) {
+      silentCatchWarn("PartiuDriverNavigationMap.h3Visibility", err);
+    }
+  }, [mapLoaded, estado]);
+
   // Abertura nativa no Waze com coordenadas reais da corrida
   function handleAbrirWaze() {
     const target = pickupCoords || destinationCoords;
@@ -373,6 +423,19 @@ export function PartiuDriverNavigationMap({
   return (
     <div className={`relative w-full h-full overflow-hidden bg-slate-950 ${className}`}>
       <div ref={mapContainer} className="w-full h-full" />
+
+      {/* BADGE FLUTUANTE DE DEMANDA HEXAGONAL H3 (MODO IDLE) */}
+      {estado === "IDLE" && (
+        <div className="absolute top-[max(4.25rem,calc(env(safe-area-inset-top)+3.5rem))] left-3 z-30 animate-in fade-in duration-300">
+          <div className="px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md border border-amber-500/40 text-white text-[11px] font-black flex items-center gap-1.5 shadow-xl">
+            <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-pulse" />
+            <span>Zonas de Demanda H3 Ativas</span>
+            <span className="text-[10px] text-amber-300 bg-amber-950/60 px-1.5 py-0.2 rounded-full font-bold">
+              Até 2.0x
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* BANNER SUPERIOR DE NAVEGAÇÃO TURN-BY-TURN (Estilo Waze/Uber) */}
       {(estado === "HEADING_TO_PICKUP" || estado === "IN_PROGRESS") && (

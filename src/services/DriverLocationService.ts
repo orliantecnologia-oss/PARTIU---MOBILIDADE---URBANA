@@ -20,6 +20,7 @@ import {
   syncDurableQueueWithServer,
 } from "@/lib/offline-durable-queue";
 import { h3SpatialIndex, redisLuaEngine } from "@/lib/spatial";
+import { adaptiveTelemetryEngine } from "@/lib/telemetry/adaptive-telemetry-engine";
 
 export type DriverOperationalState =
   | "OFFLINE"
@@ -292,21 +293,8 @@ export class DriverLocationService {
   }
 
   public getTransmissionIntervalMs(state: DriverOperationalState, batteryLevel = 100): number {
-    if (batteryLevel <= 15) return 30000;
-    switch (state) {
-      case "ON_TRIP":
-      case "HEADING_TO_PICKUP":
-      case "IN_PROGRESS":
-        return 3000; // Corrida ativa: 3 segundos
-      case "ONLINE_MOVING":
-      case "ONLINE":
-        return 5000; // Baixa velocidade / movimento: 5 segundos
-      case "WAITING_PASSENGER":
-      case "AVAILABLE":
-      case "ONLINE_IDLE":
-      default:
-        return 15000; // Parado: 15 segundos
-    }
+    const config = adaptiveTelemetryEngine.getAdaptiveConfig(state, batteryLevel);
+    return config.intervalMs;
   }
 
   /**
