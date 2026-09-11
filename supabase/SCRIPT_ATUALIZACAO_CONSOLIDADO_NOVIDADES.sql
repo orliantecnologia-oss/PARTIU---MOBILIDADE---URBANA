@@ -1455,22 +1455,65 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.support_tickets;
 -- 3. Tabela user_blocks (Bloqueio Mútuo de Pareamento anti-reincidência)
 -- ==============================================================================
 
--- 1. Gênero nos motoristas e perfis
-ALTER TABLE public.partiu_motoristas
-  ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT 'UNSPECIFIED' CHECK (gender IN ('FEMALE', 'MALE', 'OTHER', 'UNSPECIFIED'));
+-- 1. Gênero nos motoristas e perfis (tolerante à existência de tabelas)
+DO $$
+BEGIN
+    -- Se existir partiu_motoristas
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'partiu_motoristas') THEN
+        ALTER TABLE public.partiu_motoristas
+            ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT 'UNSPECIFIED' CHECK (gender IN ('FEMALE', 'MALE', 'OTHER', 'UNSPECIFIED'));
+    END IF;
 
-ALTER TABLE public.profiles
-  ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT 'UNSPECIFIED' CHECK (gender IN ('FEMALE', 'MALE', 'OTHER', 'UNSPECIFIED'));
+    -- Se existir profiles
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'profiles') THEN
+        ALTER TABLE public.profiles
+            ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT 'UNSPECIFIED' CHECK (gender IN ('FEMALE', 'MALE', 'OTHER', 'UNSPECIFIED'));
+    ELSE
+        -- Cria tabela public.profiles para interoperabilidade caso ainda não exista
+        CREATE TABLE IF NOT EXISTS public.profiles (
+            id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+            full_name TEXT,
+            phone TEXT,
+            avatar_url TEXT,
+            role TEXT DEFAULT 'PASSENGER',
+            gender VARCHAR(20) DEFAULT 'UNSPECIFIED',
+            created_at TIMESTAMPTZ DEFAULT now(),
+            updated_at TIMESTAMPTZ DEFAULT now()
+        );
+        ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+        DROP POLICY IF EXISTS "Profiles self select" ON public.profiles;
+        CREATE POLICY "Profiles self select" ON public.profiles FOR SELECT USING (true);
+        DROP POLICY IF EXISTS "Profiles self all" ON public.profiles;
+        CREATE POLICY "Profiles self all" ON public.profiles FOR ALL USING (auth.uid() = id);
+    END IF;
 
-ALTER TABLE public.partiu_passageiros
-  ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT 'UNSPECIFIED' CHECK (gender IN ('FEMALE', 'MALE', 'OTHER', 'UNSPECIFIED'));
+    -- Se existir partiu_passageiros
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'partiu_passageiros') THEN
+        ALTER TABLE public.partiu_passageiros
+            ADD COLUMN IF NOT EXISTS gender VARCHAR(20) DEFAULT 'UNSPECIFIED' CHECK (gender IN ('FEMALE', 'MALE', 'OTHER', 'UNSPECIFIED'));
+    END IF;
 
--- 2. Flag 99Mulher nas corridas
-ALTER TABLE public.partiu_corridas
-  ADD COLUMN IF NOT EXISTS is_female_only BOOLEAN NOT NULL DEFAULT false;
+    -- 2. Flag 99Mulher nas corridas e viagens
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'partiu_corridas') THEN
+        ALTER TABLE public.partiu_corridas
+            ADD COLUMN IF NOT EXISTS is_female_only BOOLEAN NOT NULL DEFAULT false;
+    END IF;
 
-ALTER TABLE public.viagens
-  ADD COLUMN IF NOT EXISTS is_female_only BOOLEAN NOT NULL DEFAULT false;
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'viagens') THEN
+        ALTER TABLE public.viagens
+            ADD COLUMN IF NOT EXISTS is_female_only BOOLEAN NOT NULL DEFAULT false;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'corridas') THEN
+        ALTER TABLE public.corridas
+            ADD COLUMN IF NOT EXISTS is_female_only BOOLEAN NOT NULL DEFAULT false;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'rides') THEN
+        ALTER TABLE public.rides
+            ADD COLUMN IF NOT EXISTS is_female_only BOOLEAN NOT NULL DEFAULT false;
+    END IF;
+END $$;
 
 -- 3. Tabela de Bloqueio Mútuo (user_blocks)
 CREATE TABLE IF NOT EXISTS public.user_blocks (
