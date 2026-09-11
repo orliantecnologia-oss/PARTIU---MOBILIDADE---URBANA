@@ -1090,6 +1090,9 @@ import "./h3-redis-spatial.test.ts";
 // Suíte Oficial V6: Despacho em Ondas (Wave Dispatch) & Segurança 99 (99Mulher + Bloqueio Mútuo)
 import "./wave-dispatch-safety.test.ts";
 
+// Suíte Oficial V6: GPS, Geofencing Automático (<50m), Navegação Waze/Maps & Simulador de Frotas
+import "./gps-geofence-navigation.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");

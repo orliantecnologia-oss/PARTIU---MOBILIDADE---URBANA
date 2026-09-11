@@ -93,7 +93,7 @@ import { dispatchQueueBuilder } from "@/services/DispatchQueueBuilder";
 import { DeliveryPinNumpadBottomSheet } from "@/components/driver/DeliveryPinNumpadBottomSheet";
 import { DriverAccessGuard } from "@/components/driver/DriverAccessGuard";
 import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
-import { h3DispatchEngine } from "@/lib/spatial";
+import { h3DispatchEngine, geofenceArrivalService } from "@/lib/spatial";
 import { chatRealtimeService } from "@/services/ChatRealtimeService";
 import {
   DriverCancelBottomSheet,
@@ -149,6 +149,8 @@ export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PART
     descricaoPacote: c.descricaoPacote,
     pickupOtp: sess?.flashOrder.pickupOtp,
     deliveryOtp: sess?.flashOrder.deliveryOtp,
+    origemCoords: c.origemCoords || { lat: -21.205, lng: -41.888 },
+    destinoCoords: c.destinoCoords || { lat: -21.210, lng: -41.895 },
   };
 }
 
@@ -573,6 +575,32 @@ export function PartiuDriverCockpit() {
     }
   }
 
+  // GEOFENCING AUTOMÁTICO DE CHEGADA (< 50m DO EMBARQUE) — PADRÃO 99/UBER
+  useEffect(() => {
+    if (estadoCockpit !== "HEADING_TO_PICKUP" || !ofertaAtiva) return;
+    const targetCoords = (ofertaAtiva as any).origemCoords;
+    if (!targetCoords || typeof targetCoords.lat !== "number" || typeof targetCoords.lng !== "number") return;
+
+    const unsubscribe = driverLocationService.onLocationUpdate((telemetry) => {
+      if (!telemetry.lat || !telemetry.lng) return;
+      const shouldArrive = geofenceArrivalService.shouldTriggerArrival(
+        ofertaAtiva.id,
+        { lat: telemetry.lat, lng: telemetry.lng },
+        { lat: targetCoords.lat, lng: targetCoords.lng },
+        50
+      );
+
+      if (shouldArrive) {
+        console.log(`[Geofence] Chegada automática acionada para corrida ${ofertaAtiva.id}`);
+        handleChegueiAoLocal();
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [estadoCockpit, ofertaAtiva?.id, (ofertaAtiva as any)?.origemCoords]);
+
   // FASE 2: Cancelamento Operacional do Condutor com Registro Auditado
   function handleConfirmarCancelamentoMotorista(
     reasonCode: DriverCancelReasonCode,
@@ -645,14 +673,20 @@ export function PartiuDriverCockpit() {
   // FASE 4: Navegação Externa (Waze & Google Maps com deep link e fallbacks)
   function handleNavegarExterno(provedor: "waze" | "google_maps") {
     if (!ofertaAtiva) return;
-    const enderecoAlvo =
-      estadoCockpit === "HEADING_TO_PICKUP"
-        ? ofertaAtiva.origem
-        : emDevolucao
-        ? ofertaAtiva.origem
-        : ofertaAtiva.destino;
+    const isPickup = estadoCockpit === "HEADING_TO_PICKUP" || emDevolucao;
+    const enderecoAlvo = isPickup ? ofertaAtiva.origem : ofertaAtiva.destino;
+    const coordsAlvo = isPickup
+      ? (ofertaAtiva as any).origemCoords
+      : (ofertaAtiva as any).destinoCoords;
 
-    openExternalNavigation({ address: enderecoAlvo }, provedor);
+    openExternalNavigation(
+      {
+        address: enderecoAlvo,
+        lat: coordsAlvo?.lat,
+        lng: coordsAlvo?.lng,
+      },
+      provedor
+    );
   }
 
   function handlePickupPinSuccess() {

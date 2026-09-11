@@ -256,6 +256,8 @@ export interface CorridaPartiu {
   comentarioPassageiro?: string | undefined;
   tagsPassageiro?: string[] | undefined;
   isFemaleOnly?: boolean | undefined;
+  origemCoords?: { lat: number; lng: number } | undefined;
+  destinoCoords?: { lat: number; lng: number } | undefined;
 }
 
 const STORAGE_KEY_CORRIDA = "partiu_corrida_ativa";
@@ -428,6 +430,8 @@ export function criarNovaCorrida(params: {
   destinatarioTelefone?: string | undefined;
   descricaoPacote?: string | undefined;
   isFemaleOnly?: boolean | undefined;
+  origemCoords?: { lat: number; lng: number } | undefined;
+  destinoCoords?: { lat: number; lng: number } | undefined;
 }): CorridaPartiu {
   const pin = Math.floor(1000 + Math.random() * 9000).toString();
   const id = `COR-${Date.now().toString().slice(-6)}`;
@@ -452,6 +456,8 @@ export function criarNovaCorrida(params: {
     destinatarioTelefone: params.destinatarioTelefone,
     descricaoPacote: params.descricaoPacote,
     isFemaleOnly: params.isFemaleOnly,
+    origemCoords: params.origemCoords,
+    destinoCoords: params.destinoCoords,
   };
 
   if (typeof window !== "undefined") {

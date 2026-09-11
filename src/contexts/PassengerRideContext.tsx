@@ -893,6 +893,8 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       passageiroNome: viajanteOutraPessoa && nomeOutroPassageiro.trim() ? nomeOutroPassageiro.trim() : "Rodrigo Gomes",
       passageiroTelefone: "(22) 99876-5432",
       isFemaleOnly: preferences.isFemaleOnly,
+      origemCoords: { lat: origemCoords[1], lng: origemCoords[0] },
+      destinoCoords: { lat: destinoCoords[1], lng: destinoCoords[0] },
     });
 
     setActiveRide(novaCorrida);
