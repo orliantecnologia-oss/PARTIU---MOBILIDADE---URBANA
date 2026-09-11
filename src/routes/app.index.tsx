@@ -421,7 +421,7 @@ function PartiuPassengerHomeContent() {
             )}
 
             {/* RODAPÉ: Barra de Navegação Inferior Fixa Ancorada na Base */}
-            <div className="w-full shrink-0 bg-[#001C38]">
+            <div className="w-full shrink-0 bg-[#020617]">
               <HomeBottomNav activeTab="corridas" />
             </div>
           </div>

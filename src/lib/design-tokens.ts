@@ -67,11 +67,20 @@ export const gradients = {
   /** Primary CTA gradient — used on all main action buttons */
   primary: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
 
-  /** Header gradient */
-  header: "linear-gradient(180deg, #0088FF 0%, #003366 100%)",
+  /** Rainbow gradient — Estilo Arco-íris Vibrante & Moderno */
+  rainbow:
+    "linear-gradient(90deg, #E11D48 0%, #EA580C 16%, #F59E0B 32%, #10B981 48%, #06B6D4 64%, #3B82F6 80%, #8B5CF6 100%)",
 
-  /** Bottom nav dark gradient */
-  bottomNav: "linear-gradient(180deg, #003366 0%, #001C38 100%)",
+  /** Rainbow Mesh alternativo */
+  rainbowMesh:
+    "linear-gradient(135deg, #FF007A 0%, #7928CA 20%, #0070F3 42%, #00DFD8 65%, #10B981 82%, #F59E0B 100%)",
+
+  /** Header gradient (Arco-íris) */
+  header:
+    "linear-gradient(90deg, #E11D48 0%, #EA580C 16%, #F59E0B 32%, #10B981 48%, #06B6D4 64%, #3B82F6 80%, #8B5CF6 100%)",
+
+  /** Bottom nav dark gradient — Alto Contraste Obsidian */
+  bottomNav: "linear-gradient(180deg, #0F172A 0%, #020617 100%)",
 
   /** Accent subtle glow */
   accentGlow: "linear-gradient(135deg, #00C6FF 0%, #0088FF 100%)",

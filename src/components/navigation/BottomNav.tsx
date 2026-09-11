@@ -135,36 +135,50 @@ export function BottomNav() {
       aria-label="Navegação Flutuante"
     >
       <div className="w-full pointer-events-auto">
-        {/* Pílula Flutuante Focada em Corrida e Entrega */}
-        <div className="flex items-center justify-between rounded-full bg-white/95 backdrop-blur-md p-1.5 shadow-[0_12px_36px_rgba(0,0,0,0.16)] border border-slate-200/90 ring-1 ring-black/5">
+        {/* Pílula Flutuante Focada em Corrida e Entrega — Alto Contraste Moderno */}
+        <div className="flex items-center justify-between rounded-full bg-[#090D1A]/95 backdrop-blur-xl p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.35)] border border-white/20 ring-1 ring-white/10">
           {/* 1. Modo: Corrida */}
           <Link
             to="/app"
-            style={{
-              backgroundColor: isCorridaActive ? (corPrimaria || "#0088FF") : "transparent",
-              color: isCorridaActive ? "#FFFFFF" : undefined,
-            }}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full transition-all duration-200 active:scale-95 cursor-pointer font-black text-xs ${
-              isCorridaActive ? "shadow-xs" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100/70"
+            style={
+              isCorridaActive
+                ? {
+                    backgroundColor: "#FFFFFF",
+                    color: "#090D1A",
+                    boxShadow: "0 4px 16px rgba(255, 255, 255, 0.35)",
+                  }
+                : undefined
+            }
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full transition-all duration-200 active:scale-95 cursor-pointer font-black text-xs ${
+              isCorridaActive
+                ? "shadow-sm"
+                : "text-slate-300 hover:text-white hover:bg-white/10"
             }`}
           >
-            <Car className="w-4 h-4 stroke-[2.4]" />
-            <span>Corrida</span>
+            <Car className={`w-4 h-4 ${isCorridaActive ? "text-[#090D1A] stroke-[2.6]" : "text-slate-300 stroke-[2]"}`} />
+            <span className={isCorridaActive ? "text-[#090D1A] font-black" : "text-slate-300 font-bold"}>Corrida</span>
           </Link>
 
           {/* 2. Modo: Entrega */}
           <Link
             to="/app/encomendas"
-            style={{
-              backgroundColor: isEntregaActive ? (corPrimaria || "#0088FF") : "transparent",
-              color: isEntregaActive ? "#FFFFFF" : undefined,
-            }}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full transition-all duration-200 active:scale-95 cursor-pointer font-black text-xs ${
-              isEntregaActive ? "shadow-xs" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100/70"
+            style={
+              isEntregaActive
+                ? {
+                    backgroundColor: "#FFFFFF",
+                    color: "#090D1A",
+                    boxShadow: "0 4px 16px rgba(255, 255, 255, 0.35)",
+                  }
+                : undefined
+            }
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full transition-all duration-200 active:scale-95 cursor-pointer font-black text-xs ${
+              isEntregaActive
+                ? "shadow-sm"
+                : "text-slate-300 hover:text-white hover:bg-white/10"
             }`}
           >
-            <Package className="w-4 h-4 stroke-[2.4]" />
-            <span>{nomeModuloEntrega || "Entrega"}</span>
+            <Package className={`w-4 h-4 ${isEntregaActive ? "text-[#090D1A] stroke-[2.6]" : "text-slate-300 stroke-[2]"}`} />
+            <span className={isEntregaActive ? "text-[#090D1A] font-black" : "text-slate-300 font-bold"}>{nomeModuloEntrega || "Entrega"}</span>
           </Link>
         </div>
       </div>

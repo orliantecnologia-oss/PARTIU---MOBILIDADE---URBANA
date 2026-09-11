@@ -26,10 +26,11 @@ export function HomeHeader({
   return (
     <header
       style={{
-        background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+        background:
+          "linear-gradient(90deg, #E11D48 0%, #EA580C 16%, #F59E0B 32%, #10B981 48%, #06B6D4 64%, #3B82F6 80%, #8B5CF6 100%)",
         color: "#FFFFFF",
       }}
-      className="sticky top-0 z-30 w-full px-3.5 py-2 sm:py-2.5 rounded-b-2xl shadow-md flex items-center justify-between transition-all shrink-0"
+      className="sticky top-0 z-30 w-full px-3.5 py-2 sm:py-2.5 rounded-b-2xl shadow-lg flex items-center justify-between transition-all shrink-0"
     >
       {/* Esquerda: Avatar redondo compacto (gatilho do Drawer) e Saudação "Olá, Rodrigo!" */}
       <div className="flex items-center gap-2.5">

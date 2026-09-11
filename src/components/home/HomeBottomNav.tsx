@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Car, Package, Compass, CreditCard, User, Truck, Shield, HelpCircle } from "lucide-react";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
-import { components } from "@/lib/design-tokens";
 
 export interface HomeBottomNavProps {
   activeTab?: "corridas" | "entregas" | string;
@@ -19,21 +18,18 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   HelpCircle,
 };
 
-/** Shared styles for the dark premium nav bar */
+/** Fundo preto obsidian com contraste máximo e profundidade */
 const NAV_STYLE: React.CSSProperties = {
-  background: components.bottomNav.gradient,
-  boxShadow: "0 -4px 30px rgba(0, 0, 0, 0.15)",
+  background: "linear-gradient(180deg, #0F172A 0%, #020617 100%)",
+  boxShadow: "0 -8px 36px rgba(0, 0, 0, 0.45), 0 -2px 10px rgba(0, 0, 0, 0.3)",
 };
 
-/** Active pill style */
-const ACTIVE_PILL: React.CSSProperties = {
-  backgroundColor: components.bottomNav.activePill.background,
-  border: `1px solid ${components.bottomNav.activePill.border}`,
-  boxShadow: "0 0 12px rgba(0, 198, 255, 0.20)",
+/** Pílula ativa de altíssimo contraste (Branco puro sobre fundo escuro = 21:1) */
+const ACTIVE_PILL_STYLE: React.CSSProperties = {
+  backgroundColor: "#FFFFFF",
+  color: "#090D1A",
+  boxShadow: "0 4px 20px rgba(255, 255, 255, 0.35)",
 };
-
-const INACTIVE_COLOR = components.bottomNav.inactiveColor;
-const ACTIVE_COLOR = components.bottomNav.activeIconColor;
 
 export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
   const location = useLocation();
@@ -42,20 +38,20 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
 
   const customTabs = menuBuilder?.abasNavegacaoInferior?.filter((t) => t.ativo);
 
-  // === White Label Custom Tabs ===
+  // === Renderização com White Label Custom Tabs ===
   if (customTabs && customTabs.length > 0) {
     return (
       <nav
-        className="w-full z-30 py-2 px-4 flex items-center justify-around shrink-0"
+        className="w-full z-30 pt-2 px-4 flex items-center justify-around shrink-0 border-t border-white/15"
         style={{
           ...NAV_STYLE,
-          paddingBottom: "max(0.65rem, env(safe-area-inset-bottom, 10px))",
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
+          paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 14px))",
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
         }}
         aria-label="Navegação Principal"
       >
-        <div className="w-full max-w-md flex items-center justify-around gap-1">
+        <div className="w-full max-w-md flex items-center justify-around gap-2">
           {customTabs
             .sort((a, b) => a.ordem - b.ordem)
             .map((tab) => {
@@ -69,23 +65,23 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
                 <Link
                   key={tab.id}
                   to={tab.rota as any}
-                  className="flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer"
-                  style={isActive ? ACTIVE_PILL : undefined}
+                  className={`flex-1 flex items-center justify-center py-2 px-3 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer ${
+                    isActive
+                      ? "font-black"
+                      : "text-slate-300 hover:text-white hover:bg-white/10"
+                  }`}
+                  style={isActive ? ACTIVE_PILL_STYLE : undefined}
                   aria-label={tab.rotulo}
                 >
                   <IconComp
-                    className="w-[20px] h-[20px] transition-colors duration-200"
-                    style={{
-                      color: isActive ? ACTIVE_COLOR : INACTIVE_COLOR,
-                      strokeWidth: isActive ? 2.4 : 1.8,
-                    }}
+                    className={`w-5 h-5 transition-transform duration-200 ${
+                      isActive ? "text-[#090D1A] stroke-[2.6] scale-105" : "text-slate-300 stroke-[2]"
+                    }`}
                   />
                   <span
-                    className="text-[10px] mt-0.5 tracking-tight transition-colors duration-200"
-                    style={{
-                      color: isActive ? ACTIVE_COLOR : INACTIVE_COLOR,
-                      fontWeight: isActive ? 700 : 500,
-                    }}
+                    className={`text-xs ml-2 tracking-tight ${
+                      isActive ? "text-[#090D1A] font-black" : "text-slate-300 font-semibold"
+                    }`}
                   >
                     {tab.rotulo}
                   </span>
@@ -97,67 +93,67 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
     );
   }
 
-  // === Default: Corridas & Entregas ===
+  // === Padrão: Corridas & Entregas (Alto Contraste) ===
   const isCorridas = activeTab ? activeTab === "corridas" : pathname === "/app" || pathname === "/app/";
   const isEntregas = activeTab ? activeTab === "entregas" : pathname === "/app/encomendas" || pathname === "/app/encomendas/";
 
   return (
     <nav
-      className="w-full z-30 py-2 px-4 flex items-center justify-around shrink-0"
+      className="w-full z-30 pt-2 px-4 flex items-center justify-around shrink-0 border-t border-white/15"
       style={{
         ...NAV_STYLE,
-        paddingBottom: "max(0.65rem, env(safe-area-inset-bottom, 10px))",
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        paddingBottom: "max(0.75rem, env(safe-area-inset-bottom, 14px))",
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
       }}
       aria-label="Navegação Principal"
     >
-      <div className="w-full max-w-md flex items-center justify-around gap-1">
-        {/* Tab: Corridas */}
+      <div className="w-full max-w-md flex items-center justify-around gap-2.5">
+        {/* Aba 1: Corridas */}
         <Link
           to="/app"
-          className="flex-1 flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer"
-          style={isCorridas ? ACTIVE_PILL : undefined}
-          aria-label="Corridas"
+          className={`flex-1 flex items-center justify-center py-2 px-4 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer ${
+            isCorridas
+              ? "font-black"
+              : "text-slate-300 hover:text-white hover:bg-white/10"
+          }`}
+          style={isCorridas ? ACTIVE_PILL_STYLE : undefined}
+          aria-label="Aba Corridas"
         >
           <Car
-            className="w-[20px] h-[20px] transition-colors duration-200"
-            style={{
-              color: isCorridas ? ACTIVE_COLOR : INACTIVE_COLOR,
-              strokeWidth: isCorridas ? 2.4 : 1.8,
-            }}
+            className={`w-5 h-5 transition-transform duration-200 ${
+              isCorridas ? "text-[#090D1A] stroke-[2.6] scale-105" : "text-slate-300 stroke-[2]"
+            }`}
           />
           <span
-            className="text-[10px] mt-0.5 tracking-tight transition-colors duration-200"
-            style={{
-              color: isCorridas ? ACTIVE_COLOR : INACTIVE_COLOR,
-              fontWeight: isCorridas ? 700 : 500,
-            }}
+            className={`text-xs ml-2 tracking-tight ${
+              isCorridas ? "text-[#090D1A] font-black" : "text-slate-300 font-semibold"
+            }`}
           >
             Corridas
           </span>
         </Link>
 
-        {/* Tab: Entregas */}
+        {/* Aba 2: Entregas */}
         <Link
           to="/app/encomendas"
-          className="flex-1 flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer"
-          style={isEntregas ? ACTIVE_PILL : undefined}
-          aria-label="Entregas"
+          className={`flex-1 flex items-center justify-center py-2 px-4 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer ${
+            isEntregas
+              ? "font-black"
+              : "text-slate-300 hover:text-white hover:bg-white/10"
+          }`}
+          style={isEntregas ? ACTIVE_PILL_STYLE : undefined}
+          aria-label="Aba Entregas"
         >
           <Package
-            className="w-[20px] h-[20px] transition-colors duration-200"
-            style={{
-              color: isEntregas ? ACTIVE_COLOR : INACTIVE_COLOR,
-              strokeWidth: isEntregas ? 2.4 : 1.8,
-            }}
+            className={`w-5 h-5 transition-transform duration-200 ${
+              isEntregas ? "text-[#090D1A] stroke-[2.6] scale-105" : "text-slate-300 stroke-[2]"
+            }`}
           />
           <span
-            className="text-[10px] mt-0.5 tracking-tight transition-colors duration-200"
-            style={{
-              color: isEntregas ? ACTIVE_COLOR : INACTIVE_COLOR,
-              fontWeight: isEntregas ? 700 : 500,
-            }}
+            className={`text-xs ml-2 tracking-tight ${
+              isEntregas ? "text-[#090D1A] font-black" : "text-slate-300 font-semibold"
+            }`}
           >
             Entregas
           </span>
