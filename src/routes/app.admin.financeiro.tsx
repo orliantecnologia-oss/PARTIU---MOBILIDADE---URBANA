@@ -217,12 +217,12 @@ export function PainelFinanceiroUnificadoPage() {
       <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-yellow-300 border border-yellow-500/25 mb-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary-500 border border-yellow-500/25 mb-2">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Cockpit Contábil, Tarifário &amp; Payouts D+0</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Governança <span className="text-[#FFDE00]">Financeira &amp; Monetização</span>
+              Governança <span className="text-[#0088FF]">Financeira &amp; Monetização</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-normal mt-1">
               Unificação completa de Caixa, Faturamento, Diárias SaaS (0% comissão), Gestão Tarifária de Carro e Moto e Liquidação Automática via PIX.
@@ -240,7 +240,7 @@ export function PainelFinanceiroUnificadoPage() {
             abaAtiva === "consolidado" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <TrendingUp className="h-4 w-4 text-[#FFDE00]" />
+          <TrendingUp className="h-4 w-4 text-[#0088FF]" />
           <span>Visão Consolidada</span>
         </button>
 
@@ -251,7 +251,7 @@ export function PainelFinanceiroUnificadoPage() {
             abaAtiva === "diarias" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <Layers className="h-4 w-4 text-[#FFDE00]" />
+          <Layers className="h-4 w-4 text-[#0088FF]" />
           <span>Diárias SaaS (Carro/Moto)</span>
         </button>
 
@@ -262,7 +262,7 @@ export function PainelFinanceiroUnificadoPage() {
             abaAtiva === "tarifas" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <DollarSign className="h-4 w-4 text-[#FFDE00]" />
+          <DollarSign className="h-4 w-4 text-[#0088FF]" />
           <span>Gestão Tarifária</span>
         </button>
 
@@ -273,7 +273,7 @@ export function PainelFinanceiroUnificadoPage() {
             abaAtiva === "payouts" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <CreditCard className="h-4 w-4 text-[#FFDE00]" />
+          <CreditCard className="h-4 w-4 text-[#0088FF]" />
           <span>Payouts PIX D+0</span>
           <span className="ml-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] text-emerald-900 font-bold">
             Autônomo
@@ -354,7 +354,7 @@ export function PainelFinanceiroUnificadoPage() {
           {/* Destaque FinOps & Auditoria */}
           <div className="p-6 rounded-3xl bg-slate-900 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-amber-500/20 text-[#FFDE00] flex items-center justify-center font-black">
+              <div className="h-12 w-12 rounded-2xl bg-primary-600/20 text-[#0088FF] flex items-center justify-center font-black">
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <div>
@@ -391,7 +391,7 @@ export function PainelFinanceiroUnificadoPage() {
               disabled={salvandoDiarias}
               className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white px-5 text-xs font-black shadow-xs transition-all cursor-pointer"
             >
-              <Save className="h-4 w-4 text-[#FFDE00]" />
+              <Save className="h-4 w-4 text-[#0088FF]" />
               <span>{salvandoDiarias ? "Salvando..." : "Salvar Planos"}</span>
             </button>
           </div>
@@ -407,7 +407,7 @@ export function PainelFinanceiroUnificadoPage() {
             {/* Bloco Carro */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl bg-amber-50 text-amber-900 flex items-center justify-center font-black">
+                <div className="h-10 w-10 rounded-2xl bg-primary-50 text-amber-900 flex items-center justify-center font-black">
                   <Car className="h-5 w-5" />
                 </div>
                 <div>
@@ -530,7 +530,7 @@ export function PainelFinanceiroUnificadoPage() {
               disabled={salvandoTarifas}
               className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white px-5 text-xs font-black shadow-xs transition-all cursor-pointer"
             >
-              <Save className="h-4 w-4 text-[#FFDE00]" />
+              <Save className="h-4 w-4 text-[#0088FF]" />
               <span>{salvandoTarifas ? "Salvando..." : "Salvar Tarifas"}</span>
             </button>
           </div>
@@ -546,7 +546,7 @@ export function PainelFinanceiroUnificadoPage() {
             {/* CARRO */}
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xs space-y-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-2xl bg-amber-50 text-amber-900 flex items-center justify-center font-black">
+                <div className="h-10 w-10 rounded-2xl bg-primary-50 text-amber-900 flex items-center justify-center font-black">
                   <Car className="h-5 w-5" />
                 </div>
                 <div>
@@ -697,7 +697,7 @@ export function PainelFinanceiroUnificadoPage() {
                   <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`px-2 py-0.5 rounded-md text-[10px] font-black shrink-0 ${
-                        s.modal === "CARRO" ? "bg-amber-100 text-amber-900" : "bg-blue-100 text-blue-900"
+                        s.modal === "CARRO" ? "bg-primary-50 text-amber-900" : "bg-blue-100 text-blue-900"
                       }`}>
                         {s.modal}
                       </span>
@@ -723,7 +723,7 @@ export function PainelFinanceiroUnificadoPage() {
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
                       s.status === "PROCESSADO"
                         ? "bg-emerald-100 text-emerald-800"
-                        : "bg-amber-100 text-amber-800 animate-pulse"
+                        : "bg-primary-50 text-amber-800 animate-pulse"
                     }`}>
                       {s.status === "PROCESSADO" ? "Liquidado D+0" : "Aguardando Gateway"}
                     </span>
@@ -757,7 +757,7 @@ export function PainelFinanceiroUnificadoPage() {
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           <span className={`px-2 py-0.5 rounded-md text-[10px] font-black ${
-                            s.modal === "CARRO" ? "bg-amber-100 text-amber-900" : "bg-blue-100 text-blue-900"
+                            s.modal === "CARRO" ? "bg-primary-50 text-amber-900" : "bg-blue-100 text-blue-900"
                           }`}>
                             {s.modal}
                           </span>
@@ -779,7 +779,7 @@ export function PainelFinanceiroUnificadoPage() {
                         <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
                           s.status === "PROCESSADO"
                             ? "bg-emerald-100 text-emerald-800"
-                            : "bg-amber-100 text-amber-800 animate-pulse"
+                            : "bg-primary-50 text-amber-800 animate-pulse"
                         }`}>
                           {s.status === "PROCESSADO" ? "Liquidado D+0" : "Aguardando Gateway"}
                         </span>

@@ -174,7 +174,7 @@ export function PartiuDriverNavigationMap({
       el.innerHTML = `
         <div class="relative flex items-center justify-center">
           <div class="w-12 h-12 rounded-full bg-emerald-500/20 animate-ping absolute"></div>
-          <div class="w-10 h-10 rounded-2xl bg-[#FFDE00] text-slate-950 border-2 border-white shadow-2xl flex items-center justify-center transform rotate-45">
+          <div class="w-10 h-10 rounded-2xl bg-[#0088FF] text-slate-950 border-2 border-white shadow-2xl flex items-center justify-center transform rotate-45">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"/>
             </svg>
@@ -403,7 +403,7 @@ export function PartiuDriverNavigationMap({
               <button
                 type="button"
                 onClick={handleAbrirGoogleMaps}
-                className="p-2 rounded-xl bg-slate-800 text-amber-400 hover:bg-slate-700 transition-colors"
+                className="p-2 rounded-xl bg-slate-800 text-primary-600 hover:bg-slate-700 transition-colors"
                 title="Abrir no Google Maps"
               >
                 <Compass className="w-4 h-4" />

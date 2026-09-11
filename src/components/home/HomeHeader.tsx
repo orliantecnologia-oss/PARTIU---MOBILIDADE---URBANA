@@ -26,17 +26,17 @@ export function HomeHeader({
   return (
     <header
       style={{
-        backgroundColor: corPrimaria || "#FFDE00",
-        color: corTextoPrimaria || "#0F172A",
+        background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+        color: "#FFFFFF",
       }}
-      className="sticky top-0 z-30 w-full px-3.5 py-1.5 sm:py-2 rounded-b-2xl shadow-xs border-b border-black/5 flex items-center justify-between transition-all shrink-0"
+      className="sticky top-0 z-30 w-full px-3.5 py-2 sm:py-2.5 rounded-b-2xl shadow-md flex items-center justify-between transition-all shrink-0"
     >
       {/* Esquerda: Avatar redondo compacto (gatilho do Drawer) e Saudação "Olá, Rodrigo!" */}
       <div className="flex items-center gap-2.5">
         <button
           type="button"
           onClick={onOpenDrawer}
-          className="group relative w-9 h-9 rounded-full overflow-hidden ring-2 ring-black/10 shadow-xs active:scale-95 transition cursor-pointer bg-slate-900 text-amber-400 flex items-center justify-center font-black text-xs shrink-0"
+          className="group relative w-9 h-9 rounded-full overflow-hidden ring-2 ring-white/60 shadow-xs active:scale-95 transition cursor-pointer bg-white/20 text-white flex items-center justify-center font-black text-xs shrink-0"
           aria-label="Abrir Menu Lateral e Perfil"
           title="Abrir Menu"
         >
@@ -55,26 +55,26 @@ export function HomeHeader({
         </button>
 
         <div className="flex flex-col text-left">
-          <span className="text-[9px] font-black uppercase tracking-wider opacity-70 leading-none mb-0.5">
+          <span className="text-[9px] font-black uppercase tracking-wider text-white/70 leading-none mb-0.5">
             Partiu
           </span>
-          <h1 className="text-sm sm:text-base font-black tracking-tight leading-tight text-slate-950">
+          <h1 className="text-sm sm:text-base font-black tracking-tight leading-tight text-white">
             Olá, {primeiroNome}!
           </h1>
         </div>
       </div>
 
-      {/* Direita: Ícone de Notificações com contorno circular moderno (Estritamente Sino) */}
+      {/* Direita: Ícone de Notificações */}
       <button
         type="button"
         onClick={onOpenNotifications}
-        className="relative w-9 h-9 rounded-full bg-black/5 hover:bg-black/10 text-slate-950 flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0 border border-black/5"
+        className="relative w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center active:scale-95 transition-all cursor-pointer shrink-0"
         aria-label="Notificações"
         title="Notificações"
       >
-        <Bell className="w-4.5 h-4.5 stroke-[2.4]" />
+        <Bell className="w-4.5 h-4.5 stroke-[2.4] text-white" />
         {hasUnreadNotifications && (
-          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-red-500 ring-2 ring-amber-300 animate-pulse" />
+          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-white ring-2 ring-[#0088FF] animate-pulse" />
         )}
       </button>
     </header>

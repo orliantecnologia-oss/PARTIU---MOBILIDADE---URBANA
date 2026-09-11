@@ -119,7 +119,7 @@ export const SafetyCenterModal = memo(function SafetyCenterModal({
             className="w-full p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 active:scale-[0.99] transition border border-slate-200/80 flex items-center justify-between gap-3 text-left touch-manipulation cursor-pointer"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-11 h-11 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center shrink-0 shadow-xs font-black">
+              <div className="w-11 h-11 rounded-xl bg-primary-600 text-slate-950 flex items-center justify-center shrink-0 shadow-xs font-black">
                 {copied ? <Check className="w-5 h-5" /> : <Share2 className="w-5 h-5" />}
               </div>
               <div className="min-w-0 flex-1">

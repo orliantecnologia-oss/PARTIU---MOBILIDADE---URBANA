@@ -194,8 +194,8 @@ export function MapboxLiveMap({
         el.className = "ponto-embarque-marker cursor-pointer transition-transform";
         el.innerHTML = `
           <div class="relative flex items-center justify-center">
-            <span class="animate-ping absolute h-4 w-4 rounded-full bg-amber-400 opacity-75"></span>
-            <div class="h-8 w-8 rounded-2xl bg-gradient-to-tr from-[#0b2046] via-[#0d5930] to-emerald-600 border-2 border-amber-300 text-white flex items-center justify-center shadow-lg shadow-emerald-950/60 hover:scale-125 transition-transform">
+            <span class="animate-ping absolute h-4 w-4 rounded-full bg-primary-600 opacity-75"></span>
+            <div class="h-8 w-8 rounded-2xl bg-gradient-to-tr from-[#0b2046] via-[#0d5930] to-emerald-600 border-2 border-primary-500 text-white flex items-center justify-center shadow-lg shadow-emerald-950/60 hover:scale-125 transition-transform">
               <span class="text-xs">🚏</span>
             </div>
           </div>
@@ -224,12 +224,12 @@ export function MapboxLiveMap({
         el.innerHTML = `
           <div class="relative flex flex-col items-center justify-center">
             <span class="animate-ping absolute -inset-1 rounded-full bg-emerald-400 opacity-60"></span>
-            <div class="relative flex items-center gap-1.5 bg-gradient-to-r from-[#0d5930] to-[#0b2046] text-white px-2 py-1 rounded-xl shadow-xl border border-amber-300 group-hover:scale-110 transition-transform">
+            <div class="relative flex items-center gap-1.5 bg-gradient-to-r from-[#0d5930] to-[#0b2046] text-white px-2 py-1 rounded-xl shadow-xl border border-primary-500 group-hover:scale-110 transition-transform">
               <div class="h-5 w-5 rounded-lg overflow-hidden shrink-0 ring-1 ring-white/50">
                 <img src="${van.fotoMotorista}" class="h-full w-full object-cover" />
               </div>
               <div class="flex flex-col text-left leading-none">
-                <span class="text-[9px] font-black text-amber-300">${van.placa}</span>
+                <span class="text-[9px] font-black text-primary-500">${van.placa}</span>
                 <span class="text-[9px] font-bold text-white">${van.velocidadeKmH} km/h</span>
               </div>
             </div>
@@ -331,7 +331,7 @@ export function MapboxLiveMap({
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-black text-amber-300">{van.placa}</span>
+                      <span className="text-[11px] font-black text-primary-500">{van.placa}</span>
                       <span className="text-[9px] font-bold text-emerald-400">
                         {van.velocidadeKmH} km/h
                       </span>
@@ -453,7 +453,7 @@ export function MapboxLiveMap({
                   <strong className="text-xs font-black text-white truncate block">
                     {vanAtiva.motorista}
                   </strong>
-                  <span className="text-[10px] text-amber-300 font-bold">{vanAtiva.placa}</span>
+                  <span className="text-[10px] text-primary-500 font-bold">{vanAtiva.placa}</span>
                 </div>
                 <span className="text-[10px] text-slate-300 truncate block">
                   {vanAtiva.sentido} • {vanAtiva.velocidadeKmH} km/h

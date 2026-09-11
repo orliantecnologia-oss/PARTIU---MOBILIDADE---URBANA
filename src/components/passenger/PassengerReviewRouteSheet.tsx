@@ -146,7 +146,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
       label: "Dinheiro em Espécie",
       sublabel: "Pagar ao motorista no desembarque",
       icon: Banknote,
-      color: "text-amber-700 bg-amber-50 border-amber-200",
+      color: "text-amber-700 bg-primary-50 border-amber-200",
     };
   }
 
@@ -191,7 +191,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
           >
             <div
               className={`h-1.5 rounded-full transition-all duration-200 ${
-                isDragging ? "bg-amber-400 w-12" : "bg-slate-300 w-10 group-hover:bg-slate-400"
+                isDragging ? "bg-primary-600 w-12" : "bg-slate-300 w-10 group-hover:bg-slate-400"
               }`}
             />
           </div>
@@ -213,18 +213,18 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             {/* Estimativas de Rota no Topo */}
             <div className="flex items-center gap-1.5 text-xs font-bold">
               <span className="text-slate-700 flex items-center gap-0.5">
-                <Navigation className="w-3 h-3 text-amber-500" />
+                <Navigation className="w-3 h-3 text-primary-600" />
                 {distanciaKm} km
               </span>
               <span className="text-slate-300">•</span>
               <span
                 style={{
-                  backgroundColor: `${corPrimaria || "#FFDE00"}20`,
-                  borderColor: `${corPrimaria || "#FFDE00"}50`,
+                  backgroundColor: `${corPrimaria || "#0088FF"}20`,
+                  borderColor: `${corPrimaria || "#0088FF"}50`,
                 }}
                 className="text-slate-950 border px-2 py-0.5 rounded-full flex items-center gap-0.5 text-[11px] font-black"
               >
-                <Clock className="w-2.5 h-2.5 text-amber-600 stroke-[2.5]" />
+                <Clock className="w-2.5 h-2.5 text-primary-700 stroke-[2.5]" />
                 ~{horarioDesembarquePrevisto || `${duracaoMin || 8} min`}
               </span>
             </div>
@@ -261,7 +261,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               </span>
               <span className="text-slate-400 font-black">→</span>
               <div
-                style={{ backgroundColor: corPrimaria || "#FFDE00" }}
+                style={{ backgroundColor: corPrimaria || "#0088FF" }}
                 className="w-2 h-2 rounded-full shrink-0 ring-2 ring-slate-400/40"
               />
               <span className="font-bold text-slate-950 truncate max-w-[42%]">
@@ -280,15 +280,15 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               style={
                 isMoto
                   ? {
-                      borderColor: corPrimaria || "#FFDE00",
-                      backgroundColor: `${corPrimaria || "#FFDE00"}15`,
-                      boxShadow: `0 4px 14px -2px ${corPrimaria || "#FFDE00"}70`,
+                      borderColor: corPrimaria || "#0088FF",
+                      backgroundColor: `${corPrimaria || "#0088FF"}15`,
+                      boxShadow: `0 4px 14px -2px ${corPrimaria || "#0088FF"}70`,
                     }
                   : undefined
               }
               className={`p-2 sm:p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden active:scale-[0.97] hover:scale-[1.01] duration-150 ${
                 isMoto
-                  ? "ring-2 ring-amber-400/50 shadow-sm"
+                  ? "ring-2 ring-primary-600/50 shadow-sm"
                   : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
               }`}
             >
@@ -297,8 +297,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   style={
                     isMoto
                       ? {
-                          backgroundColor: corPrimaria || "#FFDE00",
-                          color: corTextoPrimaria || "#0F172A",
+                          backgroundColor: corPrimaria || "#0088FF",
+                          color: "#FFFFFF",
                         }
                       : undefined
                   }
@@ -336,15 +336,15 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               style={
                 !isMoto
                   ? {
-                      borderColor: corPrimaria || "#FFDE00",
-                      backgroundColor: `${corPrimaria || "#FFDE00"}15`,
-                      boxShadow: `0 4px 14px -2px ${corPrimaria || "#FFDE00"}70`,
+                      borderColor: corPrimaria || "#0088FF",
+                      backgroundColor: `${corPrimaria || "#0088FF"}15`,
+                      boxShadow: `0 4px 14px -2px ${corPrimaria || "#0088FF"}70`,
                     }
                   : undefined
               }
               className={`p-2 sm:p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden active:scale-[0.97] hover:scale-[1.01] duration-150 ${
                 !isMoto
-                  ? "ring-2 ring-amber-400/50 shadow-sm"
+                  ? "ring-2 ring-primary-600/50 shadow-sm"
                   : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
               }`}
             >
@@ -353,8 +353,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   style={
                     !isMoto
                       ? {
-                          backgroundColor: corPrimaria || "#FFDE00",
-                          color: corTextoPrimaria || "#0F172A",
+                          backgroundColor: corPrimaria || "#0088FF",
+                          color: "#FFFFFF",
                         }
                       : undefined
                   }
@@ -364,7 +364,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 >
                   <Car className="w-4 h-4 stroke-[2.4]" />
                 </div>
-                <span className="text-[9.5px] font-black uppercase tracking-wide text-amber-900 bg-amber-100/90 px-1.5 py-0.5 rounded-md">
+                <span className="text-[9.5px] font-black uppercase tracking-wide text-amber-900 bg-primary-50/90 px-1.5 py-0.5 rounded-md">
                   Conforto
                 </span>
               </div>
@@ -426,12 +426,12 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 }}
                 className={`min-h-[34px] sm:min-h-[36px] w-full flex items-center justify-between gap-1 font-bold text-[11px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
                   paradaIntermediaria
-                    ? "bg-amber-50 text-amber-950 border-amber-300"
+                    ? "bg-primary-50 text-amber-950 border-primary-500"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
                 }`}
               >
                 <div className="flex items-center gap-1 truncate">
-                  <Plus className="w-3 h-3 text-amber-600 stroke-[2.5] shrink-0" />
+                  <Plus className="w-3 h-3 text-primary-700 stroke-[2.5] shrink-0" />
                   <span className="truncate">
                     {paradaIntermediaria
                       ? `Parada: ${paradaIntermediaria.slice(0, 15)}...`
@@ -490,10 +490,12 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             type="button"
             onClick={handleConfirm}
             style={{
-              backgroundColor: corPrimaria || "#FFDE00",
-              color: corTextoPrimaria || "#0F172A",
+              background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+              color: "#FFFFFF",
+              borderRadius: 16,
+              boxShadow: "0 8px 24px -4px rgba(0, 51, 102, 0.35), 0 4px 12px -2px rgba(0, 136, 255, 0.25)",
             }}
-            className="w-full py-2.5 sm:py-3 px-4 min-h-[48px] rounded-2xl font-black text-sm shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer hover:opacity-95 touch-manipulation"
+            className="w-full py-3 px-4 min-h-[50px] font-bold text-sm sm:text-base active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 touch-manipulation"
           >
             <span>Confirmar {nomeVeiculoAtivo}</span>
             <span className="text-sm opacity-90 font-bold">• {precoAtivo}</span>
@@ -564,12 +566,12 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 }}
                 className={`w-full p-3 rounded-2xl border-2 text-left flex items-center justify-between transition cursor-pointer ${
                   formaPagamento === "dinheiro" && !pagamentoNaMaquininha
-                    ? "border-amber-500 bg-amber-50/50 shadow-xs"
+                    ? "border-primary-600 bg-primary-50/50 shadow-xs"
                     : "border-slate-200 bg-white hover:border-slate-300"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-primary-50 text-amber-700 flex items-center justify-center shrink-0">
                     <Banknote className="w-5 h-5 stroke-[2.2]" />
                   </div>
                   <div>
@@ -580,7 +582,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   </div>
                 </div>
                 {formaPagamento === "dinheiro" && !pagamentoNaMaquininha && (
-                  <Check className="w-4 h-4 text-amber-600 stroke-[3]" />
+                  <Check className="w-4 h-4 text-primary-700 stroke-[3]" />
                 )}
               </button>
 
@@ -670,8 +672,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 type="button"
                 onClick={salvarParada}
                 style={{
-                  backgroundColor: corPrimaria || "#FFDE00",
-                  color: corTextoPrimaria || "#0F172A",
+                  backgroundColor: corPrimaria || "#0088FF",
+                  color: "#FFFFFF",
                 }}
                 className="flex-1 py-2.5 rounded-xl text-xs font-black shadow-md cursor-pointer"
               >
@@ -706,8 +708,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 style={
                   !viajanteOutraPessoa
                     ? {
-                        backgroundColor: corPrimaria || "#FFDE00",
-                        color: corTextoPrimaria || "#0F172A",
+                        backgroundColor: corPrimaria || "#0088FF",
+                        color: "#FFFFFF",
                       }
                     : undefined
                 }
@@ -726,8 +728,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 style={
                   viajanteOutraPessoa
                     ? {
-                        backgroundColor: corPrimaria || "#FFDE00",
-                        color: corTextoPrimaria || "#0F172A",
+                        backgroundColor: corPrimaria || "#0088FF",
+                        color: "#FFFFFF",
                       }
                     : undefined
                 }
@@ -747,7 +749,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 value={nomeOutroPassageiro}
                 onChange={(e) => setNomeOutroPassageiro(e.target.value)}
                 placeholder="Nome completo do passageiro..."
-                className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#0088FF]"
                 autoFocus
               />
             )}
@@ -756,8 +758,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               type="button"
               onClick={() => setModalPassageiroAberto(false)}
               style={{
-                backgroundColor: corPrimaria || "#FFDE00",
-                color: corTextoPrimaria || "#0F172A",
+                backgroundColor: corPrimaria || "#0088FF",
+                color: "#FFFFFF",
               }}
               className="w-full py-2.5 rounded-xl text-xs font-black shadow-md cursor-pointer mt-1"
             >

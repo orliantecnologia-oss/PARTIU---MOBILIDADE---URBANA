@@ -32,7 +32,7 @@ export const Route = createFileRoute("/app/admin/passageiros")({
 });
 
 const CAMPO =
-  "mt-1 w-full min-h-12 h-12 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-medium text-slate-800 focus:border-[#FFDE00] outline-none transition-colors";
+  "mt-1 w-full min-h-12 h-12 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-base font-medium text-slate-800 focus:border-[#0088FF] outline-none transition-colors";
 
 function AdminPassageiros() {
   const qc = useQueryClient();
@@ -73,7 +73,7 @@ function AdminPassageiros() {
     <div className="space-y-6 p-4 md:p-6 max-w-5xl mx-auto">
       <header>
         <h1 className="flex items-center gap-2 text-xl sm:text-2xl font-black text-slate-900">
-          <Users className="h-6 w-6 text-amber-500" /> Cadastro de passageiros
+          <Users className="h-6 w-6 text-primary-600" /> Cadastro de passageiros
         </h1>
         <p className="mt-1 text-xs sm:text-sm text-slate-500">
           Crie o acesso do passageiro, vincule CPF e WhatsApp. Ao entrar, ele já pode solicitar
@@ -83,7 +83,7 @@ function AdminPassageiros() {
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 shadow-sm">
         <h2 className="flex items-center gap-2 text-sm sm:text-base font-black text-slate-800">
-          <UserPlus className="h-5 w-5 text-amber-500" /> Novo passageiro
+          <UserPlus className="h-5 w-5 text-primary-600" /> Novo passageiro
         </h2>
         <div className="mt-3 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
           {(
@@ -113,7 +113,7 @@ function AdminPassageiros() {
           type="button"
           disabled={criar.isPending}
           onClick={() => criar.mutate(form)}
-          className="mt-4 min-h-12 inline-flex items-center gap-2 rounded-xl bg-[#FFDE00] px-5 py-3 text-sm sm:text-base font-black text-slate-950 hover:bg-[#ffe338] disabled:opacity-50 cursor-pointer transition-all shadow-xs"
+          className="mt-4 min-h-12 inline-flex items-center gap-2 rounded-xl bg-[#0088FF] px-5 py-3 text-sm sm:text-base font-black text-slate-950 hover:bg-[#00A3FF] disabled:opacity-50 cursor-pointer transition-all shadow-xs"
         >
           <Plus className="h-5 w-5" />
           {criar.isPending ? "Cadastrando..." : "Cadastrar e liberar acesso"}
@@ -135,7 +135,7 @@ function AdminPassageiros() {
             to="/app"
             className="inline-flex items-center gap-1.5 text-xs font-black text-slate-800 hover:text-amber-500 transition-colors"
           >
-            <Car className="h-4 w-4 text-amber-500" /> Abrir App do Passageiro
+            <Car className="h-4 w-4 text-primary-600" /> Abrir App do Passageiro
           </Link>
         </div>
 
@@ -174,7 +174,7 @@ function AdminPassageiros() {
                           whatsapp: editando.phone ?? "",
                         })
                       }
-                      className="flex-1 rounded-xl bg-[#FFDE00] px-3 py-2 text-xs font-black text-slate-950 hover:bg-[#ffe338]"
+                      className="flex-1 rounded-xl bg-[#0088FF] px-3 py-2 text-xs font-black text-slate-950 hover:bg-[#00A3FF]"
                     >
                       Salvar
                     </button>

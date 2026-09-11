@@ -92,7 +92,7 @@ export const LOYALTY_TIER_THRESHOLDS: LoyaltyTierThreshold[] = [
     maxCancellationRatePercent: 4.0,
     minOnlineHours: 150,
     badgeLabel: "🥇 Elite",
-    badgeColor: "bg-amber-100 text-amber-900 border-amber-300",
+    badgeColor: "bg-primary-50 text-amber-900 border-primary-500",
     badgeIcon: "🥇",
     description: "Top 10% dos condutores da cidade em avaliações e consistência.",
     benefits: [

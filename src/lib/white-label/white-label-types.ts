@@ -79,9 +79,9 @@ export interface BrandCenterConfig {
 // MÓDULO 2: DESIGN SYSTEM MANAGER
 // ------------------------------------------------------------------------------
 export interface PrimaryPaletteConfig {
-  corPrincipal: string; // ex: #FFDE00
-  corPrincipalHover: string; // ex: #FACC15
-  corSecundaria: string; // ex: #FA6400
+  corPrincipal: string; // ex: #0088FF
+  corPrincipalHover: string; // ex: #006ACC
+  corSecundaria: string; // ex: #00C6FF
   corSecundariaHover: string;
   corTerciaria: string; // ex: #0F172A
   corTextoPrincipal: string; // ex: #0F172A

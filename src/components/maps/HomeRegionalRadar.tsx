@@ -94,7 +94,7 @@ export function HomeRegionalRadar({ onSelecionarPontoOrigem }: HomeRegionalRadar
             }`}
           >
             <Radio
-              className={`h-4 w-4 ${modoVisualizacao === "vans" ? "animate-pulse text-amber-300" : ""}`}
+              className={`h-4 w-4 ${modoVisualizacao === "vans" ? "animate-pulse text-primary-500" : ""}`}
             />
             <span>Vans (28)</span>
           </button>
@@ -132,11 +132,11 @@ export function HomeRegionalRadar({ onSelecionarPontoOrigem }: HomeRegionalRadar
         {/* OVERLAY DE SEGURANÇA SE NÃO TIVER PASSAGEM ATIVA E TENTAR VER VANS AO VIVO */}
         {modoVisualizacao === "vans" && !temPassagemAtiva && (
           <div className="absolute inset-0 z-20 bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center p-4 text-center text-white space-y-2.5 animate-in fade-in">
-            <div className="h-11 w-11 rounded-2xl bg-amber-400/20 text-amber-300 border border-amber-400/30 flex items-center justify-center shadow-lg">
+            <div className="h-11 w-11 rounded-2xl bg-primary-600/20 text-primary-500 border border-primary-600/30 flex items-center justify-center shadow-lg">
               <Lock className="h-5 w-5" />
             </div>
             <div className="space-y-1 max-w-xs">
-              <span className="text-[9px] font-black uppercase tracking-wider text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+              <span className="text-[9px] font-black uppercase tracking-wider text-primary-500 bg-primary-600/10 px-2 py-0.5 rounded-full border border-primary-600/20">
                 🔒 Radar em Tempo Real Restrito
               </span>
               <h4 className="text-xs sm:text-sm font-black text-white">
@@ -200,7 +200,7 @@ export function HomeRegionalRadar({ onSelecionarPontoOrigem }: HomeRegionalRadar
                 <strong className="text-xs font-black text-slate-900 truncate">
                   {vanSelecionada.motorista}
                 </strong>
-                <span className="text-[10px] font-black text-amber-500">★ 4.9</span>
+                <span className="text-[10px] font-black text-primary-600">★ 4.9</span>
               </div>
               <p className="text-[11px] text-slate-500 truncate font-medium">
                 {vanSelecionada.linhaOrigem} ➔ {vanSelecionada.linhaDestino} •{" "}
@@ -214,7 +214,7 @@ export function HomeRegionalRadar({ onSelecionarPontoOrigem }: HomeRegionalRadar
             className="flex items-center gap-1.5 min-h-[44px] h-11 px-4 py-2 rounded-xl bg-[#0d5930] hover:bg-[#147a44] text-white text-xs sm:text-sm font-black shrink-0 active:scale-95 transition-all shadow-xs"
           >
             <span>Ver Horários</span>
-            <ChevronRight className="h-4 w-4 text-amber-300" />
+            <ChevronRight className="h-4 w-4 text-primary-500" />
           </Link>
         </div>
       )}
@@ -269,7 +269,7 @@ export function HomeRegionalRadar({ onSelecionarPontoOrigem }: HomeRegionalRadar
                 className="flex items-center gap-1.5 min-h-[44px] h-11 px-4 py-2 rounded-xl bg-[#0d5930] hover:bg-[#147a44] text-white text-xs sm:text-sm font-black shrink-0 active:scale-95 transition-all shadow-xs cursor-pointer"
               >
                 <span>Embarcar Aqui</span>
-                <ArrowRight className="h-4 w-4 text-amber-300" />
+                <ArrowRight className="h-4 w-4 text-primary-500" />
               </button>
             )}
           </div>

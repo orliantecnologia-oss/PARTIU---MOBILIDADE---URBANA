@@ -35,7 +35,7 @@ export function EscolherTipoCadastroPage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <span className="text-xs font-black uppercase tracking-wider text-[#FFDE00]">
+        <span className="text-xs font-black uppercase tracking-wider text-[#0088FF]">
           Criar Nova Conta
         </span>
         <div className="w-11" />
@@ -44,10 +44,10 @@ export function EscolherTipoCadastroPage() {
       <div className="w-full max-w-md mx-auto flex-1 flex flex-col justify-center py-6">
         {/* Logo e Título */}
         <div className="text-center mb-7">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFDE00] text-slate-950 shadow-lg shadow-[#FFDE00]/20 mb-3">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0088FF] text-slate-950 shadow-lg shadow-[#0088FF]/20 mb-3">
             <Zap className="h-7 w-7 fill-slate-950 stroke-[2.5]" />
           </div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-black text-[#FFDE00] uppercase tracking-wider">
+          <span className="inline-flex items-center gap-1.5 text-xs font-black text-[#0088FF] uppercase tracking-wider">
             <ShieldCheck className="h-4 w-4" /> PARTIU Mobilidade & Entregas
           </span>
           <h1 className="text-2xl font-black text-white mt-1">Como deseja usar o Partiu?</h1>
@@ -61,9 +61,9 @@ export function EscolherTipoCadastroPage() {
           {/* Opção 1: Sou Passageiro */}
           <Link
             to="/cadastro-passageiro"
-            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#FFDE00]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
+            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#0088FF]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#FFDE00] text-slate-950 font-black shadow-xs group-hover:scale-105 transition-transform">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#0088FF] text-slate-950 font-black shadow-xs group-hover:scale-105 transition-transform">
               <Car className="h-6 w-6 stroke-[2.5]" />
             </div>
             <div className="flex-1 min-w-0">
@@ -77,15 +77,15 @@ export function EscolherTipoCadastroPage() {
                 Chame carros ou motos com tarifa justa, PIN e rastreamento ao vivo.
               </p>
             </div>
-            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#FFDE00] transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#0088FF] transition-transform group-hover:translate-x-1" />
           </Link>
 
           {/* Opção 2: Sou Motorista */}
           <Link
             to="/cadastro-motorista"
-            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#FFDE00]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
+            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#0088FF]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 font-black shadow-xs group-hover:scale-105 transition-transform">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-600/20 text-primary-600 border border-primary-600/30 font-black shadow-xs group-hover:scale-105 transition-transform">
               <Car className="h-6 w-6" />
             </div>
             <div className="flex-1 min-w-0">
@@ -94,13 +94,13 @@ export function EscolherTipoCadastroPage() {
                 Dirija com seu automóvel, fature no seu ritmo e receba via PIX D+0.
               </p>
             </div>
-            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#FFDE00] transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#0088FF] transition-transform group-hover:translate-x-1" />
           </Link>
 
           {/* Opção 3: Sou Entregador ou Moto */}
           <Link
             to="/cadastro-motorista"
-            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#FFDE00]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
+            className="group flex items-center gap-4 rounded-2xl bg-slate-900/90 hover:bg-slate-900 p-4 border border-slate-800 hover:border-[#0088FF]/60 transition-all active:scale-[0.98] min-h-[76px] cursor-pointer shadow-lg"
           >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-black shadow-xs group-hover:scale-105 transition-transform">
               <Bike className="h-6 w-6" />
@@ -116,7 +116,7 @@ export function EscolherTipoCadastroPage() {
                 Corridas rápidas de moto e entregas expressas de pacotes.
               </p>
             </div>
-            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#FFDE00] transition-transform group-hover:translate-x-1" />
+            <ArrowRight className="h-5 w-5 text-slate-500 group-hover:text-[#0088FF] transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
@@ -127,7 +127,7 @@ export function EscolherTipoCadastroPage() {
             <Link
               to="/auth"
               search={{ redirect: "/app" }}
-              className="text-[#FFDE00] font-black hover:underline ml-1"
+              className="text-[#0088FF] font-black hover:underline ml-1"
             >
               Fazer Login
             </Link>

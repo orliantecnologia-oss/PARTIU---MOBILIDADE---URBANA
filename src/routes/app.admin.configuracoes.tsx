@@ -120,7 +120,7 @@ export function ConfiguracoesAdminPage() {
   const [wlUf, setWlUf] = useState("AL");
   const [wlNomeApp, setWlNomeApp] = useState("Partiu Arapiraca");
   const [wlLogoUrl, setWlLogoUrl] = useState("");
-  const [wlCorPrimaria, setWlCorPrimaria] = useState("#FFDE00");
+  const [wlCorPrimaria, setWlCorPrimaria] = useState("#0088FF");
   const [wlPreset, setWlPreset] = useState<"Moderno" | "Compacto" | "Arredondado">("Moderno");
   const [wlTarifaBase, setWlTarifaBase] = useState("5.00");
   const [wlComissao, setWlComissao] = useState("10.0");
@@ -135,7 +135,7 @@ export function ConfiguracoesAdminPage() {
       nome: "Maceió",
       uf: "AL",
       nomeApp: "Partiu Maceió",
-      corPrimaria: "#FFDE00",
+      corPrimaria: "#0088FF",
       preset: "Moderno",
       tarifaBase: 5.5,
       comissaoPercent: 12.5,
@@ -201,12 +201,12 @@ export function ConfiguracoesAdminPage() {
       <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-yellow-300 border border-yellow-500/25 mb-2">
-              <Sliders className="h-3.5 w-3.5 text-[#FFDE00]" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary-500 border border-yellow-500/25 mb-2">
+              <Sliders className="h-3.5 w-3.5 text-[#0088FF]" />
               <span>Progressive Disclosure &amp; Multi-Cidade</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Configurações &amp; <span className="text-[#FFDE00]">White Label Expresso</span>
+              Configurações &amp; <span className="text-[#0088FF]">White Label Expresso</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-normal mt-1">
               Configurações essenciais sempre acessíveis, dados técnicos protegidos por desafio de segurança e assistente de ativação de cidade em 4 passos.
@@ -224,7 +224,7 @@ export function ConfiguracoesAdminPage() {
             abaAtiva === "essencial" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <CheckCircle2 className="h-4 w-4 text-[#FFDE00]" />
+          <CheckCircle2 className="h-4 w-4 text-[#0088FF]" />
           <span>Modo Essencial</span>
           <span className="ml-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] text-emerald-900 font-bold">
             Sempre Visível
@@ -238,9 +238,9 @@ export function ConfiguracoesAdminPage() {
             abaAtiva === "whitelabel" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <Sparkles className="h-4 w-4 text-[#FFDE00]" />
+          <Sparkles className="h-4 w-4 text-[#0088FF]" />
           <span>White Label Expresso</span>
-          <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] text-amber-900 font-bold">
+          <span className="ml-1 rounded-full bg-primary-50 px-2 py-0.5 text-[10px] text-amber-900 font-bold">
             4 Passos (&lt;15 min)
           </span>
         </button>
@@ -280,7 +280,7 @@ export function ConfiguracoesAdminPage() {
               type="submit"
               className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white px-5 text-xs font-black shadow-xs transition-all cursor-pointer"
             >
-              <Save className="h-4 w-4 text-[#FFDE00]" />
+              <Save className="h-4 w-4 text-[#0088FF]" />
               <span>Salvar Modificações</span>
             </button>
           </div>
@@ -391,7 +391,7 @@ export function ConfiguracoesAdminPage() {
             {passoWizard === 1 && (
               <div className="space-y-4 max-w-xl animate-in fade-in">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase text-amber-600">Passo 1 de 4</span>
+                  <span className="text-[10px] font-black uppercase text-primary-700">Passo 1 de 4</span>
                   <h3 className="text-sm font-black text-slate-900">Identificação da Cidade &amp; Aplicativo</h3>
                   <p className="text-xs text-slate-500">Defina o município de expansão e o nome comercial do app.</p>
                 </div>
@@ -444,7 +444,7 @@ export function ConfiguracoesAdminPage() {
             {passoWizard === 2 && (
               <div className="space-y-4 max-w-xl animate-in fade-in">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase text-amber-600">Passo 2 de 4</span>
+                  <span className="text-[10px] font-black uppercase text-primary-700">Passo 2 de 4</span>
                   <h3 className="text-sm font-black text-slate-900">Identidade Visual &amp; Preset de Estilo</h3>
                   <p className="text-xs text-slate-500">Cores da marca e o acabamento estético do aplicativo local.</p>
                 </div>
@@ -517,7 +517,7 @@ export function ConfiguracoesAdminPage() {
             {passoWizard === 3 && (
               <div className="space-y-4 max-w-xl animate-in fade-in">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase text-amber-600">Passo 3 de 4</span>
+                  <span className="text-[10px] font-black uppercase text-primary-700">Passo 3 de 4</span>
                   <h3 className="text-sm font-black text-slate-900">Tarifas da Cidade &amp; Comissão</h3>
                   <p className="text-xs text-slate-500">Regras de precificação e split financeiro da operação.</p>
                 </div>
@@ -569,7 +569,7 @@ export function ConfiguracoesAdminPage() {
             {passoWizard === 4 && (
               <div className="space-y-4 max-w-xl animate-in fade-in">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-black uppercase text-amber-600">Passo 4 de 4</span>
+                  <span className="text-[10px] font-black uppercase text-primary-700">Passo 4 de 4</span>
                   <h3 className="text-sm font-black text-slate-900">Canais Operacionais &amp; Ativação</h3>
                   <p className="text-xs text-slate-500">Chave PIX para recebimentos e WhatsApp oficial da praça.</p>
                 </div>
@@ -628,7 +628,7 @@ export function ConfiguracoesAdminPage() {
                       onClick={handleConcluirWhiteLabel}
                       className="flex h-12 items-center gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white px-6 text-xs font-black shadow-md cursor-pointer"
                     >
-                      <Zap className="h-4 w-4 text-[#FFDE00]" />
+                      <Zap className="h-4 w-4 text-[#0088FF]" />
                       <span>🚀 Ativar Cidade Agora (&lt; 15 min)</span>
                     </button>
                   </div>
@@ -681,15 +681,15 @@ export function ConfiguracoesAdminPage() {
                 onClick={() => setModalDesbloquearAberto(true)}
                 className="h-12 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
               >
-                <Unlock className="h-4 w-4 text-[#FFDE00]" />
+                <Unlock className="h-4 w-4 text-[#0088FF]" />
                 <span>Desbloquear Configurações Técnicas</span>
               </button>
             </div>
           ) : (
             <div className="space-y-4 animate-in fade-in">
-              <div className="flex items-center justify-between bg-amber-50 p-4 rounded-2xl border border-amber-300">
+              <div className="flex items-center justify-between bg-primary-50 p-4 rounded-2xl border border-primary-500">
                 <div className="flex items-center gap-2 text-xs font-bold text-amber-950">
-                  <ShieldCheck className="h-4 w-4 text-amber-600" />
+                  <ShieldCheck className="h-4 w-4 text-primary-700" />
                   <span>Modo Avançado Desbloqueado com Sucesso. Atenção ao alterar chaves de produção.</span>
                 </div>
                 <button

@@ -104,7 +104,7 @@ export const SmartReplyChips: React.FC<SmartReplyChipsProps> = React.memo(
       <div className="w-full overflow-x-auto no-scrollbar py-2 px-3 border-t border-slate-100 bg-slate-50/70">
         <div className="flex items-center gap-1.5 min-w-max">
           <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 pl-0.5 pr-1 select-none">
-            <Zap className="w-3 h-3 text-amber-500 fill-amber-500" />
+            <Zap className="w-3 h-3 text-primary-600 fill-amber-500" />
             <span className="hidden sm:inline">Rápidas:</span>
           </div>
 

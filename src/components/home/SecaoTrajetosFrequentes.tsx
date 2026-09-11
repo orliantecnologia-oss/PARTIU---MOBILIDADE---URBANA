@@ -159,8 +159,8 @@ export function SecaoTrajetosFrequentes({
         <div>
           <div className="flex items-center gap-1.5 mb-0.5">
             {temHistoricoReal ? (
-              <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/80">
-                <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
+              <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-primary-700 bg-primary-50 px-2 py-0.5 rounded-md border border-amber-200/80">
+                <Star className="h-3 w-3 fill-amber-500 text-primary-600" />
                 Personalizado
               </span>
             ) : (
@@ -212,8 +212,8 @@ export function SecaoTrajetosFrequentes({
               {/* Badge de Destaque Superior */}
               <div className="flex items-center justify-between gap-1 mb-2.5">
                 {rota.isSuaRota ? (
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-900 bg-amber-100/90 border border-amber-300/80 px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <Star className="h-2.5 w-2.5 fill-amber-500 text-amber-500" />
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-900 bg-primary-50/90 border border-primary-500/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <Star className="h-2.5 w-2.5 fill-amber-500 text-primary-600" />
                     Sua Rota
                   </span>
                 ) : (
@@ -246,7 +246,7 @@ export function SecaoTrajetosFrequentes({
                 {/* Ponto de Chegada */}
                 <div className="flex items-start gap-2.5 min-w-0">
                   <div className="mt-1 flex flex-col items-center">
-                    <span className="h-2.5 w-2.5 rounded-xs bg-amber-500 ring-2 ring-amber-100 shrink-0" />
+                    <span className="h-2.5 w-2.5 rounded-xs bg-primary-600 ring-2 ring-amber-100 shrink-0" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block leading-tight">

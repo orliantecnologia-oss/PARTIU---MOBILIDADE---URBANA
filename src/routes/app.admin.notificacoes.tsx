@@ -149,7 +149,7 @@ export function AdminNotificacoesScreen() {
       titulo: "Motoristas & Entregadores",
       subtitulo: "Condutores parceiros (Carro, Moto e Flash)",
       icone: Layers,
-      badgeCor: "bg-amber-600 text-white",
+      badgeCor: "bg-primary-700 text-white",
       corCard: "hover:border-amber-600",
       alcance: "75 motoristas",
     },
@@ -308,7 +308,7 @@ export function AdminNotificacoesScreen() {
                   {
                     id: "alerta",
                     label: "Alerta Trânsito",
-                    cor: "border-amber-300 text-amber-800 bg-amber-50",
+                    cor: "border-primary-500 text-amber-800 bg-primary-50",
                   },
                   {
                     id: "urgente",
@@ -446,11 +446,11 @@ export function AdminNotificacoesScreen() {
             <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl space-y-2">
               <div className="flex items-center justify-between text-[11px] text-slate-300">
                 <div className="flex items-center gap-1.5">
-                  <div className="h-4 w-4 rounded-md bg-[#FFDE00] flex items-center justify-center font-black text-slate-950 text-[9px]">
+                  <div className="h-4 w-4 rounded-md bg-[#0088FF] flex items-center justify-center font-black text-slate-950 text-[9px]">
                     P
                   </div>
                   <span className="font-black text-white">PARTIU Notificações</span>
-                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 font-bold uppercase">
+                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-primary-600/20 text-primary-500 font-bold uppercase">
                     {categoria}
                   </span>
                 </div>
@@ -509,7 +509,7 @@ export function AdminNotificacoesScreen() {
                     <span
                       className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md ${
                         item.categoria === "motorista"
-                          ? "bg-amber-100 text-amber-800"
+                          ? "bg-primary-50 text-amber-800"
                           : item.categoria === "gratis"
                             ? "bg-indigo-100 text-indigo-800"
                             : item.categoria === "usuario"

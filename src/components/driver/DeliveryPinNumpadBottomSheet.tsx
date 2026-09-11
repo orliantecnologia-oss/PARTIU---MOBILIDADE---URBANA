@@ -161,7 +161,7 @@ export function DeliveryPinNumpadBottomSheet({
               <span
                 className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md inline-block ${
                   isPickup
-                    ? "bg-amber-100 text-amber-950 border border-amber-300"
+                    ? "bg-primary-50 text-amber-950 border border-primary-500"
                     : "bg-emerald-100 text-emerald-950 border border-emerald-300"
                 }`}
               >
@@ -200,7 +200,7 @@ export function DeliveryPinNumpadBottomSheet({
                       ? "bg-rose-50 text-rose-700 border-2 border-rose-500 shadow-sm"
                       : digit
                       ? isPickup
-                        ? "bg-amber-50 text-slate-950 border-2 border-amber-400 shadow-sm"
+                        ? "bg-primary-50 text-slate-950 border-2 border-primary-600 shadow-sm"
                         : "bg-emerald-50 text-slate-950 border-2 border-emerald-500 shadow-sm"
                       : isCurrent
                       ? "bg-white text-slate-950 border-2 border-slate-950 animate-pulse shadow-xs"
@@ -301,7 +301,7 @@ export function DeliveryPinNumpadBottomSheet({
           <div className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 space-y-4 text-left">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-amber-700 font-black text-sm">
-                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <AlertTriangle className="w-5 h-5 text-primary-700" />
                 <span>Suporte ao Condutor</span>
               </div>
               <button

@@ -69,7 +69,7 @@ export function PublicTrackingPage() {
   if (!trackingData) {
     return (
       <div className="min-h-[100dvh] bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-amber-400 mb-4">
+        <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-primary-600 mb-4">
           <AlertTriangle className="w-8 h-8" />
         </div>
         <h1 className="text-xl font-black text-slate-100">Entrega Não Localizada</h1>
@@ -78,7 +78,7 @@ export function PublicTrackingPage() {
         </p>
         <Link
           to="/"
-          className="mt-6 px-6 py-3 rounded-2xl bg-[#FFDE00] text-slate-950 font-black text-sm active:scale-95 transition"
+          className="mt-6 px-6 py-3 rounded-2xl bg-[#0088FF] text-slate-950 font-black text-sm active:scale-95 transition"
         >
           Voltar ao Início
         </Link>
@@ -99,7 +99,7 @@ export function PublicTrackingPage() {
               📦
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#FFDE00] block">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#0088FF] block">
                 {nomeApp} Entrega ao Vivo
               </span>
               <h1 className="text-base font-black text-slate-100 leading-tight">
@@ -117,7 +117,7 @@ export function PublicTrackingPage() {
         <div className="p-4 rounded-3xl bg-slate-800/90 border border-slate-700 shadow-xl space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-slate-400 font-semibold">Status da Encomenda</span>
-            <span className="text-[11px] font-bold text-amber-400">
+            <span className="text-[11px] font-bold text-primary-600">
               {trackingData.vehicleType}
             </span>
           </div>
@@ -126,7 +126,7 @@ export function PublicTrackingPage() {
             {trackingData.isReturnActive ? (
               <RotateCcw className="w-5 h-5 text-rose-400 animate-spin" />
             ) : (
-              <Package className="w-5 h-5 text-[#FFDE00]" />
+              <Package className="w-5 h-5 text-[#0088FF]" />
             )}
             <h2 className="text-lg font-black text-slate-100 leading-tight">
               {trackingData.statusLabel}
@@ -157,8 +157,8 @@ export function PublicTrackingPage() {
 
         {/* BOX DE DESTAQUE: CÓDIGO DE LIBERAÇÃO / PIN PARA O DESTINATÁRIO */}
         {trackingData.expectedOtp && !trackingData.isReturnActive && trackingData.status !== "COMPLETED" && (
-          <div className="p-4 rounded-3xl bg-amber-400/10 border-2 border-amber-400/50 shadow-lg text-center space-y-2">
-            <div className="flex items-center justify-center gap-1.5 text-amber-400 text-xs font-black uppercase tracking-wider">
+          <div className="p-4 rounded-3xl bg-primary-600/10 border-2 border-primary-600/50 shadow-lg text-center space-y-2">
+            <div className="flex items-center justify-center gap-1.5 text-primary-600 text-xs font-black uppercase tracking-wider">
               <KeyRound className="w-4 h-4" />
               <span>Seu Código de Liberação</span>
             </div>
@@ -166,7 +166,7 @@ export function PublicTrackingPage() {
               Informe estes 4 dígitos ao entregador para receber seu pacote:
             </p>
             <div className="flex items-center justify-center gap-3 py-1">
-              <span className="font-mono text-3xl font-black tracking-widest text-[#FFDE00] bg-slate-950 px-4 py-2 rounded-2xl border border-slate-800 shadow-inner">
+              <span className="font-mono text-3xl font-black tracking-widest text-[#0088FF] bg-slate-950 px-4 py-2 rounded-2xl border border-slate-800 shadow-inner">
                 {trackingData.expectedOtp}
               </span>
               <button
@@ -194,11 +194,11 @@ export function PublicTrackingPage() {
                 </h3>
                 <p className="text-xs text-slate-400">
                   {trackingData.driverInfo.vehicleModel} •{" "}
-                  <span className="font-mono text-amber-400 font-bold">
+                  <span className="font-mono text-primary-600 font-bold">
                     {trackingData.driverInfo.vehiclePlate}
                   </span>
                 </p>
-                <span className="text-[10px] text-amber-400 font-bold">
+                <span className="text-[10px] text-primary-600 font-bold">
                   ★ {trackingData.driverInfo.rating}
                 </span>
               </div>

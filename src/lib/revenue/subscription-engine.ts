@@ -172,7 +172,7 @@ export const INITIAL_DRIVER_PLANS: DriverPlan[] = [
       "Linha direta 24h com a Central Operacional",
       "Isenção total de taxas em saques PIX",
     ],
-    badgeColor: "bg-amber-400 text-slate-950",
+    badgeColor: "bg-primary-600 text-slate-950",
     active: true,
     createdAt: 1772928000000,
     updatedAt: 1772928000000,

@@ -124,12 +124,12 @@ export function PassengerActiveRideCard() {
                   className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold shadow-xs border ${
                     isChegou
                       ? "bg-emerald-50 text-emerald-950 border-emerald-200"
-                      : "bg-amber-50 text-slate-800 border-amber-200/80"
+                      : "bg-primary-50 text-slate-800 border-amber-200/80"
                   }`}
                 >
                   <Clock
                     className={`w-3 h-3 shrink-0 ${
-                      isChegou ? "text-emerald-600" : "text-amber-600"
+                      isChegou ? "text-emerald-600" : "text-primary-700"
                     }`}
                   />
                   <span>
@@ -162,7 +162,7 @@ export function PassengerActiveRideCard() {
                   alt={motorista.nome}
                   className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm ring-1 ring-black/10"
                 />
-                <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-xs">
+                <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary-600 text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-xs">
                   {categoriaVeiculo === "MOTO" ? <Bike className="w-3 h-3" /> : <Car className="w-3 h-3" />}
                 </span>
               </div>
@@ -172,7 +172,7 @@ export function PassengerActiveRideCard() {
                   <h4 className="text-sm font-black text-slate-900 leading-tight">
                     {motorista.nome}
                   </h4>
-                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded-md">
+                  <span className="text-[10px] font-bold text-amber-700 bg-primary-50 px-1.5 py-0.2 rounded-md">
                     ★ {motorista.avaliacao.toFixed(2)}
                   </span>
                 </div>
@@ -183,7 +183,7 @@ export function PassengerActiveRideCard() {
                 <div className="mt-0.5">
                   <span className={`text-[11px] font-mono font-black px-2 py-0.5 rounded-md ${
                     isChegou
-                      ? "bg-amber-100 text-amber-950 ring-1 ring-amber-300 shadow-2xs"
+                      ? "bg-primary-50 text-amber-950 ring-1 ring-amber-300 shadow-2xs"
                       : "text-slate-800 bg-slate-100"
                   }`}>
                     {motorista.placa}
@@ -204,7 +204,7 @@ export function PassengerActiveRideCard() {
               <button
                 type="button"
                 onClick={() => setIsChatOpen(true)}
-                className="relative w-10 h-10 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 flex items-center justify-center transition active:scale-95 cursor-pointer shadow-xs"
+                className="relative w-10 h-10 rounded-2xl bg-primary-600 hover:bg-amber-500 text-slate-950 flex items-center justify-center transition active:scale-95 cursor-pointer shadow-xs"
                 aria-label={`Abrir chat operacional${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ""}`}
               >
                 <MessageCircle className="w-4 h-4" />

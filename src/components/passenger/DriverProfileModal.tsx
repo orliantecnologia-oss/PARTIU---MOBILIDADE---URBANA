@@ -108,7 +108,7 @@ export const DriverProfileModal = memo(function DriverProfileModal({
               <img
                 src={data.avatarUrl}
                 alt={data.fullName}
-                className="w-24 h-24 rounded-3xl object-cover border-4 border-amber-400 shadow-lg"
+                className="w-24 h-24 rounded-3xl object-cover border-4 border-primary-600 shadow-lg"
               />
               <span
                 title="Motorista Verificado"
@@ -136,8 +136,8 @@ export const DriverProfileModal = memo(function DriverProfileModal({
           {/* Grid 2x2 de Estatísticas Reais */}
           <div className="grid grid-cols-2 gap-2.5">
             {/* 1. Nota Média */}
-            <div className="p-3 rounded-2xl bg-amber-50/70 border border-amber-200 text-center">
-              <div className="flex items-center justify-center gap-1 text-amber-500 mb-0.5">
+            <div className="p-3 rounded-2xl bg-primary-50/70 border border-amber-200 text-center">
+              <div className="flex items-center justify-center gap-1 text-primary-600 mb-0.5">
                 <Star className="w-4 h-4 fill-amber-400" />
                 <span className="text-lg font-black text-slate-950">
                   {Number(data.rating).toFixed(2)}
@@ -225,7 +225,7 @@ export const DriverProfileModal = memo(function DriverProfileModal({
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-black text-slate-900">{rev.author}</span>
-                    <div className="flex items-center gap-0.5 text-amber-500">
+                    <div className="flex items-center gap-0.5 text-primary-600">
                       {[...Array(rev.rating)].map((_, i) => (
                         <Star key={i} className="w-3 h-3 fill-amber-400" />
                       ))}

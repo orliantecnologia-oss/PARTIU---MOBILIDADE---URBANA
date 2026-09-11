@@ -78,7 +78,7 @@ function AdminLoginPage() {
         className="absolute inset-0 opacity-10 pointer-events-none"
         style={{
           backgroundImage:
-            "linear-gradient(#FFDE00 1px, transparent 1px), linear-gradient(90deg, #FFDE00 1px, transparent 1px)",
+            "linear-gradient(#0088FF 1px, transparent 1px), linear-gradient(90deg, #0088FF 1px, transparent 1px)",
           backgroundSize: "40px 40px",
         }}
       />
@@ -86,18 +86,18 @@ function AdminLoginPage() {
       <div className="relative z-10 w-full max-w-md space-y-6">
         {/* Header com Logo Oficial e Badge */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/20 px-3.5 py-1 text-xs font-black uppercase text-yellow-300 border border-yellow-400/30">
-            <Car className="h-3.5 w-3.5 text-yellow-400" />
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/20 px-3.5 py-1 text-xs font-black uppercase text-primary-500 border border-primary-600/30">
+            <Car className="h-3.5 w-3.5 text-primary-600" />
             <span>Painel de Comando Executivo • PARTIU</span>
           </div>
 
           <div className="flex items-center justify-center gap-2.5 pt-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#FFDE00] text-slate-950 shadow-xl font-black">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0088FF] text-slate-950 shadow-xl font-black">
               <Car className="h-6 w-6" />
             </div>
             <div className="text-left">
               <h1 className="text-2xl font-black tracking-tight leading-none text-white">
-                PARTIU <span className="text-[#FFDE00]">Admin</span>
+                PARTIU <span className="text-[#0088FF]">Admin</span>
               </h1>
               <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-1">
                 Backoffice &amp; Gestão de Mobilidade
@@ -185,7 +185,7 @@ function AdminLoginPage() {
                 onClick={() => preencherCredencialRapida("dono")}
                 className="p-3 rounded-2xl bg-slate-950 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-500/40 text-left transition-all group"
               >
-                <div className="flex items-center gap-1.5 text-amber-400 mb-1">
+                <div className="flex items-center gap-1.5 text-primary-600 mb-1">
                   <Crown className="h-4 w-4" />
                   <span className="text-xs font-black">👑 Dono (Owner)</span>
                 </div>

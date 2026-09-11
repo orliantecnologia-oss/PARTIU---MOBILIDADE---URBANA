@@ -54,8 +54,8 @@ export const PROMO_BANNERS_MOCK: PromoBannerItem[] = [
     titulo: "Primeira Corrida com Desconto",
     subtitulo: "Economize em viagens de Moto ou Carro em Itaperuna",
     cupom: "PARTIU20",
-    corGradiente: "from-amber-400 via-amber-500 to-yellow-500 text-slate-950",
-    tagCor: "bg-black text-amber-300",
+    corGradiente: "from-primary-600 via-primary-600 to-yellow-500 text-slate-950",
+    tagCor: "bg-black text-primary-500",
     imagemUrl: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=800&auto=format&fit=crop&q=80",
   },
   {
@@ -65,7 +65,7 @@ export const PROMO_BANNERS_MOCK: PromoBannerItem[] = [
     subtitulo: "Segurança total com verificação por Duplo PIN",
     cupom: "FLASHENVIO",
     corGradiente: "from-slate-900 via-slate-800 to-slate-900 text-white",
-    tagCor: "bg-amber-400 text-slate-950",
+    tagCor: "bg-primary-600 text-slate-950",
     imagemUrl: "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&auto=format&fit=crop&q=80",
   },
   {

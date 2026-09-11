@@ -306,12 +306,12 @@ export function QuadroMotoristasAdminPage() {
       <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-yellow-300 border border-yellow-500/25 mb-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary-500 border border-yellow-500/25 mb-2">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Restrição Estrita: CARRO e MOTO Exclusivamente</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Quadro de <span className="text-[#FFDE00]">Motoristas &amp; Frota</span>
+              Quadro de <span className="text-[#0088FF]">Motoristas &amp; Frota</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-normal mt-1">
               Controle central da frota urbana, aprovação inteligente de condutores com validação de CNH e ativação autônoma via WhatsApp.
@@ -323,7 +323,7 @@ export function QuadroMotoristasAdminPage() {
               type="button"
               onClick={handleExecutarEsteiraOCR}
               disabled={processandoOcr}
-              className="flex h-11 items-center gap-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 text-xs font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
+              className="flex h-11 items-center gap-2 rounded-2xl bg-primary-600 hover:bg-amber-400 text-slate-950 px-4 text-xs font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
             >
               <Sparkles className="h-4 w-4" />
               <span>{processandoOcr ? "Analisando OCR..." : "Esteira OCR Automática"}</span>
@@ -337,7 +337,7 @@ export function QuadroMotoristasAdminPage() {
               }}
               className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white px-3.5 text-xs font-bold border border-slate-800 transition-all cursor-pointer"
             >
-              <RefreshCw className="h-4 w-4 text-[#FFDE00]" />
+              <RefreshCw className="h-4 w-4 text-[#0088FF]" />
             </button>
           </div>
         </div>
@@ -377,14 +377,14 @@ export function QuadroMotoristasAdminPage() {
 
         {/* Pendentes */}
         <div className={`p-3.5 sm:p-5 rounded-3xl border shadow-xs flex flex-col justify-between transition-all ${
-          totalPendentes > 0 ? "bg-amber-50 border-amber-300" : "bg-white border-slate-200"
+          totalPendentes > 0 ? "bg-primary-50 border-primary-500" : "bg-white border-slate-200"
         }`}>
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Aprovação Pendente</span>
-            {totalPendentes > 0 && <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />}
+            {totalPendentes > 0 && <span className="h-2 w-2 rounded-full bg-primary-600 animate-pulse" />}
           </div>
           <div className="pt-2 sm:pt-3 flex items-baseline justify-between">
-            <p className="text-xl sm:text-2xl font-black text-amber-600">{totalPendentes}</p>
+            <p className="text-xl sm:text-2xl font-black text-primary-700">{totalPendentes}</p>
             <span className="text-[10px] sm:text-[11px] font-bold text-amber-700">Aguardando OCR</span>
           </div>
         </div>
@@ -454,7 +454,7 @@ export function QuadroMotoristasAdminPage() {
                     <div className="min-w-0">
                       <p className="font-bold text-slate-900 text-xs truncate flex items-center gap-1">
                         {m.nome}
-                        {m.rating >= 4.9 && <Star className="h-3 w-3 fill-amber-400 text-amber-400 shrink-0" />}
+                        {m.rating >= 4.9 && <Star className="h-3 w-3 fill-amber-400 text-primary-600 shrink-0" />}
                       </p>
                       <span className="text-[10px] text-slate-500">{m.telefone}</span>
                     </div>
@@ -464,7 +464,7 @@ export function QuadroMotoristasAdminPage() {
                     m.status === "ONLINE"
                       ? "bg-emerald-100 text-emerald-800"
                       : m.status === "PENDENTE"
-                      ? "bg-amber-100 text-amber-800 border border-amber-300 animate-pulse"
+                      ? "bg-primary-50 text-amber-800 border border-primary-500 animate-pulse"
                       : m.status === "SUSPENSO"
                       ? "bg-red-100 text-red-800"
                       : "bg-slate-100 text-slate-700"
@@ -565,7 +565,7 @@ export function QuadroMotoristasAdminPage() {
                             <p className="font-bold text-slate-900 flex items-center gap-1.5">
                               {m.nome}
                               {m.rating >= 4.9 && (
-                                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                                <Star className="h-3.5 w-3.5 fill-amber-400 text-primary-600" />
                               )}
                             </p>
                             <span className="text-[11px] text-slate-500">{m.telefone}</span>
@@ -582,7 +582,7 @@ export function QuadroMotoristasAdminPage() {
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-1.5">
                             <span className={`px-2 py-0.5 rounded-md text-[10px] font-black ${
-                              m.modal === "CARRO" ? "bg-amber-100 text-amber-900" : "bg-blue-100 text-blue-900"
+                              m.modal === "CARRO" ? "bg-primary-50 text-amber-900" : "bg-blue-100 text-blue-900"
                             }`}>
                               {m.modal}
                             </span>
@@ -608,7 +608,7 @@ export function QuadroMotoristasAdminPage() {
                           m.status === "ONLINE"
                             ? "bg-emerald-100 text-emerald-800"
                             : m.status === "PENDENTE"
-                            ? "bg-amber-100 text-amber-800 border border-amber-300 animate-pulse"
+                            ? "bg-primary-50 text-amber-800 border border-primary-500 animate-pulse"
                             : m.status === "SUSPENSO"
                             ? "bg-red-100 text-red-800"
                             : "bg-slate-100 text-slate-700"
@@ -757,7 +757,7 @@ export function QuadroMotoristasAdminPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-600">Intervenção do Operador:</span>
-                <span className="font-bold text-amber-600">Apenas em 1 exceção</span>
+                <span className="font-bold text-primary-700">Apenas em 1 exceção</span>
               </div>
             </div>
 

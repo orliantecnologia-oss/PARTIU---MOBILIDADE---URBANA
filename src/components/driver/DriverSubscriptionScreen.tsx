@@ -129,7 +129,7 @@ export function DriverSubscriptionScreen() {
           </div>
 
           <div className="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
-            <Zap className="w-4 h-4 text-amber-400" />
+            <Zap className="w-4 h-4 text-primary-600" />
             <span className="text-[11px] font-bold block text-slate-200">PIX D+0</span>
             <span className="text-[9px] text-slate-500 block leading-tight">Receba na hora na sua chave</span>
           </div>
@@ -173,7 +173,7 @@ export function DriverSubscriptionScreen() {
             }`}
           >
             <span>Semanal</span>
-            <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-amber-400 text-slate-950">
+            <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-primary-600 text-slate-950">
               -15%
             </span>
           </button>
@@ -217,7 +217,7 @@ export function DriverSubscriptionScreen() {
                 }`}
               >
                 {plan.is_popular && (
-                  <span className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black shadow-sm">
+                  <span className="absolute -top-2.5 right-4 px-2.5 py-0.5 rounded-full bg-primary-600 text-slate-950 text-[10px] font-black shadow-sm">
                     MAIS ESCOLHIDO
                   </span>
                 )}

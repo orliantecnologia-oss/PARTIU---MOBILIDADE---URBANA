@@ -71,8 +71,8 @@ export function PassengerIdleCard({ userName = "Passageiro" }: PassengerIdleCard
         <div className="flex items-center p-1 bg-slate-100/90 rounded-2xl gap-1">
           <div
             style={{
-              backgroundColor: corPrimaria || "#FFDE00",
-              color: corTextoPrimaria || "#0F172A",
+              backgroundColor: corPrimaria || "#0088FF",
+              color: "#FFFFFF",
             }}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl font-black text-xs shadow-xs cursor-default select-none"
           >
@@ -100,8 +100,8 @@ export function PassengerIdleCard({ userName = "Passageiro" }: PassengerIdleCard
         >
           <div
             style={{
-              backgroundColor: corPrimaria || "#FFDE00",
-              color: corTextoPrimaria || "#0F172A",
+              backgroundColor: corPrimaria || "#0088FF",
+              color: "#FFFFFF",
             }}
             className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
           >
@@ -159,7 +159,7 @@ export function PassengerIdleCard({ userName = "Passageiro" }: PassengerIdleCard
             }}
             className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 font-semibold transition py-1 px-1 rounded-lg hover:bg-slate-100 cursor-pointer"
           >
-            <MapPin className="w-3.5 h-3.5 text-amber-500 stroke-[2.2]" />
+            <MapPin className="w-3.5 h-3.5 text-primary-600 stroke-[2.2]" />
             <span>Escolher destino no mapa</span>
           </button>
         </div>

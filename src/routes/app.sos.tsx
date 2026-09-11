@@ -141,14 +141,14 @@ export function EmergenciaSOSPage() {
                 href="tel:193"
                 className="flex min-h-[48px] h-12 items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs sm:text-sm font-bold text-foreground border border-border/40 hover:bg-accent/80 active:scale-95 transition-all shadow-2xs cursor-pointer"
               >
-                <AlertTriangle className="h-4.5 w-4.5 text-amber-600" /> Bombeiros (193)
+                <AlertTriangle className="h-4.5 w-4.5 text-primary-700" /> Bombeiros (193)
               </a>
 
               <a
                 href="tel:+5582988727777"
                 className="flex min-h-[48px] h-12 items-center justify-center gap-2 rounded-xl bg-[#0d5930] px-4 py-2 text-xs sm:text-sm font-bold text-white shadow-xs hover:brightness-105 active:scale-95 transition-all cursor-pointer"
               >
-                <Radio className="h-4.5 w-4.5 text-amber-300" /> Central 24h
+                <Radio className="h-4.5 w-4.5 text-primary-500" /> Central 24h
               </a>
             </div>
           </div>

@@ -176,7 +176,7 @@ export function AtividadePage() {
                   <div
                     className={`p-2.5 rounded-xl ${
                       item.tipo === "entrega"
-                        ? "bg-amber-50 text-amber-600"
+                        ? "bg-primary-50 text-primary-700"
                         : "bg-blue-50 text-blue-600"
                     }`}
                   >

@@ -68,10 +68,10 @@ export function PassengerTimeoutBottomSheet() {
         
         {/* BANNER DINÂMICO DE FAST RECOVERY (MOTORISTA DISPONÍVEL) */}
         {isFastRecovery && (
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-400/20 to-yellow-500/15 border border-amber-400/60 text-left flex items-center justify-between gap-3 animate-in zoom-in-95 duration-200 shadow-sm">
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-primary-600/15 via-primary-500/15 to-primary-700/15 border border-primary-600/60 text-left flex items-center justify-between gap-3 animate-in zoom-in-95 duration-200 shadow-sm">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shrink-0 shadow-md">
-                <Zap className="w-4 h-4 fill-slate-950" />
+              <div className="w-8 h-8 rounded-xl bg-primary-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                <Zap className="w-4 h-4 fill-white text-white" />
               </div>
               <div className="min-w-0">
                 <h5 className="text-xs font-black text-slate-950 leading-tight flex items-center gap-1">
@@ -90,10 +90,10 @@ export function PassengerTimeoutBottomSheet() {
                 hapticFeedback.success();
                 retrySearchAfterTimeout();
               }}
-              className="py-2 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition shrink-0 flex items-center gap-1 shadow-md shadow-amber-400/30 cursor-pointer active:scale-95"
+              className="py-2 px-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition shrink-0 flex items-center gap-1 shadow-md shadow-primary-500/30 cursor-pointer active:scale-95"
             >
               <span>Conectar</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5 text-white" />
             </button>
           </div>
         )}
@@ -101,13 +101,13 @@ export function PassengerTimeoutBottomSheet() {
         {/* ILUSTRAÇÃO VETORIAL AMIGÁVEL */}
         <div className="relative mx-auto w-24 h-24 flex items-center justify-center">
           {/* Círculo de fundo pulsante */}
-          <div className="absolute inset-0 rounded-full bg-amber-100/60 animate-pulse" />
+          <div className="absolute inset-0 rounded-full bg-primary-50/60 animate-pulse" />
           
           {/* Ilustração central */}
-          <div className="relative w-18 h-18 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-500 text-slate-950 flex items-center justify-center shadow-xl shadow-amber-500/25 border-2 border-white">
-            <Car className="w-9 h-9 text-slate-950" />
+          <div className="relative w-18 h-18 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-800 text-white flex items-center justify-center shadow-xl shadow-primary-600/25 border-2 border-white">
+            <Car className="w-9 h-9 text-white" />
             <div className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center border-2 border-white shadow-md">
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
+              <Clock className="w-3.5 h-3.5 text-primary-400" />
             </div>
           </div>
         </div>
@@ -131,7 +131,7 @@ export function PassengerTimeoutBottomSheet() {
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/60 font-bold text-slate-800">
             <span>{cotacaoAtiva.nomeExibicao}</span>
-            <span className="text-amber-600 font-black">
+            <span className="text-primary-700 font-black">
               R$ {cotacaoAtiva.precoBrl.toFixed(2).replace(".", ",")}
             </span>
           </div>
@@ -146,9 +146,15 @@ export function PassengerTimeoutBottomSheet() {
               hapticFeedback.heavy();
               retrySearchAfterTimeout();
             }}
-            className="w-full py-3.5 px-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-sm font-black transition active:scale-[0.98] shadow-lg shadow-amber-400/25 flex items-center justify-center gap-2 cursor-pointer border border-amber-300"
+            style={{
+              background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+              color: "#FFFFFF",
+              borderRadius: 16,
+              boxShadow: "0 8px 24px -4px rgba(0, 51, 102, 0.35), 0 4px 12px -2px rgba(0, 136, 255, 0.25)",
+            }}
+            className="w-full py-3.5 px-4 font-bold text-sm transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer hover:brightness-105"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4 text-white" />
             <span>Tentar Novamente</span>
           </button>
 

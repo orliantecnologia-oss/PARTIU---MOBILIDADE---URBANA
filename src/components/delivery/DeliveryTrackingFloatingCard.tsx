@@ -83,7 +83,7 @@ export function DeliveryTrackingFloatingCard() {
                 alt={motorista.nome}
                 className="w-12 h-12 rounded-2xl object-cover border-2 border-white shadow-sm ring-1 ring-black/10"
               />
-              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-xs">
+              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary-600 text-slate-950 flex items-center justify-center text-[10px] font-bold shadow-xs">
                 {motorista.veiculoCategoria === "MOTO" ? (
                   <Bike className="w-3 h-3" />
                 ) : (
@@ -97,7 +97,7 @@ export function DeliveryTrackingFloatingCard() {
                 <h3 className="text-sm font-black text-slate-900 leading-tight">
                   {motorista.nome}
                 </h3>
-                <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded-md">
+                <span className="text-[10px] font-bold text-primary-700 bg-primary-50 px-1.5 py-0.2 rounded-md">
                   ★ {motorista.avaliacao.toFixed(2)}
                 </span>
               </div>
@@ -134,13 +134,13 @@ export function DeliveryTrackingFloatingCard() {
         {status === "AWAITING_PICKUP" && (
           <div className="space-y-3 animate-in fade-in">
             {/* Card 1: PIN de Coleta */}
-            <div className="p-3.5 rounded-2xl bg-amber-50/95 border-2 border-amber-300 text-left space-y-1.5 shadow-xs">
+            <div className="p-3.5 rounded-2xl bg-primary-50/95 border-2 border-primary-500 text-left space-y-1.5 shadow-xs">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-black uppercase tracking-wider text-amber-950 flex items-center gap-1.5">
-                  <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                  <KeyRound className="w-3.5 h-3.5 text-primary-700" />
                   PIN 1 — CÓDIGO DE COLETA
                 </span>
-                <span className="text-[10px] font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-md">
+                <span className="text-[10px] font-bold text-amber-800 bg-primary-100/60 px-2 py-0.5 rounded-md">
                   Para o Motorista
                 </span>
               </div>
@@ -153,7 +153,7 @@ export function DeliveryTrackingFloatingCard() {
                 <button
                   type="button"
                   onClick={() => copiarPin(pins.pin1Coleta)}
-                  className="px-2.5 py-1.5 rounded-xl bg-amber-200/70 hover:bg-amber-300/80 text-amber-950 font-bold text-xs transition active:scale-95 flex items-center gap-1 cursor-pointer"
+                  className="px-2.5 py-1.5 rounded-xl bg-primary-100/70 hover:bg-amber-300/80 text-amber-950 font-bold text-xs transition active:scale-95 flex items-center gap-1 cursor-pointer"
                   title="Copiar PIN 1"
                 >
                   {pinCopiado ? <Check className="w-3.5 h-3.5 text-emerald-700" /> : <Copy className="w-3.5 h-3.5" />}
@@ -206,7 +206,7 @@ export function DeliveryTrackingFloatingCard() {
                 onClick={handleSimularColeta}
                 className="w-full py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <Sparkles className="w-3.5 h-3.5 text-primary-700" />
                 <span>Simular Motorista Validando PIN 1 na Coleta</span>
               </button>
             </div>

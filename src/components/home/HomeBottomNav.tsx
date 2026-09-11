@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Car, Package, Compass, CreditCard, User, Truck, Shield, HelpCircle } from "lucide-react";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
+import { components } from "@/lib/design-tokens";
 
 export interface HomeBottomNavProps {
   activeTab?: "corridas" | "entregas" | string;
@@ -18,10 +19,21 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   HelpCircle,
 };
 
-/** Estilo compartilhado para a pill de gradiente ativa */
-const ACTIVE_PILL_STYLE: React.CSSProperties = {
-  background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+/** Shared styles for the dark premium nav bar */
+const NAV_STYLE: React.CSSProperties = {
+  background: components.bottomNav.gradient,
+  boxShadow: "0 -4px 30px rgba(0, 0, 0, 0.15)",
 };
+
+/** Active pill style */
+const ACTIVE_PILL: React.CSSProperties = {
+  backgroundColor: components.bottomNav.activePill.background,
+  border: `1px solid ${components.bottomNav.activePill.border}`,
+  boxShadow: "0 0 12px rgba(0, 198, 255, 0.20)",
+};
+
+const INACTIVE_COLOR = components.bottomNav.inactiveColor;
+const ACTIVE_COLOR = components.bottomNav.activeIconColor;
 
 export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
   const location = useLocation();
@@ -30,17 +42,20 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
 
   const customTabs = menuBuilder?.abasNavegacaoInferior?.filter((t) => t.ativo);
 
-  // === Renderização White Label (tabs customizadas) ===
+  // === White Label Custom Tabs ===
   if (customTabs && customTabs.length > 0) {
     return (
       <nav
-        className="mx-4 bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] z-30 py-2.5 px-3 flex items-center justify-around shrink-0"
+        className="w-full z-30 py-2 px-4 flex items-center justify-around shrink-0"
         style={{
-          marginBottom: "max(1rem, env(safe-area-inset-bottom, 16px))",
+          ...NAV_STYLE,
+          paddingBottom: "max(0.65rem, env(safe-area-inset-bottom, 10px))",
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
         }}
-        aria-label="Navegação Principal White Label"
+        aria-label="Navegação Principal"
       >
-        <div className="w-full max-w-md flex items-center justify-around gap-1.5">
+        <div className="w-full max-w-md flex items-center justify-around gap-1">
           {customTabs
             .sort((a, b) => a.ordem - b.ordem)
             .map((tab) => {
@@ -54,26 +69,26 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
                 <Link
                   key={tab.id}
                   to={tab.rota as any}
-                  className={`flex items-center justify-center transition-all duration-250 active:scale-95 cursor-pointer ${
-                    isActive
-                      ? "gap-2 py-2 px-4 rounded-2xl"
-                      : "p-2 rounded-xl"
-                  }`}
-                  style={isActive ? ACTIVE_PILL_STYLE : undefined}
+                  className="flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer"
+                  style={isActive ? ACTIVE_PILL : undefined}
                   aria-label={tab.rotulo}
                 >
                   <IconComp
-                    className={`w-5 h-5 transition-colors duration-200 ${
-                      isActive
-                        ? "text-white stroke-[2.3]"
-                        : "text-[#9CA3AF] stroke-[1.8]"
-                    }`}
+                    className="w-[20px] h-[20px] transition-colors duration-200"
+                    style={{
+                      color: isActive ? ACTIVE_COLOR : INACTIVE_COLOR,
+                      strokeWidth: isActive ? 2.4 : 1.8,
+                    }}
                   />
-                  {isActive && (
-                    <span className="text-[12px] font-bold text-white tracking-tight whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-200">
-                      {tab.rotulo}
-                    </span>
-                  )}
+                  <span
+                    className="text-[10px] mt-0.5 tracking-tight transition-colors duration-200"
+                    style={{
+                      color: isActive ? ACTIVE_COLOR : INACTIVE_COLOR,
+                      fontWeight: isActive ? 700 : 500,
+                    }}
+                  >
+                    {tab.rotulo}
+                  </span>
                 </Link>
               );
             })}
@@ -82,67 +97,70 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
     );
   }
 
-  // === Fallback padrão: Corridas e Entregas ===
+  // === Default: Corridas & Entregas ===
   const isCorridas = activeTab ? activeTab === "corridas" : pathname === "/app" || pathname === "/app/";
   const isEntregas = activeTab ? activeTab === "entregas" : pathname === "/app/encomendas" || pathname === "/app/encomendas/";
 
   return (
     <nav
-      className="mx-4 bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] z-30 py-2.5 px-3 flex items-center justify-around shrink-0"
+      className="w-full z-30 py-2 px-4 flex items-center justify-around shrink-0"
       style={{
-        marginBottom: "max(1rem, env(safe-area-inset-bottom, 16px))",
+        ...NAV_STYLE,
+        paddingBottom: "max(0.65rem, env(safe-area-inset-bottom, 10px))",
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
       }}
       aria-label="Navegação Principal"
     >
-      <div className="w-full max-w-md flex items-center justify-around gap-1.5">
-        {/* Aba 1: Corridas */}
+      <div className="w-full max-w-md flex items-center justify-around gap-1">
+        {/* Tab: Corridas */}
         <Link
           to="/app"
-          className={`flex items-center justify-center transition-all duration-250 active:scale-95 cursor-pointer ${
-            isCorridas
-              ? "gap-2 py-2 px-5 rounded-2xl"
-              : "p-2.5 rounded-xl"
-          }`}
-          style={isCorridas ? ACTIVE_PILL_STYLE : undefined}
-          aria-label="Aba de Corridas"
+          className="flex-1 flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer"
+          style={isCorridas ? ACTIVE_PILL : undefined}
+          aria-label="Corridas"
         >
           <Car
-            className={`w-5 h-5 transition-colors duration-200 ${
-              isCorridas
-                ? "text-white stroke-[2.3]"
-                : "text-[#9CA3AF] stroke-[1.8]"
-            }`}
+            className="w-[20px] h-[20px] transition-colors duration-200"
+            style={{
+              color: isCorridas ? ACTIVE_COLOR : INACTIVE_COLOR,
+              strokeWidth: isCorridas ? 2.4 : 1.8,
+            }}
           />
-          {isCorridas && (
-            <span className="text-[12px] font-bold text-white tracking-tight whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-200">
-              Corridas
-            </span>
-          )}
+          <span
+            className="text-[10px] mt-0.5 tracking-tight transition-colors duration-200"
+            style={{
+              color: isCorridas ? ACTIVE_COLOR : INACTIVE_COLOR,
+              fontWeight: isCorridas ? 700 : 500,
+            }}
+          >
+            Corridas
+          </span>
         </Link>
 
-        {/* Aba 2: Entregas */}
+        {/* Tab: Entregas */}
         <Link
           to="/app/encomendas"
-          className={`flex items-center justify-center transition-all duration-250 active:scale-95 cursor-pointer ${
-            isEntregas
-              ? "gap-2 py-2 px-5 rounded-2xl"
-              : "p-2.5 rounded-xl"
-          }`}
-          style={isEntregas ? ACTIVE_PILL_STYLE : undefined}
-          aria-label="Aba de Entregas"
+          className="flex-1 flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl transition-all duration-200 active:scale-95 cursor-pointer"
+          style={isEntregas ? ACTIVE_PILL : undefined}
+          aria-label="Entregas"
         >
           <Package
-            className={`w-5 h-5 transition-colors duration-200 ${
-              isEntregas
-                ? "text-white stroke-[2.3]"
-                : "text-[#9CA3AF] stroke-[1.8]"
-            }`}
+            className="w-[20px] h-[20px] transition-colors duration-200"
+            style={{
+              color: isEntregas ? ACTIVE_COLOR : INACTIVE_COLOR,
+              strokeWidth: isEntregas ? 2.4 : 1.8,
+            }}
           />
-          {isEntregas && (
-            <span className="text-[12px] font-bold text-white tracking-tight whitespace-nowrap animate-in fade-in slide-in-from-left-1 duration-200">
-              Entregas
-            </span>
-          )}
+          <span
+            className="text-[10px] mt-0.5 tracking-tight transition-colors duration-200"
+            style={{
+              color: isEntregas ? ACTIVE_COLOR : INACTIVE_COLOR,
+              fontWeight: isEntregas ? 700 : 500,
+            }}
+          >
+            Entregas
+          </span>
         </Link>
       </div>
     </nav>

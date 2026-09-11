@@ -10,6 +10,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground shadow-xs hover:bg-primary/90",
+        gradient:
+          "bg-gradient-to-r from-[#0088FF] to-[#003366] text-white shadow-lg shadow-[#003366]/20 hover:brightness-105 active:scale-[0.98]",
         destructive: "bg-destructive text-destructive-foreground shadow-xs hover:bg-destructive/90",
         outline:
           "border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground",
@@ -47,3 +49,5 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
+export { PrimaryButton, type PrimaryButtonProps } from "./PrimaryButton";
+

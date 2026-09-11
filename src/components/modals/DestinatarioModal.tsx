@@ -245,14 +245,14 @@ export function DestinatarioModal({
           <div className="pt-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
-                  <Sparkles className="w-3 h-3 text-amber-600" />
+                <div className="w-5 h-5 rounded-lg bg-primary-50 text-amber-800 flex items-center justify-center">
+                  <Sparkles className="w-3 h-3 text-primary-700" />
                 </div>
                 <h2 className="text-xs font-black text-slate-900 tracking-tight">
                   Endereços recentes (1 Toque)
                 </h2>
               </div>
-              <span className="text-[10px] font-extrabold bg-amber-50 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-extrabold bg-primary-50 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full">
                 {ENDERECOS_RECENTES_MOCK.length} contatos
               </span>
             </div>
@@ -268,14 +268,14 @@ export function DestinatarioModal({
                     onClick={() => handleSelecionarRecente(item)}
                     className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex flex-col gap-2 active:scale-[0.99] ${
                       isSelecionado
-                        ? "border-amber-400 bg-amber-50/70 shadow-sm ring-2 ring-amber-400/20"
+                        ? "border-primary-600 bg-primary-50/70 shadow-sm ring-2 ring-primary-600/20"
                         : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60 shadow-xs"
                     }`}
                   >
                     {/* Linha superior: Avatar, Nome e Telefone formatado + Badge */}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-300 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-primary-600 to-amber-300 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
                           {getIniciais(item.nome)}
                         </div>
                         <div className="min-w-0">
@@ -294,7 +294,7 @@ export function DestinatarioModal({
                           Preenchido
                         </span>
                       ) : (
-                        <span className="text-[9px] font-bold text-amber-700 bg-amber-100/70 px-1.5 py-0.5 rounded-md shrink-0">
+                        <span className="text-[9px] font-bold text-amber-700 bg-primary-50/70 px-1.5 py-0.5 rounded-md shrink-0">
                           1 Toque
                         </span>
                       )}
@@ -302,7 +302,7 @@ export function DestinatarioModal({
 
                     {/* Endereço Completo Legível (sem truncate agressivo) */}
                     <div className="flex items-start gap-1.5 text-slate-700">
-                      <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                      <MapPin className="w-3.5 h-3.5 text-primary-700 shrink-0 mt-0.5" />
                       <p className="text-xs font-semibold text-slate-800 leading-snug">
                         {item.endereco}
                       </p>

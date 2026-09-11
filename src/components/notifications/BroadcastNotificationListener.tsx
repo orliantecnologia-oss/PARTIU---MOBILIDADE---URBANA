@@ -135,7 +135,7 @@ export function BroadcastNotificationListener() {
     { label: string; bg: string; text: string }
   > = {
     todos: { label: "COMUNICADO GERAL", bg: "bg-slate-800", text: "text-slate-100 font-black" },
-    usuario: { label: "PASSAGEIROS PARTIU", bg: "bg-[#FFDE00]", text: "text-slate-950 font-black" },
+    usuario: { label: "PASSAGEIROS PARTIU", bg: "bg-[#0088FF]", text: "text-slate-950 font-black" },
     gratis: { label: "CUPONS & BENEFÍCIOS", bg: "bg-emerald-500", text: "text-slate-950 font-black" },
     motorista: { label: "CONDUTORES & ENTREGADORES", bg: "bg-cyan-400", text: "text-slate-950 font-black" },
   };
@@ -147,9 +147,9 @@ export function BroadcastNotificationListener() {
       icone: <Info className="h-5 w-5 text-emerald-400" />,
     },
     alerta: {
-      borda: "border-amber-500/60",
+      borda: "border-primary-600/60",
       fundo: "bg-slate-900/95",
-      icone: <AlertTriangle className="h-5 w-5 text-amber-400 animate-pulse" />,
+      icone: <AlertTriangle className="h-5 w-5 text-primary-600 animate-pulse" />,
     },
     urgente: {
       borda: "border-rose-500/70",

@@ -131,7 +131,7 @@ function WhiteLabelStudioContent() {
 
   // Presets disponíveis para teste instantâneo
   const presets = [
-    { id: "partiu-oficial", nome: "PARTIU Amarelo Oficial", cor: "#FFDE00" },
+    { id: "partiu-oficial", nome: "PARTIU Amarelo Oficial", cor: "#0088FF" },
     { id: "99-ouro", nome: "99 Amarelo Ouro", cor: "#FBC02D" },
     { id: "uber-tech", nome: "Uber Minimal Dark", cor: "#000000" },
     { id: "indrive-verde", nome: "inDrive Verde Neon", cor: "#B2E535" },
@@ -145,7 +145,7 @@ function WhiteLabelStudioContent() {
       {/* 1. TOP BAR DA PLATAFORMA WHITE LABEL */}
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 flex items-center justify-center shadow-md">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary-600 to-primary-800 text-slate-950 flex items-center justify-center shadow-md">
             <Sparkles className="w-5 h-5 stroke-[2.5]" />
           </div>
           <div>
@@ -153,7 +153,7 @@ function WhiteLabelStudioContent() {
               <h1 className="text-base sm:text-lg font-black tracking-tight text-white">
                 PARTIU White Label Studio OS
               </h1>
-              <span className="text-[10px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-black uppercase tracking-wider bg-primary-600/20 text-primary-500 border border-primary-600/30 px-2 py-0.5 rounded-full">
                 Enterprise v1.0
               </span>
             </div>
@@ -167,7 +167,7 @@ function WhiteLabelStudioContent() {
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Seletor de Franquia / Tenant */}
           <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs">
-            <Building2 className="w-3.5 h-3.5 text-amber-400" />
+            <Building2 className="w-3.5 h-3.5 text-primary-600" />
             <span className="text-slate-400">Franquia:</span>
             <select
               value={activeTenant?.tenantId}
@@ -188,7 +188,7 @@ function WhiteLabelStudioContent() {
             onClick={() => setModalClonarAberto(true)}
             className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
           >
-            <Copy className="w-3.5 h-3.5 text-amber-400" />
+            <Copy className="w-3.5 h-3.5 text-primary-600" />
             <span>Clonar Cidade</span>
           </button>
 
@@ -248,7 +248,7 @@ function WhiteLabelStudioContent() {
             onClick={() => setPreviewAberto(!previewAberto)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
               previewAberto
-                ? "bg-amber-400 text-slate-950 shadow-md"
+                ? "bg-primary-600 text-slate-950 shadow-md"
                 : "bg-slate-800 text-slate-300 hover:bg-slate-700"
             }`}
           >
@@ -301,7 +301,7 @@ function WhiteLabelStudioContent() {
               onClick={() => setActiveTab("brand")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
                 activeTab === "brand"
-                  ? "bg-amber-400 text-slate-950 shadow-xs"
+                  ? "bg-primary-600 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
@@ -314,7 +314,7 @@ function WhiteLabelStudioContent() {
               onClick={() => setActiveTab("design")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
                 activeTab === "design"
-                  ? "bg-amber-400 text-slate-950 shadow-xs"
+                  ? "bg-primary-600 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
@@ -327,7 +327,7 @@ function WhiteLabelStudioContent() {
               onClick={() => setActiveTab("typography")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
                 activeTab === "typography"
-                  ? "bg-amber-400 text-slate-950 shadow-xs"
+                  ? "bg-primary-600 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
@@ -340,7 +340,7 @@ function WhiteLabelStudioContent() {
               onClick={() => setActiveTab("home")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
                 activeTab === "home"
-                  ? "bg-amber-400 text-slate-950 shadow-xs"
+                  ? "bg-primary-600 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
@@ -353,7 +353,7 @@ function WhiteLabelStudioContent() {
               onClick={() => setActiveTab("menu")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
                 activeTab === "menu"
-                  ? "bg-amber-400 text-slate-950 shadow-xs"
+                  ? "bg-primary-600 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
@@ -366,7 +366,7 @@ function WhiteLabelStudioContent() {
               onClick={() => setActiveTab("business")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
                 activeTab === "business"
-                  ? "bg-amber-400 text-slate-950 shadow-xs"
+                  ? "bg-primary-600 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
@@ -379,7 +379,7 @@ function WhiteLabelStudioContent() {
               onClick={() => setActiveTab("monetization")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
                 activeTab === "monetization"
-                  ? "bg-amber-400 text-slate-950 shadow-xs"
+                  ? "bg-primary-600 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
@@ -392,7 +392,7 @@ function WhiteLabelStudioContent() {
               onClick={() => setActiveTab("geo_app")}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition cursor-pointer shrink-0 ${
                 activeTab === "geo_app"
-                  ? "bg-amber-400 text-slate-950 shadow-xs"
+                  ? "bg-primary-600 text-slate-950 shadow-xs"
                   : "text-slate-400 hover:text-white hover:bg-slate-900"
               }`}
             >
@@ -408,7 +408,7 @@ function WhiteLabelStudioContent() {
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <Sparkles className="w-5 h-5 text-primary-600" />
                   Módulo 1: Brand Center
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -474,7 +474,7 @@ function WhiteLabelStudioContent() {
 
               {/* Logotipos */}
               <div className="space-y-3 pt-2">
-                <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                <h3 className="text-xs font-black uppercase tracking-wider text-primary-600">
                   Logotipos &amp; Ícones (URLs públicas ou locais)
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -562,7 +562,7 @@ function WhiteLabelStudioContent() {
 
               {/* Suporte e Contato */}
               <div className="space-y-3 pt-2">
-                <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                <h3 className="text-xs font-black uppercase tracking-wider text-primary-600">
                   Canais de Atendimento ao Usuário
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -626,7 +626,7 @@ function WhiteLabelStudioContent() {
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Palette className="w-5 h-5 text-amber-400" />
+                  <Palette className="w-5 h-5 text-primary-600" />
                   Módulo 2: Design System Manager
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -636,7 +636,7 @@ function WhiteLabelStudioContent() {
 
               {/* Paleta Primária */}
               <div className="space-y-4">
-                <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                <h3 className="text-xs font-black uppercase tracking-wider text-primary-600">
                   Paleta de Cores da Marca
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -648,7 +648,7 @@ function WhiteLabelStudioContent() {
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
-                        value={designSystem?.paletaPrimaria?.corPrincipal || "#FFDE00"}
+                        value={designSystem?.paletaPrimaria?.corPrincipal || "#0088FF"}
                         onChange={(e) => {
                           updateConfig({
                             designSystem: {
@@ -665,7 +665,7 @@ function WhiteLabelStudioContent() {
                       />
                       <input
                         type="text"
-                        value={designSystem?.paletaPrimaria?.corPrincipal || "#FFDE00"}
+                        value={designSystem?.paletaPrimaria?.corPrincipal || "#0088FF"}
                         onChange={(e) => {
                           updateConfig({
                             designSystem: {
@@ -691,7 +691,7 @@ function WhiteLabelStudioContent() {
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
-                        value={designSystem?.paletaPrimaria?.corPrincipalHover || "#FACC15"}
+                        value={designSystem?.paletaPrimaria?.corPrincipalHover || "#006ACC"}
                         onChange={(e) => {
                           updateConfig({
                             designSystem: {
@@ -708,7 +708,7 @@ function WhiteLabelStudioContent() {
                       />
                       <input
                         type="text"
-                        value={designSystem?.paletaPrimaria?.corPrincipalHover || "#FACC15"}
+                        value={designSystem?.paletaPrimaria?.corPrincipalHover || "#006ACC"}
                         onChange={(e) => {
                           updateConfig({
                             designSystem: {
@@ -734,7 +734,7 @@ function WhiteLabelStudioContent() {
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
-                        value={designSystem?.paletaPrimaria?.corSecundaria || "#FA6400"}
+                        value={designSystem?.paletaPrimaria?.corSecundaria || "#00C6FF"}
                         onChange={(e) => {
                           updateConfig({
                             designSystem: {
@@ -751,7 +751,7 @@ function WhiteLabelStudioContent() {
                       />
                       <input
                         type="text"
-                        value={designSystem?.paletaPrimaria?.corSecundaria || "#FA6400"}
+                        value={designSystem?.paletaPrimaria?.corSecundaria || "#00C6FF"}
                         onChange={(e) => {
                           updateConfig({
                             designSystem: {
@@ -964,7 +964,7 @@ function WhiteLabelStudioContent() {
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Type className="w-5 h-5 text-amber-400" />
+                  <Type className="w-5 h-5 text-primary-600" />
                   Módulo 3: Typography Center
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -1030,7 +1030,7 @@ function WhiteLabelStudioContent() {
 
               {/* Escala de Tamanhos */}
               <div className="space-y-3 pt-2">
-                <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                <h3 className="text-xs font-black uppercase tracking-wider text-primary-600">
                   Escala Tipográfica (Valores em REM)
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -1121,7 +1121,7 @@ function WhiteLabelStudioContent() {
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Layout className="w-5 h-5 text-amber-400" />
+                  <Layout className="w-5 h-5 text-primary-600" />
                   Módulo 4: Home Page Builder
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -1233,7 +1233,7 @@ function WhiteLabelStudioContent() {
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Compass className="w-5 h-5 text-amber-400" />
+                  <Compass className="w-5 h-5 text-primary-600" />
                   Módulo 5: Menu &amp; Navigation Builder
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -1244,7 +1244,7 @@ function WhiteLabelStudioContent() {
               {/* Itens do Drawer */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-primary-600">
                     Itens do Menu Drawer Lateral
                   </h3>
                 </div>
@@ -1259,7 +1259,7 @@ function WhiteLabelStudioContent() {
                         <span className="font-bold text-white">{item.rotulo}</span>
                         <span className="text-slate-400 font-mono">{item.rota}</span>
                         {item.badge && (
-                          <span className="bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded text-[10px] font-bold">
+                          <span className="bg-primary-600/20 text-primary-500 px-2 py-0.5 rounded text-[10px] font-bold">
                             {item.badge}
                           </span>
                         )}
@@ -1300,7 +1300,7 @@ function WhiteLabelStudioContent() {
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Layers className="w-5 h-5 text-amber-400" />
+                  <Layers className="w-5 h-5 text-primary-600" />
                   Módulo 6: Business Model Engine (Multi-Negócio)
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -1315,13 +1315,13 @@ function WhiteLabelStudioContent() {
                       key={v.id}
                       className={`p-4 rounded-2xl border transition-all ${
                         v.ativo
-                          ? "bg-slate-900 border-amber-400/40 shadow-sm"
+                          ? "bg-slate-900 border-primary-600/40 shadow-sm"
                           : "bg-slate-900/40 border-slate-800 opacity-60"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 flex items-center justify-center font-bold text-xs">
+                          <div className="w-8 h-8 rounded-xl bg-slate-800 text-primary-600 flex items-center justify-center font-bold text-xs">
                             {v.icone}
                           </div>
                           <div>
@@ -1360,7 +1360,7 @@ function WhiteLabelStudioContent() {
                         </div>
                         <div>
                           <span className="text-slate-400 block font-medium">Comissão Padrão</span>
-                          <span className="font-bold text-amber-400 font-mono">
+                          <span className="font-bold text-primary-600 font-mono">
                             {v.comissaoPadraoPercentual}%
                           </span>
                         </div>
@@ -1378,7 +1378,7 @@ function WhiteLabelStudioContent() {
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-amber-400" />
+                  <DollarSign className="w-5 h-5 text-primary-600" />
                   Módulo 7: Planos &amp; Monetização
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -1420,7 +1420,7 @@ function WhiteLabelStudioContent() {
                       </div>
                       <div>
                         <span className="text-slate-500 block text-[10px]">Despacho VIP</span>
-                        <span className="font-bold text-amber-400">
+                        <span className="font-bold text-primary-600">
                           {plano.pesoDespacho}x
                         </span>
                       </div>
@@ -1438,7 +1438,7 @@ function WhiteLabelStudioContent() {
             <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl animate-in fade-in">
               <div className="border-b border-slate-800 pb-4">
                 <h2 className="text-lg font-black text-white flex items-center gap-2">
-                  <Globe className="w-5 h-5 text-amber-400" />
+                  <Globe className="w-5 h-5 text-primary-600" />
                   Módulo 8: Geo Configuration &amp; App Center
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
@@ -1497,7 +1497,7 @@ function WhiteLabelStudioContent() {
 
               {/* App Nativo */}
               <div className="space-y-3 pt-2">
-                <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+                <h3 className="text-xs font-black uppercase tracking-wider text-primary-600">
                   Identificadores de Publicação (Lojas)
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1549,7 +1549,7 @@ function WhiteLabelStudioContent() {
               {/* Controles do Simulador */}
               <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
                 <div className="flex items-center gap-2">
-                  <SmartphoneNfc className="w-4 h-4 text-amber-400" />
+                  <SmartphoneNfc className="w-4 h-4 text-primary-600" />
                   <span className="text-xs font-black text-white">Live Device Preview</span>
                 </div>
 
@@ -1559,7 +1559,7 @@ function WhiteLabelStudioContent() {
                     onClick={() => setPreviewDevice("MOBILE")}
                     className={`p-1.5 rounded-lg transition cursor-pointer ${
                       previewDevice === "MOBILE"
-                        ? "bg-amber-400 text-slate-950"
+                        ? "bg-primary-600 text-slate-950"
                         : "text-slate-400 hover:text-white"
                     }`}
                     title="Simular Mobile (390px)"
@@ -1572,7 +1572,7 @@ function WhiteLabelStudioContent() {
                     onClick={() => setPreviewDevice("TABLET")}
                     className={`p-1.5 rounded-lg transition cursor-pointer ${
                       previewDevice === "TABLET"
-                        ? "bg-amber-400 text-slate-950"
+                        ? "bg-primary-600 text-slate-950"
                         : "text-slate-400 hover:text-white"
                     }`}
                     title="Simular Tablet (768px)"
@@ -1585,7 +1585,7 @@ function WhiteLabelStudioContent() {
                     onClick={() => setPreviewDevice("DESKTOP")}
                     className={`p-1.5 rounded-lg transition cursor-pointer ${
                       previewDevice === "DESKTOP"
-                        ? "bg-amber-400 text-slate-950"
+                        ? "bg-primary-600 text-slate-950"
                         : "text-slate-400 hover:text-white"
                     }`}
                     title="Simular Desktop"
@@ -1619,7 +1619,7 @@ function WhiteLabelStudioContent() {
                   {/* Header do App Simulado */}
                   <div
                     style={{
-                      backgroundColor: designSystem?.paletaPrimaria?.corPrincipal || "#FFDE00",
+                      backgroundColor: designSystem?.paletaPrimaria?.corPrincipal || "#0088FF",
                       color: designSystem?.paletaPrimaria?.corTextoPrincipal || "#0F172A",
                     }}
                     className="px-4 py-3 flex items-center justify-between border-b border-black/5"
@@ -1677,7 +1677,7 @@ function WhiteLabelStudioContent() {
                               <span className="text-xs font-bold text-slate-800 block truncate">
                                 {v.nomeExibicao}
                               </span>
-                              <span className="text-[9px] text-amber-600 font-bold block">
+                              <span className="text-[9px] text-primary-700 font-bold block">
                                 R$ {v.tarifaBaseBrl.toFixed(0)}
                               </span>
                             </div>
@@ -1687,7 +1687,7 @@ function WhiteLabelStudioContent() {
                     {/* Banner Simulado */}
                     <div
                       style={{
-                        backgroundColor: designSystem?.paletaPrimaria?.corSecundaria || "#FA6400",
+                        backgroundColor: designSystem?.paletaPrimaria?.corSecundaria || "#00C6FF",
                       }}
                       className="p-3 rounded-2xl text-white shadow-xs"
                     >
@@ -1704,7 +1704,7 @@ function WhiteLabelStudioContent() {
                   <div className="bg-white border-t border-slate-200 px-4 py-2 flex items-center justify-around">
                     <div
                       style={{
-                        backgroundColor: designSystem?.paletaPrimaria?.corPrincipal || "#FFDE00",
+                        backgroundColor: designSystem?.paletaPrimaria?.corPrincipal || "#0088FF",
                         color: designSystem?.paletaPrimaria?.corTextoPrincipal || "#0F172A",
                       }}
                       className="px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5"
@@ -1730,7 +1730,7 @@ function WhiteLabelStudioContent() {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
             <h3 className="text-base font-black text-white flex items-center gap-2">
-              <Copy className="w-5 h-5 text-amber-400" />
+              <Copy className="w-5 h-5 text-primary-600" />
               Clonar Franquia com 1-Click
             </h3>
             <p className="text-xs text-slate-400">
@@ -1794,7 +1794,7 @@ function WhiteLabelStudioContent() {
                   setModalClonarAberto(false);
                   triggerSaveFeedback();
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 disabled:opacity-40 cursor-pointer shadow-md"
+                className="px-4 py-2 rounded-xl text-xs font-black bg-primary-600 hover:bg-amber-300 text-slate-950 disabled:opacity-40 cursor-pointer shadow-md"
               >
                 Criar e Ativar Franquia
               </button>
@@ -1808,7 +1808,7 @@ function WhiteLabelStudioContent() {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
             <h3 className="text-base font-black text-white flex items-center gap-2">
-              <Upload className="w-5 h-5 text-amber-400" />
+              <Upload className="w-5 h-5 text-primary-600" />
               Importar Configuração JSON White Label
             </h3>
             <p className="text-xs text-slate-400">
@@ -1850,7 +1850,7 @@ function WhiteLabelStudioContent() {
                     setImportErro(res.error || "Erro ao importar JSON.");
                   }
                 }}
-                className="px-4 py-2 rounded-xl text-xs font-black bg-amber-400 hover:bg-amber-300 text-slate-950 disabled:opacity-40 cursor-pointer shadow-md"
+                className="px-4 py-2 rounded-xl text-xs font-black bg-primary-600 hover:bg-amber-300 text-slate-950 disabled:opacity-40 cursor-pointer shadow-md"
               >
                 Validar e Aplicar
               </button>

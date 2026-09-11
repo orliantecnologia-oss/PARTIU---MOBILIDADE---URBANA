@@ -140,7 +140,7 @@ export function AdminBannersPage() {
       {/* Header em Tela Cheia */}
       <div className="w-full bg-slate-950 p-6 rounded-3xl text-white shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/20 px-4 py-1.5 text-xs font-black uppercase text-yellow-300 border border-yellow-400/30">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/20 px-4 py-1.5 text-xs font-black uppercase text-primary-500 border border-primary-600/30">
             <ImageIcon className="h-4 w-4" />
             <span>CMS de Campanhas &amp; Banners da Tela Inicial</span>
           </div>
@@ -169,7 +169,7 @@ export function AdminBannersPage() {
           >
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg font-black text-slate-950 flex items-center gap-2">
-                <Plus className="h-5 w-5 text-amber-500" /> Publicar Novo Slide Promocional
+                <Plus className="h-5 w-5 text-primary-600" /> Publicar Novo Slide Promocional
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 Os dados aparecerão imediatamente no carrossel da home do app.
@@ -184,7 +184,7 @@ export function AdminBannersPage() {
                 <select
                   value={badge}
                   onChange={(e) => setBadge(e.target.value)}
-                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-bold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
+                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-bold text-slate-900 outline-none border border-slate-200 focus:border-[#0088FF]"
                 >
                   <option value="CORRIDAS COM DESCONTO">CORRIDAS COM DESCONTO</option>
                   <option value="ENTREGAS URBANAS FLASH">ENTREGAS URBANAS FLASH</option>
@@ -202,7 +202,7 @@ export function AdminBannersPage() {
                 <select
                   value={categoria}
                   onChange={(e) => setCategoria(e.target.value as BannerCategory)}
-                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-bold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
+                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-bold text-slate-900 outline-none border border-slate-200 focus:border-[#0088FF]"
                 >
                   <option value="PASSENGER">Passageiro (Home)</option>
                   <option value="DRIVER">Motorista (Cockpit)</option>
@@ -220,7 +220,7 @@ export function AdminBannersPage() {
                 value={titulo}
                 onChange={(e) => setTitulo(e.target.value)}
                 placeholder="Ex: Vá de Partiu Pop com 20% OFF"
-                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
+                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0088FF]"
               />
             </div>
 
@@ -233,7 +233,7 @@ export function AdminBannersPage() {
                 value={subtitulo}
                 onChange={(e) => setSubtitulo(e.target.value)}
                 placeholder="Ex: Use o cupom PARTIU10 na sua próxima viagem"
-                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
+                className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0088FF]"
               />
             </div>
 
@@ -246,7 +246,7 @@ export function AdminBannersPage() {
                   value={extra}
                   onChange={(e) => setExtra(e.target.value)}
                   placeholder="Ex: R$ 10 OFF"
-                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#FFDE00]"
+                  className="w-full rounded-2xl bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-900 outline-none border border-slate-200 focus:border-[#0088FF]"
                 />
               </div>
 
@@ -281,7 +281,7 @@ export function AdminBannersPage() {
                     onClick={() => setImagem(p.url)}
                     className={`p-2 rounded-xl text-left text-[11px] font-bold border transition flex items-center gap-2 ${
                       imagem === p.url
-                        ? "bg-amber-50 border-[#FFDE00] text-slate-950 ring-2 ring-[#FFDE00]"
+                        ? "bg-primary-50 border-[#0088FF] text-slate-950 ring-2 ring-[#0088FF]"
                         : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
                     }`}
                   >
@@ -295,7 +295,7 @@ export function AdminBannersPage() {
                 value={imagem}
                 onChange={(e) => setImagem(e.target.value)}
                 placeholder="Ou cole a URL direta de uma imagem personalizada..."
-                className="w-full rounded-2xl bg-slate-50 px-4 py-2.5 text-xs font-mono text-slate-700 outline-none border border-slate-200 focus:border-[#FFDE00]"
+                className="w-full rounded-2xl bg-slate-50 px-4 py-2.5 text-xs font-mono text-slate-700 outline-none border border-slate-200 focus:border-[#0088FF]"
               />
 
               {/* Feedback de Validação de Dimensões Mobile */}
@@ -304,7 +304,7 @@ export function AdminBannersPage() {
                   className={`mt-2 p-2.5 rounded-xl text-xs flex items-center gap-2 ${
                     validacaoDimensoes.isValid
                       ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                      : "bg-amber-50 text-amber-800 border border-amber-200"
+                      : "bg-primary-50 text-amber-800 border border-amber-200"
                   }`}
                 >
                   <span className="shrink-0">{validacaoDimensoes.isValid ? "✅" : "⚠️"}</span>
@@ -315,7 +315,7 @@ export function AdminBannersPage() {
 
             <button
               type="submit"
-              className="w-full py-4 rounded-2xl bg-[#FFDE00] hover:bg-[#FDD835] active:scale-[0.99] text-slate-950 font-black text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-4 rounded-2xl bg-[#0088FF] hover:bg-[#FDD835] active:scale-[0.99] text-slate-950 font-black text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
             >
               <Plus className="h-5 w-5" /> Adicionar Slide ao Carrossel
             </button>
@@ -326,7 +326,7 @@ export function AdminBannersPage() {
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black text-slate-950 flex items-center gap-2">
-              <Layers className="h-5 w-5 text-amber-500" /> Slides Publicados no App ({banners.length})
+              <Layers className="h-5 w-5 text-primary-600" /> Slides Publicados no App ({banners.length})
             </h2>
             <span className="text-xs font-bold text-slate-500">
               {banners.filter((b) => b.is_active).length} ativos no carrossel
@@ -350,11 +350,11 @@ export function AdminBannersPage() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-5 flex flex-col justify-between text-white">
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-1 rounded-full bg-[#FFDE00] text-slate-950 font-black text-[10px] uppercase tracking-wider">
+                      <span className="px-2.5 py-1 rounded-full bg-[#0088FF] text-slate-950 font-black text-[10px] uppercase tracking-wider">
                         {banner.badge}
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-full bg-slate-800 text-yellow-300 font-bold text-[9px] uppercase border border-yellow-400/30">
+                        <span className="px-2 py-0.5 rounded-full bg-slate-800 text-primary-500 font-bold text-[9px] uppercase border border-primary-600/30">
                           {banner.category}
                         </span>
                         <span className="px-2.5 py-0.5 rounded-full bg-black/60 text-white font-mono text-[10px] backdrop-blur-xs">
@@ -371,7 +371,7 @@ export function AdminBannersPage() {
                         {banner.subtitle}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
-                        <span className="text-[10px] text-amber-300 font-bold">
+                        <span className="text-[10px] text-primary-500 font-bold">
                           ➔ {banner.link_url}
                         </span>
                       </div>

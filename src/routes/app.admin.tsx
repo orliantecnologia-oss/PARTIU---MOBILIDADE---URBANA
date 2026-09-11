@@ -113,7 +113,7 @@ const MENU_PRINCIPAL: ItemMenuAdmin[] = [
 ];
 
 const ROLES_DISPONIVEIS: { id: AdminRole; label: string; badge: string }[] = [
-  { id: "super_admin", label: "Super Admin", badge: "bg-amber-500 text-slate-950" },
+  { id: "super_admin", label: "Super Admin", badge: "bg-primary-600 text-slate-950" },
   { id: "admin", label: "Administrador", badge: "bg-blue-600 text-white" },
   { id: "franqueado", label: "Franqueado", badge: "bg-indigo-600 text-white" },
   { id: "operador", label: "Operador", badge: "bg-emerald-600 text-white" },
@@ -223,21 +223,21 @@ export function SuperAdminLayout() {
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
             {!recolhido ? (
               <Link to="/app/admin" className="flex items-center gap-2.5 min-w-0">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 shadow-md shadow-amber-500/20 shrink-0 font-black">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 to-primary-800 text-slate-950 shadow-md shadow-primary-600/20 shrink-0 font-black">
                   <Zap className="h-5 w-5 fill-slate-950 stroke-[2.5]" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-base font-black tracking-tight leading-none text-white truncate">
-                    PARTIU <span className="text-[#FFDE00]">OPERATIONS</span>
+                    PARTIU <span className="text-[#0088FF]">OPERATIONS</span>
                   </p>
-                  <span className="text-[10px] font-black tracking-wider uppercase text-amber-400 mt-1 block truncate">
+                  <span className="text-[10px] font-black tracking-wider uppercase text-primary-600 mt-1 block truncate">
                     {roleMeta.titulo}
                   </span>
                 </div>
               </Link>
             ) : (
               <div className="mx-auto">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-400 to-amber-500 text-slate-950 shadow-md">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-600 to-primary-800 text-slate-950 shadow-md">
                   <Zap className="h-5 w-5 fill-slate-950 stroke-[2.5]" />
                 </div>
               </div>
@@ -298,7 +298,7 @@ export function SuperAdminLayout() {
                   to={item.to}
                   className={`group flex items-center justify-between rounded-2xl px-3 py-2.5 text-xs font-bold transition-all relative ${
                     isAtivo
-                      ? "bg-[#FFDE00] text-slate-950 shadow-md shadow-yellow-500/10 font-black"
+                      ? "bg-[#0088FF] text-slate-950 shadow-md shadow-primary-600/10 font-black"
                       : "text-slate-300 hover:bg-slate-900 hover:text-white"
                   } ${recolhido ? "justify-center px-2" : ""}`}
                   title={recolhido ? item.label : undefined}
@@ -325,7 +325,7 @@ export function SuperAdminLayout() {
                     <span
                       className={`ml-1.5 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider shrink-0 ${
                         isAtivo
-                          ? "bg-slate-950 text-yellow-300"
+                          ? "bg-slate-950 text-primary-500"
                           : "bg-slate-800 text-slate-300"
                       }`}
                     >
@@ -410,7 +410,7 @@ export function SuperAdminLayout() {
               onClick={abrirModalConta}
               className="flex h-9 items-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 px-2.5 sm:px-3 text-xs font-bold text-slate-800 transition-all border border-slate-200 cursor-pointer"
             >
-              <Key className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+              <Key className="h-3.5 w-3.5 text-primary-700 shrink-0" />
               <span className="hidden lg:inline">{contaAtiva.email}</span>
               <span className="lg:hidden text-[11px]">Conta</span>
             </button>
@@ -444,12 +444,12 @@ export function SuperAdminLayout() {
             <div className="space-y-4 sm:space-y-5">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFDE00] text-slate-950 font-black shrink-0">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0088FF] text-slate-950 font-black shrink-0">
                     <Zap className="h-4.5 w-4.5 fill-slate-950" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-black text-white leading-tight truncate">PARTIU Admin</p>
-                    <span className="text-[9px] text-amber-400 font-bold uppercase truncate block">{roleMeta.titulo}</span>
+                    <span className="text-[9px] text-primary-600 font-bold uppercase truncate block">{roleMeta.titulo}</span>
                   </div>
                 </div>
 
@@ -493,7 +493,7 @@ export function SuperAdminLayout() {
                       onClick={() => setMenuAbertoMobile(false)}
                       className={`flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition-all ${
                         isAtivo
-                          ? "bg-[#FFDE00] text-slate-950 font-black"
+                          ? "bg-[#0088FF] text-slate-950 font-black"
                           : "text-slate-300 hover:bg-slate-900 hover:text-white"
                       }`}
                     >
@@ -502,7 +502,7 @@ export function SuperAdminLayout() {
                         <span>{item.label}</span>
                       </div>
                       {item.badge && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-900 text-yellow-300 font-bold">
+                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-900 text-primary-500 font-bold">
                           {item.badge}
                         </span>
                       )}
@@ -532,7 +532,7 @@ export function SuperAdminLayout() {
           <div className="w-full max-w-md bg-white p-6 rounded-3xl shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between border-b pb-3">
               <div className="flex items-center gap-2">
-                <Key className="h-5 w-5 text-amber-500" />
+                <Key className="h-5 w-5 text-primary-600" />
                 <h3 className="text-base font-black text-slate-900">Credenciais Administrativas</h3>
               </div>
               <button

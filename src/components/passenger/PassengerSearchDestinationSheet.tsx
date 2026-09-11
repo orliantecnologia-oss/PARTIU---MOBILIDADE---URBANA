@@ -353,7 +353,7 @@ export function PassengerSearchDestinationSheet() {
                 className="min-h-[44px] px-3.5 py-2 rounded-full bg-slate-100 hover:bg-slate-200/80 text-slate-800 text-xs font-black flex items-center gap-1.5 transition active:scale-95 cursor-pointer border border-slate-200/70"
               >
                 {viajanteOutraPessoa ? (
-                  <Users className="w-3.5 h-3.5 text-amber-600" />
+                  <Users className="w-3.5 h-3.5 text-primary-700" />
                 ) : (
                   <User className="w-3.5 h-3.5 text-slate-600" />
                 )}
@@ -381,7 +381,7 @@ export function PassengerSearchDestinationSheet() {
                       }}
                       style={
                         !viajanteOutraPessoa
-                          ? { backgroundColor: corPrimaria || "#FFDE00", color: corTextoPrimaria || "#0F172A" }
+                          ? { backgroundColor: corPrimaria || "#0088FF", color: "#FFFFFF" }
                           : undefined
                       }
                       className={`py-2 px-2.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1 ${
@@ -397,7 +397,7 @@ export function PassengerSearchDestinationSheet() {
                       onClick={() => setViajanteOutraPessoa(true)}
                       style={
                         viajanteOutraPessoa
-                          ? { backgroundColor: corPrimaria || "#FFDE00", color: corTextoPrimaria || "#0F172A" }
+                          ? { backgroundColor: corPrimaria || "#0088FF", color: "#FFFFFF" }
                           : undefined
                       }
                       className={`py-2 px-2.5 rounded-xl text-xs font-black transition cursor-pointer flex items-center justify-center gap-1 ${
@@ -440,7 +440,7 @@ export function PassengerSearchDestinationSheet() {
             className="px-2.5 py-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 rounded-lg transition cursor-pointer flex items-center gap-1 text-xs font-bold"
             title="Escolher destino diretamente no mapa"
           >
-            <Compass className="w-3.5 h-3.5 text-amber-600 stroke-[2.4]" />
+            <Compass className="w-3.5 h-3.5 text-primary-700 stroke-[2.4]" />
             <span>No mapa</span>
           </button>
         </div>
@@ -591,7 +591,7 @@ export function PassengerSearchDestinationSheet() {
               onClick={handleShortcutCasa}
               className="min-h-[36px] px-3.5 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shrink-0 shadow-2xs"
             >
-              <Home className="w-3.5 h-3.5 text-amber-600" />
+              <Home className="w-3.5 h-3.5 text-primary-700" />
               <span>Casa</span>
             </button>
 
@@ -609,7 +609,7 @@ export function PassengerSearchDestinationSheet() {
               onClick={handleShortcutFavoritos}
               className="min-h-[36px] px-3.5 py-1.5 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shrink-0 shadow-2xs"
             >
-              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <Star className="w-3.5 h-3.5 text-primary-600 fill-amber-500" />
               <span>Favoritos</span>
             </button>
 
@@ -634,15 +634,15 @@ export function PassengerSearchDestinationSheet() {
                 type="button"
                 onClick={() => handleSelectDestino(buscaDestino.trim(), undefined, buscaDestino.trim())}
                 style={{
-                  borderColor: `${corPrimaria || "#FFDE00"}60`,
-                  backgroundColor: `${corPrimaria || "#FFDE00"}15`,
+                  borderColor: `${corPrimaria || "#0088FF"}60`,
+                  backgroundColor: `${corPrimaria || "#0088FF"}15`,
                 }}
                 className="w-full p-3 flex items-center gap-3 text-left rounded-2xl transition active:scale-[0.99] cursor-pointer border mb-2 shadow-2xs"
               >
                 <div
                   style={{
-                    backgroundColor: corPrimaria || "#FFDE00",
-                    color: corTextoPrimaria || "#0F172A",
+                    backgroundColor: corPrimaria || "#0088FF",
+                    color: "#FFFFFF",
                   }}
                   className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 font-black shadow-2xs"
                 >
@@ -748,7 +748,7 @@ export function PassengerSearchDestinationSheet() {
                           </div>
 
                           {distText && (
-                            <span className="text-[10px] font-black text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/70 shrink-0">
+                            <span className="text-[10px] font-black text-amber-800 bg-primary-50 px-2 py-0.5 rounded-full border border-amber-200/70 shrink-0">
                               {distText}
                             </span>
                           )}

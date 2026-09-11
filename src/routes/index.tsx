@@ -742,7 +742,7 @@ export function PartiuAppAuthGate({
                 onClick={() => handleQuickDemo("PASSAGEIRO")}
                 className="w-full py-2 rounded-lg bg-slate-100/80 hover:bg-slate-100 text-slate-700 font-semibold text-[10px] flex items-center justify-center gap-1.5 transition"
               >
-                <Sparkles className="h-3 w-3 text-amber-500" />
+                <Sparkles className="h-3 w-3 text-primary-600" />
                 <span>Entrar como Passageiro Demo</span>
               </button>
             </div>
@@ -829,7 +829,7 @@ export function PartiuAppAuthGate({
                 onClick={() => handleQuickDemo("MOTORISTA")}
                 className="w-full py-2 rounded-lg bg-slate-100/80 hover:bg-slate-100 text-slate-700 font-semibold text-[10px] flex items-center justify-center gap-1.5 transition"
               >
-                <Sparkles className="h-3 w-3 text-amber-500" />
+                <Sparkles className="h-3 w-3 text-primary-600" />
                 <span>Entrar como Motorista Demo</span>
               </button>
 

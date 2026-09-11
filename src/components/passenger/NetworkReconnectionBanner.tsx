@@ -76,7 +76,7 @@ export const NetworkReconnectionBanner = memo(function NetworkReconnectionBanner
       className="inset-x-0 max-w-xs mx-auto px-2 pointer-events-none animate-in slide-in-from-top-2 fade-in duration-200 select-none"
     >
       {isDisconnected ? (
-        <div className="w-full bg-amber-500 text-slate-950 font-black text-xs rounded-2xl shadow-xl border border-amber-600/40 px-3.5 py-2 flex items-center justify-between gap-2.5 backdrop-blur-md pointer-events-auto">
+        <div className="w-full bg-primary-600 text-slate-950 font-black text-xs rounded-2xl shadow-xl border border-amber-600/40 px-3.5 py-2 flex items-center justify-between gap-2.5 backdrop-blur-md pointer-events-auto">
           <div className="flex items-center gap-2 min-w-0">
             <Loader2 className="w-4 h-4 animate-spin text-slate-950 shrink-0" />
             <span className="truncate text-[11px]">

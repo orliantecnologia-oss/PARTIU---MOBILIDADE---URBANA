@@ -58,9 +58,9 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           secondsRemaining: progressiveSession?.waveSecondsRemaining ?? 20,
           totalSeconds: progressiveSession?.waveDurationSeconds ?? 20,
           themeColor: "amber",
-          ringBorder: "border-amber-400",
-          ringBg: "bg-amber-400/10",
-          badgeBg: "bg-amber-500/10 text-amber-900 border-amber-400/30",
+          ringBorder: "border-primary-600",
+          ringBg: "bg-primary-600/10",
+          badgeBg: "bg-primary-600/10 text-amber-900 border-primary-600/30",
         };
       case 3:
         return {
@@ -143,11 +143,11 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
       >
         {/* ÍCONE FLUTUANTE EM MEIA-LUA NA BORDA SUPERIOR (AVATAR OVERLAY COMPACTO) */}
         <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <div className="relative w-12 h-12 rounded-full bg-slate-950 border-[3px] border-amber-400 shadow-xl flex items-center justify-center text-white">
+          <div className="relative w-12 h-12 rounded-full bg-slate-950 border-[3px] border-primary-600 shadow-xl flex items-center justify-center text-white">
             {categoriaVeiculo === "MOTO" ? (
-              <Bike className="w-6 h-6 text-amber-400" />
+              <Bike className="w-6 h-6 text-primary-600" />
             ) : (
-              <Car className="w-6 h-6 text-amber-400" />
+              <Car className="w-6 h-6 text-primary-600" />
             )}
           </div>
         </div>
@@ -157,7 +157,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           {/* Header de Status com Radar e Badge da Onda */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 shadow-inner">
+              <div className="w-8 h-8 rounded-xl bg-primary-50 text-amber-800 flex items-center justify-center shrink-0 shadow-inner">
                 <Compass className="w-4 h-4 animate-spin duration-3000" />
               </div>
 
@@ -188,7 +188,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           <div className="space-y-1">
             <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 rounded-full transition-all duration-1000 ease-out"
+                className="h-full bg-gradient-to-r from-primary-600 via-amber-300 to-primary-800 rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>

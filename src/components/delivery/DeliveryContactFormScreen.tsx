@@ -201,7 +201,7 @@ export function DeliveryContactFormScreen() {
                   onClick={() => handleSelecionarLugar(sug)}
                   className="w-full p-3 text-left hover:bg-amber-50/70 transition flex items-start gap-2.5 cursor-pointer"
                 >
-                  <MapPin className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <MapPin className="w-4 h-4 text-primary-700 shrink-0 mt-0.5" />
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-bold text-slate-900 truncate">
                       {sug.label}
@@ -288,14 +288,16 @@ export function DeliveryContactFormScreen() {
             style={
               isFormValido
                 ? {
-                    backgroundColor: corPrimaria || "#FFDE00",
-                    color: corTextoPrimaria || "#0F172A",
+                    background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+                    color: "#FFFFFF",
+                    borderRadius: 16,
+                    boxShadow: "0 8px 24px -4px rgba(0, 51, 102, 0.35), 0 4px 12px -2px rgba(0, 136, 255, 0.25)",
                   }
-                : undefined
+                : { borderRadius: 16 }
             }
-            className={`w-full py-3.5 px-4 rounded-2xl font-black text-sm tracking-tight transition-all flex items-center justify-center gap-2 ${
+            className={`w-full py-3.5 px-4 font-bold text-sm sm:text-base tracking-tight transition-all flex items-center justify-center gap-2 ${
               isFormValido
-                ? "shadow-md active:scale-98 cursor-pointer hover:opacity-95"
+                ? "active:scale-[0.98] cursor-pointer hover:brightness-105"
                 : "bg-slate-100 text-slate-400 cursor-not-allowed"
             }`}
           >

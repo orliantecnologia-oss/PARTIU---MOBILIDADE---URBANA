@@ -30,8 +30,8 @@ export const LiveRingingToast = memo(function LiveRingingToast() {
   } = currentDriver;
 
   let statusText = `${firstName} está analisando seu pedido...`;
-  let statusIcon = <PhoneCall className="w-3.5 h-3.5 text-amber-400 animate-pulse" />;
-  let badgeColor = "bg-amber-500/20 text-amber-300 border-amber-400/30";
+  let statusIcon = <PhoneCall className="w-3.5 h-3.5 text-primary-600 animate-pulse" />;
+  let badgeColor = "bg-primary-600/20 text-primary-500 border-primary-600/30";
 
   if (dispatchStatus === "DRIVER_VIEWING") {
     statusText = `${firstName} está verificando a rota...`;
@@ -57,7 +57,7 @@ export const LiveRingingToast = memo(function LiveRingingToast() {
         isTransitioning ? "opacity-75 scale-[0.98]" : "opacity-100 scale-100"
       }`}
     >
-      <div className="w-full bg-slate-950/95 text-white rounded-2xl shadow-2xl border border-amber-400/60 p-3 backdrop-blur-md flex items-center justify-between gap-3 pointer-events-auto select-none ring-1 ring-black/40">
+      <div className="w-full bg-slate-950/95 text-white rounded-2xl shadow-2xl border border-primary-600/60 p-3 backdrop-blur-md flex items-center justify-between gap-3 pointer-events-auto select-none ring-1 ring-black/40">
         {/* Foto do Motorista com Indicador Radar */}
         <div className="relative shrink-0">
           <img
@@ -66,8 +66,8 @@ export const LiveRingingToast = memo(function LiveRingingToast() {
             className="w-11 h-11 rounded-xl object-cover border border-white/20 shadow-sm"
           />
           <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400 border border-slate-900" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-600 opacity-75" />
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-600 border border-slate-900" />
           </span>
         </div>
 
@@ -77,17 +77,17 @@ export const LiveRingingToast = memo(function LiveRingingToast() {
             <h4 className="text-xs font-black text-white leading-tight truncate">
               {firstName}
             </h4>
-            <span className="text-[10px] font-bold text-amber-300 bg-amber-500/20 px-1 rounded flex items-center gap-0.5">
+            <span className="text-[10px] font-bold text-primary-500 bg-primary-600/20 px-1 rounded flex items-center gap-0.5">
               <Star className="w-2.5 h-2.5 fill-amber-300" />
               {rating.toFixed(2)}
             </span>
             <span className="text-[10px] text-slate-400 font-semibold truncate flex items-center gap-0.5">
-              <Clock className="w-2.5 h-2.5 text-amber-400" />
+              <Clock className="w-2.5 h-2.5 text-primary-600" />
               ~{etaMinutes} min
             </span>
           </div>
 
-          <p className="text-[11px] font-bold text-amber-200 mt-0.5 truncate flex items-center gap-1">
+          <p className="text-[11px] font-bold text-primary-400 mt-0.5 truncate flex items-center gap-1">
             {statusIcon}
             <span>{statusText}</span>
           </p>

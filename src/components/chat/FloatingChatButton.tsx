@@ -44,7 +44,7 @@ export const FloatingChatButton: React.FC<FloatingChatButtonProps> = ({
       type="button"
       onClick={onClick}
       aria-label={`Abrir chat operacional${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ""}`}
-      className={`relative w-13 h-13 rounded-full bg-slate-950 text-amber-400 border-2 border-amber-400 shadow-2xl flex items-center justify-center active:scale-90 hover:scale-105 transition-all touch-manipulation cursor-pointer z-40 ${className}`}
+      className={`relative w-13 h-13 rounded-full bg-slate-950 text-primary-600 border-2 border-primary-600 shadow-2xl flex items-center justify-center active:scale-90 hover:scale-105 transition-all touch-manipulation cursor-pointer z-40 ${className}`}
     >
       <MessageCircle className="w-6 h-6" />
 

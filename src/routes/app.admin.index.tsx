@@ -146,7 +146,7 @@ export function SuperAdminDashboardExecutive() {
         acaoTexto: "Ver Mapa",
         acaoLink: "/app/admin/operacao",
         icone: AlertTriangle,
-        corBadge: "bg-amber-500 text-slate-950",
+        corBadge: "bg-primary-600 text-slate-950",
       });
     }
 
@@ -161,7 +161,7 @@ export function SuperAdminDashboardExecutive() {
         acaoTexto: "Investigar Viagens",
         acaoLink: "/app/admin/operacao?tab=corridas",
         icone: Flame,
-        corBadge: "bg-orange-500 text-white",
+        corBadge: "bg-accent text-white",
       });
     }
 
@@ -189,12 +189,12 @@ export function SuperAdminDashboardExecutive() {
       <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-yellow-300 border border-yellow-500/25">
-              <span className="h-2 w-2 rounded-full bg-yellow-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary-500 border border-yellow-500/25">
+              <span className="h-2 w-2 rounded-full bg-primary-600 animate-pulse" />
               <span>Centro de Operações Nacional (NOC)</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
-              Central de Comando <span className="text-[#FFDE00]">PARTIU</span>
+              Central de Comando <span className="text-[#0088FF]">PARTIU</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-normal leading-relaxed">
               Supervisão em tempo real de tráfego, despacho de corridas (Carro e Moto), entregas Flash e controle financeiro instantâneo.
@@ -211,7 +211,7 @@ export function SuperAdminDashboardExecutive() {
               }}
               className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white px-4 text-xs font-bold border border-slate-800 transition-all cursor-pointer"
             >
-              <RefreshCw className="h-4 w-4 text-[#FFDE00]" />
+              <RefreshCw className="h-4 w-4 text-[#0088FF]" />
               <span>Atualizar Dados</span>
             </button>
           </div>
@@ -261,7 +261,7 @@ export function SuperAdminDashboardExecutive() {
         <div className="rounded-3xl bg-white p-4 sm:p-5 border border-slate-200 shadow-xs flex flex-col justify-between">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Em Andamento</span>
-            <div className="h-8 w-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-xl bg-primary-50 text-amber-700 flex items-center justify-center">
               <Car className="h-4 w-4" />
             </div>
           </div>
@@ -345,7 +345,7 @@ export function SuperAdminDashboardExecutive() {
         <div className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping" />
+              <span className="h-2 w-2 rounded-full bg-primary-600 animate-ping" />
               <h2 className="text-xs font-black uppercase tracking-wider text-slate-600">
                 Alertas Inteligentes de Exceção ({alertasInteligentes.length})
               </h2>
@@ -394,7 +394,7 @@ export function SuperAdminDashboardExecutive() {
       <div className="rounded-3xl bg-white border border-slate-200/90 shadow-xs overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-slate-900 text-[#FFDE00] flex items-center justify-center font-black">
+            <div className="h-9 w-9 rounded-xl bg-slate-900 text-[#0088FF] flex items-center justify-center font-black">
               <Radio className="h-4 w-4 animate-pulse" />
             </div>
             <div>
@@ -417,7 +417,7 @@ export function SuperAdminDashboardExecutive() {
               className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-all"
             >
               <span>Cockpit Completo</span>
-              <ArrowRight className="h-3 w-3 text-[#FFDE00]" />
+              <ArrowRight className="h-3 w-3 text-[#0088FF]" />
             </Link>
           </div>
         </div>

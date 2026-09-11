@@ -219,7 +219,7 @@ export function HistoricoRotas() {
               onClick={() => setFiltroAtivo(filtro)}
               className={`rounded-xl px-4 py-2 text-xs font-black transition-all cursor-pointer ${
                 isAtivo
-                  ? "bg-[#FFDE00] text-slate-950 shadow-md shadow-[#FFDE00]/20 font-black"
+                  ? "bg-[#0088FF] text-slate-950 shadow-md shadow-[#0088FF]/20 font-black"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               }`}
             >
@@ -281,7 +281,7 @@ export function HistoricoRotas() {
                 </span>
               </div>
               <div className="flex items-center gap-2 text-slate-700">
-                <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+                <span className="h-2 w-2 rounded-full bg-primary-600 shrink-0" />
                 <span className="truncate">
                   <strong className="text-slate-900">Destino:</strong> {corrida.destino}
                 </span>

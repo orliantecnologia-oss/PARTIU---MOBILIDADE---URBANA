@@ -65,7 +65,7 @@ export function calcularAlertaTrevo(
       minutosRestantes,
       status: "aproximando",
       mensagemInstrucao: `Van a ${minutosRestantes} min do ${trevoNome}. Dirija-se ao ponto de embarque.`,
-      badgeCor: "bg-amber-500 text-slate-950 font-black animate-pulse",
+      badgeCor: "bg-primary-600 text-slate-950 font-black animate-pulse",
     };
   }
 

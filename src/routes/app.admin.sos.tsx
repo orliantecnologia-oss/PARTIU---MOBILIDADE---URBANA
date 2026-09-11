@@ -210,7 +210,7 @@ export function AdminSOSPage() {
                         `🚨 Apoio Acionado! A base operacional e condutores parceiros próximos foram notificados para auxílio em ${item.rodovia}.`,
                       );
                     }}
-                    className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#FFDE00] hover:bg-[#ffe338] text-slate-950 text-xs font-black shadow-md transition-all active:scale-[0.99]"
+                    className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[#0088FF] hover:bg-[#00A3FF] text-slate-950 text-xs font-black shadow-md transition-all active:scale-[0.99]"
                   >
                     <ShieldAlert className="h-4 w-4" /> Acionar Apoio de Campo & Resgate
                   </button>

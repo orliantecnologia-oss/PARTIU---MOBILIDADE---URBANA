@@ -67,7 +67,7 @@ export function ModalSelecaoPontoEmbarque({
   function getIconeTipo(tipo: TipoPontoEmbarque) {
     switch (tipo) {
       case "posto_combustivel":
-        return <Fuel className="h-4 w-4 text-amber-500" />;
+        return <Fuel className="h-4 w-4 text-primary-600" />;
       case "terminal_rodoviario":
         return <Building2 className="h-4 w-4 text-emerald-600" />;
       case "trevo_rodoviario":
@@ -94,11 +94,11 @@ export function ModalSelecaoPontoEmbarque({
         <div className="bg-gradient-to-r from-[#0b2046] via-[#0d5930] to-[#071833] p-4 sm:p-5 text-white">
           <div className="flex items-start justify-between gap-2.5">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white/15 text-amber-300 border border-white/20 shadow-xs shrink-0">
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-white/15 text-primary-500 border border-white/20 shadow-xs shrink-0">
                 <MapPin className="h-6 w-6 animate-pulse" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-black uppercase tracking-wider text-amber-300 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15 inline-block">
+                <span className="text-xs font-black uppercase tracking-wider text-primary-500 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15 inline-block">
                   Estações &amp; Trevos Oficiais
                 </span>
                 <h2 className="text-base sm:text-lg font-black text-white leading-tight mt-1 truncate">

@@ -112,7 +112,7 @@ export function DispatchAuditDashboard() {
           type="button"
           onClick={runDispatchSimulation}
           disabled={simulating}
-          className="px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition flex items-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer shadow-lg shadow-amber-400/10"
+          className="px-4 py-2.5 rounded-2xl bg-primary-600 hover:bg-amber-300 text-slate-950 font-black text-xs transition flex items-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer shadow-lg shadow-primary-500/10"
         >
           <RefreshCw className={`w-4 h-4 ${simulating ? "animate-spin" : ""}`} />
           <span>Simular Despacho Cascata</span>
@@ -124,7 +124,7 @@ export function DispatchAuditDashboard() {
         <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-750 space-y-1.5">
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span>SLA de Despacho</span>
-            <Clock className="w-4 h-4 text-amber-400" />
+            <Clock className="w-4 h-4 text-primary-600" />
           </div>
           <div className="text-2xl font-black text-white">&lt; 3.0s</div>
           <div className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
@@ -161,7 +161,7 @@ export function DispatchAuditDashboard() {
                 metrics.state === "CONNECTED"
                   ? "bg-emerald-400"
                   : metrics.state === "RECONNECTING"
-                  ? "bg-amber-400 animate-pulse"
+                  ? "bg-primary-600 animate-pulse"
                   : "bg-rose-500"
               }`}
             />
@@ -176,7 +176,7 @@ export function DispatchAuditDashboard() {
       {/* Breakdown da Fórmula de DispatchScore */}
       <div className="p-5 rounded-2xl bg-slate-800/40 border border-slate-800 space-y-3">
         <h3 className="text-sm font-black text-slate-200 flex items-center gap-2">
-          <Shield className="w-4 h-4 text-amber-400" />
+          <Shield className="w-4 h-4 text-primary-600" />
           Pesos Oficiais da Fórmula de Despacho (DispatchScore V4.0)
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs">
@@ -192,7 +192,7 @@ export function DispatchAuditDashboard() {
           </div>
           <div className="p-3 rounded-xl bg-slate-850 border border-slate-750 text-center">
             <span className="text-[10px] text-slate-400 block font-bold">PLANO DE ASSINATURA</span>
-            <span className="text-lg font-black text-amber-400">15%</span>
+            <span className="text-lg font-black text-primary-600">15%</span>
             <span className="text-[10px] text-slate-500 block">Ouro &gt; Prata &gt; Bronze</span>
           </div>
           <div className="p-3 rounded-xl bg-slate-850 border border-slate-750 text-center">
@@ -202,7 +202,7 @@ export function DispatchAuditDashboard() {
           </div>
           <div className="p-3 rounded-xl bg-slate-850 border border-slate-750 text-center">
             <span className="text-[10px] text-slate-400 block font-bold">AVALIAÇÃO</span>
-            <span className="text-lg font-black text-yellow-400">5%</span>
+            <span className="text-lg font-black text-primary-600">5%</span>
             <span className="text-[10px] text-slate-500 block">Nota Passageiro</span>
           </div>
           <div className="p-3 rounded-xl bg-slate-850 border border-slate-750 text-center">
@@ -245,7 +245,7 @@ export function DispatchAuditDashboard() {
                   return (
                     <tr
                       key={c.driverId}
-                      className={isCurrent ? "bg-amber-400/10 text-amber-300 font-bold" : "text-slate-300"}
+                      className={isCurrent ? "bg-primary-600/10 text-primary-500 font-bold" : "text-slate-300"}
                     >
                       <td className="py-2">#{idx + 1}</td>
                       <td className="py-2">{c.driverName || c.name}</td>
@@ -255,7 +255,7 @@ export function DispatchAuditDashboard() {
                       <td className="py-2">{c.subscriptionPlan}</td>
                       <td className="py-2">
                         {isCurrent ? (
-                          <span className="text-amber-400 animate-pulse">
+                          <span className="text-primary-600 animate-pulse">
                             Ofertada ({activeSession.secondsRemaining}s)
                           </span>
                         ) : idx < activeSession.currentIndex ? (

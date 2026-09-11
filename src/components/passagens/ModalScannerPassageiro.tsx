@@ -113,10 +113,10 @@ export function ModalScannerPassageiro({ aberto, onFechar, bilheteId, onSucesso 
         <div className="bg-gradient-to-r from-[#0b2046] via-[#0d5930] to-[#071833] p-4 sm:p-5 text-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-white/15 flex items-center justify-center border border-white/20">
-              <Camera className="h-6 w-6 text-amber-300" />
+              <Camera className="h-6 w-6 text-primary-500" />
             </div>
             <div>
-              <span className="text-xs font-black uppercase tracking-wider text-amber-300">
+              <span className="text-xs font-black uppercase tracking-wider text-primary-500">
                 Self Check-in
               </span>
               <h2 className="text-base sm:text-lg font-black text-white">
@@ -150,22 +150,22 @@ export function ModalScannerPassageiro({ aberto, onFechar, bilheteId, onSucesso 
             {/* Mira de Escaneamento Animada */}
             <div className="relative z-10 w-48 h-48 border-2 border-emerald-400/70 rounded-2xl flex flex-col justify-between p-2 shadow-2xl">
               <div className="flex justify-between">
-                <span className="w-5 h-5 border-t-4 border-l-4 border-amber-400 rounded-tl-md" />
-                <span className="w-5 h-5 border-t-4 border-r-4 border-amber-400 rounded-tr-md" />
+                <span className="w-5 h-5 border-t-4 border-l-4 border-primary-600 rounded-tl-md" />
+                <span className="w-5 h-5 border-t-4 border-r-4 border-primary-600 rounded-tr-md" />
               </div>
 
               {/* Linha laser de escaneamento animada */}
               <div className="w-full h-0.5 bg-emerald-400 shadow-[0_0_12px_#34d399] animate-bounce" />
 
               <div className="flex justify-between">
-                <span className="w-5 h-5 border-b-4 border-l-4 border-amber-400 rounded-bl-md" />
-                <span className="w-5 h-5 border-b-4 border-r-4 border-amber-400 rounded-tr-md" />
+                <span className="w-5 h-5 border-b-4 border-l-4 border-primary-600 rounded-bl-md" />
+                <span className="w-5 h-5 border-b-4 border-r-4 border-primary-600 rounded-tr-md" />
               </div>
             </div>
 
             {/* Aviso Flutuante */}
             <div className="absolute bottom-3 z-10 px-3 py-1 bg-slate-950/80 backdrop-blur-sm rounded-full border border-white/10 text-xs text-white font-bold flex items-center gap-1.5">
-              <Zap className="h-3.5 w-3.5 text-amber-300 animate-pulse" />
+              <Zap className="h-3.5 w-3.5 text-primary-500 animate-pulse" />
               <span>Aponte para o QR Code no celular do motorista</span>
             </div>
           </div>
@@ -178,7 +178,7 @@ export function ModalScannerPassageiro({ aberto, onFechar, bilheteId, onSucesso 
                   ? "bg-emerald-50 border-emerald-300 text-emerald-950"
                   : resultado.jaUtilizado
                     ? "bg-rose-50 border-rose-300 text-rose-950"
-                    : "bg-amber-50 border-amber-300 text-amber-950"
+                    : "bg-primary-50 border-primary-500 text-amber-950"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -220,14 +220,14 @@ export function ModalScannerPassageiro({ aberto, onFechar, bilheteId, onSucesso 
                 </>
               ) : (
                 <>
-                  <QrCode className="h-5 w-5 text-amber-300" />
+                  <QrCode className="h-5 w-5 text-primary-500" />
                   <span>Ler QR Code da Van Agora</span>
                 </>
               )}
             </button>
 
             {erroCamera && (
-              <p className="text-xs text-amber-700 bg-amber-50 p-3 rounded-xl border border-amber-200 text-center font-bold">
+              <p className="text-xs text-amber-700 bg-primary-50 p-3 rounded-xl border border-amber-200 text-center font-bold">
                 {erroCamera}
               </p>
             )}

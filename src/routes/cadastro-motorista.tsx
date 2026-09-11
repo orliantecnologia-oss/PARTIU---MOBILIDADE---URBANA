@@ -144,7 +144,7 @@ export function CadastroMotoristaPage() {
             {/* Header de Etapas */}
             <div className="mb-6">
               <div className="flex items-center justify-between text-xs text-slate-400 font-bold mb-2">
-                <span className="text-[#FFDE00] uppercase tracking-wider font-black">
+                <span className="text-[#0088FF] uppercase tracking-wider font-black">
                   Etapa {etapa} de 4
                 </span>
                 <span>
@@ -156,7 +156,7 @@ export function CadastroMotoristaPage() {
               </div>
               <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#FFDE00] transition-all duration-300 rounded-full"
+                  className="h-full bg-[#0088FF] transition-all duration-300 rounded-full"
                   style={{ width: `${(etapa / 4) * 100}%` }}
                 />
               </div>
@@ -181,7 +181,7 @@ export function CadastroMotoristaPage() {
                     value={nome}
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Seu nome como na CNH"
-                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                   />
                 </div>
 
@@ -195,7 +195,7 @@ export function CadastroMotoristaPage() {
                       value={cpf}
                       onChange={(e) => setCpf(e.target.value)}
                       placeholder="000.000.000-00"
-                      className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                     />
                   </div>
                   <div className="space-y-1">
@@ -208,7 +208,7 @@ export function CadastroMotoristaPage() {
                       value={whatsapp}
                       onChange={(e) => setWhatsapp(e.target.value)}
                       placeholder="(82) 99999-9999"
-                      className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                     />
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export function CadastroMotoristaPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="seu.email@exemplo.com"
-                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                   />
                 </div>
 
@@ -236,7 +236,7 @@ export function CadastroMotoristaPage() {
                     }
                     setEtapa(2);
                   }}
-                  className="w-full h-12 rounded-xl bg-[#FFDE00] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer mt-4"
+                  className="w-full h-12 rounded-xl bg-[#0088FF] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer mt-4"
                 >
                   <span>Continuar para Veículo</span>
                   <ArrowRight className="h-4 w-4" />
@@ -264,7 +264,7 @@ export function CadastroMotoristaPage() {
                     }}
                     className={`flex items-center justify-center gap-2 h-14 rounded-2xl border font-black text-sm transition-all cursor-pointer ${
                       tipoVeiculo === "carro"
-                        ? "bg-[#FFDE00] text-slate-950 border-[#FFDE00] shadow-md shadow-[#FFDE00]/20"
+                        ? "bg-[#0088FF] text-slate-950 border-[#0088FF] shadow-md shadow-[#0088FF]/20"
                         : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"
                     }`}
                   >
@@ -279,7 +279,7 @@ export function CadastroMotoristaPage() {
                     }}
                     className={`flex items-center justify-center gap-2 h-14 rounded-2xl border font-black text-sm transition-all cursor-pointer ${
                       tipoVeiculo === "moto"
-                        ? "bg-[#FFDE00] text-slate-950 border-[#FFDE00] shadow-md shadow-[#FFDE00]/20"
+                        ? "bg-[#0088FF] text-slate-950 border-[#0088FF] shadow-md shadow-[#0088FF]/20"
                         : "bg-slate-950 text-slate-400 border-slate-800 hover:text-white"
                     }`}
                   >
@@ -297,7 +297,7 @@ export function CadastroMotoristaPage() {
                     value={veiculoModelo}
                     onChange={(e) => setVeiculoModelo(e.target.value)}
                     placeholder={tipoVeiculo === "carro" ? "Ex: Chevrolet Onix 1.0" : "Ex: Honda CG 160 Fan"}
-                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                   />
                 </div>
 
@@ -311,7 +311,7 @@ export function CadastroMotoristaPage() {
                       value={veiculoAno}
                       onChange={(e) => setVeiculoAno(e.target.value)}
                       placeholder="2022"
-                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                     />
                   </div>
                   <div className="space-y-1">
@@ -323,7 +323,7 @@ export function CadastroMotoristaPage() {
                       value={veiculoPlaca}
                       onChange={(e) => setVeiculoPlaca(e.target.value)}
                       placeholder="ABC1D23"
-                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-black uppercase text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-black uppercase text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                     />
                   </div>
                   <div className="space-y-1">
@@ -334,7 +334,7 @@ export function CadastroMotoristaPage() {
                       value={veiculoCor}
                       onChange={(e) => setVeiculoCor(e.target.value)}
                       placeholder="Branco"
-                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                      className="w-full h-12 rounded-xl bg-slate-950 px-3 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                     />
                   </div>
                 </div>
@@ -346,7 +346,7 @@ export function CadastroMotoristaPage() {
                       id="arCond"
                       checked={temArCondicionado}
                       onChange={(e) => setTemArCondicionado(e.target.checked)}
-                      className="h-4.5 w-4.5 rounded accent-[#FFDE00] cursor-pointer"
+                      className="h-4.5 w-4.5 rounded accent-[#0088FF] cursor-pointer"
                     />
                     <label htmlFor="arCond" className="text-xs text-slate-300 font-bold cursor-pointer">
                       Possui Ar-Condicionado Funcionando
@@ -371,7 +371,7 @@ export function CadastroMotoristaPage() {
                       }
                       setEtapa(3);
                     }}
-                    className="w-2/3 h-12 rounded-xl bg-[#FFDE00] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
+                    className="w-2/3 h-12 rounded-xl bg-[#0088FF] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer"
                   >
                     <span>Avançar para CNH</span>
                     <ArrowRight className="h-4 w-4" />
@@ -399,7 +399,7 @@ export function CadastroMotoristaPage() {
                     value={cnh}
                     onChange={(e) => setCnh(e.target.value)}
                     placeholder="Ex: 01234567890"
-                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                   />
                 </div>
 
@@ -415,7 +415,7 @@ export function CadastroMotoristaPage() {
                         onClick={() => setCategoriaCNH(cat)}
                         className={`h-11 rounded-xl border font-black text-xs transition-all cursor-pointer ${
                           categoriaCNH === cat
-                            ? "bg-[#FFDE00] text-slate-950 border-[#FFDE00]"
+                            ? "bg-[#0088FF] text-slate-950 border-[#0088FF]"
                             : "bg-slate-950 text-slate-400 border-slate-800"
                         }`}
                       >
@@ -441,7 +441,7 @@ export function CadastroMotoristaPage() {
                       id="temEar"
                       checked={possuiEAR}
                       onChange={(e) => setPossuiEAR(e.target.checked)}
-                      className="h-4.5 w-4.5 rounded accent-[#FFDE00] cursor-pointer"
+                      className="h-4.5 w-4.5 rounded accent-[#0088FF] cursor-pointer"
                     />
                     <label htmlFor="temEar" className="text-xs text-white font-bold cursor-pointer">
                       Sim, minha CNH possui a sigla EAR
@@ -466,7 +466,7 @@ export function CadastroMotoristaPage() {
                       }
                       setEtapa(4);
                     }}
-                    className="w-2/3 h-12 rounded-xl bg-[#FFDE00] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
+                    className="w-2/3 h-12 rounded-xl bg-[#0088FF] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer"
                   >
                     <span>Avançar para PIX</span>
                     <ArrowRight className="h-4 w-4" />
@@ -497,7 +497,7 @@ export function CadastroMotoristaPage() {
                         onClick={() => setTipoChave(tipo)}
                         className={`h-10 rounded-xl border text-[11px] font-black uppercase transition-all cursor-pointer ${
                           tipoChave === tipo
-                            ? "bg-[#FFDE00] text-slate-950 border-[#FFDE00]"
+                            ? "bg-[#0088FF] text-slate-950 border-[#0088FF]"
                             : "bg-slate-950 text-slate-400 border-slate-800"
                         }`}
                       >
@@ -524,13 +524,13 @@ export function CadastroMotoristaPage() {
                             ? "chave@email.com"
                             : "Chave aleatória UUID"
                     }
-                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                   />
                 </div>
 
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
+                <div className="p-4 rounded-2xl bg-primary-600/10 border border-primary-600/30 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-amber-400">Modelo Híbrido PARTIU</span>
+                    <span className="text-xs font-black text-primary-600">Modelo Híbrido PARTIU</span>
                     <span className="text-xs font-black text-emerald-400">Até 100% Líquido</span>
                   </div>
                   <div className="text-slate-300 text-[11px] space-y-1">
@@ -539,7 +539,7 @@ export function CadastroMotoristaPage() {
                       <span className="font-bold">5% taxa por corrida</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-amber-300">• Plano Bronze</span>
+                      <span className="text-primary-500">• Plano Bronze</span>
                       <span className="font-bold">3% taxa por corrida</span>
                     </div>
                     <div className="flex justify-between">
@@ -547,7 +547,7 @@ export function CadastroMotoristaPage() {
                       <span className="font-bold">1% taxa por corrida</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-yellow-400">• Plano Ouro</span>
+                      <span className="text-primary-600">• Plano Ouro</span>
                       <span className="font-black text-emerald-400">0% de taxa (100% seu!)</span>
                     </div>
                   </div>
@@ -566,7 +566,7 @@ export function CadastroMotoristaPage() {
                   </button>
                   <button
                     type="submit"
-                    className="w-2/3 h-12 rounded-xl bg-[#FFDE00] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
+                    className="w-2/3 h-12 rounded-xl bg-[#0088FF] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer"
                   >
                     <CheckCircle2 className="h-5 w-5" />
                     <span>Concluir Cadastro</span>
@@ -577,21 +577,21 @@ export function CadastroMotoristaPage() {
           </div>
         ) : (
           <div className="rounded-3xl bg-slate-900 p-8 text-center shadow-2xl border border-slate-800 space-y-4 animate-in zoom-in-95">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFDE00] text-slate-950 shadow-lg shadow-[#FFDE00]/20">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0088FF] text-slate-950 shadow-lg shadow-[#0088FF]/20">
               <CheckCircle2 className="h-9 w-9 stroke-[2.5]" />
             </div>
 
             <h2 className="text-2xl font-black text-white">Cadastro Realizado com Sucesso!</h2>
             <p className="text-xs text-slate-300 leading-relaxed">
               Parabéns, <strong className="text-white">{nome}</strong>! Seu veículo{" "}
-              <strong className="text-[#FFDE00]">{veiculoModelo} ({veiculoPlaca.toUpperCase()})</strong>{" "}
+              <strong className="text-[#0088FF]">{veiculoModelo} ({veiculoPlaca.toUpperCase()})</strong>{" "}
               foi cadastrado na rede PARTIU com repasse PIX configurado.
             </p>
 
             <div className="pt-4 space-y-2.5">
               <Link
                 to="/app/motorista"
-                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#FFDE00] text-xs font-black text-slate-950 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#0088FF] text-xs font-black text-slate-950 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer"
               >
                 Abrir Cockpit do Motorista e Ficar Online
               </Link>

@@ -294,7 +294,7 @@ export function AdminCuponsEVantagensPage() {
       {/* 1. Header do Painel */}
       <div className="bg-slate-900 p-5 sm:p-6 rounded-3xl text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-5 border border-slate-800">
         <div>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#FFDE00]/20 px-3 py-1 text-[10px] font-black uppercase text-[#FFDE00] border border-[#FFDE00]/30 mb-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0088FF]/20 px-3 py-1 text-[10px] font-black uppercase text-[#0088FF] border border-[#0088FF]/30 mb-2">
             <Ticket className="h-3.5 w-3.5" />
             <span>Marketing, Aquisição & Retenção de Motoristas</span>
           </div>
@@ -313,7 +313,7 @@ export function AdminCuponsEVantagensPage() {
             onClick={() => setAbaAtiva("cupons")}
             className={`px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
               abaAtiva === "cupons"
-                ? "bg-[#FFDE00] text-slate-950 shadow-md"
+                ? "bg-[#0088FF] text-slate-950 shadow-md"
                 : "text-slate-300 hover:text-white"
             }`}
           >
@@ -323,7 +323,7 @@ export function AdminCuponsEVantagensPage() {
             onClick={() => setAbaAtiva("vantagens")}
             className={`px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
               abaAtiva === "vantagens"
-                ? "bg-[#FFDE00] text-slate-950 shadow-md"
+                ? "bg-[#0088FF] text-slate-950 shadow-md"
                 : "text-slate-300 hover:text-white"
             }`}
           >
@@ -333,7 +333,7 @@ export function AdminCuponsEVantagensPage() {
             onClick={() => setAbaAtiva("indicacao")}
             className={`px-3 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 ${
               abaAtiva === "indicacao"
-                ? "bg-[#FFDE00] text-slate-950 shadow-md"
+                ? "bg-[#0088FF] text-slate-950 shadow-md"
                 : "text-slate-300 hover:text-white"
             }`}
           >
@@ -371,7 +371,7 @@ export function AdminCuponsEVantagensPage() {
             </div>
             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">Retenção Estimada</span>
-              <p className="text-xl sm:text-2xl font-black text-amber-500 mt-1">+28.4%</p>
+              <p className="text-xl sm:text-2xl font-black text-primary-600 mt-1">+28.4%</p>
             </div>
           </div>
 
@@ -379,7 +379,7 @@ export function AdminCuponsEVantagensPage() {
             {/* Formulário Novo Cupom */}
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
               <h2 className="text-base font-black text-slate-900 flex items-center gap-2 mb-1">
-                <Plus className="h-5 w-5 text-amber-500" /> Criar Novo Cupom
+                <Plus className="h-5 w-5 text-primary-600" /> Criar Novo Cupom
               </h2>
               <p className="text-xs text-slate-500 mb-4">
                 Defina o código, porcentagem ou desconto fixo em reais.
@@ -394,7 +394,7 @@ export function AdminCuponsEVantagensPage() {
                     placeholder="Ex: PARTIU20, DOMINGO10"
                     value={novoCodigo}
                     onChange={(e) => setNovoCodigo(e.target.value.toUpperCase())}
-                    className="w-full mt-1 px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono font-bold text-sm uppercase text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#FFDE00]"
+                    className="w-full mt-1 px-3.5 py-2.5 rounded-xl border border-slate-200 font-mono font-bold text-sm uppercase text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0088FF]"
                   />
                 </div>
 
@@ -406,7 +406,7 @@ export function AdminCuponsEVantagensPage() {
                     placeholder="Ex: R$ 5 OFF na volta da balada"
                     value={novaDescricao}
                     onChange={(e) => setNovaDescricao(e.target.value)}
-                    className="w-full mt-1 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#FFDE00]"
+                    className="w-full mt-1 px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0088FF]"
                   />
                 </div>
 
@@ -491,7 +491,7 @@ export function AdminCuponsEVantagensPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-2xl bg-[#FFDE00] text-slate-950 font-black text-xs uppercase tracking-wider hover:bg-[#ffe338] transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5"
+                  className="w-full py-3 rounded-2xl bg-[#0088FF] text-slate-950 font-black text-xs uppercase tracking-wider hover:bg-[#00A3FF] transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5"
                 >
                   <Plus className="h-4 w-4" /> Cadastrar Cupom Ativo
                 </button>
@@ -517,7 +517,7 @@ export function AdminCuponsEVantagensPage() {
                   >
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-black text-sm px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 flex items-center gap-1">
+                        <span className="font-mono font-black text-sm px-2.5 py-1 rounded-lg bg-primary-50 text-amber-900 border border-amber-200 flex items-center gap-1">
                           {c.codigo}
                           <button
                             onClick={() => copiarCodigo(c.codigo)}
@@ -591,9 +591,9 @@ export function AdminCuponsEVantagensPage() {
       {/* ABA 2: CLUBE DE VANTAGENS (MOTORISTAS) */}
       {abaAtiva === "vantagens" && (
         <div className="space-y-6">
-          <div className="bg-amber-50 border border-amber-200 rounded-3xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="bg-primary-50 border border-amber-200 rounded-3xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center shrink-0 font-black">
+              <div className="h-10 w-10 rounded-2xl bg-primary-600 text-slate-950 flex items-center justify-center shrink-0 font-black">
                 <Fuel className="h-5 w-5" />
               </div>
               <div>
@@ -611,7 +611,7 @@ export function AdminCuponsEVantagensPage() {
             {/* Form Novo Parceiro */}
             <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm">
               <h2 className="text-base font-black text-slate-900 flex items-center gap-2 mb-1">
-                <Plus className="h-5 w-5 text-amber-500" /> Adicionar Convênio
+                <Plus className="h-5 w-5 text-primary-600" /> Adicionar Convênio
               </h2>
               <p className="text-xs text-slate-500 mb-4">
                 Cadastre um posto, oficina, autopeças ou seguro parceiro.
@@ -691,7 +691,7 @@ export function AdminCuponsEVantagensPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 rounded-2xl bg-[#FFDE00] text-slate-950 font-black text-xs uppercase tracking-wider hover:bg-[#ffe338] transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5"
+                  className="w-full py-3 rounded-2xl bg-[#0088FF] text-slate-950 font-black text-xs uppercase tracking-wider hover:bg-[#00A3FF] transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5"
                 >
                   <Plus className="h-4 w-4" /> Cadastrar Parceria no App
                 </button>
@@ -780,7 +780,7 @@ export function AdminCuponsEVantagensPage() {
           </div>
 
           <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-[10px] font-black uppercase text-amber-700 border border-amber-200">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-3 py-1 text-[10px] font-black uppercase text-amber-700 border border-amber-200">
               <Car className="h-3.5 w-3.5" /> Motoristas Parceiros
             </div>
             <h3 className="text-base font-black text-slate-900">

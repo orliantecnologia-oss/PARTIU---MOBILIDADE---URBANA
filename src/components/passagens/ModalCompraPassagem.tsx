@@ -344,11 +344,11 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
               <img
                 src={viagem.motoristaFoto}
                 alt={viagem.motorista}
-                className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl object-cover border-2 border-amber-300/90 shrink-0 shadow-sm"
+                className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl object-cover border-2 border-primary-500/90 shrink-0 shadow-sm"
               />
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-xs font-black uppercase tracking-wider text-amber-300 bg-white/10 px-2.5 py-0.5 rounded-full">
+                  <span className="text-xs font-black uppercase tracking-wider text-primary-500 bg-white/10 px-2.5 py-0.5 rounded-full">
                     Van {viagem.placa}
                   </span>
                   {viagem.dataViagem && (
@@ -485,7 +485,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5">
                         <div className="h-10 w-10 rounded-xl bg-[#0d5930] text-white flex items-center justify-center shrink-0">
-                          <ShieldCheck className="h-5 w-5 text-amber-300" />
+                          <ShieldCheck className="h-5 w-5 text-primary-500" />
                         </div>
                         <div>
                           <strong className="text-sm font-black text-slate-900 block leading-tight">
@@ -524,8 +524,8 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                     </div>
 
                     {avisoGratuidadeEsgotada ? (
-                      <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-bold flex items-center gap-2">
-                        <Info className="h-4 w-4 text-amber-600 shrink-0" />
+                      <div className="p-2.5 rounded-xl bg-primary-50 border border-amber-200 text-xs text-amber-900 font-bold flex items-center gap-2">
+                        <Info className="h-4 w-4 text-primary-700 shrink-0" />
                         <span>
                           A cota de 2 assentos gratuitos desta van já foi preenchida para este
                           horário.
@@ -805,7 +805,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                         : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                     }`}
                   >
-                    <QrCode className="h-4 w-4 text-amber-300" />
+                    <QrCode className="h-4 w-4 text-primary-500" />
                     <span>PIX Instantâneo</span>
                   </button>
 
@@ -818,7 +818,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                         : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
                     }`}
                   >
-                    <CreditCard className="h-4 w-4 text-amber-300" />
+                    <CreditCard className="h-4 w-4 text-primary-500" />
                     <span>Cartão de Crédito</span>
                   </button>
                 </div>
@@ -829,7 +829,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                       <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full inline-block">
                         Aprovação Instantânea (5s)
                       </span>
-                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1">
+                      <span className="text-[10px] font-bold text-amber-700 bg-primary-50 border border-amber-200 px-2 py-0.5 rounded-md flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         Válido por 10 min
                       </span>
@@ -868,12 +868,12 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                       >
                         {pixCopiado ? (
                           <>
-                            <CheckCircle2 className="h-5 w-5 text-amber-300 animate-in zoom-in-75" />
+                            <CheckCircle2 className="h-5 w-5 text-primary-500 animate-in zoom-in-75" />
                             <span>Código PIX Copiado! Abra seu Banco</span>
                           </>
                         ) : (
                           <>
-                            <Copy className="h-4 w-4 text-amber-300" />
+                            <Copy className="h-4 w-4 text-primary-500" />
                             <span>Copiar Chave PIX (Copia e Cola)</span>
                           </>
                         )}
@@ -943,9 +943,9 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                 </div>
 
                 {/* BOARDING PASS CARD */}
-                <div className="rounded-3xl bg-gradient-to-br from-[#0b2046] via-[#0d5930] to-[#071833] text-white p-4 shadow-xl border border-amber-300/40 text-left space-y-3">
+                <div className="rounded-3xl bg-gradient-to-br from-[#0b2046] via-[#0d5930] to-[#071833] text-white p-4 shadow-xl border border-primary-500/40 text-left space-y-3">
                   <div className="flex items-center justify-between border-b border-white/15 pb-2">
-                    <span className="text-[10px] font-black uppercase text-amber-300">
+                    <span className="text-[10px] font-black uppercase text-primary-500">
                       Bilhete Digital PARTIU
                     </span>
                     <strong className="text-xs font-mono text-white">{bilheteEmitido.id}</strong>
@@ -962,14 +962,14 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                       <span className="text-[10px] text-slate-300 uppercase block">
                         Poltrona(s)
                       </span>
-                      <strong className="text-sm font-black text-amber-300">
+                      <strong className="text-sm font-black text-primary-500">
                         {assentosSelecionados.join(", ")}
                       </strong>
                     </div>
                   </div>
 
                   <div className="p-2.5 rounded-2xl bg-white/10 border border-white/15 text-[11px] text-slate-200">
-                    <span className="text-amber-300 font-bold block">Ponto de Embarque:</span>
+                    <span className="text-primary-500 font-bold block">Ponto de Embarque:</span>
                     <span>{bilheteEmitido.pontoEmbarque}</span>
                   </div>
 
@@ -983,7 +983,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                     <Link
                       to="/app/bilhetes"
                       onClick={onFechar}
-                      className="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs font-black shadow-md active:scale-95 transition-all"
+                      className="px-3 py-2 rounded-xl bg-primary-600 hover:bg-amber-500 text-slate-900 text-xs font-black shadow-md active:scale-95 transition-all"
                     >
                       Ver Meus Bilhetes
                     </Link>
@@ -1013,7 +1013,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                 className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-xs sm:text-sm font-black shadow-sm active:scale-[0.98] transition-all cursor-pointer"
               >
                 <span>Escolher Poltronas</span>
-                <ArrowRight className="h-4.5 w-4.5 text-amber-300" />
+                <ArrowRight className="h-4.5 w-4.5 text-primary-500" />
               </button>
             )}
 
@@ -1040,7 +1040,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                       </>
                     ) : (
                       <>
-                        <ShieldCheck className="h-4.5 w-4.5 text-amber-300" />
+                        <ShieldCheck className="h-4.5 w-4.5 text-primary-500" />
                         <span>Emitir Passagem Gratuita</span>
                       </>
                     )}
@@ -1052,7 +1052,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                     className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-xs sm:text-sm font-black shadow-sm active:scale-[0.98] transition-all cursor-pointer"
                   >
                     <span>Ir para Pagamento</span>
-                    <ArrowRight className="h-4.5 w-4.5 text-amber-300" />
+                    <ArrowRight className="h-4.5 w-4.5 text-primary-500" />
                   </button>
                 )}
               </div>
@@ -1080,7 +1080,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                     </>
                   ) : (
                     <>
-                      <Check className="h-4.5 w-4.5 text-amber-300" />
+                      <Check className="h-4.5 w-4.5 text-primary-500" />
                       <span>Confirmar Pagamento</span>
                     </>
                   )}

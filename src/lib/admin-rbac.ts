@@ -448,7 +448,7 @@ export function getRoleMetadata(role: AdminRole): {
       return {
         label: "Super Admin (Nacional)",
         titulo: "Super Administrador Nacional",
-        badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+        badgeColor: "bg-primary-600/20 text-primary-500 border-primary-600/30",
         description: "Acesso irrestrito a governança nacional, finanças e configurações avançadas.",
       };
     case "admin":

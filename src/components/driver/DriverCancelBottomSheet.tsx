@@ -156,7 +156,7 @@ export function DriverCancelBottomSheet({
             );
           })}
 
-          <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed mt-2">
+          <div className="p-3 bg-primary-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed mt-2">
             ⚠️ O cancelamento é auditado e georreferenciado pelo sistema. Cancelamentos sem motivo
             justificado podem impactar seu índice de aceitação.
           </div>

@@ -271,8 +271,8 @@ export function ProfilePagePartiu() {
           <p className="text-xs text-slate-500">{email || "passageiro@partiu.app"}</p>
 
           <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-100 w-full justify-center">
-            <div className="flex items-center gap-1.5 px-3 py-1 bg-amber-50 rounded-full border border-amber-200 text-amber-800 text-xs font-bold">
-              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-500" />
+            <div className="flex items-center gap-1.5 px-3 py-1 bg-primary-50 rounded-full border border-amber-200 text-amber-800 text-xs font-bold">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-primary-600" />
               <span>{rating.toFixed(1)} Passageiro Verificado</span>
             </div>
             <div className="text-xs font-medium text-slate-500">

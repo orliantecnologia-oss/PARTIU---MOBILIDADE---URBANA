@@ -27,11 +27,11 @@ export function GpsPermissionModal() {
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden text-center p-6 space-y-4 animate-in zoom-in-95 duration-200">
         
         {/* Ícone com Pulso de Atenção */}
-        <div className="mx-auto w-16 h-16 rounded-full bg-amber-100 border-4 border-amber-200 flex items-center justify-center text-amber-600 relative">
+        <div className="mx-auto w-16 h-16 rounded-full bg-primary-50 border-4 border-amber-200 flex items-center justify-center text-primary-700 relative">
           <Navigation className="w-7 h-7 animate-pulse" />
           <span className="absolute -top-1 -right-1 flex h-4 w-4">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500 border-2 border-white" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-600 opacity-75" />
+            <span className="relative inline-flex rounded-full h-4 w-4 bg-primary-600 border-2 border-white" />
           </span>
         </div>
 
@@ -62,7 +62,7 @@ export function GpsPermissionModal() {
             <span>Coordenadas protegidas e criptografadas</span>
           </div>
           <div className="flex items-center gap-2 text-[11px] text-slate-700 font-semibold">
-            <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <MapPin className="w-3.5 h-3.5 text-primary-600 shrink-0" />
             <span>Sem necessidade de digitar o endereço manualmente</span>
           </div>
         </div>
@@ -73,7 +73,7 @@ export function GpsPermissionModal() {
             type="button"
             onClick={handleTentarNovamente}
             disabled={solicitando}
-            className="w-full h-12 rounded-2xl bg-amber-400 hover:bg-amber-500 active:scale-[0.98] text-slate-950 font-black text-sm shadow-md transition-all flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-2xl bg-primary-600 hover:bg-amber-500 active:scale-[0.98] text-slate-950 font-black text-sm shadow-md transition-all flex items-center justify-center gap-2"
           >
             {solicitando ? (
               <>

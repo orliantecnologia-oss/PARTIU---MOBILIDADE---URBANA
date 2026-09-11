@@ -123,8 +123,8 @@ export function PromoCarousel({
               </span>
 
               {item.cupom && (
-                <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-bold bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-md text-amber-300 border border-amber-400/30 shadow-xs">
-                  <Tag className="w-2.5 h-2.5 text-amber-400" />
+                <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-mono font-bold bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-md text-primary-500 border border-primary-600/30 shadow-xs">
+                  <Tag className="w-2.5 h-2.5 text-primary-600" />
                   <span>{item.cupom}</span>
                 </div>
               )}
@@ -160,7 +160,7 @@ export function PromoCarousel({
               key={index}
               className={`block rounded-full transition-all duration-300 ${
                 activeSlide === index
-                  ? "w-3.5 h-1 bg-amber-400 shadow-xs"
+                  ? "w-3.5 h-1 bg-primary-600 shadow-xs"
                   : "w-1 h-1 bg-white/60"
               }`}
             />

@@ -26,8 +26,8 @@ export function ModeTabSelector({ className = "" }: ModeTabSelectorProps) {
         role="tab"
         aria-selected={isCorrida}
         style={{
-          backgroundColor: isCorrida ? (corPrimaria || "#FDD835") : "transparent",
-          color: isCorrida ? (corTextoPrimaria || "#0F172A") : undefined,
+          backgroundColor: isCorrida ? (corPrimaria || "#0088FF") : "transparent",
+          color: isCorrida ? "#FFFFFF" : undefined,
         }}
         className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer select-none active:scale-95 ${
           isCorrida
@@ -45,8 +45,8 @@ export function ModeTabSelector({ className = "" }: ModeTabSelectorProps) {
         role="tab"
         aria-selected={isEntrega}
         style={{
-          backgroundColor: isEntrega ? (corPrimaria || "#FDD835") : "transparent",
-          color: isEntrega ? (corTextoPrimaria || "#0F172A") : undefined,
+          backgroundColor: isEntrega ? (corPrimaria || "#0088FF") : "transparent",
+          color: isEntrega ? "#FFFFFF" : undefined,
         }}
         className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer select-none active:scale-95 ${
           isEntrega

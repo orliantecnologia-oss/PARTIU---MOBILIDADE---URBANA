@@ -435,12 +435,12 @@ export function CentralOperacaoAdminPage() {
       <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-yellow-300 border border-yellow-500/25 mb-2">
-              <span className="h-2 w-2 rounded-full bg-yellow-400 animate-ping" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary-500 border border-yellow-500/25 mb-2">
+              <span className="h-2 w-2 rounded-full bg-primary-600 animate-ping" />
               <span>Cockpit Central de Operação Urbana</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Gestão da Operação em <span className="text-[#FFDE00]">Tempo Real</span>
+              Gestão da Operação em <span className="text-[#0088FF]">Tempo Real</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-normal mt-1">
               Supervisão de viagens de passageiros, entregas flash com duplo PIN e resolução imediata da fila de ocorrências e SOS 190.
@@ -456,7 +456,7 @@ export function CentralOperacaoAdminPage() {
               }}
               className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 px-4 text-xs font-bold text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-800 transition-all cursor-pointer"
             >
-              <RefreshCw className="h-4 w-4 text-[#FFDE00]" />
+              <RefreshCw className="h-4 w-4 text-[#0088FF]" />
               <span>Sincronizar</span>
             </button>
           </div>
@@ -475,9 +475,9 @@ export function CentralOperacaoAdminPage() {
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            <Car className="h-4 w-4 text-[#FFDE00]" />
+            <Car className="h-4 w-4 text-[#0088FF]" />
             <span>Corridas</span>
-            <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-yellow-300">
+            <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-primary-500">
               {corridas.length}
             </span>
           </button>
@@ -491,9 +491,9 @@ export function CentralOperacaoAdminPage() {
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
-            <Package className="h-4 w-4 text-[#FFDE00]" />
+            <Package className="h-4 w-4 text-[#0088FF]" />
             <span>Entregas (Flash)</span>
-            <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-yellow-300">
+            <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-primary-500">
               {entregas.length}
             </span>
           </button>
@@ -571,7 +571,7 @@ export function CentralOperacaoAdminPage() {
                   <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`px-2 py-0.5 rounded-md text-[10px] font-black shrink-0 ${
-                        c.modal === "CARRO" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"
+                        c.modal === "CARRO" ? "bg-primary-50 text-amber-800" : "bg-blue-100 text-blue-800"
                       }`}>
                         {c.modal}
                       </span>
@@ -600,7 +600,7 @@ export function CentralOperacaoAdminPage() {
                       <span className="font-bold text-emerald-600">De:</span> {c.origem}
                     </p>
                     <p className="text-[11px] text-slate-600 truncate mt-0.5">
-                      <span className="font-bold text-amber-600">Para:</span> {c.destino}
+                      <span className="font-bold text-primary-700">Para:</span> {c.destino}
                     </p>
                   </div>
 
@@ -612,7 +612,7 @@ export function CentralOperacaoAdminPage() {
                         ? "bg-slate-100 text-slate-700"
                         : c.status === "CANCELADA"
                         ? "bg-red-100 text-red-700"
-                        : "bg-yellow-100 text-yellow-800"
+                        : "bg-primary-50 text-yellow-800"
                     }`}>
                       {c.status === "EM_ANDAMENTO" && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />}
                       {c.status.replace("_", " ")}
@@ -623,7 +623,7 @@ export function CentralOperacaoAdminPage() {
                       onClick={() => setCorridaDetalhe(c)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 active:scale-95 text-white font-bold text-xs cursor-pointer"
                     >
-                      <Eye className="h-3.5 w-3.5 text-[#FFDE00]" />
+                      <Eye className="h-3.5 w-3.5 text-[#0088FF]" />
                       <span>Detalhes</span>
                     </button>
                   </div>
@@ -663,7 +663,7 @@ export function CentralOperacaoAdminPage() {
                         <td className="p-4">
                           <div className="flex items-center gap-2">
                             <span className={`px-2 py-0.5 rounded-md text-[10px] font-black ${
-                              c.modal === "CARRO" ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-blue-800"
+                              c.modal === "CARRO" ? "bg-primary-50 text-amber-800" : "bg-blue-100 text-blue-800"
                             }`}>
                               {c.modal}
                             </span>
@@ -687,7 +687,7 @@ export function CentralOperacaoAdminPage() {
                               ? "bg-slate-100 text-slate-700"
                               : c.status === "CANCELADA"
                               ? "bg-red-100 text-red-700"
-                              : "bg-yellow-100 text-yellow-800"
+                              : "bg-primary-50 text-yellow-800"
                           }`}>
                             {c.status === "EM_ANDAMENTO" && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />}
                             {c.status.replace("_", " ")}
@@ -702,7 +702,7 @@ export function CentralOperacaoAdminPage() {
                             onClick={() => setCorridaDetalhe(c)}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-bold text-xs transition-all cursor-pointer shadow-xs"
                           >
-                            <Eye className="h-3.5 w-3.5 text-[#FFDE00]" />
+                            <Eye className="h-3.5 w-3.5 text-[#0088FF]" />
                             <span>Detalhes</span>
                           </button>
                         </td>
@@ -752,7 +752,7 @@ export function CentralOperacaoAdminPage() {
                 <div key={e.id} className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs space-y-3">
                   <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
                     <div className="min-w-0">
-                      <span className="text-[10px] font-black uppercase text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                      <span className="text-[10px] font-black uppercase text-amber-700 bg-primary-50 px-2 py-0.5 rounded-md border border-amber-200">
                         {e.cidade}
                       </span>
                     </div>
@@ -777,7 +777,7 @@ export function CentralOperacaoAdminPage() {
                   <div className="flex items-center justify-between bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs">
                     <span className="text-[10px] font-black uppercase text-slate-500">Duplo PIN:</span>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 bg-amber-100 text-amber-900 font-mono font-black text-xs rounded-md">
+                      <span className="px-2 py-0.5 bg-primary-50 text-amber-900 font-mono font-black text-xs rounded-md">
                         PIN 1: {e.pickupPin}
                       </span>
                       <span className="px-2 py-0.5 bg-emerald-100 text-emerald-900 font-mono font-black text-xs rounded-md">
@@ -802,7 +802,7 @@ export function CentralOperacaoAdminPage() {
                       onClick={() => setEntregaDetalhe(e)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 active:scale-95 text-white font-bold text-xs cursor-pointer"
                     >
-                      <Eye className="h-3.5 w-3.5 text-[#FFDE00]" />
+                      <Eye className="h-3.5 w-3.5 text-[#0088FF]" />
                       <span>Ver Pacote</span>
                     </button>
                   </div>
@@ -850,7 +850,7 @@ export function CentralOperacaoAdminPage() {
                         </td>
                         <td className="p-4 text-center">
                           <div className="inline-flex items-center gap-2">
-                            <span className="px-2 py-1 bg-amber-50 border border-amber-300 text-amber-900 font-mono font-black text-xs rounded-lg" title="PIN 1 (Coleta)">
+                            <span className="px-2 py-1 bg-primary-50 border border-primary-500 text-amber-900 font-mono font-black text-xs rounded-lg" title="PIN 1 (Coleta)">
                               PIN 1: {e.pickupPin}
                             </span>
                             <span className="px-2 py-1 bg-emerald-50 border border-emerald-300 text-emerald-900 font-mono font-black text-xs rounded-lg" title="PIN 2 (Entrega)">
@@ -878,7 +878,7 @@ export function CentralOperacaoAdminPage() {
                             onClick={() => setEntregaDetalhe(e)}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all cursor-pointer shadow-xs"
                           >
-                            <Eye className="h-3.5 w-3.5 text-[#FFDE00]" />
+                            <Eye className="h-3.5 w-3.5 text-[#0088FF]" />
                             <span>Ver Pacote</span>
                           </button>
                         </td>
@@ -947,9 +947,9 @@ export function CentralOperacaoAdminPage() {
                           isSos
                             ? "bg-red-600 text-white animate-pulse"
                             : t.prioridade === "ALTA"
-                            ? "bg-amber-500 text-slate-950"
+                            ? "bg-primary-600 text-slate-950"
                             : t.prioridade === "MEDIA"
-                            ? "bg-yellow-400 text-slate-950"
+                            ? "bg-primary-600 text-slate-950"
                             : "bg-slate-200 text-slate-700"
                         }`}>
                           {isSos ? "🚨 SOS 190 (EMERGÊNCIA)" : `${t.prioridade} PRIORIDADE`}
@@ -1000,7 +1000,7 @@ export function CentralOperacaoAdminPage() {
                         onClick={() => setTicketDetalhe(t)}
                         className="flex h-10 items-center gap-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-3.5 text-xs font-bold shadow-xs transition-all cursor-pointer"
                       >
-                        <CheckCircle2 className="h-4 w-4 text-[#FFDE00]" />
+                        <CheckCircle2 className="h-4 w-4 text-[#0088FF]" />
                         <span>Atender / Resolver</span>
                       </button>
                     </div>
@@ -1018,7 +1018,7 @@ export function CentralOperacaoAdminPage() {
           <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between border-b pb-3">
               <div className="flex items-center gap-2">
-                <Car className="h-5 w-5 text-amber-500" />
+                <Car className="h-5 w-5 text-primary-600" />
                 <h3 className="text-base font-black text-slate-900">Detalhes da Corrida ({corridaDetalhe.id})</h3>
               </div>
               <button
@@ -1051,7 +1051,7 @@ export function CentralOperacaoAdminPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 border border-amber-200">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-primary-50 border border-amber-200">
                 <span className="font-bold text-amber-900">Valor Total da Corrida:</span>
                 <span className="text-base font-black text-amber-950">
                   R$ {corridaDetalhe.valor.toFixed(2).replace(".", ",")}

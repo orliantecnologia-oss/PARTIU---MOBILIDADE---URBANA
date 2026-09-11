@@ -173,10 +173,10 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
               <img
                 src={partnerPhoto}
                 alt={partnerName}
-                className="w-10 h-10 rounded-full object-cover border-2 border-amber-400 shrink-0 shadow-xs"
+                className="w-10 h-10 rounded-full object-cover border-2 border-primary-600 shrink-0 shadow-xs"
               />
             ) : (
-              <div className="w-10 h-10 rounded-full bg-slate-900 text-amber-400 font-black text-sm flex items-center justify-center border-2 border-amber-400 shrink-0 shadow-xs">
+              <div className="w-10 h-10 rounded-full bg-slate-900 text-primary-600 font-black text-sm flex items-center justify-center border-2 border-primary-600 shrink-0 shadow-xs">
                 {partnerName.slice(0, 2).toUpperCase()}
               </div>
             )}
@@ -186,7 +186,7 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
                 <h3 className="text-sm font-black text-slate-950 truncate leading-tight">
                   {partnerName}
                 </h3>
-                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-amber-100 text-amber-900 border border-amber-200 shrink-0">
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-primary-50 text-amber-900 border border-amber-200 shrink-0">
                   {partnerRoleLabel || (currentUserType === "PASSENGER" ? "Motorista" : "Passageiro")}
                 </span>
               </div>
@@ -235,7 +235,7 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2.5 bg-slate-50/40">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400 space-y-2">
-              <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200">
+              <div className="w-12 h-12 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center border border-amber-200">
                 💬
               </div>
               <p className="text-xs font-bold text-slate-700">Comunicação Operacional da Corrida</p>
@@ -266,7 +266,7 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
                   <div
                     className={`max-w-[78%] px-3.5 py-2 rounded-2xl text-xs leading-relaxed shadow-xs relative ${
                       isOwn
-                        ? "bg-[#FFDE00] text-slate-950 font-medium rounded-tr-xs"
+                        ? "bg-primary-600 text-white font-medium rounded-tr-xs"
                         : "bg-white text-slate-900 border border-slate-200/80 rounded-tl-xs"
                     }`}
                   >
@@ -274,7 +274,7 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
 
                     <div
                       className={`flex items-center justify-end gap-1 mt-1 text-[9.5px] ${
-                        isOwn ? "text-slate-800" : "text-slate-400"
+                        isOwn ? "text-white/80" : "text-slate-400"
                       }`}
                     >
                       <span>{formatTime(msg.createdAt)}</span>
@@ -334,16 +334,16 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Mensagem operacional..."
             maxLength={250}
-            className="flex-1 h-11 px-3.5 bg-slate-100 focus:bg-white rounded-2xl border border-slate-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+            className="flex-1 h-11 px-3.5 bg-slate-100 focus:bg-white rounded-2xl border border-slate-200 focus:border-[#0088FF] focus:ring-2 focus:ring-[#0088FF]/20 text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
           />
 
           <button
             type="submit"
             disabled={!inputText.trim() || isSending}
             aria-label="Enviar mensagem"
-            className="w-11 h-11 rounded-2xl bg-amber-400 hover:bg-amber-500 disabled:opacity-40 disabled:hover:bg-amber-400 text-slate-950 font-bold flex items-center justify-center shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer shrink-0"
+            className="w-11 h-11 rounded-2xl bg-primary-600 hover:bg-primary-700 disabled:opacity-40 text-white font-bold flex items-center justify-center shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer shrink-0"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4 text-white" />
           </button>
         </form>
       </div>

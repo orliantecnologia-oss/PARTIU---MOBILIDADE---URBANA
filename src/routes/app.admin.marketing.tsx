@@ -272,12 +272,12 @@ export function MarketingAdminPage() {
       <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-yellow-300 border border-yellow-500/25 mb-2">
-              <Megaphone className="h-3.5 w-3.5 text-[#FFDE00]" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary-500 border border-yellow-500/25 mb-2">
+              <Megaphone className="h-3.5 w-3.5 text-[#0088FF]" />
               <span>Crescimento, Atração &amp; Retenção Urbana</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Marketing, <span className="text-[#FFDE00]">Banners &amp; Cupons</span>
+              Marketing, <span className="text-[#0088FF]">Banners &amp; Cupons</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-normal mt-1">
               Controle dos banners exibidos nos apps de passageiro e motorista com validação rigorosa de peso, cupons e campanhas de engajamento.
@@ -295,9 +295,9 @@ export function MarketingAdminPage() {
             abaAtiva === "banners" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <ImageIcon className="h-4 w-4 text-[#FFDE00]" />
+          <ImageIcon className="h-4 w-4 text-[#0088FF]" />
           <span>Banners Mobile</span>
-          <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-yellow-300">
+          <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-primary-500">
             {banners.length}
           </span>
         </button>
@@ -309,9 +309,9 @@ export function MarketingAdminPage() {
             abaAtiva === "cupons" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <Ticket className="h-4 w-4 text-[#FFDE00]" />
+          <Ticket className="h-4 w-4 text-[#0088FF]" />
           <span>Gestão de Cupons</span>
-          <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-yellow-300">
+          <span className="ml-1 rounded-full bg-slate-800 px-2 py-0.5 text-[10px] text-primary-500">
             {cupons.length}
           </span>
         </button>
@@ -323,7 +323,7 @@ export function MarketingAdminPage() {
             abaAtiva === "push" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <Bell className="h-4 w-4 text-[#FFDE00]" />
+          <Bell className="h-4 w-4 text-[#0088FF]" />
           <span>Campanhas Push (FCM)</span>
           <span className="ml-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
             Planejador
@@ -344,7 +344,7 @@ export function MarketingAdminPage() {
               onClick={() => setModalBannerAberto(true)}
               className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white px-4 text-xs font-black shadow-xs transition-all cursor-pointer"
             >
-              <Plus className="h-4 w-4 text-[#FFDE00]" />
+              <Plus className="h-4 w-4 text-[#0088FF]" />
               <span>Novo Banner Mobile</span>
             </button>
           </div>
@@ -413,7 +413,7 @@ export function MarketingAdminPage() {
               onClick={() => setModalCupomAberto(true)}
               className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white px-4 text-xs font-black shadow-xs transition-all cursor-pointer"
             >
-              <Plus className="h-4 w-4 text-[#FFDE00]" />
+              <Plus className="h-4 w-4 text-[#0088FF]" />
               <span>Criar Novo Cupom</span>
             </button>
           </div>
@@ -435,7 +435,7 @@ export function MarketingAdminPage() {
                   {cupons.map((c) => (
                     <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="p-4">
-                        <span className="font-mono font-black text-sm px-2.5 py-1 bg-yellow-50 text-yellow-950 border border-yellow-300 rounded-lg">
+                        <span className="font-mono font-black text-sm px-2.5 py-1 bg-primary-50 text-yellow-950 border border-primary-500 rounded-lg">
                           {c.codigo}
                         </span>
                       </td>
@@ -464,7 +464,7 @@ export function MarketingAdminPage() {
                           c.status === "ATIVO"
                             ? "bg-emerald-100 text-emerald-800"
                             : c.status === "ESGOTADO"
-                            ? "bg-amber-100 text-amber-800"
+                            ? "bg-primary-50 text-amber-800"
                             : "bg-red-100 text-red-700"
                         }`}>
                           {c.status}
@@ -560,7 +560,7 @@ export function MarketingAdminPage() {
                     }}
                     className="w-full h-12 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer"
                   >
-                    <Send className="h-4 w-4 text-[#FFDE00]" />
+                    <Send className="h-4 w-4 text-[#0088FF]" />
                     <span>Salvar Campanha de Push</span>
                   </button>
                 </div>
@@ -583,7 +583,7 @@ export function MarketingAdminPage() {
                 <div className="p-3.5 rounded-2xl bg-slate-800/90 backdrop-blur-md border border-slate-700/80 shadow-lg space-y-1 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
-                      <div className="h-4 w-4 rounded-md bg-[#FFDE00] flex items-center justify-center">
+                      <div className="h-4 w-4 rounded-md bg-[#0088FF] flex items-center justify-center">
                         <Zap className="h-2.5 w-2.5 text-slate-950 fill-slate-950" />
                       </div>
                       <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">PARTIU</span>
@@ -608,7 +608,7 @@ export function MarketingAdminPage() {
           <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between border-b pb-3">
               <div className="flex items-center gap-2 text-slate-900">
-                <ImageIcon className="h-5 w-5 text-amber-500" />
+                <ImageIcon className="h-5 w-5 text-primary-600" />
                 <h3 className="text-base font-black">Upload de Banner Mobile</h3>
               </div>
               <button
@@ -722,7 +722,7 @@ export function MarketingAdminPage() {
           <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200 space-y-4">
             <div className="flex items-center justify-between border-b pb-3">
               <div className="flex items-center gap-2 text-slate-900">
-                <Ticket className="h-5 w-5 text-amber-500" />
+                <Ticket className="h-5 w-5 text-primary-600" />
                 <h3 className="text-base font-black">Criar Cupom de Desconto</h3>
               </div>
               <button

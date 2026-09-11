@@ -40,7 +40,7 @@ export function DestinationCard({
           className="group w-full h-12 sm:h-12.5 px-3.5 sm:px-4 rounded-2xl bg-slate-100 hover:bg-slate-200/70 border border-slate-200/80 flex items-center gap-3 transition-all duration-200 active:scale-[0.99] cursor-pointer text-left shadow-2xs"
           aria-label="Para onde vamos? Buscar endereços"
         >
-          <div className="w-8 h-8 rounded-xl bg-amber-400 group-hover:bg-amber-500 text-slate-950 flex items-center justify-center font-black shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-8 h-8 rounded-xl bg-primary-600 group-hover:bg-primary-700 text-white flex items-center justify-center font-black shadow-xs shrink-0 group-hover:scale-105 transition-transform">
             <Search className="w-4 h-4 stroke-[2.8]" />
           </div>
 

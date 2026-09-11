@@ -154,7 +154,7 @@ export function FavoritesManagerModal({
             <button
               type="button"
               onClick={() => setModoAdicionar(true)}
-              className="p-1.5 text-amber-600 hover:bg-amber-50 rounded-full transition cursor-pointer"
+              className="p-1.5 text-primary-700 hover:bg-amber-50 rounded-full transition cursor-pointer"
               title="Adicionar novo favorito"
             >
               <Plus className="w-5 h-5 stroke-[2.5]" />
@@ -206,7 +206,7 @@ export function FavoritesManagerModal({
                         onClick={() => setNomeCustomizado(rotulo)}
                         className={`px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer border ${
                           nomeCustomizado === rotulo
-                            ? "bg-amber-400 text-slate-950 border-amber-500 shadow-xs"
+                            ? "bg-primary-600 text-slate-950 border-primary-600 shadow-xs"
                             : "bg-slate-100 hover:bg-slate-200/80 text-slate-700 border-slate-200/60"
                         }`}
                       >
@@ -220,7 +220,7 @@ export function FavoritesManagerModal({
               <button
                 type="button"
                 onClick={handleSalvarFavorito}
-                className="w-full py-4 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-sm transition active:scale-[0.98] shadow-md cursor-pointer mt-6"
+                className="w-full py-4 rounded-2xl bg-primary-600 hover:bg-amber-500 text-slate-950 font-black text-sm transition active:scale-[0.98] shadow-md cursor-pointer mt-6"
               >
                 Salvar Favorito
               </button>
@@ -229,7 +229,7 @@ export function FavoritesManagerModal({
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="px-4 py-3 border-b border-slate-100">
                 <div className="bg-slate-100 rounded-full flex items-center px-4 py-2.5 gap-2.5 border border-slate-200/70 focus-within:border-amber-400 focus-within:bg-white transition">
-                  <MapPin className="w-5 h-5 text-amber-600 shrink-0" />
+                  <MapPin className="w-5 h-5 text-primary-700 shrink-0" />
                   <input
                     ref={inputBuscaRef}
                     type="text"
@@ -254,7 +254,7 @@ export function FavoritesManagerModal({
                     }}
                     className="w-full py-3.5 flex items-center gap-3.5 text-left hover:bg-slate-50 active:bg-slate-100 rounded-xl transition cursor-pointer"
                   >
-                    <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center text-amber-600 shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-primary-50 flex items-center justify-center text-primary-700 shrink-0">
                       <MapPin className="w-4 h-4 stroke-[2.2]" />
                     </div>
                     <div className="flex-1 min-w-0 pr-2">
@@ -275,7 +275,7 @@ export function FavoritesManagerModal({
                 <circle cx="50" cy="115" r="16" fill="#CBD5E1" opacity="0.5" />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-14 h-18 bg-gradient-to-b from-amber-500 to-orange-500 rounded-t-full rounded-b-[28px] shadow-lg flex items-center justify-center border-2 border-white/80 transform hover:scale-105 transition">
+                <div className="w-14 h-18 bg-gradient-to-b from-primary-600 to-primary-900 rounded-t-full rounded-b-[28px] shadow-lg flex items-center justify-center border-2 border-white/80 transform hover:scale-105 transition">
                   <Star className="w-7 h-7 text-white fill-white mb-1.5" />
                 </div>
               </div>
@@ -311,7 +311,7 @@ export function FavoritesManagerModal({
                     }}
                     className="w-full py-3.5 flex items-center gap-3.5 hover:bg-slate-50 active:bg-slate-100 rounded-2xl transition cursor-pointer px-2 group"
                   >
-                    <div className="w-10 h-10 rounded-full bg-amber-50 group-hover:bg-amber-100 text-amber-500 flex items-center justify-center shrink-0 transition">
+                    <div className="w-10 h-10 rounded-full bg-primary-50 group-hover:bg-amber-100 text-primary-600 flex items-center justify-center shrink-0 transition">
                       <Star className="w-5 h-5 fill-amber-500 stroke-[1.5]" />
                     </div>
                     <div className="flex-1 min-w-0 pr-2 text-left">

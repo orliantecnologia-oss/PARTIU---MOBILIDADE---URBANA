@@ -372,8 +372,8 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
                   <h2 className="text-base font-bold text-slate-900 leading-tight">
                     {userProfile?.name || "Rodrigo"}
                   </h2>
-                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-800">
-                    <Star className="h-2.5 w-2.5 fill-amber-400 text-amber-500" />
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary-50 border border-amber-200 text-[10px] font-bold text-amber-800">
+                    <Star className="h-2.5 w-2.5 fill-amber-400 text-primary-600" />
                     {(userProfile?.rating || 4.9).toFixed(1)}
                   </span>
                 </div>
@@ -490,7 +490,7 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
                 className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 active:scale-[0.99] transition-all text-slate-800 group cursor-pointer text-left"
               >
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-100 transition-colors">
+                  <div className="p-2 rounded-xl bg-primary-50 text-primary-700 group-hover:bg-amber-100 transition-colors">
                     <Gift className="h-4 w-4" />
                   </div>
                   <div>
@@ -884,7 +884,7 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
                   className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-50 to-amber-50/40 border border-amber-200/60 relative overflow-hidden"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono font-black text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-200">
+                    <span className="font-mono font-black text-xs px-2 py-0.5 rounded bg-primary-50 text-amber-900 border border-amber-200">
                       {cupom.codigo}
                     </span>
                     <button
@@ -928,7 +928,7 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
               </button>
             </div>
 
-            <div className="w-14 h-14 mx-auto rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mb-3">
+            <div className="w-14 h-14 mx-auto rounded-full bg-primary-50 text-primary-700 flex items-center justify-center mb-3">
               <Gift className="h-7 w-7" />
             </div>
 
@@ -1136,7 +1136,7 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
           <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-primary-700">
                   Modelo Diária Fixa • 0% Taxa
                 </span>
                 <h3 className="text-sm font-bold text-slate-900">Quero Ser Motorista Partiu</h3>

@@ -25,20 +25,20 @@ export function PassengerConfirmPickupPin() {
           <div className="px-3.5 py-1.5 rounded-full bg-slate-950/90 text-white text-[11px] font-black shadow-xl border border-white/20 mb-1 flex items-center gap-1.5 backdrop-blur-xs whitespace-nowrap">
             {isResolvingAddress ? (
               <>
-                <Loader2 className="w-3 h-3 text-amber-400 animate-spin" />
+                <Loader2 className="w-3 h-3 text-primary-600 animate-spin" />
                 <span>Identificando rua...</span>
               </>
             ) : (
               <>
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <span className="w-2 h-2 rounded-full bg-primary-600 animate-ping" />
                 <span>Ponto de encontro do {categoriaVeiculo === "MOTO" ? "motoboy" : "motorista"}</span>
               </>
             )}
           </div>
 
           {/* Pino estilizado */}
-          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center shadow-2xl border-2 border-white">
-            <MapPin className="w-6 h-6 stroke-[2.5]" />
+          <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-primary-700 to-primary-500 text-white flex items-center justify-center shadow-2xl border-2 border-white">
+            <MapPin className="w-6 h-6 stroke-[2.5] text-white" />
           </div>
 
           {/* Sombra de projeção no solo */}
@@ -64,7 +64,7 @@ export function PassengerConfirmPickupPin() {
             </button>
 
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 block">
+              <span className="text-[10px] font-black uppercase tracking-wider text-primary-700 block">
                 Local de Embarque Selecionado
               </span>
               <p className="text-xs sm:text-sm font-black text-slate-900 truncate">
@@ -96,7 +96,7 @@ export function PassengerConfirmPickupPin() {
                         : "bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-emerald-200"
                     }`}
                   >
-                    <Sparkles className="w-3 h-3 text-amber-400" />
+                    <Sparkles className="w-3 h-3 text-primary-600" />
                     <span className="truncate max-w-[130px]">{p.nome.split(" x ")[0]}</span>
                     <span className="text-[10px] opacity-75">~{p.distanciaMetros}m</span>
                   </button>
@@ -109,12 +109,14 @@ export function PassengerConfirmPickupPin() {
             type="button"
             onClick={confirmPickupPin}
             style={{
-              backgroundColor: corPrimaria,
-              color: corTextoPrimaria,
+              background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+              color: "#FFFFFF",
+              borderRadius: 16,
+              boxShadow: "0 8px 24px -4px rgba(0, 51, 102, 0.35), 0 4px 12px -2px rgba(0, 136, 255, 0.25)",
             }}
-            className="w-full py-3.5 px-4 rounded-2xl font-black text-sm sm:text-base shadow-xl active:scale-[0.99] transition flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3.5 px-4 font-bold text-sm sm:text-base active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer hover:brightness-105"
           >
-            <Check className="w-5 h-5 stroke-[2.5]" />
+            <Check className="w-5 h-5 stroke-[2.5] text-white" />
             <span>Confirmar Este Ponto de Embarque</span>
           </button>
         </div>

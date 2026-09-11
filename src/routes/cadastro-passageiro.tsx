@@ -86,7 +86,7 @@ export function CadastroPassageiroPage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
-        <span className="text-xs font-black uppercase tracking-wider text-[#FFDE00] flex items-center gap-1">
+        <span className="text-xs font-black uppercase tracking-wider text-[#0088FF] flex items-center gap-1">
           <ShieldCheck className="h-4 w-4" />
           Passageiro PARTIU
         </span>
@@ -101,7 +101,7 @@ export function CadastroPassageiroPage() {
           >
             <div className="text-left border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2 mb-1">
-                <div className="h-8 w-8 rounded-xl bg-[#FFDE00] flex items-center justify-center text-slate-950 font-black">
+                <div className="h-8 w-8 rounded-xl bg-[#0088FF] flex items-center justify-center text-slate-950 font-black">
                   <Zap className="h-4 w-4 fill-slate-950 stroke-[2.5]" />
                 </div>
                 <h1 className="text-xl sm:text-2xl font-black text-white leading-tight">
@@ -122,7 +122,7 @@ export function CadastroPassageiroPage() {
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 placeholder="Ex: Carlos Silva"
-                className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
               />
             </div>
 
@@ -137,7 +137,7 @@ export function CadastroPassageiroPage() {
                   value={telefone}
                   onChange={(e) => setTelefone(e.target.value)}
                   placeholder="(82) 99999-9999"
-                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                 />
               </div>
               <div className="space-y-1">
@@ -148,7 +148,7 @@ export function CadastroPassageiroPage() {
                   value={cpf}
                   onChange={(e) => setCpf(e.target.value)}
                   placeholder="000.000.000-00"
-                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                 />
               </div>
             </div>
@@ -164,7 +164,7 @@ export function CadastroPassageiroPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
-                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                 />
               </div>
               <div className="space-y-1">
@@ -177,7 +177,7 @@ export function CadastroPassageiroPage() {
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
                   placeholder="Mínimo 6 dígitos"
-                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#FFDE00] transition-colors"
+                  className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
                 />
               </div>
             </div>
@@ -185,7 +185,7 @@ export function CadastroPassageiroPage() {
             {/* Localização GPS */}
             <div className="rounded-2xl bg-slate-950 p-3.5 border border-slate-800 space-y-2.5">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFDE00] text-slate-950 shrink-0 font-black">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0088FF] text-slate-950 shrink-0 font-black">
                   <MapPin className="h-5 w-5 fill-slate-950" />
                 </div>
                 <div>
@@ -207,7 +207,7 @@ export function CadastroPassageiroPage() {
                 <button
                   type="button"
                   onClick={solicitarLocalizacao}
-                  className="text-xs text-slate-950 font-black bg-[#FFDE00] hover:bg-[#ffe633] px-3 py-1.5 rounded-lg shrink-0 transition-all active:scale-95 cursor-pointer"
+                  className="text-xs text-slate-950 font-black bg-[#0088FF] hover:bg-[#00A3FF] px-3 py-1.5 rounded-lg shrink-0 transition-all active:scale-95 cursor-pointer"
                 >
                   {permissaoConcedida ? "Ativo ✓" : "Ativar GPS"}
                 </button>
@@ -220,7 +220,7 @@ export function CadastroPassageiroPage() {
                 id="wppUpdates"
                 checked={receberWhatsApp}
                 onChange={(e) => setReceberWhatsApp(e.target.checked)}
-                className="h-4 w-4 rounded accent-[#FFDE00] cursor-pointer"
+                className="h-4 w-4 rounded accent-[#0088FF] cursor-pointer"
               />
               <label
                 htmlFor="wppUpdates"
@@ -232,7 +232,7 @@ export function CadastroPassageiroPage() {
 
             <button
               type="submit"
-              className="flex min-h-[48px] h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#FFDE00] text-sm font-black text-slate-950 shadow-md shadow-[#FFDE00]/20 transition-all hover:bg-[#ffe633] active:scale-[0.98] mt-2 cursor-pointer"
+              className="flex min-h-[48px] h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#0088FF] text-sm font-black text-slate-950 shadow-md shadow-[#0088FF]/20 transition-all hover:bg-[#00A3FF] active:scale-[0.98] mt-2 cursor-pointer"
             >
               <CheckCircle2 className="h-5 w-5" /> Concluir Cadastro
             </button>
@@ -243,13 +243,13 @@ export function CadastroPassageiroPage() {
                 search={{ redirect: "/app" }}
                 className="text-xs font-bold text-slate-400 hover:text-white transition-colors py-1 inline-block"
               >
-                Já tem uma conta? <span className="text-[#FFDE00] font-black underline">Fazer login</span>
+                Já tem uma conta? <span className="text-[#0088FF] font-black underline">Fazer login</span>
               </Link>
             </div>
           </form>
         ) : (
           <div className="rounded-3xl bg-slate-900 p-7 text-center shadow-2xl border border-slate-800 space-y-4 animate-in zoom-in-95">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFDE00] text-slate-950 shadow-lg shadow-[#FFDE00]/20">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0088FF] text-slate-950 shadow-lg shadow-[#0088FF]/20">
               <CheckCircle2 className="h-8 w-8 stroke-[2.5]" />
             </div>
 
@@ -262,7 +262,7 @@ export function CadastroPassageiroPage() {
             <div className="pt-3 space-y-2">
               <Link
                 to="/app"
-                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#FFDE00] text-xs font-black text-slate-950 shadow-md shadow-[#FFDE00]/20 hover:bg-[#ffe633] transition-all cursor-pointer"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#0088FF] text-xs font-black text-slate-950 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer"
               >
                 Pedir Minha Primeira Corrida
               </Link>

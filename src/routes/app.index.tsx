@@ -118,9 +118,9 @@ function PartiuPassengerHomeContent() {
         acaoUrl: b.link_url,
         corGradiente:
           idx % 2 === 0
-            ? "from-amber-400 via-amber-500 to-yellow-500 text-slate-950"
+            ? "from-primary-600 via-primary-600 to-yellow-500 text-slate-950"
             : "from-slate-900 via-slate-800 to-slate-950 text-white",
-        tagCor: idx % 2 === 0 ? "bg-black text-amber-300" : "bg-yellow-400 text-slate-950",
+        tagCor: idx % 2 === 0 ? "bg-black text-primary-500" : "bg-primary-600 text-slate-950",
       }));
     }
     return PROMO_BANNERS_MOCK;
@@ -175,9 +175,9 @@ function PartiuPassengerHomeContent() {
             acaoUrl: b.link_url,
             corGradiente:
               idx % 2 === 0
-                ? "from-amber-400 via-amber-500 to-yellow-500 text-slate-950"
+                ? "from-primary-600 via-primary-600 to-yellow-500 text-slate-950"
                 : "from-slate-900 via-slate-800 to-slate-950 text-white",
-            tagCor: idx % 2 === 0 ? "bg-black text-amber-300" : "bg-yellow-400 text-slate-950",
+            tagCor: idx % 2 === 0 ? "bg-black text-primary-500" : "bg-primary-600 text-slate-950",
           }))
         );
       } else {
@@ -421,7 +421,7 @@ function PartiuPassengerHomeContent() {
             )}
 
             {/* RODAPÉ: Barra de Navegação Inferior Fixa Ancorada na Base */}
-            <div className="w-full shrink-0 border-t border-slate-100 bg-white">
+            <div className="w-full shrink-0 bg-[#001C38]">
               <HomeBottomNav activeTab="corridas" />
             </div>
           </div>

@@ -255,9 +255,13 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             <button
               type="button"
               onClick={retrySearchAfterTimeout}
-              className="w-full h-12 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer"
+              style={{
+                background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+                color: "#FFFFFF",
+              }}
+              className="w-full h-12 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer hover:brightness-105"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="w-4 h-4 text-white" />
               <span>Procurar Outro Motorista</span>
             </button>
 
@@ -313,15 +317,15 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
 
           {/* BANNER DE OFFLINE OU SINAL INSTÁVEL (RESILIÊNCIA DE REDE) */}
           {!isOnline && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold animate-pulse">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-primary-600 text-white text-xs font-bold animate-pulse">
               <WifiOff className="w-4 h-4 shrink-0" />
               <span className="truncate">Sem conexão de internet. Reconectando...</span>
             </div>
           )}
 
           {driverSignalWarning && isOnline && (
-            <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] font-semibold">
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-primary-50 border border-amber-200 text-amber-900 text-[11px] font-semibold">
+              <AlertTriangle className="w-3.5 h-3.5 text-primary-700 shrink-0" />
               <span className="truncate">Sinal de GPS do motorista oscilando...</span>
             </div>
           )}
@@ -391,7 +395,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-between gap-2 border ${
               cancellationPolicy.isGracePeriodActive
                 ? "bg-emerald-50 text-emerald-950 border-emerald-300"
-                : "bg-amber-50 text-amber-950 border-amber-300"
+                : "bg-primary-50 text-amber-950 border-primary-500"
             }`}
           >
             <div className="flex items-center gap-1.5 truncate">
@@ -420,7 +424,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               <img
                 src={avatarUrl}
                 alt={driverName}
-                className="w-11 h-11 rounded-2xl object-cover border-2 border-amber-400 shadow-xs"
+                className="w-11 h-11 rounded-2xl object-cover border-2 border-primary-600 shadow-xs"
               />
               <span className="absolute -bottom-1 -right-1 bg-emerald-600 text-white p-0.5 rounded-full border border-white">
                 <ShieldCheck className="w-2.5 h-2.5" />
@@ -433,8 +437,8 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 <h4 className="text-xs font-black text-slate-900 truncate group-hover:text-amber-600 transition-colors">
                   {driverName}
                 </h4>
-                <span className="text-xs font-bold text-amber-950 bg-amber-400/30 px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0">
-                  <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                <span className="text-xs font-bold text-amber-950 bg-primary-600/30 px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0">
+                  <Star className="w-3 h-3 fill-amber-500 text-primary-600" />
                   {Number(rating).toFixed(2)}
                 </span>
               </div>
@@ -483,9 +487,9 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 setIsChatOpen(true);
               }}
               aria-label={`Abrir chat com o motorista${unreadCount > 0 ? ` (${unreadCount} mensagens não lidas)` : ""}`}
-              className="relative flex-1 h-12 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all touch-manipulation cursor-pointer"
+              className="relative flex-1 h-12 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all touch-manipulation cursor-pointer"
             >
-              <MessageCircle className="w-4 h-4 text-slate-950" />
+              <MessageCircle className="w-4 h-4 text-white" />
               <span>Mensagem</span>
               {unreadCount > 0 && (
                 <span className="px-1.5 py-0.2 rounded-full bg-rose-600 text-white font-black text-[10px] shadow-xs animate-pulse">
@@ -515,9 +519,13 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               <button
                 type="button"
                 onClick={resetToIdle}
-                className="flex-1 h-12 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer"
+                style={{
+                  background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+                  color: "#FFFFFF",
+                }}
+                className="flex-1 h-12 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer hover:brightness-105"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-4 h-4 text-white" />
                 <span>Nova Corrida</span>
               </button>
             )}
@@ -583,7 +591,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
                   cancellationPolicy.shouldChargeFee
                     ? "bg-rose-100 text-rose-600"
-                    : "bg-amber-100 text-amber-700"
+                    : "bg-primary-50 text-amber-700"
                 }`}
               >
                 <AlertTriangle className="w-6 h-6" />

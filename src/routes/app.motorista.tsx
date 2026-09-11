@@ -973,10 +973,10 @@ export function PartiuDriverCockpit() {
             <span className="text-xs font-black text-slate-950 block leading-tight truncate max-w-[85px] min-[360px]:max-w-[105px] sm:max-w-none">
               Carlos E.
             </span>
-            <span className="text-[10px] font-bold text-amber-600 flex items-center gap-1 leading-none mt-0.5">
+            <span className="text-[10px] font-bold text-primary-700 flex items-center gap-1 leading-none mt-0.5">
               <Star className="w-2.5 h-2.5 fill-amber-500" />
               <span>4.98</span>
-              <span className="text-[9px] font-black px-1 rounded bg-amber-50 text-amber-900 border border-amber-200">
+              <span className="text-[9px] font-black px-1 rounded bg-primary-50 text-amber-900 border border-amber-200">
                 {loyaltyProfile.badgeIcon} {loyaltyProfile.tierName}
               </span>
             </span>
@@ -1004,7 +1004,7 @@ export function PartiuDriverCockpit() {
             className="px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-[11px] font-black text-slate-800 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
             title="Ver e Gerenciar Plano de Assinatura"
           >
-            <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-primary-600 shrink-0" />
             <span className="truncate max-w-[70px] sm:max-w-none">{driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%)</span>
           </button>
 
@@ -1015,7 +1015,7 @@ export function PartiuDriverCockpit() {
             className="px-2.5 sm:px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-xs font-black text-slate-950 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
             title="Ver saldo e sacar via PIX"
           >
-            <span className="text-xs text-amber-500">⚡</span>
+            <span className="text-xs text-primary-600">⚡</span>
             <span>{ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
           </button>
 
@@ -1137,7 +1137,7 @@ export function PartiuDriverCockpit() {
 
             {/* Inadimplência ou Carência Aviso */}
             {subscription.status === "GRACE_PERIOD" && (
-              <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 flex items-center justify-between">
+              <div className="p-2.5 rounded-xl bg-primary-50 border border-amber-200 text-[11px] text-amber-900 flex items-center justify-between">
                 <span>⚠️ Mensalidade em carência ({subscription.accumulatedDebtBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}). Regularize para evitar suspensão.</span>
                 <button
                   type="button"
@@ -1151,7 +1151,7 @@ export function PartiuDriverCockpit() {
 
             <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-100 font-semibold">
               <span>Fundo Proteção: {wallet.protectionFundBalanceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-              <span className="text-amber-600 font-black">100% Repasse D+0</span>
+              <span className="text-primary-700 font-black">100% Repasse D+0</span>
             </div>
           </div>
         )}
@@ -1202,7 +1202,7 @@ export function PartiuDriverCockpit() {
                 <button
                   type="button"
                   onClick={() => setIsChatOpen(true)}
-                  className="relative w-12 h-12 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-500 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                  className="relative w-12 h-12 rounded-2xl bg-primary-600 hover:bg-amber-500 text-slate-950 border border-primary-600 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
                   title="Abrir Chat Operacional Seguro"
                   aria-label={`Abrir chat operacional${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
                 >
@@ -1282,7 +1282,7 @@ export function PartiuDriverCockpit() {
                 {/* Cabeçalho de Coleta Segura */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
                   <div className="flex items-center gap-1.5 text-amber-700 font-black text-xs uppercase tracking-wider">
-                    <Package className="w-4 h-4 text-amber-600" />
+                    <Package className="w-4 h-4 text-primary-700" />
                     <span>Coleta de Pacote no Remetente</span>
                   </div>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
@@ -1291,8 +1291,8 @@ export function PartiuDriverCockpit() {
                 </div>
 
                 {/* Dados da Encomenda */}
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-amber-50/60 border border-amber-200">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 flex items-center justify-center font-black text-lg border border-amber-300 shadow-xs shrink-0">
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary-50/60 border border-amber-200">
+                  <div className="w-12 h-12 rounded-2xl bg-primary-50 text-amber-900 flex items-center justify-center font-black text-lg border border-primary-500 shadow-xs shrink-0">
                     <Box className="w-6 h-6" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -1326,7 +1326,7 @@ export function PartiuDriverCockpit() {
                     className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
                       waitingTimerStatus.isGracePeriodActive
                         ? "bg-slate-50 text-slate-700 border-slate-200"
-                        : "bg-amber-50 text-amber-900 border-amber-300"
+                        : "bg-primary-50 text-amber-900 border-primary-500"
                     }`}
                   >
                     <span>
@@ -1362,8 +1362,8 @@ export function PartiuDriverCockpit() {
                   <ChevronRight className="w-4 h-4" />
                 </button>
 
-                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl py-2 px-3">
-                  <ShieldCheck className="w-4 h-4 shrink-0 text-amber-600" />
+                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-amber-700 bg-primary-50 border border-amber-200 rounded-xl py-2 px-3">
+                  <ShieldCheck className="w-4 h-4 shrink-0 text-primary-700" />
                   <span>Cadeia de Custódia: Solicite o PIN 1 ao remetente</span>
                 </div>
               </>
@@ -1402,8 +1402,8 @@ export function PartiuDriverCockpit() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <h3 className="text-base font-black text-slate-950 truncate">{ofertaAtiva.passageiro}</h3>
-                        <span className="text-xs font-black text-amber-600 flex items-center gap-0.5">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                        <span className="text-xs font-black text-primary-700 flex items-center gap-0.5">
+                          <Star className="w-3.5 h-3.5 fill-amber-400 text-primary-600" />
                           {ofertaAtiva.passageiroAvaliacao || 4.98}
                         </span>
                       </div>
@@ -1414,7 +1414,7 @@ export function PartiuDriverCockpit() {
                         <span>•</span>
                         <span>{ofertaAtiva.passageiroTotalCorridas || 48} viagens</span>
                         <span>•</span>
-                        <span className="font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                        <span className="font-bold text-amber-700 bg-primary-50 border border-amber-200 px-1.5 py-0.5 rounded">
                           ⭐ {ofertaAtiva.passageiroTrustTier || "Elite"}
                         </span>
                       </div>
@@ -1426,7 +1426,7 @@ export function PartiuDriverCockpit() {
                     <button
                       type="button"
                       onClick={() => setIsChatOpen(true)}
-                      className="relative w-11 h-11 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-500 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                      className="relative w-11 h-11 rounded-xl bg-primary-600 hover:bg-amber-500 text-slate-950 border border-primary-600 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
                       title="Abrir Chat Operacional com o Passageiro"
                       aria-label={`Abrir chat com o passageiro${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
                     >
@@ -1469,7 +1469,7 @@ export function PartiuDriverCockpit() {
                     className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
                       waitingTimerStatus.isGracePeriodActive
                         ? "bg-slate-50 text-slate-700 border-slate-200"
-                        : "bg-amber-50 text-amber-900 border-amber-300"
+                        : "bg-primary-50 text-amber-900 border-primary-500"
                     }`}
                   >
                     <span>
@@ -1547,7 +1547,7 @@ export function PartiuDriverCockpit() {
                         key={idx}
                         className={`w-11 h-12 rounded-xl flex items-center justify-center font-mono text-xl font-black transition-all ${
                           digit
-                            ? "bg-amber-50 text-slate-950 border-2 border-amber-400 shadow-sm"
+                            ? "bg-primary-50 text-slate-950 border-2 border-primary-600 shadow-sm"
                             : isCurrent
                             ? "bg-white text-slate-950 border-2 border-slate-400 animate-pulse"
                             : "bg-slate-50 text-slate-300 border border-slate-200"
@@ -1650,7 +1650,7 @@ export function PartiuDriverCockpit() {
                   <div className="min-w-0 flex-1 pr-2">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider inline-block ${
                       ofertaAtiva.tipo === "ENTREGA"
-                        ? "text-amber-700 bg-amber-50 border-amber-200"
+                        ? "text-amber-700 bg-primary-50 border-amber-200"
                         : "text-emerald-700 bg-emerald-50 border-emerald-200"
                     }`}>
                       {ofertaAtiva.tipo === "ENTREGA"
@@ -1669,7 +1669,7 @@ export function PartiuDriverCockpit() {
                     <button
                       type="button"
                       onClick={() => setIsChatOpen(true)}
-                      className="relative w-11 h-11 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 border border-amber-500 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                      className="relative w-11 h-11 rounded-xl bg-primary-600 hover:bg-amber-500 text-slate-950 border border-primary-600 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
                       title="Abrir Chat Operacional"
                       aria-label={`Abrir chat operacional${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
                     >
@@ -1713,7 +1713,7 @@ export function PartiuDriverCockpit() {
                       <button
                         type="button"
                         onClick={handleAbrirModalDevolucao}
-                        className="h-14 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer text-center px-2"
+                        className="h-14 rounded-2xl bg-primary-50 hover:bg-amber-100 text-amber-900 border border-primary-500 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer text-center px-2"
                       >
                         <UserX className="w-4 h-4 shrink-0 text-amber-700" />
                         <span>Destinatário Ausente?</span>
@@ -1762,7 +1762,7 @@ export function PartiuDriverCockpit() {
           <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 text-slate-900 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-600" />
+                <AlertTriangle className="w-5 h-5 text-primary-700" />
                 <h3 className="text-sm font-black text-slate-950">Destinatário Não Localizado</h3>
               </div>
               <button
@@ -1775,7 +1775,7 @@ export function PartiuDriverCockpit() {
             </div>
 
             {/* Cronômetro de Carência Obrigatória (5 minutos / 300s) */}
-            <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 text-center space-y-1">
+            <div className="p-3.5 bg-primary-50 rounded-2xl border border-amber-200 text-center space-y-1">
               <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 block">
                 Tolerância Obrigatória de Espera (99Entrega)
               </span>
@@ -1818,7 +1818,7 @@ export function PartiuDriverCockpit() {
                   onClick={() => handleRegistrarContato("BUZZER")}
                   className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-[11px] flex flex-col items-center gap-1 active:scale-95 transition"
                 >
-                  <Bell className="w-4 h-4 text-amber-600" />
+                  <Bell className="w-4 h-4 text-primary-700" />
                   <span>Interfone</span>
                 </button>
               </div>
@@ -1835,7 +1835,7 @@ export function PartiuDriverCockpit() {
               <button
                 type="button"
                 onClick={handleIniciarDevolucao}
-                className="w-full py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-3.5 rounded-2xl bg-primary-600 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>INICIAR DEVOLUÇÃO AO REMETENTE</span>
@@ -2005,7 +2005,7 @@ export function PartiuDriverCockpit() {
             <div className="grid grid-cols-2 gap-2">
               <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center">
                 <span className="text-[10px] text-slate-500 block font-semibold">Avaliação</span>
-                <span className="text-lg font-black text-amber-600 flex items-center justify-center gap-1">
+                <span className="text-lg font-black text-primary-700 flex items-center justify-center gap-1">
                   <Star className="w-4 h-4 fill-amber-500" />
                   4.98
                 </span>
@@ -2035,7 +2035,7 @@ export function PartiuDriverCockpit() {
             <div className="space-y-2 pt-1 border-t border-slate-100">
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50">
                 <div className="flex items-center gap-2 text-xs text-slate-700">
-                  <Volume2 className="w-4 h-4 text-amber-600" />
+                  <Volume2 className="w-4 h-4 text-primary-700" />
                   <span>Som do Trip Radar</span>
                 </div>
                 <button
@@ -2051,7 +2051,7 @@ export function PartiuDriverCockpit() {
 
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50">
                 <div className="flex items-center gap-2 text-xs text-slate-700">
-                  {modoNoturno ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-amber-500" />}
+                  {modoNoturno ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-primary-600" />}
                   <span>Modo do Mapa</span>
                 </div>
                 <button
@@ -2117,7 +2117,7 @@ export function PartiuDriverCockpit() {
 
                 {/* Deduções de Governança / Assinatura (Auditoria 5) */}
                 {(check.subscriptionDeductionCents > 0 || check.pendingDebtsDeductionCents > 0) && (
-                  <div className="pt-2 border-t border-amber-200/80 bg-amber-50/50 p-2.5 rounded-xl space-y-1 text-xs text-amber-900">
+                  <div className="pt-2 border-t border-amber-200/80 bg-primary-50/50 p-2.5 rounded-xl space-y-1 text-xs text-amber-900">
                     <span className="text-[10px] font-black uppercase block text-amber-800">
                       Retenções de Obrigações no Saque:
                     </span>
@@ -2202,7 +2202,7 @@ export function PartiuDriverCockpit() {
           <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Percent className="w-5 h-5 text-amber-600" />
+                <Percent className="w-5 h-5 text-primary-700" />
                 <h3 className="text-base font-black text-slate-950">Planos de Assinatura PARTIU</h3>
               </div>
               <button
@@ -2227,7 +2227,7 @@ export function PartiuDriverCockpit() {
                     key={plan.id}
                     className={`p-3.5 rounded-2xl border-2 transition ${
                       isSelected
-                        ? "border-amber-500 bg-amber-50/40 shadow-md"
+                        ? "border-primary-600 bg-primary-50/40 shadow-md"
                         : "border-slate-200 bg-slate-50 hover:border-slate-300"
                     }`}
                   >
@@ -2236,7 +2236,7 @@ export function PartiuDriverCockpit() {
                         <span className={`w-3 h-3 rounded-full ${plan.badgeColor}`} />
                         <h4 className="font-black text-sm text-slate-950">{plan.name}</h4>
                         {plan.isPopular && (
-                          <span className="text-[9px] font-black uppercase bg-amber-200 text-amber-950 px-2 py-0.5 rounded-full">
+                          <span className="text-[9px] font-black uppercase bg-primary-100 text-amber-950 px-2 py-0.5 rounded-full">
                             Mais Popular
                           </span>
                         )}
@@ -2503,7 +2503,7 @@ export function PartiuDriverCockpit() {
               </button>
             </div>
 
-            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-2 text-xs text-amber-950">
+            <div className="p-4 bg-primary-50 rounded-2xl border border-amber-200 space-y-2 text-xs text-amber-950">
               <div className="flex items-center justify-between">
                 <span className="font-semibold text-amber-800">Tempo no Embarque:</span>
                 <span className="font-mono font-black text-amber-950 text-sm">

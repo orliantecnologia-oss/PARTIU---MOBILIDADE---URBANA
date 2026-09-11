@@ -98,8 +98,8 @@ export function NotificacoesPushModal({
         {/* Header com estilo elegante */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white sticky top-0 z-10">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-amber-400/20 text-amber-900 flex items-center justify-center font-bold">
-              <BellRing className="w-5 h-5 text-amber-600" />
+            <div className="w-9 h-9 rounded-2xl bg-primary-600/20 text-amber-900 flex items-center justify-center font-bold">
+              <BellRing className="w-5 h-5 text-primary-700" />
             </div>
             <div>
               <h2 className="text-base font-black text-slate-900 leading-tight">
@@ -159,8 +159,8 @@ export function NotificacoesPushModal({
               </div>
             </div>
           ) : (
-            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center shrink-0 shadow-xs">
+            <div className="p-3.5 rounded-2xl bg-primary-50 border border-amber-200/80 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-xl bg-primary-600 text-slate-950 flex items-center justify-center shrink-0 shadow-xs">
                 <Bell className="w-5 h-5" />
               </div>
               <div className="flex-1">
@@ -277,7 +277,7 @@ export function NotificacoesPushModal({
                 onClick={handleDispararTeste}
                 className="flex-1 py-2.5 px-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-black text-xs shadow-sm active:scale-95 transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <Sparkles className="w-3.5 h-3.5 text-primary-600" />
                 <span>Testar Notificação</span>
               </button>
 

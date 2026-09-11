@@ -54,7 +54,7 @@ export const ExperienceTimeline = memo(function ExperienceTimeline() {
             className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center shadow-xs transition-colors duration-300 ${
               isNotified || isAccepted
                 ? "bg-emerald-500 text-white"
-                : "bg-amber-400 text-slate-950 ring-4 ring-amber-400/20"
+                : "bg-primary-600 text-slate-950 ring-4 ring-primary-600/20"
             }`}
           >
             {isNotified || isAccepted ? (

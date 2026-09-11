@@ -1,6 +1,7 @@
 import React from "react";
 import { Bell } from "lucide-react";
 import { USER_PROFILE_MOCK } from "./home-mock-data";
+import { colors, gradients, components } from "@/lib/design-tokens";
 
 export interface AnimatedWaveHeaderProps {
   userName?: string;
@@ -13,12 +14,16 @@ export interface AnimatedWaveHeaderProps {
 }
 
 /**
- * Cabeçalho "Dynamic Gradient Wave" — Rebranding Ocean Tech
+ * Header "Premium Slim" — Azul Tech Premium Identity
  *
- * Design: Fundo em degradê azul vibrante (#0088FF → #003366), com borda
- * inferior arredondada (radius 35) que sobrepõe os primeiros centímetros
- * do mapa. Texto branco, avatar com borda branca, ícone de sino branco
- * com glow sutil. Layout horizontal minimalista.
+ * Ultra-compact single-line header that maximizes map area.
+ * Layout: [Avatar] [Olá Rodrigo 👋] ———————— [Sino]
+ *
+ * Visual:
+ * - LinearGradient #0088FF → #003366 (vertical)
+ * - borderBottomLeft/RightRadius: 16
+ * - Subtle shadow for depth
+ * - SafeArea respected via env()
  */
 export function AnimatedWaveHeader({
   userName,
@@ -35,27 +40,28 @@ export function AnimatedWaveHeader({
     <header
       className="absolute top-0 left-0 right-0 z-30 select-none"
       style={{
-        background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
-        borderBottomLeftRadius: 35,
-        borderBottomRightRadius: 35,
-        paddingTop: "max(0.75rem, env(safe-area-inset-top, 12px))",
+        background: components.header.gradient,
+        borderBottomLeftRadius: components.header.borderRadius,
+        borderBottomRightRadius: components.header.borderRadius,
+        paddingTop: "env(safe-area-inset-top, 0px)",
+        boxShadow: "0 4px 20px rgba(0, 28, 56, 0.25)",
       }}
     >
-      <div className="flex items-center justify-between px-5 pb-5 pt-2">
-        {/* Lado Esquerdo: Avatar & Saudação */}
-        <div className="flex items-center gap-3">
+      {/* Single-line flex row: Avatar | Greeting | Bell */}
+      <div className="flex items-center justify-between px-4 py-2.5">
+        {/* Left: Avatar + Greeting */}
+        <div className="flex items-center gap-2.5 min-w-0">
           <button
             type="button"
             onClick={onOpenDrawer}
-            className="group relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden ring-[2.5px] ring-white/80 shadow-lg active:scale-95 transition-transform cursor-pointer bg-white/20 text-white flex items-center justify-center font-black text-xs shrink-0"
+            className="relative w-9 h-9 rounded-full overflow-hidden ring-2 ring-white/60 active:scale-95 transition-transform cursor-pointer bg-white/20 flex items-center justify-center font-bold text-[11px] text-white shrink-0"
             aria-label="Abrir Menu Lateral e Perfil"
-            title="Abrir Menu"
           >
             {avatarUrl ? (
               <img
                 src={avatarUrl}
                 alt={nomeExibicao}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.currentTarget as HTMLElement).style.display = "none";
                 }}
@@ -65,31 +71,28 @@ export function AnimatedWaveHeader({
             )}
           </button>
 
-          <div className="flex flex-col text-left justify-center">
-            <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/70 leading-none mb-0.5">
-              PARTIU
-            </span>
-            <h1 className="text-base sm:text-lg font-black tracking-tight leading-tight text-white">
-              Olá, {primeiroNome}!
-            </h1>
-          </div>
+          <span className="text-sm font-bold text-white truncate leading-tight">
+            Olá, {primeiroNome} 👋
+          </span>
         </div>
 
-        {/* Lado Direito: Sino de Notificações com Glow */}
+        {/* Right: Bell */}
         <button
           type="button"
           onClick={onOpenNotifications}
-          className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition-all text-white flex items-center justify-center cursor-pointer shrink-0 backdrop-blur-sm"
-          style={{
-            boxShadow: "0 0 18px rgba(0, 136, 255, 0.35)",
-          }}
+          className="relative w-9 h-9 rounded-full bg-white/12 hover:bg-white/20 active:scale-95 transition-all text-white flex items-center justify-center cursor-pointer shrink-0"
           aria-label="Notificações"
-          title="Notificações"
         >
-          <Bell className="w-[18px] h-[18px] sm:w-5 sm:h-5 stroke-[2.2]" />
+          <Bell className="w-[17px] h-[17px] stroke-[2.2]" />
 
           {hasUnreadNotifications && (
-            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-white rounded-full ring-2 ring-[#0088FF] animate-pulse" />
+            <span
+              className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full ring-2 animate-pulse"
+              style={{
+                backgroundColor: colors.accent,
+                ringColor: colors.primary[600],
+              }}
+            />
           )}
         </button>
       </div>

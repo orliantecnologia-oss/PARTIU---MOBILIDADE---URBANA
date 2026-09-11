@@ -260,8 +260,8 @@ export function AdminAprovacoesPage() {
       {/* 1. Header do Módulo */}
       <div className="w-full rounded-3xl bg-slate-950 p-6 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/20 px-4 py-1.5 text-xs font-black uppercase text-yellow-300 border border-yellow-400/30">
-            <CheckCircle2 className="h-4 w-4 text-[#FFDE00]" />
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/20 px-4 py-1.5 text-xs font-black uppercase text-primary-500 border border-primary-600/30">
+            <CheckCircle2 className="h-4 w-4 text-[#0088FF]" />
             <span>Auditoria Cadastral de Condutores</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
@@ -274,7 +274,7 @@ export function AdminAprovacoesPage() {
 
         <div className="flex items-center gap-3">
           <div className="rounded-2xl bg-white/10 px-4 py-2.5 border border-white/20 text-center">
-            <span className="text-[10px] font-black uppercase text-yellow-300 block">Pendentes</span>
+            <span className="text-[10px] font-black uppercase text-primary-500 block">Pendentes</span>
             <span className="text-xl font-black text-white">{totalPendentes}</span>
           </div>
           <div className="rounded-2xl bg-white/10 px-4 py-2.5 border border-white/20 text-center">
@@ -300,7 +300,7 @@ export function AdminAprovacoesPage() {
               onClick={() => setFiltro(item.id as any)}
               className={`shrink-0 rounded-2xl px-4 py-2.5 text-xs font-black transition-all cursor-pointer ${
                 filtro === item.id
-                  ? "bg-[#FFDE00] text-slate-950 shadow-md shadow-yellow-500/20"
+                  ? "bg-[#0088FF] text-slate-950 shadow-md shadow-primary-600/20"
                   : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               }`}
             >
@@ -354,7 +354,7 @@ export function AdminAprovacoesPage() {
                   <span
                     className={`rounded-full px-3 py-1 text-[10px] font-black uppercase shrink-0 ${
                       item.status === "pendente"
-                        ? "bg-amber-100 text-amber-900 border border-amber-300"
+                        ? "bg-primary-50 text-amber-900 border border-primary-500"
                         : item.status === "aprovado"
                           ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
                           : "bg-rose-100 text-rose-900 border border-rose-300"
@@ -369,8 +369,8 @@ export function AdminAprovacoesPage() {
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs font-black ${
                       isCarro
-                        ? "bg-slate-950 text-[#FFDE00]"
-                        : "bg-[#FFDE00] text-slate-950"
+                        ? "bg-slate-950 text-[#0088FF]"
+                        : "bg-[#0088FF] text-slate-950"
                     }`}
                   >
                     {isCarro ? <Car className="w-3.5 h-3.5" /> : <Bike className="w-3.5 h-3.5" />}
@@ -530,7 +530,7 @@ export function AdminAprovacoesPage() {
             </div>
 
             {/* Chave PIX e Repasse */}
-            <div className="rounded-2xl bg-amber-50/70 p-4 border border-amber-200 text-xs space-y-1">
+            <div className="rounded-2xl bg-primary-50/70 p-4 border border-amber-200 text-xs space-y-1">
               <span className="font-black text-amber-950 block">Conta PIX de Repasse (D+0):</span>
               <p className="text-amber-900 font-semibold">{modalDetalhes.chavePix}</p>
             </div>

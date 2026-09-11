@@ -141,8 +141,8 @@ export function BottomNav() {
           <Link
             to="/app"
             style={{
-              backgroundColor: isCorridaActive ? (corPrimaria || "#FFDE00") : "transparent",
-              color: isCorridaActive ? (corTextoPrimaria || "#0F172A") : undefined,
+              backgroundColor: isCorridaActive ? (corPrimaria || "#0088FF") : "transparent",
+              color: isCorridaActive ? "#FFFFFF" : undefined,
             }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full transition-all duration-200 active:scale-95 cursor-pointer font-black text-xs ${
               isCorridaActive ? "shadow-xs" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100/70"
@@ -156,8 +156,8 @@ export function BottomNav() {
           <Link
             to="/app/encomendas"
             style={{
-              backgroundColor: isEntregaActive ? (corPrimaria || "#FFDE00") : "transparent",
-              color: isEntregaActive ? (corTextoPrimaria || "#0F172A") : undefined,
+              backgroundColor: isEntregaActive ? (corPrimaria || "#0088FF") : "transparent",
+              color: isEntregaActive ? "#FFFFFF" : undefined,
             }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-full transition-all duration-200 active:scale-95 cursor-pointer font-black text-xs ${
               isEntregaActive ? "shadow-xs" : "text-slate-500 hover:text-slate-800 hover:bg-slate-100/70"

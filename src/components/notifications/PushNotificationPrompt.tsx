@@ -82,7 +82,7 @@ export function PushNotificationPrompt() {
               <BellRing className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 flex items-center gap-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-primary-500 flex items-center gap-1">
                 <Sparkles className="h-3 w-3" /> Notificações de Bordo
               </span>
               <h4 className="text-xs sm:text-sm font-black text-white leading-tight">
@@ -107,9 +107,9 @@ export function PushNotificationPrompt() {
 
         {mostrarInstrucaoInApp ? (
           <div className="space-y-3 pt-1 relative z-10 animate-in fade-in">
-            <div className="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 space-y-1.5 text-left">
-              <div className="flex items-center gap-1.5 text-xs font-black text-amber-300">
-                <ExternalLink className="h-4 w-4 text-amber-400 shrink-0" />
+            <div className="p-3 rounded-2xl bg-primary-600/15 border border-primary-600/30 text-primary-400 space-y-1.5 text-left">
+              <div className="flex items-center gap-1.5 text-xs font-black text-primary-500">
+                <ExternalLink className="h-4 w-4 text-primary-600 shrink-0" />
                 <span>Navegador do Facebook Detectado</span>
               </div>
               <p className="text-[11px] text-slate-200 leading-relaxed">
@@ -178,7 +178,7 @@ export function PushNotificationPrompt() {
               <button
                 type="button"
                 onClick={handleAtivar}
-                className="flex-1 py-2.5 rounded-xl bg-[#FFDE00] hover:bg-[#ffe633] text-slate-950 text-xs font-black shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 py-2.5 rounded-xl bg-[#0088FF] hover:bg-[#00A3FF] text-slate-950 text-xs font-black shadow-md active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Bell className="h-3.5 w-3.5" />
                 <span>Ativar Notificações Push</span>

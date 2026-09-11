@@ -309,7 +309,7 @@ export function PartiuRideMap({
                   ${props.veiculo || "Veículo"}
                 </div>
                 <div style="margin-top: 4px; display: flex; align-items: center; justify-content: space-between; font-size: 9px;">
-                  <span style="background: #FEF08A; color: #854D0E; font-weight: 900; padding: 1px 5px; border-radius: 4px; border: 1px solid #FACC15;">
+                  <span style="background: #FEF08A; color: #854D0E; font-weight: 900; padding: 1px 5px; border-radius: 4px; border: 1px solid #006ACC;">
                     ${props.placa || "PARTIU"}
                   </span>
                   <span style="color: #059669; font-weight: 700;">● Disponível</span>
@@ -718,7 +718,7 @@ export function PartiuRideMap({
         el.className =
           "group relative flex flex-col items-center cursor-pointer transition-transform hover:scale-110 active:scale-95 z-20 select-none";
         el.innerHTML = `
-          <div class="px-2 py-0.5 mb-1 rounded-md bg-slate-950/90 text-[#FFDE00] text-[10px] font-black tracking-tight shadow-md border border-white/10 whitespace-nowrap pointer-events-none opacity-90 group-hover:opacity-100 flex items-center gap-1">
+          <div class="px-2 py-0.5 mb-1 rounded-md bg-slate-950/90 text-[#0088FF] text-[10px] font-black tracking-tight shadow-md border border-white/10 whitespace-nowrap pointer-events-none opacity-90 group-hover:opacity-100 flex items-center gap-1">
             <span>📍</span>
             <span>${point.nome.split(" x ")[0] || point.nome}</span>
           </div>
@@ -842,7 +842,7 @@ export function PartiuRideMap({
             if (!driverBadgeMarkerRef.current && mapRef.current) {
               const badgeEl = document.createElement("div");
               badgeEl.className =
-                "px-2.5 py-0.5 mb-8 rounded-full bg-slate-950/95 text-[#FFDE00] text-[10px] font-black border border-[#FFDE00] shadow-xl flex items-center gap-1 -translate-y-4 pointer-events-none select-none";
+                "px-2.5 py-0.5 mb-8 rounded-full bg-slate-950/95 text-[#0088FF] text-[10px] font-black border border-[#0088FF] shadow-xl flex items-center gap-1 -translate-y-4 pointer-events-none select-none";
               badgeEl.innerHTML = `
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
                 <span>~${route.durationMinutes} min</span>
@@ -1287,7 +1287,7 @@ export function PartiuRideMap({
       {mapError && (
         <div className="absolute inset-0 bg-[#e5e3df] flex items-center justify-center p-6 text-center">
           <div className="bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border border-slate-200 max-w-sm space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-900 mx-auto flex items-center justify-center">
+            <div className="w-12 h-12 rounded-2xl bg-primary-50 text-amber-900 mx-auto flex items-center justify-center">
               <Navigation className="w-6 h-6 animate-pulse" />
             </div>
             <h3 className="text-base font-black text-slate-900">Modo GPS Simplificado</h3>

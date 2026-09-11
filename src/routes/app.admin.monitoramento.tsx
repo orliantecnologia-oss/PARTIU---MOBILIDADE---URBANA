@@ -150,7 +150,7 @@ export function MonitoramentoCommandCenter() {
             <span className="text-[10px] uppercase font-bold text-slate-400 block">
               Pontualidade
             </span>
-            <strong className="text-lg font-black text-amber-300 leading-tight">93%</strong>
+            <strong className="text-lg font-black text-primary-500 leading-tight">93%</strong>
           </div>
           <div className="rounded-2xl bg-slate-900/90 px-3.5 py-2.5 border border-slate-800 text-center">
             <span className="text-[10px] uppercase font-bold text-slate-400 block">

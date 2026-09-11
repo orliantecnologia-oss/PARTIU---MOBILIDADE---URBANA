@@ -24,12 +24,12 @@ export function GuardiaoAcesso({ permissao, somenteOwner = false, children }: Gu
     return (
       <div className="w-full min-h-[550px] flex items-center justify-center p-6 animate-in fade-in">
         <div className="w-full max-w-md bg-white rounded-3xl p-8 border-2 border-slate-200 text-center shadow-xl space-y-5">
-          <div className="h-16 w-16 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center mx-auto shadow-inner">
+          <div className="h-16 w-16 rounded-2xl bg-primary-50 text-primary-700 border border-amber-200 flex items-center justify-center mx-auto shadow-inner">
             <Lock className="h-8 w-8" />
           </div>
 
           <div className="space-y-1.5">
-            <span className="text-[10px] font-black uppercase tracking-widest text-amber-700 bg-amber-100 px-3 py-1 rounded-full border border-amber-200">
+            <span className="text-[10px] font-black uppercase tracking-widest text-amber-700 bg-primary-50 px-3 py-1 rounded-full border border-amber-200">
               Acesso Restrito ao Proprietário
             </span>
             <h2 className="text-xl font-black text-slate-900 tracking-tight">
@@ -44,7 +44,7 @@ export function GuardiaoAcesso({ permissao, somenteOwner = false, children }: Gu
 
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-left text-xs text-slate-500 space-y-1">
             <div className="flex items-center gap-1.5 font-bold text-slate-700">
-              <ShieldAlert className="h-4 w-4 text-amber-600" />
+              <ShieldAlert className="h-4 w-4 text-primary-700" />
               <span>Regra de Menor Privilégio Ativa</span>
             </div>
             <p className="text-[11px]">

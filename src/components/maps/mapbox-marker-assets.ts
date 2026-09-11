@@ -241,9 +241,9 @@ export const DESTINATION_PIN_SVG = `
   <g filter="url(#dest-shadow)">
     <!-- Corpo do Pino Preto/Dourado -->
     <path d="M24 58 C24 58, 42 36, 42 22 C42 10.95 33.94 2 24 2 C14.06 2 6 10.95 6 22 C6 36, 24 58, 24 58 Z" 
-          fill="#0F172A" stroke="#FFDE00" stroke-width="2.5" stroke-linejoin="round"/>
+          fill="#0F172A" stroke="#0088FF" stroke-width="2.5" stroke-linejoin="round"/>
     <!-- Ícone Central Quadriculado / Alvo -->
-    <circle cx="24" cy="22" r="8" fill="#FFDE00"/>
+    <circle cx="24" cy="22" r="8" fill="#0088FF"/>
     <circle cx="24" cy="22" r="4" fill="#0F172A"/>
   </g>
 </svg>

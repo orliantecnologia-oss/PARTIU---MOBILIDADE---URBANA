@@ -57,13 +57,13 @@ export function DeliverySetupDashboard({
 
   return (
     <div className="w-full flex flex-col font-sans bg-slate-50 text-slate-900 select-none">
-      {/* 1. HEADER TOPO AMARELO / COR DA MARCA COM SAUDAÇÃO E AVATAR */}
+      {/* 1. HEADER TOPO AZUL TECH PREMIUM COM SAUDAÇÃO E AVATAR */}
       <header
         style={{
-          backgroundColor: corPrimaria || "#FFDE00",
-          color: corTextoPrimaria || "#0F172A",
+          background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+          color: "#FFFFFF",
         }}
-        className="pt-4 pb-4 px-5 relative z-10 flex items-center justify-between"
+        className="pt-4 pb-4 px-5 relative z-10 flex items-center justify-between shadow-md"
       >
         <div className="flex items-center gap-3">
           {/* Avatar Redondo */}
@@ -93,7 +93,7 @@ export function DeliverySetupDashboard({
           {pushActive ? (
             <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
           ) : (
-            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-white animate-pulse" />
+            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-primary-600 ring-2 ring-white animate-pulse" />
           )}
         </button>
       </header>
@@ -108,8 +108,8 @@ export function DeliverySetupDashboard({
           <div className="flex items-center justify-center gap-2">
             <div
               style={{
-                backgroundColor: corPrimaria || "#FFDE00",
-                color: corTextoPrimaria || "#0F172A",
+                background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+                color: "#FFFFFF",
               }}
               className="w-6 h-6 rounded-md flex items-center justify-center font-black text-xs shadow-2xs"
             >
@@ -201,7 +201,7 @@ export function DeliverySetupDashboard({
                   onClick={() => abrirModalEndereco("destino")}
                   className="p-3.5 sm:p-4 bg-slate-50/90 hover:bg-slate-100 rounded-2xl border border-slate-200/80 flex items-center gap-3 cursor-pointer transition active:scale-[0.99]"
                 >
-                  <div className="w-3.5 h-3.5 rounded-full border-2 border-amber-500 bg-white shrink-0 ring-2 ring-amber-100 ml-0.5" />
+                  <div className="w-3.5 h-3.5 rounded-full border-2 border-primary-600 bg-white shrink-0 ring-2 ring-amber-100 ml-0.5" />
                   <span className="text-base font-black text-slate-900 tracking-tight">
                     Entregar para
                   </span>
@@ -213,7 +213,7 @@ export function DeliverySetupDashboard({
                   className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 transition cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="w-3 h-3 rounded-full border-2 border-amber-500 bg-white shrink-0 ring-2 ring-amber-100 ml-0.5" />
+                    <div className="w-3 h-3 rounded-full border-2 border-primary-600 bg-white shrink-0 ring-2 ring-amber-100 ml-0.5" />
 
                     <div className="min-w-0 flex-1 text-left">
                       <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
@@ -239,7 +239,7 @@ export function DeliverySetupDashboard({
                   onClick={() => abrirModalEndereco("origem")}
                   className="p-3.5 sm:p-4 bg-slate-50/90 hover:bg-slate-100 rounded-2xl border border-slate-200/80 flex items-center gap-3 cursor-pointer transition active:scale-[0.99]"
                 >
-                  <div className="w-3.5 h-3.5 rounded-full border-2 border-amber-500 bg-white shrink-0 ring-2 ring-amber-100 ml-0.5" />
+                  <div className="w-3.5 h-3.5 rounded-full border-2 border-primary-600 bg-white shrink-0 ring-2 ring-amber-100 ml-0.5" />
                   <span className="text-base font-black text-slate-900 tracking-tight">
                     Buscar pacote em
                   </span>
@@ -251,7 +251,7 @@ export function DeliverySetupDashboard({
                   className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-slate-50 transition cursor-pointer group"
                 >
                   <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="w-3 h-3 rounded-full border-2 border-amber-500 bg-white shrink-0 ring-2 ring-amber-100 ml-0.5" />
+                    <div className="w-3 h-3 rounded-full border-2 border-primary-600 bg-white shrink-0 ring-2 ring-amber-100 ml-0.5" />
 
                     <div className="min-w-0 flex-1 text-left">
                       <p className="text-xs sm:text-sm font-bold text-slate-900 truncate">
@@ -314,7 +314,7 @@ export function DeliverySetupDashboard({
                 onClick={() => setVeiculo("MOTO")}
                 className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between active:scale-98 ${
                   veiculo === "MOTO"
-                    ? "border-amber-400 bg-amber-50/50 shadow-xs ring-2 ring-amber-400/20"
+                    ? "border-primary-600 bg-primary-50/50 shadow-xs ring-2 ring-primary-600/20"
                     : "border-slate-200 bg-white hover:border-slate-300 opacity-80"
                 }`}
               >
@@ -322,7 +322,7 @@ export function DeliverySetupDashboard({
                   <div
                     className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                       veiculo === "MOTO"
-                        ? "bg-amber-400 text-slate-950 font-black"
+                        ? "bg-primary-600 text-slate-950 font-black"
                         : "bg-slate-100 text-slate-600"
                     }`}
                   >
@@ -356,7 +356,7 @@ export function DeliverySetupDashboard({
                 onClick={() => setVeiculo("CARRO")}
                 className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between active:scale-98 ${
                   veiculo === "CARRO"
-                    ? "border-amber-400 bg-amber-50/50 shadow-xs ring-2 ring-amber-400/20"
+                    ? "border-primary-600 bg-primary-50/50 shadow-xs ring-2 ring-primary-600/20"
                     : "border-slate-200 bg-white hover:border-slate-300 opacity-80"
                 }`}
               >
@@ -364,7 +364,7 @@ export function DeliverySetupDashboard({
                   <div
                     className={`w-8 h-8 rounded-xl flex items-center justify-center ${
                       veiculo === "CARRO"
-                        ? "bg-amber-400 text-slate-950 font-black"
+                        ? "bg-primary-600 text-slate-950 font-black"
                         : "bg-slate-100 text-slate-600"
                     }`}
                   >
@@ -399,15 +399,17 @@ export function DeliverySetupDashboard({
                 type="button"
                 onClick={iniciarEntrega}
                 style={{
-                  backgroundColor: corPrimaria || "#FFDE00",
-                  color: corTextoPrimaria || "#0F172A",
+                  background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+                  color: "#FFFFFF",
+                  borderRadius: 16,
+                  boxShadow: "0 8px 24px -4px rgba(0, 51, 102, 0.35), 0 4px 12px -2px rgba(0, 136, 255, 0.25)",
                 }}
-                className="w-full py-3.5 px-4 rounded-2xl font-black text-sm shadow-md active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer hover:opacity-95"
+                className="w-full py-3.5 px-4 font-bold text-sm sm:text-base active:scale-[0.98] transition flex items-center justify-center gap-2 cursor-pointer hover:brightness-105"
               >
                 <span>
                   Confirmar {veiculo === "MOTO" ? "Moto Flash" : "Carro Baú"} • R$ {precoAtual.toFixed(2).replace(".", ",")}
                 </span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                <ArrowRight className="w-4 h-4 stroke-[2.5] text-white" />
               </button>
             </div>
           </div>

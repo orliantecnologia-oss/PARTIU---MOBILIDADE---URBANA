@@ -177,7 +177,7 @@ export function DeliveryAddressBottomSheet() {
         {/* Header do Bottom Sheet */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white sticky top-0 z-10">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-xl bg-primary-600 text-slate-950 flex items-center justify-center font-bold">
               <MapPin className="w-4 h-4" />
             </div>
             <div>
@@ -209,14 +209,14 @@ export function DeliveryAddressBottomSheet() {
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
-                  <Sparkles className="w-3 h-3 text-amber-600" />
+                <div className="w-5 h-5 rounded-lg bg-primary-50 text-amber-800 flex items-center justify-center">
+                  <Sparkles className="w-3 h-3 text-primary-700" />
                 </div>
                 <span className="text-xs font-black text-slate-900 tracking-tight">
                   Endereços Recentes (1 Toque)
                 </span>
               </div>
-              <span className="text-[10px] font-extrabold bg-amber-50 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full">
+              <span className="text-[10px] font-extrabold bg-primary-50 text-amber-900 border border-amber-200/80 px-2 py-0.5 rounded-full">
                 {ENDERECOS_RECENTES.length} contatos salvos
               </span>
             </div>
@@ -233,12 +233,12 @@ export function DeliveryAddressBottomSheet() {
                     onClick={() => handleSelecionarRecente(rec)}
                     className={`p-3 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between gap-3 active:scale-[0.99] ${
                       isSelecionado
-                        ? "border-amber-400 bg-amber-50/70 shadow-sm ring-2 ring-amber-400/20"
+                        ? "border-primary-600 bg-primary-50/70 shadow-sm ring-2 ring-primary-600/20"
                         : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/70 shadow-xs"
                     }`}
                   >
                     <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-400 to-amber-300 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-600 to-amber-300 text-slate-950 font-black text-xs flex items-center justify-center shrink-0 shadow-xs mt-0.5">
                         {getIniciais(rec.nome)}
                       </div>
 
@@ -274,7 +274,7 @@ export function DeliveryAddressBottomSheet() {
                       ) : (
                         <button
                           type="button"
-                          className="px-2.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-[10px] transition cursor-pointer"
+                          className="px-2.5 py-1.5 rounded-xl bg-primary-50 hover:bg-amber-200 text-amber-900 font-bold text-[10px] transition cursor-pointer"
                         >
                           1 Toque
                         </button>
@@ -318,7 +318,7 @@ export function DeliveryAddressBottomSheet() {
                     onClick={() => handleSelecionarAutocomplete(sug)}
                     className="w-full p-2.5 text-left text-xs font-semibold text-slate-800 hover:bg-amber-50 transition flex items-center gap-2"
                   >
-                    <Search className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <Search className="w-3.5 h-3.5 text-primary-700 shrink-0" />
                     <span className="truncate">{sug}</span>
                   </button>
                 ))}

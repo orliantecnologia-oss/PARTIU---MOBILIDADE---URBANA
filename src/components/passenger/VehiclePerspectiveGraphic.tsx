@@ -50,13 +50,13 @@ export const VehiclePerspectiveGraphic = memo(function VehiclePerspectiveGraphic
 
         {/* RODA TRASEIRA (Pneu + Aro Preto com Borda Amarela) */}
         <circle cx="130" cy="74" r="22" fill="#090D16" stroke="#000000" strokeWidth="2" />
-        <circle cx="130" cy="74" r="16" fill="#18181B" stroke="#FACC15" strokeWidth="2.5" />
+        <circle cx="130" cy="74" r="16" fill="#18181B" stroke="#006ACC" strokeWidth="2.5" />
         <circle cx="130" cy="74" r="8" fill="#334155" />
         <circle cx="130" cy="74" r="3.5" fill="#CBD5E1" />
 
         {/* RODA DIANTEIRA (Pneu + Aro Preto com Borda Amarela) */}
         <circle cx="34" cy="75" r="23" fill="#090D16" stroke="#000000" strokeWidth="2" />
-        <circle cx="34" cy="75" r="17" fill="#18181B" stroke="#FACC15" strokeWidth="2.5" />
+        <circle cx="34" cy="75" r="17" fill="#18181B" stroke="#006ACC" strokeWidth="2.5" />
         {/* Disco de Freio Dianteiro Perfurado */}
         <circle cx="34" cy="75" r="11" fill="none" stroke="#94A3B8" strokeWidth="2.2" strokeDasharray="3 2" />
         <circle cx="34" cy="75" r="4.5" fill="#CBD5E1" />

@@ -22,18 +22,18 @@ export function PassengerConfirmDestinationPin() {
           <div className="px-3.5 py-1.5 rounded-full bg-slate-950/90 text-white text-[11px] font-black shadow-xl border border-white/20 mb-1 flex items-center gap-1.5 backdrop-blur-xs whitespace-nowrap">
             {isResolvingAddress ? (
               <>
-                <Loader2 className="w-3 h-3 text-amber-400 animate-spin" />
+                <Loader2 className="w-3 h-3 text-primary-600 animate-spin" />
                 <span>Identificando rua...</span>
               </>
             ) : (
               <>
-                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <span className="w-2 h-2 rounded-full bg-primary-600 animate-ping" />
                 <span>Arraste o mapa até o destino</span>
               </>
             )}
           </div>
 
-          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center shadow-2xl border-2 border-white ring-4 ring-amber-400/30">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-primary-600 to-amber-300 text-slate-950 flex items-center justify-center shadow-2xl border-2 border-white ring-4 ring-primary-600/30">
             <MapPin className="w-6 h-6 stroke-[2.6]" />
           </div>
           <div className="w-4 h-1.5 bg-black/30 rounded-full blur-[1px] mt-0.5" />
@@ -56,7 +56,7 @@ export function PassengerConfirmDestinationPin() {
               <ArrowLeft className="w-5 h-5 stroke-[2.4]" />
             </button>
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-600 block">
+              <span className="text-[10px] font-black uppercase tracking-wider text-primary-700 block">
                 Destino Selecionado no Mapa
               </span>
               <p className="text-xs sm:text-sm font-black text-slate-900 truncate mt-0.5">
@@ -74,12 +74,14 @@ export function PassengerConfirmDestinationPin() {
             onClick={() => confirmDestinationPin(destinoCoords, destino)}
             disabled={isResolvingAddress}
             style={{
-              backgroundColor: corPrimaria || "#FFDE00",
-              color: corTextoPrimaria || "#0F172A",
+              background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+              color: "#FFFFFF",
+              borderRadius: 16,
+              boxShadow: "0 8px 24px -4px rgba(0, 51, 102, 0.35), 0 4px 12px -2px rgba(0, 136, 255, 0.25)",
             }}
-            className="w-full py-4 rounded-2xl font-black text-sm shadow-lg flex items-center justify-center gap-2 transition active:scale-[0.98] cursor-pointer disabled:opacity-50"
+            className="w-full py-4 font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition active:scale-[0.98] cursor-pointer disabled:opacity-50 hover:brightness-105"
           >
-            <Check className="w-5 h-5 stroke-[2.5]" />
+            <Check className="w-5 h-5 stroke-[2.5] text-white" />
             <span>Confirmar este local</span>
           </button>
         </div>

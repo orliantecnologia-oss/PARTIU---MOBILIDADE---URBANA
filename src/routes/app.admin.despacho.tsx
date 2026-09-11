@@ -242,7 +242,7 @@ export function DespachoCentralCorridas() {
       {/* Header com Identidade PARTIU */}
       <div className="w-full bg-slate-950 p-6 rounded-3xl text-white shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 border border-slate-800">
         <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#FFDE00]/20 px-4 py-1.5 text-xs font-black uppercase text-yellow-300 border border-yellow-400/30">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/20 px-4 py-1.5 text-xs font-black uppercase text-primary-500 border border-primary-600/30">
             <Package className="h-4 w-4" />
             <span>Torre de Despacho &amp; Radar em Tempo Real</span>
           </div>
@@ -301,7 +301,7 @@ export function DespachoCentralCorridas() {
               <Car className="w-4 h-4 text-slate-400" />
             </div>
             <span className="text-2xl font-black text-slate-950">{saudeCidade.corridasAtivas}</span>
-            <span className="text-[10px] text-amber-600 font-bold block mt-0.5">Tempo real</span>
+            <span className="text-[10px] text-primary-700 font-bold block mt-0.5">Tempo real</span>
           </div>
 
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/70">
@@ -331,7 +331,7 @@ export function DespachoCentralCorridas() {
             <span className="text-[10px] text-emerald-600 font-bold block mt-0.5">Abaixo do teto de 5%</span>
           </div>
 
-          <div className="bg-[#FFDE00]/15 p-4 rounded-2xl border border-[#FFDE00]/40">
+          <div className="bg-[#0088FF]/15 p-4 rounded-2xl border border-[#0088FF]/40">
             <div className="flex items-center justify-between text-amber-900 mb-1">
               <span className="text-[11px] font-bold">Receita Bruta Hoje</span>
               <DollarSign className="w-4 h-4 text-amber-700" />
@@ -365,7 +365,7 @@ export function DespachoCentralCorridas() {
                       z.surgeMultiplier > 1.2
                         ? "bg-rose-100 text-rose-700 border border-rose-200"
                         : z.surgeMultiplier > 1.0
-                        ? "bg-amber-100 text-amber-700 border border-amber-200"
+                        ? "bg-primary-50 text-amber-700 border border-amber-200"
                         : "bg-slate-100 text-slate-700"
                     }`}
                   >
@@ -388,7 +388,7 @@ export function DespachoCentralCorridas() {
               onClick={() => setFiltro(f)}
               className={`px-4 py-2 rounded-xl text-xs font-black transition ${
                 filtro === f
-                  ? "bg-[#FFDE00] text-slate-950 shadow-2xs"
+                  ? "bg-[#0088FF] text-slate-950 shadow-2xs"
                   : "text-slate-600 hover:text-slate-950"
               }`}
             >
@@ -404,7 +404,7 @@ export function DespachoCentralCorridas() {
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar por passageiro, rua, PIN..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs font-medium text-slate-900 outline-none focus:border-[#FFDE00]"
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-xs font-medium text-slate-900 outline-none focus:border-[#0088FF]"
           />
         </div>
       </div>
@@ -425,12 +425,12 @@ export function DespachoCentralCorridas() {
                   <div
                     className={`w-9 h-9 rounded-xl flex items-center justify-center font-black ${
                       isEntrega
-                        ? "bg-amber-100 text-amber-900"
+                        ? "bg-primary-50 text-amber-900"
                         : item.tipo === "CORRIDA_MOTO"
                           ? "bg-orange-100 text-orange-900"
                           : item.tipo === "CORRIDA_MULHER"
                             ? "bg-rose-100 text-rose-900"
-                            : "bg-[#FFDE00] text-slate-950"
+                            : "bg-[#0088FF] text-slate-950"
                     }`}
                   >
                     {isEntrega ? <Package className="w-5 h-5" /> : <Car className="w-5 h-5" />}
@@ -452,7 +452,7 @@ export function DespachoCentralCorridas() {
                   <span
                     className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full inline-block mt-0.5 ${
                       item.status === "PROCURANDO"
-                        ? "bg-amber-100 text-amber-800 animate-pulse"
+                        ? "bg-primary-50 text-amber-800 animate-pulse"
                         : item.status === "EM_VIAGEM"
                           ? "bg-blue-100 text-blue-800"
                           : item.status === "CONCLUIDA"
@@ -476,7 +476,7 @@ export function DespachoCentralCorridas() {
                 </div>
 
                 <div className="flex items-start gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#FA6400] mt-1 shrink-0" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#00C6FF] mt-1 shrink-0" />
                   <div className="min-w-0">
                     <span className="text-[10px] text-slate-400 uppercase font-bold block">Destino</span>
                     <span className="text-slate-800 font-medium truncate block">{item.destino}</span>
@@ -491,7 +491,7 @@ export function DespachoCentralCorridas() {
                   <span className="text-[10px] text-slate-500">{item.telefone}</span>
                 </div>
 
-                <div className="text-center px-3 py-1 bg-[#FFDE00] rounded-xl text-slate-950 shadow-2xs">
+                <div className="text-center px-3 py-1 bg-[#0088FF] rounded-xl text-slate-950 shadow-2xs">
                   <span className="text-[8px] font-black uppercase block text-slate-800">PIN 4 DÍGITOS</span>
                   <span className="text-base font-mono font-black tracking-wider">{item.pin}</span>
                 </div>
