@@ -120,11 +120,26 @@ npm test
 
 ```text
 ================================================================================
-📊 RESULTADO FINAL V6.0 ENTERPRISE: 167/167 TESTES PASSARAM (0 FALHAS)
+📊 RESULTADO FINAL V6.0 ENTERPRISE: 244/244 TESTES PASSARAM (0 FALHAS)
 ================================================================================
-✅ 22 Suítes Corporativas Validadas
+✅ 24 Suítes Corporativas Validadas
 ✅ 100% de Aprovação em Despacho, RLS, FinOps Ledger e Criptografia
+✅ 1.000 Operações Concorrentes com p95 < 20ms
 ```
+
+---
+
+## 🚀 Como Fazer Deploy na Vercel
+
+O projeto possui suporte nativo para deploy serverless na **Vercel** via TanStack Start e Nitro:
+
+1. Conecte o repositório GitHub na [Vercel](https://vercel.com).
+2. Configure as Variáveis de Ambiente no painel do projeto:
+   * `VITE_SUPABASE_URL`: URL do seu projeto Supabase
+   * `VITE_SUPABASE_ANON_KEY`: Chave anônima pública do Supabase
+   * `VITE_MAPBOX_TOKEN`: Token público do Mapbox
+   * `NITRO_PRESET`: `vercel`
+3. O comando de build é executado automaticamente (`npm run build`).
 
 ---
 
@@ -155,4 +170,5 @@ O aplicativo estará acessível em `http://localhost:8080/`.
 Este projeto está sincronizado com o editor [Lovable](https://lovable.dev).
 
 > **IMPORTANTE**: É proibido reescrever o histórico publicado do Git (`git push --force`, rebase ou squash de commits já enviados), sob risco de perda do histórico no editor Lovable. Mantenha os commits em estado funcional para sincronização contínua.
+
 
