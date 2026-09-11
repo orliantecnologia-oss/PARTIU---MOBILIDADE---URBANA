@@ -48,6 +48,7 @@ import {
   appSettingsService,
   type GlobalAppSettings,
 } from "@/services";
+import { SecurityCenterModal } from "@/components/security/SecurityCenterModal";
 
 interface AppDrawerProps {
   open: boolean;
@@ -75,6 +76,7 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
   const [modalAjuda, setModalAjuda] = useState(false);
   const [modalConfiguracoes, setModalConfiguracoes] = useState(false);
   const [modalMotoristaExpress, setModalMotoristaExpress] = useState(false);
+  const [modalSeguranca, setModalSeguranca] = useState(false);
 
   // 3. ESTADOS DOS ENDEREÇOS SALVOS (AddressService)
   const [enderecos, setEnderecos] = useState<SavedLocation[]>(() =>
@@ -531,6 +533,25 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
                 </div>
                 <ChevronRight className="h-4 w-4 text-slate-400 shrink-0" />
               </div>
+
+              <button
+                type="button"
+                onClick={() => setModalSeguranca(true)}
+                className="w-full flex items-center justify-between p-3 rounded-2xl hover:bg-slate-50 active:scale-[0.99] transition-all text-slate-800 group cursor-pointer text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-emerald-50 text-emerald-700 group-hover:bg-emerald-100 transition-colors">
+                    <ShieldCheck className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold block leading-none">Central de Segurança</span>
+                    <span className="text-[10px] text-emerald-700 mt-1 block">
+                      Proteção 24h, 190 e Siga Minha Viagem
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="h-4 w-4 text-slate-300 group-hover:text-slate-600 transition-colors" />
+              </button>
 
               <button
                 type="button"
@@ -1263,6 +1284,12 @@ export function AppDrawer({ open, onClose }: AppDrawerProps) {
           </div>
         </div>
       )}
+
+      {/* 8. MODAL DA CENTRAL DE SEGURANÇA 99 (NO MENU LATERAL) */}
+      <SecurityCenterModal
+        open={modalSeguranca}
+        onClose={() => setModalSeguranca(false)}
+      />
     </div>
   );
 }

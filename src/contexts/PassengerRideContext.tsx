@@ -125,7 +125,7 @@ interface PassengerRideContextValue {
   confirmPickupAndFindDriver: () => void;
   requestCancel: () => void;
   dismissCancel: () => void;
-  confirmCancel: () => void;
+  confirmCancel: (reason?: { code?: string; label?: string }) => void;
   resetToIdle: () => void;
   progressiveSession: ProgressiveDispatchSession | null;
   retrySearchAfterTimeout: () => void;
@@ -1021,7 +1021,7 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
     setIsCancelModalOpen(false);
   }, []);
 
-  const confirmCancel = useCallback(() => {
+  const confirmCancel = useCallback((reason?: { code?: string; label?: string }) => {
     const currentActive = activeRide || getCorridaAtiva();
     const rideId = currentActive?.id || progressiveSession?.rideId;
 
@@ -1032,14 +1032,17 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
         console.warn("[PassengerRideContext] Erro ao cancelar dispatchQueueBuilder:", err);
       }
       try {
-        progressiveDispatchEngine.cancelDispatch(rideId, "PASSENGER_CONFIRMED_CANCEL");
+        progressiveDispatchEngine.cancelDispatch(rideId, reason?.code || "PASSENGER_CONFIRMED_CANCEL");
       } catch (err) {
         console.warn("[PassengerRideContext] Erro ao cancelar progressiveDispatchEngine:", err);
       }
     }
 
     try {
-      cancelarCorrida();
+      cancelarCorrida({
+        reasonCode: reason?.code || "PASSENGER_CONFIRMED_CANCEL",
+        reasonLabel: reason?.label || "Cancelamento confirmado pelo passageiro",
+      });
     } catch (err) {
       console.warn("[PassengerRideContext] Erro ao cancelar corrida:", err);
     }

@@ -17,6 +17,85 @@ export interface CancellationPolicy {
   isGracePeriodActive: boolean;
 }
 
+export interface CancellationReason {
+  code: string;
+  label: string;
+  description: string;
+  appliesFeeWhenLate: boolean;
+}
+
+export const CANCELLATION_REASONS_PASSENGER: CancellationReason[] = [
+  {
+    code: "WAIT_TOO_LONG",
+    label: "Tempo de espera muito alto",
+    description: "O motorista está demorando mais do que o previsto para chegar.",
+    appliesFeeWhenLate: true,
+  },
+  {
+    code: "DRIVER_STATIONARY",
+    label: "Motorista não se move no mapa",
+    description: "O veículo permaneceu parado ou seguiu na direção contrária.",
+    appliesFeeWhenLate: false,
+  },
+  {
+    code: "CHANGED_MIND",
+    label: "Mudança de planos / Desisti da viagem",
+    description: "Não preciso mais do transporte no momento.",
+    appliesFeeWhenLate: true,
+  },
+  {
+    code: "WRONG_PICKUP",
+    label: "Endereço de embarque incorreto",
+    description: "Inseri o ponto de partida errado e preciso refazer o pedido.",
+    appliesFeeWhenLate: true,
+  },
+  {
+    code: "ANOTHER_RIDE",
+    label: "Encontrei outro meio de transporte",
+    description: "Embarquei em outra van, ônibus ou carona.",
+    appliesFeeWhenLate: true,
+  },
+  {
+    code: "PRICE_ISSUE",
+    label: "Problema com valor ou cobrança",
+    description: "Divergência de tarifa ou forma de pagamento.",
+    appliesFeeWhenLate: false,
+  },
+];
+
+export const CANCELLATION_REASONS_DRIVER: CancellationReason[] = [
+  {
+    code: "NO_SHOW",
+    label: "Passageiro não compareceu (No-show)",
+    description: "Aguardei no local de embarque pelo tempo limite e o passageiro não apareceu.",
+    appliesFeeWhenLate: true,
+  },
+  {
+    code: "INACCESSIBLE_PICKUP",
+    label: "Local de embarque inacessível",
+    description: "Rua interditada, área de risco ou acesso bloqueado.",
+    appliesFeeWhenLate: false,
+  },
+  {
+    code: "PASSENGER_MISBEHAVIOR",
+    label: "Comportamento inadequado",
+    description: "Desacato ou recusa em seguir as regras de segurança.",
+    appliesFeeWhenLate: false,
+  },
+  {
+    code: "VEHICLE_ISSUE",
+    label: "Problema no veículo",
+    description: "Pneu furado, falha mecânica ou imprevisto técnico.",
+    appliesFeeWhenLate: false,
+  },
+  {
+    code: "ROUTE_UNVIABLE",
+    label: "Rota inviável pelo trânsito",
+    description: "Acidente grave ou alagamento impedindo o trajeto.",
+    appliesFeeWhenLate: false,
+  },
+];
+
 export interface CancellationConfig {
   defaultToleranceMinutes: number;
   defaultCancellationFeeBrl: number;

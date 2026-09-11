@@ -26,6 +26,7 @@ import { VehiclePerspectiveGraphic } from "./VehiclePerspectiveGraphic";
 import { useBottomSheetGesture } from "@/hooks/useBottomSheetGesture";
 import { hapticFeedback } from "@/lib/haptics/haptic-feedback";
 import { DriverProfileSkeleton } from "@/components/ui/skeleton";
+import { RideCancellationModal } from "@/components/modals/RideCancellationModal";
 
 // Lazy-loaded para otimização de bundle e TTI de 60fps
 const DriverProfileModal = lazy(() =>
@@ -576,86 +577,14 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
       />
 
       {/* ========================================================================= */}
-      {/* 5. MODAL DE CANCELAMENTO INTELIGENTE (PORTAL LIVRE DE STACKING TRAP)       */}
+      {/* 5. MODAL DE CANCELAMENTO INTELIGENTE COM MOTIVOS E TOLERÂNCIA */}
       {/* ========================================================================= */}
-      {isCancelModalOpen &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <div
-            role="alertdialog"
-            aria-modal="true"
-            className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200 pointer-events-auto"
-          >
-            <div className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 text-center space-y-3.5 animate-in zoom-in-95 duration-200 pointer-events-auto">
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
-                  cancellationPolicy.shouldChargeFee
-                    ? "bg-rose-100 text-rose-600"
-                    : "bg-primary-50 text-amber-700"
-                }`}
-              >
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-
-              <div>
-                <h4 className="text-base font-black text-slate-900">
-                  {cancellationPolicy.shouldChargeFee
-                    ? "Taxa de Cancelamento Aplicável"
-                    : "Deseja cancelar esta corrida?"}
-                </h4>
-
-                <p className="text-xs text-slate-600 mt-1">
-                  {cancellationPolicy.shouldChargeFee ? (
-                    <span>
-                      A tolerância de cancelamento gratuito expirou às{" "}
-                      <strong>
-                        {cancellationPolicyService.formatFreeUntilTime(
-                          cancellationPolicy.freeCancellationUntil
-                        )}
-                      </strong>
-                      . Uma taxa de{" "}
-                      <strong className="text-rose-600">
-                        {cancellationPolicy.cancellationFee.toLocaleString("pt-BR", {
-                          style: "currency",
-                          currency: "BRL",
-                        })}
-                      </strong>{" "}
-                      será cobrada para compensar o deslocamento de {firstName}.
-                    </span>
-                  ) : (
-                    <span>
-                      O condutor {firstName} já foi alocado e está a caminho do ponto de embarque.
-                      Você ainda está no período de carência (cancelamento gratuito).
-                    </span>
-                  )}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={dismissCancel}
-                  className="flex-1 h-12 rounded-2xl bg-slate-100 text-slate-800 font-bold text-xs hover:bg-slate-200 transition-colors touch-manipulation cursor-pointer"
-                >
-                  Manter Corrida
-                </button>
-
-                <button
-                  type="button"
-                  onClick={confirmCancel}
-                  className={`flex-1 h-12 rounded-2xl text-white font-black text-xs transition-colors shadow-md touch-manipulation cursor-pointer ${
-                    cancellationPolicy.shouldChargeFee
-                      ? "bg-rose-600 hover:bg-rose-700"
-                      : "bg-slate-900 hover:bg-slate-800"
-                  }`}
-                >
-                  {cancellationPolicy.shouldChargeFee ? "Confirmar e Pagar" : "Sim, Cancelar"}
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
+      <RideCancellationModal
+        open={isCancelModalOpen}
+        onClose={dismissCancel}
+        onConfirmCancel={(reason) => confirmCancel(reason)}
+        acceptedAt={acceptedAtTimestamp}
+      />
     </>
   );
 });

@@ -38,8 +38,16 @@ import {
 import { atomicMatchingEngine } from "./dispatch-atomic";
 import { redisLuaEngine } from "./spatial";
 import { silentCatchWarn } from "@/lib/structured-logger";
+import { rideLiveTrackingService } from "./tracking/ride-live-tracking-service";
+import { fareCalculationEngine } from "./pricing/fare-calculation-engine";
+import {
+  CANCELLATION_REASONS_PASSENGER,
+  CANCELLATION_REASONS_DRIVER,
+  type CancellationReason,
+} from "@/services/CancellationPolicyService";
 
-
+export * from "./tracking/ride-live-tracking-service";
+export * from "./pricing/fare-calculation-engine";
 export * from "./partiu-dispatch-engine";
 export * from "./partiu-marketplace-engine";
 export * from "./partiu-financial-engine";
@@ -263,11 +271,20 @@ export interface CorridaPartiu {
   otherPersonPhone?: string | undefined;
   solicitanteNome?: string | undefined;
   solicitanteTelefone?: string | undefined;
+  trackingToken?: string | undefined;
+  trackingExpiresAt?: string | undefined;
+  cancellationReasonCode?: string | undefined;
+  cancellationReasonLabel?: string | undefined;
+  cancellationFeeApplied?: boolean | undefined;
+  cancellationFeeCents?: number | undefined;
 }
 
 const STORAGE_KEY_CORRIDA = "partiu_corrida_ativa";
 const STORAGE_KEY_HISTORICO = "partiu_historico_viagens";
 const STORAGE_KEY_GANHOS_MOTORISTA = "partiu_motorista_ganhos_hoje";
+
+// Cache em memória isomórfico para SSR / Node.js / Test Runner
+let corridaMemoria: CorridaPartiu | null = null;
 
 export const MOTORISTA_PADRAO: MotoristaInfo = {
   id: "mot-1",
@@ -408,13 +425,13 @@ export function tocarAlertaFimViagem() {
 
 // 1. Obter corrida ativa (Cache local sincronizado com Supabase)
 export function getCorridaAtiva(): CorridaPartiu | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") return corridaMemoria;
   const raw = localStorage.getItem(STORAGE_KEY_CORRIDA);
-  if (!raw) return null;
+  if (!raw) return corridaMemoria;
   try {
-    return JSON.parse(raw);
+    return JSON.parse(raw) || corridaMemoria;
   } catch {
-    return null;
+    return corridaMemoria;
   }
 }
 
@@ -445,6 +462,18 @@ export function criarNovaCorrida(params: {
 }): CorridaPartiu {
   const pin = Math.floor(1000 + Math.random() * 9000).toString();
   const id = `COR-${Date.now().toString().slice(-6)}`;
+  const trackingToken = rideLiveTrackingService.generateTrackingToken(id);
+
+  // Se valor não fornecido ou zero, calcula via fareCalculationEngine
+  let finalValor = params.valor;
+  if (!finalValor || finalValor <= 0) {
+    const calc = fareCalculationEngine.calculateFare({
+      categoryId: params.modalidade,
+      distanceKm: params.distanciaKm,
+      durationMinutes: params.duracaoMin,
+    });
+    finalValor = calc.totalBrl;
+  }
 
   const corrida: CorridaPartiu = {
     id,
@@ -454,7 +483,7 @@ export function criarNovaCorrida(params: {
     detalhesDestino: params.detalhesDestino,
     passageiroNome: params.passageiroNome || "Rodrigo",
     passageiroTelefone: params.passageiroTelefone || "(22) 99999-0000",
-    valor: params.valor,
+    valor: finalValor,
     distanciaKm: params.distanciaKm,
     duracaoMin: params.duracaoMin,
     formaPagamento: params.formaPagamento,
@@ -473,8 +502,24 @@ export function criarNovaCorrida(params: {
     otherPersonPhone: params.otherPersonPhone,
     solicitanteNome: params.solicitanteNome,
     solicitanteTelefone: params.solicitanteTelefone,
+    trackingToken,
   };
 
+  // Registra no motor de rastreamento público (Siga Minha Viagem)
+  rideLiveTrackingService.registerRideTracking({
+    rideId: id,
+    status: "PROCURANDO",
+    origem: params.origem,
+    destino: params.destino,
+    origemCoords: params.origemCoords,
+    destinoCoords: params.destinoCoords,
+    passengerName: params.passageiroNome || "Rodrigo",
+    distanceKm: params.distanciaKm,
+    durationMin: params.duracaoMin,
+    existingToken: trackingToken,
+  });
+
+  corridaMemoria = corrida;
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY_CORRIDA, JSON.stringify(corrida));
   }
@@ -530,6 +575,7 @@ export function motoristaAceitarCorrida(motorista?: MotoristaInfo): CorridaParti
     void redisLuaEngine.assignAndEvict(condutor.id);
   } catch (err) { silentCatchWarn("partiu-engine", err); }
 
+  corridaMemoria = atualizada;
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY_CORRIDA, JSON.stringify(atualizada));
   }
@@ -548,6 +594,28 @@ export function motoristaAceitarCorrida(motorista?: MotoristaInfo): CorridaParti
       notificarMudanca(atual);
     }
   });
+
+  // Sincroniza Siga Minha Viagem
+  if (atual.trackingToken) {
+    rideLiveTrackingService.registerRideTracking({
+      rideId: atual.id,
+      status: "A_CAMINHO",
+      origem: atual.origem,
+      destino: atual.destino,
+      origemCoords: atual.origemCoords,
+      destinoCoords: atual.destinoCoords,
+      driverName: condutor.nome,
+      driverPhoto: condutor.foto,
+      driverRating: condutor.avaliacao,
+      vehicleModel: condutor.veiculo,
+      vehiclePlate: condutor.placa,
+      passengerName: atual.passageiroNome,
+      distanceKm: atual.distanciaKm,
+      durationMin: atual.duracaoMin,
+      existingToken: atual.trackingToken,
+    });
+  }
+
   notificarMudanca(atualizada);
   return atualizada;
 }
@@ -571,6 +639,28 @@ export function motoristaChegouAoLocal(): CorridaPartiu | null {
     } catch (err) { silentCatchWarn("partiu-engine", err); }
   }
 
+  // Sincroniza Siga Minha Viagem
+  if (atual.trackingToken) {
+    rideLiveTrackingService.registerRideTracking({
+      rideId: atual.id,
+      status: "CHEGOU",
+      origem: atual.origem,
+      destino: atual.destino,
+      origemCoords: atual.origemCoords,
+      destinoCoords: atual.destinoCoords,
+      driverName: atual.motorista?.nome,
+      driverPhoto: atual.motorista?.foto,
+      driverRating: atual.motorista?.avaliacao,
+      vehicleModel: atual.motorista?.veiculo,
+      vehiclePlate: atual.motorista?.placa,
+      passengerName: atual.passageiroNome,
+      distanceKm: atual.distanciaKm,
+      durationMin: atual.duracaoMin,
+      existingToken: atual.trackingToken,
+    });
+  }
+
+  corridaMemoria = atualizada;
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY_CORRIDA, JSON.stringify(atualizada));
   }
@@ -626,6 +716,28 @@ export function confirmarEmbarqueEIniciarViagem(params?: {
     status: "EM_VIAGEM",
   };
 
+  // Sincroniza Siga Minha Viagem
+  if (atual.trackingToken) {
+    rideLiveTrackingService.registerRideTracking({
+      rideId: atual.id,
+      status: "EM_VIAGEM",
+      origem: atual.origem,
+      destino: atual.destino,
+      origemCoords: atual.origemCoords,
+      destinoCoords: atual.destinoCoords,
+      driverName: atual.motorista?.nome,
+      driverPhoto: atual.motorista?.foto,
+      driverRating: atual.motorista?.avaliacao,
+      vehicleModel: atual.motorista?.veiculo,
+      vehiclePlate: atual.motorista?.placa,
+      passengerName: atual.passageiroNome,
+      distanceKm: atual.distanciaKm,
+      durationMin: atual.duracaoMin,
+      existingToken: atual.trackingToken,
+    });
+  }
+
+  corridaMemoria = atualizada;
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY_CORRIDA, JSON.stringify(atualizada));
   }
@@ -664,13 +776,12 @@ export function confirmarColetaEncomenda(
     }
     void atualizarStatusCorridaDistribuida(atualizada, "EM_VIAGEM");
     notificarMudanca(atualizada);
-    tocarAlertaInicioViagem();
   }
 
-  return { sucesso: true, mensagem: res.message };
+  return { sucesso: true, mensagem: "Pacote coletado com sucesso!" };
 }
 
-// 5.3 Iniciar Rota de Entrega até o Destinatário
+// 5.3 Iniciar Rota de Entrega ao Destinatário
 export function iniciarRotaDestinatario(): { sucesso: boolean } {
   courierHeadingToDelivery();
   return { sucesso: true };
@@ -725,6 +836,19 @@ export function finalizarViagem(): CorridaPartiu | null {
     status: "CONCLUIDA",
   };
 
+  // Sincroniza Siga Minha Viagem
+  if (atual.trackingToken) {
+    rideLiveTrackingService.registerRideTracking({
+      rideId: atual.id,
+      status: "CONCLUIDA",
+      origem: atual.origem,
+      destino: atual.destino,
+      passengerName: atual.passageiroNome,
+      existingToken: atual.trackingToken,
+    });
+  }
+
+  corridaMemoria = null;
   if (typeof window !== "undefined") {
     localStorage.removeItem(STORAGE_KEY_CORRIDA);
 
@@ -746,8 +870,14 @@ export function finalizarViagem(): CorridaPartiu | null {
   return atualizada;
 }
 
-// 7. Cancelar corrida / entrega (com auditoria de taxa de cancelamento tardio)
-export function cancelarCorrida(): CancellationFeeSettlement | null {
+// 7. Cancelar corrida / entrega (com auditoria de taxa de cancelamento tardio e motivos estruturados)
+export function cancelarCorrida(params?: {
+  reasonCode?: string;
+  reasonLabel?: string;
+} | string): CancellationFeeSettlement | null {
+  const reasonCode = typeof params === "string" ? params : params?.reasonCode;
+  const reasonLabel = typeof params === "object" ? params?.reasonLabel : undefined;
+
   const atual = getCorridaAtiva();
   let feeSettlement: CancellationFeeSettlement | null = null;
 
@@ -757,9 +887,14 @@ export function cancelarCorrida(): CancellationFeeSettlement | null {
       ? (Date.now() - atual.aceitoEm) / 1000
       : (Date.now() - atual.criadoEm) / 1000;
 
+    // Se o motivo do passageiro for que o motorista não se move, isenta de taxa!
+    const isExemptReason = reasonCode === "DRIVER_STATIONARY" || reasonCode === "PRICE_ISSUE";
+
+    // Tolerância de carência de 2 minutos (120s) padrão Uber/99
     const isLateCancellation =
-      (atual.status === "A_CAMINHO" && elapsedSeconds > 180) ||
-      atual.status === "CHEGOU";
+      !isExemptReason &&
+      ((atual.status === "A_CAMINHO" && elapsedSeconds > 120) ||
+      atual.status === "CHEGOU");
 
     if (isLateCancellation) {
       feeSettlement = processarCancelamentoComMulta(
@@ -770,8 +905,37 @@ export function cancelarCorrida(): CancellationFeeSettlement | null {
     }
   }
 
+  // Sincroniza Siga Minha Viagem
+  if (atual?.trackingToken) {
+    rideLiveTrackingService.registerRideTracking({
+      rideId: atual.id,
+      status: "CANCELADA",
+      origem: atual.origem,
+      destino: atual.destino,
+      passengerName: atual.passageiroNome,
+      existingToken: atual.trackingToken,
+    });
+  }
+
+  corridaMemoria = null;
   if (typeof window !== "undefined") {
     localStorage.removeItem(STORAGE_KEY_CORRIDA);
+    if (reasonCode) {
+      try {
+        const cancelRecord = {
+          rideId: atual?.id,
+          reasonCode,
+          reasonLabel: reasonLabel || reasonCode,
+          timestamp: Date.now(),
+          cancelledBy: "PASSENGER",
+        };
+        const past = JSON.parse(localStorage.getItem("partiu_passenger_cancellations") || "[]");
+        past.unshift(cancelRecord);
+        localStorage.setItem("partiu_passenger_cancellations", JSON.stringify(past));
+      } catch {
+        // Fallback
+      }
+    }
   }
   cancelDeliverySession("Cancelado pelo usuário");
   void cancelarCorridaDistribuida();

@@ -18,6 +18,8 @@ import { usePassengerRide } from "@/contexts/PassengerRideContext";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
 import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
 import { chatRealtimeService } from "@/services/ChatRealtimeService";
+import { RideCancellationModal } from "@/components/modals/RideCancellationModal";
+import { rideLiveTrackingService } from "@/lib/tracking/ride-live-tracking-service";
 
 export function PassengerActiveRideCard() {
   const {
@@ -193,6 +195,35 @@ export function PassengerActiveRideCard() {
             </div>
 
             <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => {
+                  if (activeRide?.trackingToken) {
+                    const msg = rideLiveTrackingService.buildShareMessage(
+                      activeRide.trackingToken,
+                      motorista.veiculo,
+                      motorista.placa
+                    );
+                    if (typeof navigator !== "undefined" && navigator.share) {
+                      navigator
+                        .share({
+                          title: "Siga Minha Viagem — PARTIU",
+                          text: msg,
+                          url: rideLiveTrackingService.buildShareUrl(activeRide.trackingToken),
+                        })
+                        .catch(() => {});
+                      return;
+                    }
+                    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
+                  }
+                }}
+                className="w-10 h-10 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center transition active:scale-95 cursor-pointer shadow-xs border border-emerald-200"
+                title="Compartilhar Trajeto (Siga Minha Viagem)"
+                aria-label="Compartilhar Trajeto"
+              >
+                <Share2 className="w-4 h-4" />
+              </button>
+
               <a
                 href={`tel:${motorista.telefone.replace(/\D/g, "")}`}
                 className="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center transition active:scale-95 cursor-pointer shadow-xs"
@@ -250,50 +281,13 @@ export function PassengerActiveRideCard() {
         </div>
       </div>
 
-      {/* Modal de Cancelamento de Viagem (PORTAL LIVRE DE STACKING TRAP) */}
-      {isCancelModalOpen &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <div
-            role="dialog"
-            aria-modal="true"
-            className="fixed inset-0 z-[99999] bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200 pointer-events-auto"
-          >
-            <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl p-5 space-y-4 text-center animate-in zoom-in-95 duration-200 pointer-events-auto">
-              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6" />
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="text-base font-black text-slate-900">
-                  Cancelar Corrida em Andamento?
-                </h4>
-                <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                  O motorista {motorista.nome} já está a caminho do ponto de encontro.
-                </p>
-              </div>
-
-              <div className="space-y-2 pt-2">
-                <button
-                  type="button"
-                  onClick={confirmCancel}
-                  className="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition active:scale-95 cursor-pointer shadow-md shadow-rose-600/20 touch-manipulation"
-                >
-                  Confirmar Cancelamento
-                </button>
-
-                <button
-                  type="button"
-                  onClick={dismissCancel}
-                  className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer touch-manipulation"
-                >
-                  Manter Corrida
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
+      {/* Modal de Cancelamento de Viagem Inteligente com Motivos e Tolerância */}
+      <RideCancellationModal
+        open={isCancelModalOpen}
+        onClose={dismissCancel}
+        onConfirmCancel={(reason) => confirmCancel(reason)}
+        acceptedAt={activeRide?.aceitoEm}
+      />
 
       {/* CHAT OPERACIONAL EM TEMPO REAL COM O MOTORISTA */}
       {activeRide && (

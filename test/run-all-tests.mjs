@@ -1099,6 +1099,9 @@ import "./social-safety-support-metrics.test.ts";
 // Suíte Oficial V6: Corrida para Terceiros, Saque PIX D+0, Heatmap H3 & Telemetria Adaptativa
 import "./ride-hailing-advanced-pack.test.ts";
 
+// Suíte Oficial V6: Siga Minha Viagem, Fare Engine & Central de Cancelamento Estruturado
+import "./ride-advanced-pack-2.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");
