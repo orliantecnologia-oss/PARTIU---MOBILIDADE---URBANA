@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { getCorridaAtiva, obterPainelSaudeCidade, type CorridaPartiu, type CityHealthDashboardData } from "@/lib/partiu-engine";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { AdminManualDispatchModal } from "@/components/admin/AdminManualDispatchModal";
 
 export const Route = createFileRoute("/app/admin/despacho")({
   head: () => ({
@@ -113,6 +114,7 @@ export function DespachoCentralCorridas() {
   const [itens, setItens] = useState<ItemDespachoMock[]>(DESPACHOS_MOCK);
   const [filtro, setFiltro] = useState<"TODAS" | "CORRIDAS" | "ENTREGAS">("TODAS");
   const [busca, setBusca] = useState("");
+  const [modalNovoChamado, setModalNovoChamado] = useState(false);
   const saudeCidade = obterPainelSaudeCidade();
 
   // Sincronizar corridas reais do Supabase e eventos distribuídos
@@ -254,7 +256,15 @@ export function DespachoCentralCorridas() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setModalNovoChamado(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black transition active:scale-95 shadow-md cursor-pointer"
+          >
+            <Phone className="w-4 h-4" />
+            <span>+ Novo Chamado (Central / Zap)</span>
+          </button>
           <span className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-black">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             Despacho Automático Ativo
@@ -530,6 +540,15 @@ export function DespachoCentralCorridas() {
           );
         })}
       </div>
+
+      {/* MODAL OFICIAL: CENTRAL DE DESPACHO MANUAL (CALL CENTER & WHATSAPP) */}
+      <AdminManualDispatchModal
+        isOpen={modalNovoChamado}
+        onClose={() => setModalNovoChamado(false)}
+        onDispatchCreated={(novo) => {
+          setItens((prev) => [novo, ...prev]);
+        }}
+      />
     </div>
   );
 }

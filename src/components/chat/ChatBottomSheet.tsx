@@ -9,12 +9,15 @@ import {
   AlertCircle,
   ShieldCheck,
   ChevronDown,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import {
   chatRealtimeService,
   type RideMessage,
   type SenderType,
 } from "@/services/ChatRealtimeService";
+import { driverVoiceAssistant } from "@/services/DriverVoiceAssistantService";
 import { SmartReplyChips } from "./SmartReplyChips";
 
 export interface ChatBottomSheetProps {
@@ -49,11 +52,13 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
   const [isSending, setIsSending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isOnline, setIsOnline] = useState(typeof navigator !== "undefined" ? navigator.onLine : true);
+  const [ttsEnabled, setTtsEnabled] = useState<boolean>(() => driverVoiceAssistant.getIsEnabled());
+  const prevMsgCountRef = useRef<number>(0);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  // 1. Conexão ao Realtime Chat da corrida
+  // 1. Conexão ao Realtime Chat da corrida e leitura por voz (TTS)
   useEffect(() => {
     if (!isOpen || !rideId) return;
 
@@ -65,13 +70,22 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
       currentUserType,
       (msgs) => {
         setMessages(msgs);
+        // Se houver nova mensagem de entrada e o usuário for motorista (ou com TTS ativo), lê em voz alta
+        if (msgs.length > prevMsgCountRef.current) {
+          const newMsg = msgs[msgs.length - 1];
+          if (newMsg && newMsg.senderType !== currentUserType && driverVoiceAssistant.getIsEnabled()) {
+            driverVoiceAssistant.speakIncomingMessage(partnerName, newMsg.content);
+          }
+        }
+        prevMsgCountRef.current = msgs.length;
+
         // Se a janela estiver aberta, marca como lida
         void chatRealtimeService.markAsRead(rideId, currentUserType);
       }
     );
 
     return unsubscribe;
-  }, [isOpen, rideId, currentUserType]);
+  }, [isOpen, rideId, currentUserType, partnerName]);
 
   // 2. Monitor de conectividade offline
   useEffect(() => {
@@ -202,14 +216,32 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Minimizar chat"
-            className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center active:scale-95 transition cursor-pointer shrink-0"
-          >
-            <ChevronDown className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                const newState = driverVoiceAssistant.toggleVoice();
+                setTtsEnabled(newState);
+              }}
+              aria-label={ttsEnabled ? "Desativar leitura por voz" : "Ativar leitura por voz"}
+              title={ttsEnabled ? "Leitura por Voz Ativa (Lê mensagens em voz alta)" : "Leitura por Voz Desativada"}
+              className={`w-8 h-8 rounded-full flex items-center justify-center active:scale-95 transition cursor-pointer ${
+                ttsEnabled
+                  ? "bg-amber-100 text-amber-900 border border-amber-300"
+                  : "bg-slate-200/80 text-slate-500 hover:bg-slate-300"
+              }`}
+            >
+              {ttsEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Minimizar chat"
+              className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 text-slate-700 flex items-center justify-center active:scale-95 transition cursor-pointer"
+            >
+              <ChevronDown className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* =================================================================== */}

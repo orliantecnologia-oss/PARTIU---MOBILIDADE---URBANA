@@ -1105,6 +1105,9 @@ import "./ride-advanced-pack-2.test.ts";
 // Suíte Oficial V6: Modo Destino, Anti-Fake GPS, Multi-Paradas & Fallback Geodésico
 import "./ride-advanced-pack-3.test.ts";
 
+// Suíte Oficial V6.5: Recursos Competitivos 2026 (Taxímetro Virtual, TTS, Debt Cutoff & GPS)
+import "./competitor-features-2026.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");

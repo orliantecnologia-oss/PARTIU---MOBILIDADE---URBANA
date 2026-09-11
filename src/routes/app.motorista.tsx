@@ -95,6 +95,7 @@ import { DriverAccessGuard } from "@/components/driver/DriverAccessGuard";
 import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
 import { DriverPixWithdrawalModal } from "@/components/driver/DriverPixWithdrawalModal";
 import { DriverDestinationModal } from "@/components/driver/DriverDestinationModal";
+import { VirtualTaximeterModal } from "@/components/driver/VirtualTaximeterModal";
 import { driverDestinationModeService, type DriverDestination } from "@/services/DriverDestinationModeService";
 import { h3DispatchEngine, geofenceArrivalService } from "@/lib/spatial";
 import { chatRealtimeService } from "@/services/ChatRealtimeService";
@@ -317,6 +318,7 @@ export function PartiuDriverCockpit() {
   const [modalEconomiaAberto, setModalEconomiaAberto] = useState(false);
   const [modalRegularizacaoAberto, setModalRegularizacaoAberto] = useState(false);
   const [modalModoDestino, setModalModoDestino] = useState(false);
+  const [modalTaximetro, setModalTaximetro] = useState(false);
   const [destinoAtivo, setDestinoAtivo] = useState<DriverDestination | null>(() =>
     driverDestinationModeService.getActiveDestination(perfilMotorista.id)
   );
@@ -540,6 +542,14 @@ export function PartiuDriverCockpit() {
         setErroElegibilidade(
           `Conta suspensa por inadimplência (${currentSub.accumulatedDebtBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}). Regularize via PIX para voltar a rodar.`
         );
+        setModalRegularizacaoAberto(true);
+        return;
+      }
+
+      // Trava de Saldo Devedor de Comissão (Debt Cutoff)
+      const debtCheck = driverWalletEngine.checkDebtStatus(perfilMotorista.id);
+      if (debtCheck.isBlocked) {
+        setErroElegibilidade(debtCheck.message);
         setModalRegularizacaoAberto(true);
         return;
       }
@@ -1254,6 +1264,31 @@ export function PartiuDriverCockpit() {
                 </span>
               </button>
             )}
+
+            {/* NOVIDADE 2026: TAXÍMETRO VIRTUAL INTELIGENTE ("CORRIDA DE RUA") */}
+            <button
+              type="button"
+              onClick={() => setModalTaximetro(true)}
+              className="w-full py-2.5 px-3.5 rounded-2xl bg-amber-50 hover:bg-amber-100/90 border border-amber-200/80 text-amber-950 text-xs font-bold flex items-center justify-between transition cursor-pointer shadow-xs"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-base">⏱️</span>
+                <div className="text-left">
+                  <span className="block font-black text-slate-900">Taxímetro Virtual (Corrida na Rua)</span>
+                  <span className="text-[10.5px] text-amber-900/80 font-medium">Pegar passageiro sem app • PIX instantâneo</span>
+                </div>
+              </div>
+              <span
+                className="text-[10px] font-black px-2 py-0.5 rounded-full border shadow-2xs"
+                style={{
+                  backgroundColor: `${corPrimaria}20`,
+                  color: corPrimaria,
+                  borderColor: `${corPrimaria}40`,
+                }}
+              >
+                NOVO
+              </span>
+            </button>
 
             {/* AUDITORIA 10: WIDGET OFICIAL ECONOMIA PARTIU */}
             <div
@@ -2368,6 +2403,15 @@ export function PartiuDriverCockpit() {
         onClose={() => setModalModoDestino(false)}
         driverId={perfilMotorista.id}
         onDestinationSet={(dest) => setDestinoAtivo(dest)}
+      />
+
+      {/* =================================================================== */}
+      {/* MODAL OFICIAL: TAXÍMETRO VIRTUAL INTELIGENTE ("CORRIDA DE RUA")     */}
+      {/* =================================================================== */}
+      <VirtualTaximeterModal
+        isOpen={modalTaximetro}
+        onClose={() => setModalTaximetro(false)}
+        driverId={perfilMotorista.id}
       />
 
       {/* =================================================================== */}

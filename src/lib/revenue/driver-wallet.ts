@@ -321,6 +321,89 @@ export class DriverWalletEngine {
       deductionBreakdown: check.deductionSummary,
     };
   }
+
+  // ============================================================================
+  // RECURSO 2026: TRAVA AUTOMÁTICA DE SALDO DEVEDOR DE COMISSÃO (DEBT CUTOFF)
+  // ============================================================================
+  public static readonly MAX_ALLOWED_DEBT_CENTS = 5000; // Limite de R$ 50,00 de débito acumulado
+  public static readonly DEBT_WARNING_THRESHOLD_PERCENT = 0.8; // Alerta aos 80% (R$ 40,00)
+
+  /**
+   * Avalia se o condutor está apto ou suspenso por pendência de taxas em dinheiro
+   */
+  public checkDebtStatus(driverId: string = "mot-001"): {
+    isBlocked: boolean;
+    isWarning: boolean;
+    debtBrl: number;
+    debtCents: number;
+    maxAllowedBrl: number;
+    pixPaymentQrPayload: string;
+    message: string;
+  } {
+    const wallet = this.getWallet(driverId);
+    const debtCents = wallet.pendingDebtsCents;
+    const debtBrl = wallet.pendingDebtsBrl;
+    const maxAllowedBrl = DriverWalletEngine.MAX_ALLOWED_DEBT_CENTS / 100;
+
+    const isBlocked = debtCents >= DriverWalletEngine.MAX_ALLOWED_DEBT_CENTS;
+    const isWarning =
+      !isBlocked &&
+      debtCents >= DriverWalletEngine.MAX_ALLOWED_DEBT_CENTS * DriverWalletEngine.DEBT_WARNING_THRESHOLD_PERCENT;
+
+    const pixPayload = `00020126580014br.gov.bcb.pix0136RECARGA-${driverId}-${Date.now()}520400005303986540${debtBrl.toFixed(2)}5802BR5913PARTIU CENTRAL6008SAO PAULO62070503***6304`;
+
+    let message = "Status financeiro regular.";
+    if (isBlocked) {
+      message = `Bloqueio Automático: O saldo devedor de taxas (R$ ${debtBrl.toFixed(2)}) atingiu o teto de R$ ${maxAllowedBrl.toFixed(2)}. Realize uma recarga PIX para reativar o recebimento de corridas.`;
+    } else if (isWarning) {
+      message = `Aviso Preventivo: O saldo devedor de taxas está em R$ ${debtBrl.toFixed(2)} (80% do limite de R$ ${maxAllowedBrl.toFixed(2)}).`;
+    }
+
+    return {
+      isBlocked,
+      isWarning,
+      debtBrl,
+      debtCents,
+      maxAllowedBrl,
+      pixPaymentQrPayload: pixPayload,
+      message,
+    };
+  }
+
+  /**
+   * Registra quitação de débito via PIX pelo condutor parceiro
+   */
+  public payDebtViaPix(driverId: string = "mot-001", amountBrl: number): { success: boolean; newDebtBrl: number } {
+    const wallet = this.getWallet(driverId);
+    const amountCents = Math.round(amountBrl * 100);
+    const cleared = Math.min(wallet.pendingDebtsCents, amountCents);
+
+    subscriptionEngine.clearDebt(driverId, cleared);
+    wallet.pendingDebtsCents = Math.max(0, wallet.pendingDebtsCents - cleared);
+    wallet.pendingDebtsBrl = wallet.pendingDebtsCents / 100;
+    wallet.lastUpdated = Date.now();
+
+    const txs = this.getTransactions(driverId);
+    txs.unshift({
+      id: `TX-PAY-DEBT-${Date.now()}`,
+      driverId,
+      type: "ADJUSTMENT",
+      amountBrl: cleared / 100,
+      amountCents: cleared,
+      isCredit: true,
+      balanceAfterBrl: wallet.availableBalanceBrl,
+      description: `Quitação de Taxa via PIX: R$ ${(cleared / 100).toFixed(2)}`,
+      timestamp: Date.now(),
+    });
+
+    this.persistWallet(wallet);
+    this.persistTransactions(driverId, txs);
+
+    return {
+      success: true,
+      newDebtBrl: wallet.pendingDebtsBrl,
+    };
+  }
 }
 
 export const driverWalletEngine = DriverWalletEngine.getInstance();
