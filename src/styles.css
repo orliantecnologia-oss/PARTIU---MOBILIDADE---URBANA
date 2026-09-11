@@ -112,15 +112,15 @@
 :root {
   --radius: 0.75rem; /* 12px - Acabamento aerodinâmico e moderno */
 
-  /* Primary scale (VELOX Electric Amber / 99 Gold) */
-  --primary-900: #78350f;
-  --primary-800: #92400e;
-  --primary-700: #b45309;
-  --primary-600: #d97706;
-  --primary-500: #f59e0b;
-  --primary-400: #fbbf24;
-  --primary-100: #fef3c7;
-  --primary-50: #fffbeb;
+  /* Primary scale (Ocean Tech Deep Blue to Vibrant Cyan) */
+  --primary-900: #06182c;
+  --primary-800: #0A2342;
+  --primary-700: #003366;
+  --primary-600: #004d99;
+  --primary-500: #0066cc;
+  --primary-400: #0088ff;
+  --primary-100: #e0f0ff;
+  --primary-50: #f0f7ff;
 
   --background: #f8fafc;
   --foreground: #090d16;
@@ -130,15 +130,15 @@
   --popover: #ffffff;
   --popover-foreground: #090d16;
 
-  --primary: #f59e0b;
-  --primary-foreground: #090d16;
-  --brand: #FFDE00;
-  --brand-foreground: #0F172A;
-  --brand-primary: #FFDE00;
-  --brand-primary-hover: #FACC15;
-  --brand-secondary: #FA6400;
-  --brand-text: #0F172A;
-  --brand-soft: #FFFBEB;
+  --primary: #003366;
+  --primary-foreground: #ffffff;
+  --brand: #003366;
+  --brand-foreground: #ffffff;
+  --brand-primary: #003366;
+  --brand-primary-hover: #002244;
+  --brand-secondary: #0088FF;
+  --brand-text: #0A2342;
+  --brand-soft: #f0f7ff;
 
   --secondary: #ffffff;
   --secondary-foreground: #090d16;
@@ -147,9 +147,9 @@
   --text-secondary: #64748b;
   --text-tertiary: #94a3b8;
 
-  --accent: #ea580c; /* Velox Moto Orange */
+  --accent: #0088FF; /* Vibrant Blue / Cyan */
   --accent-foreground: #ffffff;
-  --accent-soft: #ffedd5;
+  --accent-soft: #e0f2fe;
 
   --success: #10b981; /* PIX D+0 Emerald */
   --success-soft: #ecfdf5;
@@ -157,7 +157,7 @@
   --warning-soft: #fffbeb;
   --danger: #ef4444;
   --danger-soft: #fef2f2;
-  --info: #2563eb; /* Velox Entrega Blue */
+  --info: #0088ff;
   --info-soft: #eff6ff;
 
   --destructive: #ef4444;
@@ -165,48 +165,48 @@
   --border: #e2e8f0;
   --border-soft: #f1f5f9;
   --input: #e2e8f0;
-  --ring: #f59e0b;
+  --ring: #0088ff;
 
-  --chart-1: #f59e0b;
-  --chart-2: #ea580c;
-  --chart-3: #2563eb;
+  --chart-1: #0088ff;
+  --chart-2: #003366;
+  --chart-3: #00C6FF;
   --chart-4: #ef4444;
   --chart-5: #10b981;
 
   --sidebar: #090d16;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #f59e0b;
-  --sidebar-primary-foreground: #090d16;
+  --sidebar-primary: #0088ff;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #f59e0b;
+  --sidebar-accent-foreground: #0088ff;
   --sidebar-border: #1e293b;
-  --sidebar-ring: #f59e0b;
+  --sidebar-ring: #0088ff;
 }
 
 .dark {
-  --primary-900: #78350f;
-  --primary-800: #92400e;
-  --primary-700: #b45309;
-  --primary-600: #d97706;
-  --primary-500: #f59e0b;
-  --primary-400: #fbbf24;
+  --primary-900: #06182c;
+  --primary-800: #0A2342;
+  --primary-700: #003366;
+  --primary-600: #004d99;
+  --primary-500: #0066cc;
+  --primary-400: #0088ff;
   --primary-100: #1e293b;
   --primary-50: #0f172a;
-  --accent-soft: #431407;
+  --accent-soft: #082f49;
   --success: #10b981;
   --success-soft: #064e3b;
   --warning: #f59e0b;
   --warning-soft: #451a03;
   --danger: #ef4444;
   --danger-soft: #450a0a;
-  --info: #3b82f6;
+  --info: #0088ff;
   --info-soft: #172554;
   --text-secondary: #94a3b8;
   --text-tertiary: #64748b;
   --border-soft: rgba(255, 255, 255, 0.08);
-  --brand: #f59e0b;
-  --brand-foreground: #090d16;
-  --brand-soft: rgba(245, 158, 11, 0.15);
+  --brand: #0088ff;
+  --brand-foreground: #ffffff;
+  --brand-soft: rgba(0, 136, 255, 0.15);
   --surface: #111827;
   --background: #090d16;
   --foreground: #f8fafc;
@@ -214,8 +214,8 @@
   --card-foreground: #f8fafc;
   --popover: #111827;
   --popover-foreground: #f8fafc;
-  --primary: #f59e0b;
-  --primary-foreground: #090d16;
+  --primary: #0088ff;
+  --primary-foreground: #ffffff;
   --secondary: #1e293b;
   --secondary-foreground: #f8fafc;
   --muted: #1e293b;
@@ -366,7 +366,7 @@ select {
 
 /* Micro-interações de Foco Acessíveis & Sofisticadas */
 :focus-visible {
-  outline: 2px solid #FFDE00;
+  outline: 2px solid #0088FF;
   outline-offset: 2px;
 }
 
@@ -389,7 +389,7 @@ button:focus-visible,
 a:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #FFDE00;
+  outline: 2px solid #0088FF;
   outline-offset: 2px;
   box-shadow: var(--focus-ring);
 }
@@ -679,7 +679,7 @@ textarea {
     box-shadow: 0 0 0 0 transparent;
   }
   83% {
-    border-color: #FFDE00;
+    border-color: #0088FF;
     box-shadow:
       0 0 0 2px rgba(13, 89, 48, 0.85),
       0 0 12px 2px rgba(13, 89, 48, 0.4);

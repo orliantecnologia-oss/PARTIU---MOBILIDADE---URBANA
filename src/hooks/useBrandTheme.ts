@@ -119,10 +119,10 @@ export function useBrandTheme() {
   // Mapeamentos unificados: WhiteLabel tem precedência, fallback para identidade legada
   const nomeApp = config.brandCenter?.nomePlataforma || identidade.nomeApp || "PARTIU";
   const sloganApp = config.brandCenter?.slogan || identidade.sloganApp || "Mobilidade inteligente para sua cidade";
-  const corPrimaria = config.designSystem?.paletaPrimaria?.corPrincipal || identidade.corPrimaria || "#FFDE00";
-  const corPrimariaHover = config.designSystem?.paletaPrimaria?.corPrincipalHover || identidade.corPrimariaHover || "#FACC15";
-  const corSecundaria = config.designSystem?.paletaPrimaria?.corSecundaria || identidade.corSecundaria || "#FA6400";
-  const corTextoPrimaria = config.designSystem?.paletaPrimaria?.corTextoPrincipal || identidade.corTextoPrimaria || "#0F172A";
+  const corPrimaria = config.designSystem?.paletaPrimaria?.corPrincipal || identidade.corPrimaria || "#003366";
+  const corPrimariaHover = config.designSystem?.paletaPrimaria?.corPrincipalHover || identidade.corPrimariaHover || "#002244";
+  const corSecundaria = config.designSystem?.paletaPrimaria?.corSecundaria || identidade.corSecundaria || "#0088FF";
+  const corTextoPrimaria = config.designSystem?.paletaPrimaria?.corTextoPrincipal || identidade.corTextoPrimaria || "#FFFFFF";
   const corFundoApp = config.designSystem?.paletaPrimaria?.corFundoApp || identidade.corFundoApp || "#F8FAFC";
   const nomeModuloPay = "99Pay";
   const nomeModuloEntrega = config.businessModels?.verticais?.DELIVERY_FLASH?.nomeExibicao || "Entrega";

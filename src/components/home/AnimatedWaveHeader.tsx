@@ -13,10 +13,12 @@ export interface AnimatedWaveHeaderProps {
 }
 
 /**
- * Cabeçalho "Floating Island" (Ilha Flutuante) - Padrão Premium
- * - Substitui a curvatura amarela sólida por um card flutuante translúcido (Glassmorphism).
- * - Posicionado absolutamente sobre o mapa no topo da tela com respeito à Safe Area.
- * - Sombra difusa elegante, cantos arredondados (rounded-[30px]), layout horizontal e minimalista.
+ * Cabeçalho "Dynamic Gradient Wave" — Rebranding Ocean Tech
+ *
+ * Design: Fundo em degradê azul vibrante (#0088FF → #003366), com borda
+ * inferior arredondada (radius 35) que sobrepõe os primeiros centímetros
+ * do mapa. Texto branco, avatar com borda branca, ícone de sino branco
+ * com glow sutil. Layout horizontal minimalista.
  */
 export function AnimatedWaveHeader({
   userName,
@@ -30,20 +32,22 @@ export function AnimatedWaveHeader({
   const iniciais = primeiroNome.substring(0, 2).toUpperCase();
 
   return (
-    <header className="absolute top-0 left-0 right-0 z-30 pointer-events-none select-none flex justify-center pt-[max(0.65rem,env(safe-area-inset-top,10px))] px-3 sm:px-4">
-      {/* CARD FLUTUANTE / ILHA GLASSMORPHISM */}
-      <div
-        className="pointer-events-auto w-full max-w-md bg-white/95 backdrop-blur-md rounded-[30px] px-3.5 py-2 sm:px-4 sm:py-2.5 shadow-[0_8px_30px_rgba(0,0,0,0.10)] border border-slate-100/90 flex items-center justify-between transition-all duration-300"
-        style={{
-          elevation: 5,
-        }}
-      >
+    <header
+      className="absolute top-0 left-0 right-0 z-30 select-none"
+      style={{
+        background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+        borderBottomLeftRadius: 35,
+        borderBottomRightRadius: 35,
+        paddingTop: "max(0.75rem, env(safe-area-inset-top, 12px))",
+      }}
+    >
+      <div className="flex items-center justify-between px-5 pb-5 pt-2">
         {/* Lado Esquerdo: Avatar & Saudação */}
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onOpenDrawer}
-            className="group relative w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden ring-2 ring-slate-100 shadow-xs active:scale-95 transition-transform cursor-pointer bg-slate-900 text-amber-400 flex items-center justify-center font-black text-xs shrink-0"
+            className="group relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden ring-[2.5px] ring-white/80 shadow-lg active:scale-95 transition-transform cursor-pointer bg-white/20 text-white flex items-center justify-center font-black text-xs shrink-0"
             aria-label="Abrir Menu Lateral e Perfil"
             title="Abrir Menu"
           >
@@ -62,27 +66,30 @@ export function AnimatedWaveHeader({
           </button>
 
           <div className="flex flex-col text-left justify-center">
-            <span className="text-[10px] font-black uppercase tracking-widest text-amber-500 leading-none mb-0.5">
+            <span className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-white/70 leading-none mb-0.5">
               PARTIU
             </span>
-            <h1 className="text-sm sm:text-[15px] font-black tracking-tight leading-tight text-slate-900">
+            <h1 className="text-base sm:text-lg font-black tracking-tight leading-tight text-white">
               Olá, {primeiroNome}!
             </h1>
           </div>
         </div>
 
-        {/* Lado Direito: Sino de Notificações com Badge */}
+        {/* Lado Direito: Sino de Notificações com Glow */}
         <button
           type="button"
           onClick={onOpenNotifications}
-          className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-50 hover:bg-slate-100 active:scale-95 transition-all text-slate-700 hover:text-slate-950 flex items-center justify-center cursor-pointer shrink-0 border border-slate-200/60 shadow-2xs"
+          className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/15 hover:bg-white/25 active:scale-95 transition-all text-white flex items-center justify-center cursor-pointer shrink-0 backdrop-blur-sm"
+          style={{
+            boxShadow: "0 0 18px rgba(0, 136, 255, 0.35)",
+          }}
           aria-label="Notificações"
           title="Notificações"
         >
-          <Bell className="w-4 h-4 sm:w-[18px] sm:h-[18px] stroke-[2.2]" />
+          <Bell className="w-[18px] h-[18px] sm:w-5 sm:h-5 stroke-[2.2]" />
 
           {hasUnreadNotifications && (
-            <span className="absolute top-2 right-2 w-2 h-2 bg-amber-500 rounded-full ring-2 ring-white animate-pulse" />
+            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-white rounded-full ring-2 ring-[#0088FF] animate-pulse" />
           )}
         </button>
       </div>

@@ -96,9 +96,9 @@ async function runTestSuite() {
 
   whiteLabelEngine.applyTheme(initialConfig);
 
-  assertEqual(dummyStyle["--brand-primary"], "#FFDE00", "Injeção de --brand-primary correta no :root");
-  assertEqual(dummyStyle["--color-primary"], "#FFDE00", "Injeção de --color-primary Tailwind v4 correta");
-  assertEqual(dummyStyle["--color-secondary"], "#FA6400", "Injeção de --color-secondary correta");
+  assertEqual(dummyStyle["--brand-primary"], "#003366", "Injeção de --brand-primary correta no :root");
+  assertEqual(dummyStyle["--color-primary"], "#003366", "Injeção de --color-primary Tailwind v4 correta");
+  assertEqual(dummyStyle["--color-secondary"], "#0088FF", "Injeção de --color-secondary correta");
   assertEqual(dummyStyle["--radius"], "1rem", "Injeção de --radius 'xl' (1rem) padrão correta");
   assert(dummyStyle["--font-sans"].includes("Plus Jakarta Sans"), "Injeção de --font-sans inclui Plus Jakarta Sans");
 
@@ -316,7 +316,7 @@ async function runTestSuite() {
 
   // Restaura padrão e depois reimporta o JSON
   whiteLabelEngine.resetToDefaults();
-  assertEqual(whiteLabelEngine.getActiveConfig().designSystem.paletaPrimaria.corPrincipal, "#FFDE00", "Restaurado padrão PARTIU");
+  assertEqual(whiteLabelEngine.getActiveConfig().designSystem.paletaPrimaria.corPrincipal, "#003366", "Restaurado padrão PARTIU");
 
   const importResult = whiteLabelEngine.importThemeJson(jsonExportado);
   assert(!!importResult, "Tema JSON reimportado com sucesso");
