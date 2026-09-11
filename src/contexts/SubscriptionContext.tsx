@@ -18,8 +18,10 @@ import {
   DEFAULT_MONETIZATION_PLANS,
 } from "@/services/subscription/PixBillingService";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { driverSubscriptionService } from "@/lib/ecosystem/driver-subscription-service";
 
 interface SubscriptionContextValue {
+  driverId: string;
   accessDecision: DriverAccessDecision;
   plans: MonetizationPlan[];
   selectedPlan: MonetizationPlan | undefined;
@@ -33,6 +35,7 @@ interface SubscriptionContextValue {
   dismissCelebration: () => void;
   generateBilling: (planId?: string) => Promise<DriverBillingRecord | null>;
   refreshAccess: () => Promise<DriverAccessDecision>;
+  activateDemo: () => Promise<void>;
 }
 
 const defaultDecision: DriverAccessDecision = {
@@ -153,11 +156,26 @@ export function SubscriptionProvider({
     }
   };
 
+  // 5. Ativação expressa de demonstração local
+  const activateDemo = useCallback(async () => {
+    pixBillingService.activateDemoMode(driverId);
+    try {
+      await driverSubscriptionService.simulateDailyFeePayment(driverId, "CARRO");
+      if (driverId !== "mot-001") {
+        await driverSubscriptionService.simulateDailyFeePayment("mot-001", "CARRO");
+      }
+    } catch {}
+
+    triggerInstantActivation();
+    await refreshAccess();
+  }, [driverId, triggerInstantActivation, refreshAccess]);
+
   const isUnlocked = accessDecision.is_eligible;
 
   return (
     <SubscriptionContext.Provider
       value={{
+        driverId,
         accessDecision,
         plans,
         selectedPlan,
@@ -171,6 +189,7 @@ export function SubscriptionProvider({
         dismissCelebration: () => setShowCelebration(false),
         generateBilling,
         refreshAccess,
+        activateDemo,
       }}
     >
       {children}

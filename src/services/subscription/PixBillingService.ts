@@ -12,6 +12,7 @@
 
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { paymentGatewayManager, PixOrderOutput } from "@/services/payment/PaymentProviderAdapter";
+import { driverSubscriptionService } from "@/lib/ecosystem/driver-subscription-service";
 
 export interface MonetizationPlan {
   id: string;
@@ -196,16 +197,85 @@ export class PixBillingService {
   }
 
   /**
+   * Ativação instantânea do Modo Demonstração para testes sem fricção
+   */
+  public activateDemoMode(driverId: string = "mot-001"): void {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("partiu_driver_demo", "true");
+        localStorage.setItem("partiu_demo_user", "true");
+        localStorage.setItem(`partiu_demo_driver_${driverId}`, "true");
+        localStorage.setItem("partiu_demo_driver_mot-001", "true");
+      } catch {}
+    }
+
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const demoSub = {
+      id: `sub_demo_${Date.now()}`,
+      driver_id: driverId,
+      plan_id: "plano-diaria-essencial",
+      plan_name: "Diária Essencial (Modo Demonstração)",
+      cycle_type: "DAILY",
+      status: "ACTIVE",
+      amount_paid: 14.90,
+      priority_weight: 5.0,
+      starts_at: new Date().toISOString(),
+      expires_at: expiresAt,
+    };
+
+    inMemorySubscriptions.set(driverId, demoSub);
+    inMemorySubscriptions.set("mot-001", demoSub);
+    inMemorySubscriptions.set("demo-driver-01", demoSub);
+    inMemorySubscriptions.set("usr-drv-demo-01", demoSub);
+
+    try {
+      void driverSubscriptionService.simulateDailyFeePayment(driverId, "CARRO");
+      if (driverId !== "mot-001") {
+        void driverSubscriptionService.simulateDailyFeePayment("mot-001", "CARRO");
+      }
+    } catch {}
+
+    this.notifyRealtimeActivation(driverId, expiresAt);
+    if (driverId !== "mot-001") {
+      this.notifyRealtimeActivation("mot-001", expiresAt);
+    }
+  }
+
+  /**
    * Avalia o acesso operacional do condutor via RPC Server-Side
    */
   public async evaluateDriverAccess(driverId: string): Promise<DriverAccessDecision> {
+    // 1. Verificação prévia de Modo Demonstração ou Diária ativa localmente
+    const isExplicitDemo = typeof window !== "undefined" && (
+      localStorage.getItem("partiu_driver_demo") === "true" ||
+      localStorage.getItem("partiu_demo_user") === "true" ||
+      localStorage.getItem(`partiu_demo_driver_${driverId}`) === "true"
+    );
+
+    const activeLocalSub = driverSubscriptionService.getActiveSubscription(driverId) ||
+      (isExplicitDemo ? driverSubscriptionService.getActiveSubscription("mot-001") : null);
+
+    if (isExplicitDemo || (activeLocalSub && activeLocalSub.status === "ACTIVE")) {
+      const expiresAt = activeLocalSub?.expires_at || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      return {
+        is_eligible: true,
+        status: "ACTIVE",
+        plan_id: "plano-diaria-essencial",
+        plan_name: "Diária Essencial (Modo Demonstração)",
+        priority_weight: 5.0,
+        expires_at: expiresAt,
+        amount_paid: activeLocalSub?.amount_paid || 14.90,
+        reasons: [],
+      };
+    }
+
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await (supabase as any).rpc("fn_driver_evaluate_access", {
           p_driver_id: driverId,
         });
 
-        if (!error && data) {
+        if (!error && data && data.is_eligible) {
           return {
             is_eligible: Boolean(data.is_eligible),
             status: data.status,
@@ -224,7 +294,9 @@ export class PixBillingService {
     }
 
     // Fallback in-process
-    const localSub = inMemorySubscriptions.get(driverId);
+    const localSub = inMemorySubscriptions.get(driverId) ||
+      (isExplicitDemo ? inMemorySubscriptions.get("mot-001") : undefined);
+
     if (!localSub) {
       return {
         is_eligible: false,

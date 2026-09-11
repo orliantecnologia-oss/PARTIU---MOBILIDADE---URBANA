@@ -104,6 +104,7 @@ import {
 } from "@/components/driver/DriverCancelBottomSheet";
 import { openExternalNavigation } from "@/utils/navigation-launcher";
 import { driverConsecutiveRidesEngine } from "@/lib/driver/driver-consecutive-rides-engine";
+import { supabaseAuthService } from "@/lib/auth/supabase-auth-service";
 
 export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PARTIU") {
   const isEntrega = c.isEntrega || c.modalidade.startsWith("ENTREGA");
@@ -165,8 +166,11 @@ export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PART
 }
 
 export function PartiuDriverCockpitGuarded() {
+  const activeUser = typeof window !== "undefined" ? supabaseAuthService.getCurrentUser() : null;
+  const effectiveDriverId = activeUser?.role === "MOTORISTA" ? activeUser.id : MOTORISTA_CONTA_PADRAO.id;
+
   return (
-    <DriverAccessGuard driverId={MOTORISTA_CONTA_PADRAO.id}>
+    <DriverAccessGuard driverId={effectiveDriverId}>
       <PartiuDriverCockpit />
     </DriverAccessGuard>
   );
@@ -203,11 +207,34 @@ export function PartiuDriverCockpit() {
   const accentColor = branding?.accent_color || corSecundaria || "#0088FF";
   const brandGradient = `linear-gradient(135deg, var(--header-gradient-start, ${corCabecalhoInicio}) 0%, var(--header-gradient-end, ${corCabecalhoFim}) 100%)`;
 
+  const activeUser = typeof window !== "undefined" ? supabaseAuthService.getCurrentUser() : null;
+  const effectiveDriverId = activeUser?.role === "MOTORISTA" ? activeUser.id : MOTORISTA_CONTA_PADRAO.id;
+
   // Status de Disponibilidade & Trava de Diária Inteligente (SaaS Model)
-  const [isOnline, setIsOnline] = useState(() => driverSubscriptionService.isDriverUnlocked(MOTORISTA_CONTA_PADRAO.id));
+  const [isOnline, setIsOnline] = useState(() => {
+    const isUnlocked = driverSubscriptionService.isDriverUnlocked(effectiveDriverId) ||
+      driverSubscriptionService.isDriverUnlocked(MOTORISTA_CONTA_PADRAO.id);
+    const isDemo = typeof window !== "undefined" && (
+      localStorage.getItem("partiu_driver_demo") === "true" ||
+      localStorage.getItem("partiu_demo_user") === "true"
+    );
+    return isUnlocked || isDemo;
+  });
 
   // Perfil Operacional e Elegibilidade (Padrão 99/Uber)
-  const [perfilMotorista] = useState<DriverProfileRecord>(MOTORISTA_CONTA_PADRAO);
+  const [perfilMotorista] = useState<DriverProfileRecord>(() => {
+    if (activeUser?.role === "MOTORISTA") {
+      return {
+        ...MOTORISTA_CONTA_PADRAO,
+        id: activeUser.id,
+        nome: activeUser.name || MOTORISTA_CONTA_PADRAO.nome,
+        telefone: activeUser.phone || MOTORISTA_CONTA_PADRAO.telefone,
+        email: activeUser.email || MOTORISTA_CONTA_PADRAO.email,
+        fotoUrl: activeUser.avatarUrl || MOTORISTA_CONTA_PADRAO.fotoUrl,
+      };
+    }
+    return MOTORISTA_CONTA_PADRAO;
+  });
   const [loyaltyProfile] = useState(() => driverLoyaltyEngine.getProfile(perfilMotorista.id));
   const [erroElegibilidade, setErroElegibilidade] = useState<string | null>(null);
   const [waitingTimerStatus, setWaitingTimerStatus] = useState<WaitingTimerStatus | null>(null);

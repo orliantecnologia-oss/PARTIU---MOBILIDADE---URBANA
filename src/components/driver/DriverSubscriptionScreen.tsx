@@ -31,9 +31,11 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
 import { SubscriptionSuccessModal } from "@/components/driver/SubscriptionSuccessModal";
 import { driverSubscriptionService } from "@/lib/ecosystem/driver-subscription-service";
+import { pixBillingService } from "@/services/subscription/PixBillingService";
 
 export const DriverSubscriptionScreen = memo(function DriverSubscriptionScreen() {
   const {
+    driverId,
     plans,
     selectedPlan,
     setSelectedPlan,
@@ -44,6 +46,8 @@ export const DriverSubscriptionScreen = memo(function DriverSubscriptionScreen()
     showCelebration,
     dismissCelebration,
     accessDecision,
+    refreshAccess,
+    activateDemo,
   } = useSubscription();
 
   const {
@@ -95,10 +99,16 @@ export const DriverSubscriptionScreen = memo(function DriverSubscriptionScreen()
   const handleSimularAtivacaoDemo = async () => {
     setIsSimulando(true);
     try {
-      const driverId = accessDecision?.driverId || "demo-driver-01";
-      await driverSubscriptionService.simulateDailyFeePayment(driverId, "CARRO");
-      window.location.reload();
-    } catch {
+      const activeDriverId = driverId || "mot-001";
+      if (activateDemo) {
+        await activateDemo();
+      } else {
+        pixBillingService.activateDemoMode(activeDriverId);
+        await driverSubscriptionService.simulateDailyFeePayment(activeDriverId, "CARRO");
+        await refreshAccess();
+      }
+    } catch (err) {
+      console.warn("[DriverSubscriptionScreen] Erro ao ativar demo:", err);
       window.location.reload();
     } finally {
       setIsSimulando(false);

@@ -493,6 +493,19 @@ export class SupabaseAuthService {
     const demo = DEMO_PROFILES[role];
     this.saveStoredSession(demo);
 
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("partiu_demo_user", "true");
+        if (role === "MOTORISTA") {
+          localStorage.setItem("partiu_driver_demo", "true");
+          localStorage.setItem("partiu_demo_driver_mot-001", "true");
+          localStorage.setItem(`partiu_demo_driver_${demo.id}`, "true");
+        }
+      } catch (err) {
+        silentCatchWarn("quickDemoLogin", err);
+      }
+    }
+
     const redirectUrl =
       role === "MOTORISTA" ? "/app/motorista" : role === "ADMIN" ? "/app/admin" : "/app";
 
@@ -511,6 +524,12 @@ export class SupabaseAuthService {
       try {
         await supabase.auth.signOut();
       } catch (err) { silentCatchWarn("supabase-auth-service", err); }
+    }
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("partiu_demo_user");
+        localStorage.removeItem("partiu_driver_demo");
+      } catch {}
     }
     this.clearStoredSession();
   }
