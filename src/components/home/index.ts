@@ -5,3 +5,4 @@ export * from "./DestinationCard";
 export * from "./PromoCarousel";
 export * from "./HomeBottomNav";
 export * from "./AnimatedWaveHeader";
+export * from "./Header";
