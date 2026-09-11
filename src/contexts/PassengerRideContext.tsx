@@ -59,6 +59,12 @@ export interface PassengerPreferences {
   isFemaleOnly: boolean;
 }
 
+export interface ParadaItem {
+  id: string;
+  endereco: string;
+  coords?: { lat: number; lng: number };
+}
+
 interface PassengerRideContextValue {
   state: PassengerRideState;
   categoriaVeiculo: PassengerVehicleCategory;
@@ -90,6 +96,9 @@ interface PassengerRideContextValue {
   setViajanteOutraPessoa: (val: boolean) => void;
   setNomeOutroPassageiro: (nome: string) => void;
   setTelefoneOutroPassageiro: (tel: string) => void;
+  paradas: ParadaItem[];
+  adicionarParada: (endereco: string, coords?: { lat: number; lng: number }) => void;
+  removerParada: (id: string) => void;
   paradaIntermediaria: string | null;
   setParadaIntermediaria: (parada: string | null) => void;
   horarioDesembarquePrevisto: string;
@@ -490,7 +499,45 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
   const [viajanteOutraPessoa, setViajanteOutraPessoa] = useState(false);
   const [nomeOutroPassageiro, setNomeOutroPassageiro] = useState("");
   const [telefoneOutroPassageiro, setTelefoneOutroPassageiro] = useState("");
+  const [paradas, setParadas] = useState<ParadaItem[]>([]);
   const [paradaIntermediaria, setParadaIntermediaria] = useState<string | null>(null);
+
+  const adicionarParada = useCallback((endereco: string, coords?: { lat: number; lng: number }) => {
+    if (!endereco.trim()) return;
+    setParadas((prev) => {
+      if (prev.length >= 2) return prev;
+      const nova: ParadaItem = {
+        id: `parada_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        endereco: endereco.trim(),
+        coords,
+      };
+      const updated = [...prev, nova];
+      setParadaIntermediaria(updated[0]?.endereco || null);
+      return updated;
+    });
+  }, []);
+
+  const removerParada = useCallback((id: string) => {
+    setParadas((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      setParadaIntermediaria(updated[0]?.endereco || null);
+      return updated;
+    });
+  }, []);
+
+  const handleSetParadaIntermediaria = useCallback((val: string | null) => {
+    setParadaIntermediaria(val);
+    if (val && val.trim()) {
+      setParadas([
+        {
+          id: `parada_${Date.now()}`,
+          endereco: val.trim(),
+        },
+      ]);
+    } else {
+      setParadas([]);
+    }
+  }, []);
 
   // Coordenadas do condutor em rota (alimentadas pelo realtime oficial de motoristas)
   const [driverCoords, setDriverCoords] = useState<[number, number]>(() => origemCoords);
@@ -501,12 +548,19 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
 
   const [routeMetrics, setRouteMetrics] = useState<RouteMetrics | null>(null);
 
-  // Recálculo da rota real pela RoutingService (Mapbox Directions com trânsito ao vivo)
+  // Recálculo da rota real pela RoutingService (Mapbox Directions com trânsito ao vivo + Multi-Waypoints)
   useEffect(() => {
     if (!destinoCoords || !origemCoords || !destino) return;
     let cancel = false;
+    const waypointsCoords: [number, number][] = paradas
+      .filter((p) => p.coords?.lng !== undefined && p.coords?.lat !== undefined)
+      .map((p) => [p.coords!.lng, p.coords!.lat]);
+
     routingService
-      .getRoute(origemCoords, destinoCoords, { trafficAware: true })
+      .getRoute(origemCoords, destinoCoords, {
+        trafficAware: true,
+        waypoints: waypointsCoords.length > 0 ? waypointsCoords : undefined,
+      })
       .then((metrics) => {
         if (!cancel && metrics) {
           setRouteMetrics(metrics);
@@ -518,14 +572,14 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
     return () => {
       cancel = true;
     };
-  }, [origemCoords[0], origemCoords[1], destinoCoords[0], destinoCoords[1], destino]);
+  }, [origemCoords[0], origemCoords[1], destinoCoords[0], destinoCoords[1], destino, paradas]);
 
   // Cotações recalculadas de forma reativa (compatibilidade legada)
   const cotacoes = useMemo(() => {
     return calcularCotacoesPassageiro(distanciaKm, duracaoMin);
   }, [distanciaKm, duracaoMin]);
 
-  // Cotações oficiais para as 7 categorias
+  // Cotações oficiais para as 7 categorias (incluindo taxa de multi-paradas)
   const multiCategoryQuotes = useMemo(() => {
     const dummyMetrics: RouteMetrics = routeMetrics || {
       distanceMeters: Math.round(distanciaKm * 1000),
@@ -537,8 +591,8 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       endAddress: destino,
       provider: "calibrated_urban_network",
     };
-    return pricingService.calculateMultiCategoryQuotes(dummyMetrics);
-  }, [routeMetrics, distanciaKm, duracaoMin, origem, destino]);
+    return pricingService.calculateMultiCategoryQuotes(dummyMetrics, {}, paradas.length);
+  }, [routeMetrics, distanciaKm, duracaoMin, origem, destino, paradas.length]);
 
   const activeQuote = useMemo(() => {
     let key: SupportedVehicleCategory = "PARTIU_CARRO";
@@ -906,6 +960,12 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       otherPersonPhone: isOutraPessoa ? telPassageiro : undefined,
       solicitanteNome: "Rodrigo Gomes",
       solicitanteTelefone: "(22) 99876-5432",
+      paradas: paradas.map((p) => ({
+        id: p.id,
+        endereco: p.endereco,
+        coords: p.coords,
+        concluida: false,
+      })),
     });
 
     setActiveRide(novaCorrida);
@@ -942,6 +1002,7 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
     nomeOutroPassageiro,
     telefoneOutroPassageiro,
     preferences.isFemaleOnly,
+    paradas,
   ]);
 
   // Escuta eventos de despacho progressivo em tempo real e aceite
@@ -1094,6 +1155,8 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
     setState("IDLE");
     setActiveRide(null);
     setDestino("");
+    setParadas([]);
+    setParadaIntermediaria(null);
     setIsCancelModalOpen(false);
   }, []);
 
@@ -1127,8 +1190,11 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       setViajanteOutraPessoa,
       setNomeOutroPassageiro,
       setTelefoneOutroPassageiro,
+      paradas,
+      adicionarParada,
+      removerParada,
       paradaIntermediaria,
-      setParadaIntermediaria,
+      setParadaIntermediaria: handleSetParadaIntermediaria,
       horarioDesembarquePrevisto,
       etaCalculado,
       driverCoords,
@@ -1195,7 +1261,11 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       viajanteOutraPessoa,
       nomeOutroPassageiro,
       telefoneOutroPassageiro,
+      paradas,
+      adicionarParada,
+      removerParada,
       paradaIntermediaria,
+      handleSetParadaIntermediaria,
       horarioDesembarquePrevisto,
       etaCalculado,
       driverCoords,

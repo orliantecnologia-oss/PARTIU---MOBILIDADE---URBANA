@@ -55,7 +55,9 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
     telefoneOutroPassageiro,
     setViajanteOutraPessoa,
     setNomeOutroPassageiro,
-    setTelefoneOutroPassageiro,
+    paradas,
+    adicionarParada,
+    removerParada,
     paradaIntermediaria,
     setParadaIntermediaria,
     horarioDesembarquePrevisto,
@@ -157,13 +159,11 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
   const paymentInfo = getPaymentInfo();
   const PaymentIcon = paymentInfo.icon;
 
-  function salvarParada() {
+  function handleAdicionarParada() {
     if (inputParada.trim()) {
-      setParadaIntermediaria(inputParada.trim());
-    } else {
-      setParadaIntermediaria(null);
+      adicionarParada(inputParada.trim());
+      setInputParada("");
     }
-    setModalParadaAberto(false);
   }
 
   return (
@@ -429,7 +429,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   setModalParadaAberto(true);
                 }}
                 className={`min-h-[34px] sm:min-h-[36px] w-full flex items-center justify-between gap-1 font-bold text-[11px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
-                  paradaIntermediaria
+                  paradas.length > 0
                     ? "bg-primary-50 text-amber-950 border-primary-500"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
                 }`}
@@ -437,16 +437,18 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 <div className="flex items-center gap-1 truncate">
                   <Plus className="w-3 h-3 text-primary-700 stroke-[2.5] shrink-0" />
                   <span className="truncate">
-                    {paradaIntermediaria
-                      ? `Parada: ${paradaIntermediaria.slice(0, 15)}...`
-                      : "+ Parada"}
+                    {paradas.length === 0
+                      ? "+ Parada"
+                      : paradas.length === 1
+                      ? `1 Parada: ${paradas[0].endereco.slice(0, 10)}...`
+                      : `2 Paradas (+R$ 5,00)`}
                   </span>
                 </div>
-                {paradaIntermediaria && (
+                {paradas.length > 0 && (
                   <span
                     role="button"
                     tabIndex={0}
-                    aria-label="Remover parada intermediária"
+                    aria-label="Remover paradas intermediárias"
                     onClick={(e) => {
                       e.stopPropagation();
                       hapticFeedback.light();
@@ -664,10 +666,15 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
       {modalParadaAberto && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="w-full max-w-sm bg-white rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-black text-slate-950">
-                Adicionar Parada no Trajeto
-              </h3>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <div>
+                <h3 className="text-sm font-black text-slate-950">
+                  Paradas no Trajeto
+                </h3>
+                <p className="text-[10px] text-slate-500">
+                  Adicione até 2 paradas intermediárias (+ R$ 2,50/parada)
+                </p>
+              </div>
               <button
                 type="button"
                 onClick={() => setModalParadaAberto(false)}
@@ -677,33 +684,100 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               </button>
             </div>
 
-            <input
-              type="text"
-              value={inputParada}
-              onChange={(e) => setInputParada(e.target.value)}
-              placeholder="Digite o endereço da parada intermediária..."
-              className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
-              autoFocus
-            />
+            {/* TRAJETO DETALHADO */}
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-0.5">
+              {/* Ponto 1: Origem */}
+              <div className="flex items-center gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <span className="text-[10px] uppercase font-black text-slate-400 block">Embarque</span>
+                  <span className="font-semibold text-slate-800 truncate block text-[11px]">{origem}</span>
+                </div>
+              </div>
 
-            <div className="flex items-center gap-2 pt-1">
+              {/* Lista de Paradas Cadastradas */}
+              {paradas.map((p, idx) => (
+                <div key={p.id} className="flex items-center justify-between gap-2 text-xs bg-amber-50/70 border border-amber-200/80 p-2.5 rounded-xl animate-in fade-in duration-200">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-5 h-5 rounded-full bg-amber-500 text-white font-black text-[10px] flex items-center justify-center shrink-0 shadow-2xs">
+                      {idx + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <span className="text-[9px] uppercase font-black text-amber-700 block">Parada {idx + 1}</span>
+                      <span className="font-bold text-amber-950 truncate block text-[11px]">{p.endereco}</span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      hapticFeedback.light();
+                      removerParada(p.id);
+                    }}
+                    className="px-2 py-1 text-rose-600 hover:text-rose-800 hover:bg-rose-100/60 rounded-lg text-[10px] font-bold shrink-0 transition"
+                  >
+                    Remover
+                  </button>
+                </div>
+              ))}
+
+              {/* Campo para Adicionar Parada (se < 2) */}
+              {paradas.length < 2 ? (
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="text"
+                      value={inputParada}
+                      onChange={(e) => setInputParada(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAdicionarParada();
+                        }
+                      }}
+                      placeholder={paradas.length === 0 ? "Endereço da 1ª parada..." : "Endereço da 2ª parada..."}
+                      className="flex-1 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      disabled={!inputParada.trim()}
+                      onClick={() => {
+                        hapticFeedback.light();
+                        handleAdicionarParada();
+                      }}
+                      className="px-3 py-2.5 rounded-xl bg-primary-600 disabled:opacity-40 text-white text-xs font-bold shrink-0 cursor-pointer shadow-xs transition active:scale-95"
+                    >
+                      + Add
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-[10px] text-amber-700 bg-amber-50 p-2 rounded-xl text-center font-medium border border-amber-100">
+                  ✓ Limite máximo de 2 paradas intermediárias atingido.
+                </p>
+              )}
+
+              {/* Ponto Final: Destino */}
+              <div className="flex items-center gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <span className="w-2.5 h-2.5 rounded-sm bg-rose-500 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <span className="text-[10px] uppercase font-black text-slate-400 block">Destino</span>
+                  <span className="font-semibold text-slate-800 truncate block text-[11px]">{destino}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={() => setModalParadaAberto(false)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={salvarParada}
                 style={{
                   backgroundColor: corPrimaria || "#0088FF",
                   color: "#FFFFFF",
                 }}
-                className="flex-1 py-2.5 rounded-xl text-xs font-black shadow-md cursor-pointer"
+                className="w-full py-2.5 rounded-xl text-xs font-black shadow-md cursor-pointer hover:brightness-105 active:scale-98 transition"
               >
-                Salvar Parada
+                Concluir
               </button>
             </div>
           </div>

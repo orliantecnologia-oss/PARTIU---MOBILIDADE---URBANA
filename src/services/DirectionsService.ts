@@ -59,6 +59,7 @@ export interface RouteResult {
   weight?: number;
   trafficCongestion?: "low" | "moderate" | "heavy" | "severe";
   source: "mapbox_driving_traffic" | "calibrated_urban_network";
+  isFallback?: boolean;
   cached?: boolean;
 }
 
@@ -67,6 +68,7 @@ export interface DirectionsOptions {
   alternatives?: boolean;
   bannerInstructions?: boolean;
   skipCache?: boolean;
+  timeoutMs?: number;
 }
 
 export class DirectionsService {
@@ -133,13 +135,18 @@ export class DirectionsService {
       }
     }
 
-    // 2. Chamada à API Mapbox Directions (driving-traffic)
+    // 2. Chamada à API Mapbox Directions (driving-traffic) com AbortController (Timeout Resiliente)
+    const timeoutMs = options.timeoutMs ?? 1500;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     try {
       const token = MapboxConfig.getAccessToken();
-      const coordsString = `${origin[0]},${origin[1]};${destination[0]},${destination[1]}`;
+      const allPoints: [number, number][] = [origin, ...(options.waypoints || []), destination];
+      const coordsString = allPoints.map((p) => `${p[0]},${p[1]}`).join(";");
       const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${coordsString}?geometries=geojson&overview=full&steps=true&annotations=congestion,duration,distance&access_token=${token}`;
 
-      const response = await fetch(url, { method: "GET" });
+      const response = await fetch(url, { method: "GET", signal: controller.signal });
 
       if (response.ok) {
         const data = await response.json();
@@ -173,6 +180,7 @@ export class DirectionsService {
             weight: route.weight,
             trafficCongestion: congestion,
             source: "mapbox_driving_traffic",
+            isFallback: false,
           };
 
           this.routeCache.set(cacheKey, { result, timestamp: Date.now() });
@@ -180,63 +188,77 @@ export class DirectionsService {
         }
       }
     } catch (error) {
-      console.warn("[DirectionsService] Erro ao consultar Mapbox driving-traffic, ativando fallback calibrado:", error);
+      console.warn("[DirectionsService] Erro/Timeout ao consultar Mapbox driving-traffic, ativando fallback calibrado:", error);
+    } finally {
+      clearTimeout(timeoutId);
     }
 
     // 3. Fallback Determinístico de Rede Urbana (Calibrated Urban Network)
-    const fallbackResult = this.calculateUrbanNetworkFallback(origin, destination);
+    const fallbackResult = this.calculateUrbanNetworkFallback(origin, destination, options.waypoints);
     this.routeCache.set(cacheKey, { result: fallbackResult, timestamp: Date.now() });
     return fallbackResult;
   }
 
   /**
-   * Fallback com cálculo de traçado realista pelas vias municipais
+   * Fallback com cálculo de traçado realista pelas vias municipais (Suporte a Waypoints e Fator de Tortuosidade 1.28)
    */
   private calculateUrbanNetworkFallback(
     origin: [number, number],
-    destination: [number, number]
+    destination: [number, number],
+    waypoints: [number, number][] = []
   ): RouteResult {
-    const lat1 = (origin[1] * Math.PI) / 180;
-    const lat2 = (destination[1] * Math.PI) / 180;
-    const deltaLat = ((destination[1] - origin[1]) * Math.PI) / 180;
-    const deltaLng = ((destination[0] - origin[0]) * Math.PI) / 180;
+    const points: [number, number][] = [origin, ...waypoints, destination];
+    let totalRoadKm = 0;
+    const allCoords: [number, number][] = [];
 
-    const a =
-      Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const straightKm = 6371 * c;
+    for (let p = 0; p < points.length - 1; p++) {
+      const p1 = points[p];
+      const p2 = points[p + 1];
 
-    // Fator de sinuosidade urbana de Itaperuna (curvas, pontes e desvios = 1.34x)
-    const roadKm = Math.max(0.8, Number((straightKm * 1.34).toFixed(2)));
-    const roadMeters = Math.round(roadKm * 1000);
+      const lat1 = (p1[1] * Math.PI) / 180;
+      const lat2 = (p2[1] * Math.PI) / 180;
+      const deltaLat = ((p2[1] - p1[1]) * Math.PI) / 180;
+      const deltaLng = ((p2[0] - p1[0]) * Math.PI) / 180;
 
-    // Velocidade média urbana real com semáforos e trânsito (24 km/h)
-    const durationMinutes = Math.max(3, Math.round((roadKm / 24) * 60));
-    const durationSeconds = durationMinutes * 60;
+      const a =
+        Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+        Math.cos(lat1) * Math.cos(lat2) * Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const straightKm = 6371 * c;
 
-    // Gera waypoints intermediários simulando a malha de ruas
-    const steps = 6;
-    const coordinates: [number, number][] = [];
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const lng = origin[0] + (destination[0] - origin[0]) * t;
-      const lat = origin[1] + (destination[1] - origin[1]) * t;
-      // Adiciona ligeira curvatura urbana realista
-      const jitter = Math.sin(t * Math.PI) * 0.0008;
-      coordinates.push([lng + jitter, lat + jitter * 0.5]);
+      // Fator de sinuosidade urbana calibrada (curvas, pontes e cruzamentos = 1.28x)
+      const segRoadKm = Math.max(0.4, Number((straightKm * 1.28).toFixed(2)));
+      totalRoadKm += segRoadKm;
+
+      const steps = 6;
+      for (let i = 0; i <= steps; i++) {
+        if (p > 0 && i === 0) continue; // evita duplicar vértice de junção
+        const t = i / steps;
+        const lng = p1[0] + (p2[0] - p1[0]) * t;
+        const lat = p1[1] + (p2[1] - p1[1]) * t;
+        const jitter = Math.sin(t * Math.PI) * 0.0008;
+        allCoords.push([lng + jitter, lat + jitter * 0.5]);
+      }
     }
+
+    const roadKm = Math.max(0.8, Number(totalRoadKm.toFixed(2)));
+    const roadMeters = Math.round(roadKm * 1000);
+    // Velocidade média urbana de 28 km/h + 2 min por parada intermediária
+    const extraMinutes = waypoints.length * 2;
+    const durationMinutes = Math.max(3, Math.round((roadKm / 28) * 60) + extraMinutes);
+    const durationSeconds = durationMinutes * 60;
 
     return {
       distanceMeters: roadMeters,
       distanceKm: roadKm,
       durationSeconds,
       durationMinutes,
-      geometry: JSON.stringify({ type: "LineString", coordinates }),
-      encodedPolyline: encodePolyline(coordinates),
-      coordinates,
+      geometry: JSON.stringify({ type: "LineString", coordinates: allCoords }),
+      encodedPolyline: encodePolyline(allCoords),
+      coordinates: allCoords,
       trafficCongestion: "low",
       source: "calibrated_urban_network",
+      isFallback: true,
     };
   }
 

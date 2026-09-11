@@ -410,6 +410,25 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             )}
           </div>
 
+          {/* TRAJETO COM MULTI-PARADAS (PADRÃO TIER-1) */}
+          {activeRide?.paradas && activeRide.paradas.length > 0 && (
+            <div className="px-3 py-1.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-[11px] text-amber-950 flex items-center justify-between gap-1">
+              <div className="flex items-center gap-1.5 truncate">
+                <span className="w-4 h-4 rounded-full bg-amber-500 text-white font-black text-[9px] flex items-center justify-center shrink-0">
+                  {activeRide.paradas.length}
+                </span>
+                <span className="font-bold truncate">
+                  {activeRide.paradas.length === 1
+                    ? `1 Parada: ${activeRide.paradas[0].endereco}`
+                    : `2 Paradas intermediárias no trajeto`}
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold text-amber-700 shrink-0">
+                +R$ {(activeRide.paradas.length * 2.5).toFixed(2).replace(".", ",")}
+              </span>
+            </div>
+          )}
+
           {/* CARD DO MOTORISTA CLICÁVEL (ABRE LAZY DRIVER TRUST CENTER) */}
           <button
             type="button"

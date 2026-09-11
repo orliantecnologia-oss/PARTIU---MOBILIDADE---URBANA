@@ -46,8 +46,13 @@ import {
   type CancellationReason,
 } from "@/services/CancellationPolicyService";
 
+import { driverDestinationModeService } from "@/services/DriverDestinationModeService";
+import { antiGpsSpoofingEngine } from "./telemetry/anti-gps-spoofing-engine";
+
 export * from "./tracking/ride-live-tracking-service";
 export * from "./pricing/fare-calculation-engine";
+export * from "@/services/DriverDestinationModeService";
+export * from "./telemetry/anti-gps-spoofing-engine";
 export * from "./partiu-dispatch-engine";
 export * from "./partiu-marketplace-engine";
 export * from "./partiu-financial-engine";
@@ -277,6 +282,9 @@ export interface CorridaPartiu {
   cancellationReasonLabel?: string | undefined;
   cancellationFeeApplied?: boolean | undefined;
   cancellationFeeCents?: number | undefined;
+  paradas?: Array<{ id: string; endereco: string; coords?: { lat: number; lng: number } }> | undefined;
+  paradasConcluidas?: number | undefined;
+  isDestinationMode?: boolean | undefined;
 }
 
 const STORAGE_KEY_CORRIDA = "partiu_corrida_ativa";
@@ -459,6 +467,8 @@ export function criarNovaCorrida(params: {
   otherPersonPhone?: string | undefined;
   solicitanteNome?: string | undefined;
   solicitanteTelefone?: string | undefined;
+  paradas?: Array<{ id: string; endereco: string; coords?: { lat: number; lng: number } }> | undefined;
+  isDestinationMode?: boolean | undefined;
 }): CorridaPartiu {
   const pin = Math.floor(1000 + Math.random() * 9000).toString();
   const id = `COR-${Date.now().toString().slice(-6)}`;
@@ -471,6 +481,7 @@ export function criarNovaCorrida(params: {
       categoryId: params.modalidade,
       distanceKm: params.distanciaKm,
       durationMinutes: params.duracaoMin,
+      stopsCount: params.paradas?.length || 0,
     });
     finalValor = calc.totalBrl;
   }
@@ -503,6 +514,9 @@ export function criarNovaCorrida(params: {
     solicitanteNome: params.solicitanteNome,
     solicitanteTelefone: params.solicitanteTelefone,
     trackingToken,
+    paradas: params.paradas || [],
+    paradasConcluidas: 0,
+    isDestinationMode: params.isDestinationMode || false,
   };
 
   // Registra no motor de rastreamento público (Siga Minha Viagem)
@@ -1180,4 +1194,43 @@ export function avaliarCorrida(
   } catch {
     return false;
   }
+}
+
+// 11. Validador de elegibilidade operacional, anti-spoofing e modo destino
+export function isCorridaElegivelParaMotorista(params: {
+  corrida: CorridaPartiu;
+  driverId: string;
+  driverCoords?: { lat: number; lng: number };
+}): { aceitavel: boolean; motivo?: string } {
+  // 1. Verificação de Anti-Spoofing de GPS
+  if (antiGpsSpoofingEngine.isDriverSuspended(params.driverId)) {
+    return {
+      aceitavel: false,
+      motivo: "SUSPICIOUS_GPS: Telemetria sob análise preventiva anti-spoofing.",
+    };
+  }
+
+  // 2. Verificação de Modo Destino ("Ir para Casa")
+  const activeDest = driverDestinationModeService.getActiveDestination(params.driverId);
+  if (
+    activeDest &&
+    params.driverCoords &&
+    params.corrida.origemCoords &&
+    params.corrida.destinoCoords
+  ) {
+    const converge = driverDestinationModeService.isRideConverging(
+      params.driverCoords,
+      params.corrida.origemCoords,
+      params.corrida.destinoCoords,
+      activeDest.coords
+    );
+    if (!converge) {
+      return {
+        aceitavel: false,
+        motivo: "DESTINATION_MODE_FILTER: Rota não converge para o destino selecionado pelo condutor.",
+      };
+    }
+  }
+
+  return { aceitavel: true };
 }

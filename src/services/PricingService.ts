@@ -181,6 +181,10 @@ export interface ItemizedQuote {
   minimumFareApplied: boolean;
   minimumFare: number;
 
+  // Paradas intermediárias
+  stopsCount?: number;
+  stopsFare?: number;
+
   // Prazos e tempos
   driverPickupMinutes: number;
   tripDurationMinutes: number;
@@ -235,7 +239,8 @@ export class PricingService {
    */
   public calculateMultiCategoryQuotes(
     routeMetrics: RouteMetrics,
-    surgeContext: Partial<SurgeContext> = {}
+    surgeContext: Partial<SurgeContext> = {},
+    stopsCount: number = 0
   ): Record<SupportedVehicleCategory, ItemizedQuote> {
     const settings = this.getPricingSettings();
     const surgeResult = surgeEngine.calculateSurge(surgeContext);
@@ -251,6 +256,10 @@ export class PricingService {
     const rawRouteCost = baseFare + distanceFare + durationFare;
 
     const result: Partial<Record<SupportedVehicleCategory, ItemizedQuote>> = {};
+
+    // Adicional de paradas intermediárias (R$ 2,50 por parada)
+    const validStopsCount = Math.max(0, stopsCount);
+    const stopsFare = validStopsCount * 2.5;
 
     for (const cat of OFFICIAL_CATEGORIES) {
       const categoryMultiplier = (settings[cat.multiplierKey] as number) || cat.defaultMultiplier;
@@ -270,9 +279,9 @@ export class PricingService {
         precoBruto = rawRouteCost * categoryMultiplier * surgeMultiplier;
       }
 
-      // GARANTIA DE RECEITA: Preço nunca é menor que a tarifa mínima
+      // GARANTIA DE RECEITA: Preço nunca é menor que a tarifa mínima + custo de paradas adicionais
       const minimumFareApplied = precoBruto < minimumFloor;
-      const precoFinal = Math.max(minimumFloor, precoBruto);
+      const precoFinal = Math.max(minimumFloor, precoBruto) + stopsFare;
       const roundedPrice = Math.round(precoFinal * 100) / 100;
 
       // ETA estimado do motorista por modalidade
@@ -300,6 +309,8 @@ export class PricingService {
         surgeMultiplier,
         minimumFareApplied,
         minimumFare: minimumFloor,
+        stopsCount: validStopsCount,
+        stopsFare,
         driverPickupMinutes: pickupMin,
         tripDurationMinutes: tripMin,
         tripDistanceKm: distanceKm,

@@ -26,6 +26,7 @@ export interface FareCalculationParams {
   distanceKm: number;
   durationMinutes: number;
   surgeMultiplier?: number;
+  stopsCount?: number;
 }
 
 export interface FareCalculationResult {
@@ -36,6 +37,8 @@ export interface FareCalculationResult {
   baseFareCents: number;
   distanceCents: number;
   durationCents: number;
+  stopsCents: number;
+  stopsCount: number;
   minFareCents: number;
   cancellationFeeCents: number;
   surgeMultiplier: number;
@@ -178,10 +181,12 @@ export class FareCalculationEngine {
 
     const safeDistanceKm = Math.max(0, params.distanceKm);
     const safeDurationMinutes = Math.max(0, params.durationMinutes);
+    const stopsCount = Math.max(0, params.stopsCount || 0);
+    const stopsCents = stopsCount * 250; // R$ 2,50 por parada intermediária
 
     const distanceCents = Math.round(safeDistanceKm * rule.perKmFareCents);
     const durationCents = Math.round(safeDurationMinutes * rule.perMinuteFareCents);
-    const subtotalCents = rule.baseFareCents + distanceCents + durationCents;
+    const subtotalCents = rule.baseFareCents + distanceCents + durationCents + stopsCents;
 
     // Aplicação da tarifa mínima da categoria
     const withMinCents = Math.max(subtotalCents, rule.minFareCents);
@@ -198,6 +203,8 @@ export class FareCalculationEngine {
       baseFareCents: rule.baseFareCents,
       distanceCents,
       durationCents,
+      stopsCents,
+      stopsCount,
       minFareCents: rule.minFareCents,
       cancellationFeeCents: rule.cancellationFeeCents,
       surgeMultiplier: surge,

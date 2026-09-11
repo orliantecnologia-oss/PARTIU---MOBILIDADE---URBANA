@@ -94,6 +94,8 @@ import { DeliveryPinNumpadBottomSheet } from "@/components/driver/DeliveryPinNum
 import { DriverAccessGuard } from "@/components/driver/DriverAccessGuard";
 import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
 import { DriverPixWithdrawalModal } from "@/components/driver/DriverPixWithdrawalModal";
+import { DriverDestinationModal } from "@/components/driver/DriverDestinationModal";
+import { driverDestinationModeService, type DriverDestination } from "@/services/DriverDestinationModeService";
 import { h3DispatchEngine, geofenceArrivalService } from "@/lib/spatial";
 import { chatRealtimeService } from "@/services/ChatRealtimeService";
 import {
@@ -281,6 +283,10 @@ export function PartiuDriverCockpit() {
   const [modalPlanosAberto, setModalPlanosAberto] = useState(false);
   const [modalEconomiaAberto, setModalEconomiaAberto] = useState(false);
   const [modalRegularizacaoAberto, setModalRegularizacaoAberto] = useState(false);
+  const [modalModoDestino, setModalModoDestino] = useState(false);
+  const [destinoAtivo, setDestinoAtivo] = useState<DriverDestination | null>(() =>
+    driverDestinationModeService.getActiveDestination(perfilMotorista.id)
+  );
 
   // Oferta Ativa no Trip Radar com Transparência de Taxa (Auditoria 4)
   const [ofertaAtiva, setOfertaAtiva] = useState<{
@@ -1148,6 +1154,48 @@ export function PartiuDriverCockpit() {
                 Plano {driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%) • Alterar
               </button>
             </div>
+
+            {/* WIDGET: MODO DESTINO ("IR PARA CASA") */}
+            {destinoAtivo ? (
+              <div className="p-2.5 rounded-2xl bg-amber-50/90 border border-amber-200/90 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2 min-w-0 pr-2">
+                  <span className="text-sm">🎯</span>
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-amber-800 font-bold uppercase tracking-wider block">
+                      Modo Destino Ativo
+                    </span>
+                    <span className="font-black text-slate-900 truncate block">
+                      {destinoAtivo.address}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    driverDestinationModeService.clearDestination(perfilMotorista.id);
+                    setDestinoAtivo(null);
+                  }}
+                  className="px-2 py-1 rounded-xl bg-white border border-amber-300 text-rose-600 hover:bg-rose-50 text-[11px] font-black shrink-0 transition"
+                  title="Desativar Modo Destino"
+                >
+                  ✕ Cancelar
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setModalModoDestino(true)}
+                className="w-full py-2 px-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-between transition cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">🎯</span>
+                  <span>Definir Destino ("Ir para Casa")</span>
+                </div>
+                <span className="text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                  {driverDestinationModeService.getRemainingUses(perfilMotorista.id)} restantes
+                </span>
+              </button>
+            )}
 
             {/* AUDITORIA 10: WIDGET OFICIAL ECONOMIA PARTIU */}
             <div className="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-2xl border border-emerald-200 space-y-1.5">
@@ -2138,6 +2186,16 @@ export function PartiuDriverCockpit() {
           setGanhosHoje(newBalance);
           setWallet(driverWalletEngine.getWallet(perfilMotorista.id));
         }}
+      />
+
+      {/* =================================================================== */}
+      {/* MODAL OFICIAL: MODO DESTINO DO MOTORISTA ("IR PARA CASA")           */}
+      {/* =================================================================== */}
+      <DriverDestinationModal
+        isOpen={modalModoDestino}
+        onClose={() => setModalModoDestino(false)}
+        driverId={perfilMotorista.id}
+        onDestinationSet={(dest) => setDestinoAtivo(dest)}
       />
 
       {/* =================================================================== */}

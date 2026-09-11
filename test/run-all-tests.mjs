@@ -1102,6 +1102,9 @@ import "./ride-hailing-advanced-pack.test.ts";
 // Suíte Oficial V6: Siga Minha Viagem, Fare Engine & Central de Cancelamento Estruturado
 import "./ride-advanced-pack-2.test.ts";
 
+// Suíte Oficial V6: Modo Destino, Anti-Fake GPS, Multi-Paradas & Fallback Geodésico
+import "./ride-advanced-pack-3.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");

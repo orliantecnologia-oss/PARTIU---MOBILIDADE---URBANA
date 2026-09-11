@@ -45,6 +45,7 @@ export interface RouteRequestOptions {
   skipCache?: boolean;
   startAddress?: string;
   endAddress?: string;
+  waypoints?: [number, number][];
 }
 
 const DEFAULT_MAPBOX_TOKEN =
@@ -282,7 +283,8 @@ export class RoutingService {
     options: RouteRequestOptions
   ): Promise<RouteMetrics> {
     const profile = options.trafficAware ? "driving-traffic" : "driving";
-    const coordsStr = `${origin[0]},${origin[1]};${destination[0]},${destination[1]}`;
+    const allPoints: [number, number][] = [origin, ...(options.waypoints || []), destination];
+    const coordsStr = allPoints.map((p) => `${p[0]},${p[1]}`).join(";");
     const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/${coordsStr}?geometries=geojson&overview=full&steps=true&annotations=duration,distance&access_token=${this.mapboxToken}`;
 
     const res = await fetch(url);
@@ -364,23 +366,31 @@ export class RoutingService {
     destination: [number, number],
     options: RouteRequestOptions = {}
   ): RouteMetrics {
-    const [lon1, lat1] = origin;
-    const [lon2, lat2] = destination;
+    const waypoints = options.waypoints || [];
+    const allLegPoints: [number, number][] = [origin, ...waypoints, destination];
 
-    // Distância geodésica base
-    const R = 6371000;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const straightLineMeters = R * c;
+    const haversineMeters = (p1: [number, number], p2: [number, number]): number => {
+      const [lng1, lat1] = p1;
+      const [lng2, lat2] = p2;
+      const R = 6371000;
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLon = ((lng2 - lng1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    };
 
-    if (straightLineMeters < 10) {
+    let totalStraightMeters = 0;
+    for (let i = 0; i < allLegPoints.length - 1; i++) {
+      totalStraightMeters += haversineMeters(allLegPoints[i], allLegPoints[i + 1]);
+    }
+
+    if (totalStraightMeters < 10) {
       return {
         distanceMeters: 0,
         distanceKm: 0,
@@ -396,22 +406,30 @@ export class RoutingService {
       };
     }
 
-    // Fator de sinuosidade urbana real (Circuity Factor: 1.28 a 1.38 para cidades com relevo e curvas)
+    // Fator de sinuosidade urbana real (Circuity Factor: 1.32)
     const circuityFactor = 1.32;
-    const distanceMeters = Math.max(450, Math.round(straightLineMeters * circuityFactor));
+    const distanceMeters = Math.max(450, Math.round(totalStraightMeters * circuityFactor));
     const distanceKm = Math.round((distanceMeters / 1000) * 100) / 100;
 
     // Velocidade média calibrada para centro urbano brasileiro com semáforos
     const speedKmh = options.vehicleType === "motorcycle" ? 30 : 22;
     const speedMs = (speedKmh * 1000) / 3600;
-    const durationSeconds = Math.max(90, Math.round(distanceMeters / speedMs));
+    // Adiciona 2 minutos (120 segundos) por parada intermediária
+    const stopsDelaySeconds = waypoints.length * 120;
+    const durationSeconds = Math.max(90, Math.round(distanceMeters / speedMs) + stopsDelaySeconds);
     const durationMinutes = Math.max(2, Math.ceil(durationSeconds / 60));
 
-    // Gera waypoints reais pela malha viária urbana (L-shape / S-curve)
-    const midPoint1: [number, number] = [lon1 + (lon2 - lon1) * 0.4, lat1 + (lat2 - lat1) * 0.1];
-    const midPoint2: [number, number] = [lon1 + (lon2 - lon1) * 0.45, lat1 + (lat2 - lat1) * 0.65];
-    const midPoint3: [number, number] = [lon1 + (lon2 - lon1) * 0.85, lat1 + (lat2 - lat1) * 0.75];
-    const coordinates: [number, number][] = [origin, midPoint1, midPoint2, midPoint3, destination];
+    // Constrói trajetória passando pelos waypoints
+    const coordinates: [number, number][] = [];
+    for (let i = 0; i < allLegPoints.length - 1; i++) {
+      const pA = allLegPoints[i];
+      const pB = allLegPoints[i + 1];
+      const mid1: [number, number] = [pA[0] + (pB[0] - pA[0]) * 0.4, pA[1] + (pB[1] - pA[1]) * 0.1];
+      const mid2: [number, number] = [pA[0] + (pB[0] - pA[0]) * 0.45, pA[1] + (pB[1] - pA[1]) * 0.65];
+      const mid3: [number, number] = [pA[0] + (pB[0] - pA[0]) * 0.85, pA[1] + (pB[1] - pA[1]) * 0.75];
+      coordinates.push(pA, mid1, mid2, mid3);
+    }
+    coordinates.push(destination);
     const encodedPolyline = encodePolyline(coordinates);
 
     return {
