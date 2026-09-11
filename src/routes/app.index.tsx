@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
 import { Check } from "lucide-react";
 import {
   PassengerRideProvider,
@@ -27,10 +27,16 @@ import { LiveRingingToast } from "@/components/passenger/LiveRingingToast";
 import { NetworkReconnectionBanner } from "@/components/passenger/NetworkReconnectionBanner";
 import { GpsPermissionModal } from "@/components/passenger/GpsPermissionModal";
 import { PartiuRideMap } from "@/components/maps/PartiuRideMap";
-import { AppDrawer } from "@/components/navigation/AppDrawer";
-import { NotificacoesPushModal } from "@/components/modals/NotificacoesPushModal";
 import { getStatusPermissaoPush } from "@/lib/push-notifications";
 import { useScrollInterpolation } from "@/hooks/useScrollInterpolation";
+
+// Lazy loading sob demanda para componentes pesados secundários (TTI acelerado)
+const AppDrawer = lazy(() =>
+  import("@/components/navigation/AppDrawer").then((m) => ({ default: m.AppDrawer }))
+);
+const NotificacoesPushModal = lazy(() =>
+  import("@/components/modals/NotificacoesPushModal").then((m) => ({ default: m.NotificacoesPushModal }))
+);
 
 export const Route = createFileRoute("/app/")({
   head: () => ({
@@ -55,7 +61,6 @@ function PartiuPassengerHomeRoot() {
 }
 
 function PartiuPassengerHomeContent() {
-  console.log("[MAP TEST RELOAD]");
   const {
     state,
     categoriaVeiculo,
@@ -82,6 +87,27 @@ function PartiuPassengerHomeContent() {
   const [userName, setUserName] = useState("Rodrigo");
   const [modalCamadasAberto, setModalCamadasAberto] = useState(false);
   const [estiloMapaAtivo, setEstiloMapaAtivo] = useState<"streets" | "traffic" | "satellite">("streets");
+
+  // Callbacks memorizados para garantir Pure Rendering e zero re-renders nas camadas filhas
+  const handleOpenDrawer = useCallback(() => setDrawerAberto(true), []);
+  const handleCloseDrawer = useCallback(() => setDrawerAberto(false), []);
+  const handleOpenNotifications = useCallback(() => setModalPushAberto(true), []);
+  const handleCloseNotifications = useCallback(() => {
+    setModalPushAberto(false);
+    setPushStatus(getStatusPermissaoPush());
+  }, []);
+  const handleOpenLayersModal = useCallback(() => setModalCamadasAberto(true), []);
+  const handleCloseLayersModal = useCallback(() => setModalCamadasAberto(false), []);
+  const handleSelectMapStyle = useCallback((style: "streets" | "traffic" | "satellite") => {
+    setEstiloMapaAtivo(style);
+    setModalCamadasAberto(false);
+  }, []);
+  const handleSelectAddressItem = useCallback(
+    (item: RecentAddressItem) => {
+      selectDestination(item.endereco, item.coords);
+    },
+    [selectDestination]
+  );
 
   // Histórico de destinos recentes do passageiro
   const [recentAddresses, setRecentAddresses] = useState<RecentAddressItem[]>(() => {
@@ -372,8 +398,8 @@ function PartiuPassengerHomeContent() {
           userAccuracyMeters={userAccuracyMeters}
           cameraPadding={dynamicCameraPadding}
           activeMapStyle={estiloMapaAtivo}
-          onSelectMapStyle={setEstiloMapaAtivo}
-          onOpenLayersModal={() => setModalCamadasAberto(true)}
+          onSelectMapStyle={handleSelectMapStyle}
+          onOpenLayersModal={handleOpenLayersModal}
         />
       </div>
 
@@ -384,8 +410,8 @@ function PartiuPassengerHomeContent() {
           {/* ========================================================================= */}
           <AnimatedWaveHeader
             userName={userName}
-            onOpenDrawer={() => setDrawerAberto(true)}
-            onOpenNotifications={() => setModalPushAberto(true)}
+            onOpenDrawer={handleOpenDrawer}
+            onOpenNotifications={handleOpenNotifications}
             hasUnreadNotifications={!pushAtivo}
             waveRadius={waveRadius}
             isScrolled={isScrolled}
@@ -401,7 +427,7 @@ function PartiuPassengerHomeContent() {
                 onSearchClick={startSearch}
                 onEditPickupClick={startEditingPickup}
                 onAdjustPinOnMap={proceedToConfirmPickup}
-                onSelectAddress={(item) => selectDestination(item.endereco, item.coords)}
+                onSelectAddress={handleSelectAddressItem}
                 currentAddress={origem}
                 userAccuracyMeters={userAccuracyMeters}
                 recentAddresses={recentAddresses}
@@ -452,15 +478,15 @@ function PartiuPassengerHomeContent() {
                 state === "SEARCHING_R2" ||
                 state === "SEARCHING_R3") && <PassengerFindingDriverRadar />}
 
-              {/* D3. BOTTOM SHEET DE TIMEOUT PREMIUM (ESTÃO TODOS OCUPADOS + FAST RECOVERY) */}
-              {state === "TIMEOUT" && <PassengerTimeoutBottomSheet />}
+              {/* D3. TIMEOUT DE BUSCA SEM MOTORISTAS DISPONÍVEIS */}
+              {(state === "TIMEOUT" || (state as string) === "SEARCH_TIMEOUT") && <PassengerTimeoutBottomSheet />}
 
-              {/* E. MOTORISTA ATRIBUÍDO OU EM VIAGEM (CARD ~35% ALTURA COM MERCOSUL E TRUST CENTER) */}
-              {(state === "DRIVER_ASSIGNED" ||
-                state === "DRIVER_ARRIVING" ||
-                (state as string) === "ACCEPTED" ||
-                (state as string) === "DRIVER_EN_ROUTE" ||
-                (state as string) === "DRIVER_ARRIVED" ||
+              {/* E. CORRIDA EM ANDAMENTO */}
+              {state === "DRIVER_ASSIGNED" && <PassengerActiveRideCard />}
+              {(state === "DRIVER_ARRIVING" ||
+                state === "DRIVER_EN_ROUTE" ||
+                state === "DRIVER_ARRIVED" ||
+                state === "ACCEPTED" ||
                 state === "ON_TRIP" ||
                 state === "IN_PROGRESS" ||
                 state === "COMPLETED") && (
@@ -471,17 +497,22 @@ function PartiuPassengerHomeContent() {
         </>
       )}
 
-      {/* MODAL DE NOTIFICAÇÕES PUSH NATIVAS */}
-      <NotificacoesPushModal
-        aberto={modalPushAberto}
-        onFechar={() => {
-          setModalPushAberto(false);
-          setPushStatus(getStatusPermissaoPush());
-        }}
-      />
+      {/* MODAL DE NOTIFICAÇÕES PUSH NATIVAS (LAZY LOADED SOB DEMANDA) */}
+      {modalPushAberto && (
+        <Suspense fallback={null}>
+          <NotificacoesPushModal
+            aberto={modalPushAberto}
+            onFechar={handleCloseNotifications}
+          />
+        </Suspense>
+      )}
 
-      {/* GAVETA LATERAL DE NAVEGAÇÃO */}
-      <AppDrawer open={drawerAberto} onClose={() => setDrawerAberto(false)} />
+      {/* GAVETA LATERAL DE NAVEGAÇÃO (LAZY LOADED SOB DEMANDA) */}
+      {drawerAberto && (
+        <Suspense fallback={null}>
+          <AppDrawer open={drawerAberto} onClose={handleCloseDrawer} />
+        </Suspense>
+      )}
 
       {/* ========================================================================= */}
       {/* MODAL RAIZ: SELETOR DE ESTILO DE MAPA (RUAS, TRÂNSITO, SATÉLITE)          */}
@@ -493,7 +524,7 @@ function PartiuPassengerHomeContent() {
           aria-modal="true"
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
           style={{ zIndex: 9999, ...({ elevation: 99 } as React.CSSProperties) }}
-          onClick={() => setModalCamadasAberto(false)}
+          onClick={handleCloseLayersModal}
         >
           <div
             className="bg-white/98 backdrop-blur-md rounded-3xl shadow-2xl border border-slate-200 w-full max-w-xs p-4 space-y-3 animate-in zoom-in-95 duration-200 pointer-events-auto"
@@ -506,7 +537,7 @@ function PartiuPassengerHomeContent() {
               </div>
               <button
                 type="button"
-                onClick={() => setModalCamadasAberto(false)}
+                onClick={handleCloseLayersModal}
                 className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs cursor-pointer transition-colors"
                 title="Fechar"
               >
@@ -517,10 +548,7 @@ function PartiuPassengerHomeContent() {
             <div className="space-y-1.5">
               <button
                 type="button"
-                onClick={() => {
-                  setEstiloMapaAtivo("streets");
-                  setModalCamadasAberto(false);
-                }}
+                onClick={() => handleSelectMapStyle("streets")}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
                   estiloMapaAtivo === "streets"
                     ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"
@@ -539,10 +567,7 @@ function PartiuPassengerHomeContent() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setEstiloMapaAtivo("traffic");
-                  setModalCamadasAberto(false);
-                }}
+                onClick={() => handleSelectMapStyle("traffic")}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
                   estiloMapaAtivo === "traffic"
                     ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"
@@ -561,10 +586,7 @@ function PartiuPassengerHomeContent() {
 
               <button
                 type="button"
-                onClick={() => {
-                  setEstiloMapaAtivo("satellite");
-                  setModalCamadasAberto(false);
-                }}
+                onClick={() => handleSelectMapStyle("satellite")}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
                   estiloMapaAtivo === "satellite"
                     ? "bg-blue-50 text-blue-800 font-extrabold border border-blue-200 ring-2 ring-blue-500/20"

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import { Tag, Sparkles, ArrowRight } from "lucide-react";
 import { PromoBannerItem, PROMO_BANNERS_MOCK } from "./home-mock-data";
 
@@ -8,7 +8,7 @@ export interface PromoCarouselProps {
   autoPlayIntervalMs?: number;
 }
 
-export function PromoCarousel({
+export const PromoCarousel = memo(function PromoCarousel({
   banners = PROMO_BANNERS_MOCK,
   onBannerClick,
   autoPlayIntervalMs = 3000,
@@ -106,6 +106,7 @@ export function PromoCarousel({
                 alt={item.titulo}
                 className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-700 hover:scale-105"
                 loading="lazy"
+                decoding="async"
               />
             )}
 
@@ -169,4 +170,4 @@ export function PromoCarousel({
       )}
     </div>
   );
-}
+});

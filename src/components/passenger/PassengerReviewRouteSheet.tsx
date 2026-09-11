@@ -33,6 +33,98 @@ import { CategoryQuoteSkeleton } from "@/components/ui/skeleton";
  * 5. Mapa livre e respirando no fundo com máxima visibilidade do trajeto.
  * ==============================================================================
  */
+interface VehicleOptionCardProps {
+  isSelected: boolean;
+  category: "MOTO" | "CARRO";
+  title: string;
+  badgeText: string;
+  badgeClass: string;
+  etaMinutes: number;
+  capacityText: string;
+  price: string;
+  icon: React.ComponentType<{ className?: string }>;
+  onSelect: (cat: "MOTO" | "CARRO") => void;
+  corPrimaria?: string;
+  corSecundaria?: string;
+}
+
+/** Card de Categoria 100% Puro e Memorizado (Zero re-renders durante gestos de arrasto) */
+const VehicleOptionCard = memo(function VehicleOptionCard({
+  isSelected,
+  category,
+  title,
+  badgeText,
+  badgeClass,
+  etaMinutes,
+  capacityText,
+  price,
+  icon: IconComp,
+  onSelect,
+  corPrimaria,
+  corSecundaria,
+}: VehicleOptionCardProps) {
+  const handleClick = useCallback(() => {
+    onSelect(category);
+  }, [onSelect, category]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      style={
+        isSelected
+          ? {
+              borderColor: corPrimaria || "#0088FF",
+              backgroundColor: `${corPrimaria || "#0088FF"}15`,
+              boxShadow: `0 4px 14px -2px ${corPrimaria || "#0088FF"}70`,
+            }
+          : undefined
+      }
+      className={`p-2 sm:p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden active:scale-[0.97] hover:scale-[1.01] duration-150 ${
+        isSelected
+          ? "ring-2 ring-primary-600/50 shadow-sm"
+          : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
+      }`}
+    >
+      <div className="flex items-center justify-between w-full">
+        <div
+          style={
+            isSelected
+              ? {
+                  backgroundColor: corPrimaria || "#0088FF",
+                  color: "#FFFFFF",
+                }
+              : undefined
+          }
+          className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
+            isSelected ? "shadow-2xs" : "bg-slate-100 text-slate-700"
+          }`}
+        >
+          <IconComp className="w-4 h-4 stroke-[2.4]" />
+        </div>
+        <span className={`text-[9.5px] font-black uppercase tracking-wide px-1.5 py-0.5 rounded-md ${badgeClass}`}>
+          {badgeText}
+        </span>
+      </div>
+
+      <div className="mt-1">
+        <span className="text-xs sm:text-[13px] font-black text-slate-950 block truncate">
+          {title}
+        </span>
+        <span className="text-[10px] sm:text-[10.5px] text-slate-500 font-medium block truncate">
+          ~{etaMinutes} min • {capacityText}
+        </span>
+        <span
+          style={isSelected ? { color: corSecundaria || "#0F172A" } : undefined}
+          className="text-sm sm:text-base font-black text-slate-950 block mt-0.5 tracking-tight"
+        >
+          {price}
+        </span>
+      </div>
+    </button>
+  );
+});
+
 export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet() {
   const {
     categoriaVeiculo,
@@ -275,119 +367,39 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             <Pencil className="w-3.5 h-3.5 text-slate-500 shrink-0" />
           </div>
 
-          {/* 2. SELEÇÃO DE VEÍCULOS (LADO A LADO - GRID DE 2 COLUNAS ESTILO 99) */}
+          {/* 2. SELEÇÃO DE VEÍCULOS (LADO A LADO - GRID DE 2 COLUNAS ESTILO 99 - MEMORIZADO) */}
           <div className="grid grid-cols-2 gap-2 shrink-0">
             {/* CARD 1: PARTIU MOTO */}
-            <button
-              type="button"
-              onClick={() => handleSelectCategory("MOTO")}
-              style={
-                isMoto
-                  ? {
-                      borderColor: corPrimaria || "#0088FF",
-                      backgroundColor: `${corPrimaria || "#0088FF"}15`,
-                      boxShadow: `0 4px 14px -2px ${corPrimaria || "#0088FF"}70`,
-                    }
-                  : undefined
-              }
-              className={`p-2 sm:p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden active:scale-[0.97] hover:scale-[1.01] duration-150 ${
-                isMoto
-                  ? "ring-2 ring-primary-600/50 shadow-sm"
-                  : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <div
-                  style={
-                    isMoto
-                      ? {
-                          backgroundColor: corPrimaria || "#0088FF",
-                          color: "#FFFFFF",
-                        }
-                      : undefined
-                  }
-                  className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
-                    isMoto ? "shadow-2xs" : "bg-slate-100 text-slate-700"
-                  }`}
-                >
-                  <Bike className="w-4 h-4 stroke-[2.4]" />
-                </div>
-                <span className="text-[9.5px] font-black uppercase tracking-wide text-emerald-800 bg-emerald-100/90 px-1.5 py-0.5 rounded-md">
-                  Econômico
-                </span>
-              </div>
-
-              <div className="mt-1">
-                <span className="text-xs sm:text-[13px] font-black text-slate-950 block truncate">
-                  Partiu Moto
-                </span>
-                <span className="text-[10px] sm:text-[10.5px] text-slate-500 font-medium block truncate">
-                  ~{pickupMinMoto} min • 1 pessoa
-                </span>
-                <span
-                  style={isMoto ? { color: corSecundaria || "#0F172A" } : undefined}
-                  className="text-sm sm:text-base font-black text-slate-950 block mt-0.5 tracking-tight"
-                >
-                  {precoMoto}
-                </span>
-              </div>
-            </button>
+            <VehicleOptionCard
+              isSelected={isMoto}
+              category="MOTO"
+              title="Partiu Moto"
+              badgeText="Econômico"
+              badgeClass="text-emerald-800 bg-emerald-100/90"
+              etaMinutes={pickupMinMoto}
+              capacityText="1 pessoa"
+              price={precoMoto}
+              icon={Bike}
+              onSelect={handleSelectCategory}
+              corPrimaria={corPrimaria}
+              corSecundaria={corSecundaria}
+            />
 
             {/* CARD 2: PARTIU CARRO */}
-            <button
-              type="button"
-              onClick={() => handleSelectCategory("CARRO")}
-              style={
-                !isMoto
-                  ? {
-                      borderColor: corPrimaria || "#0088FF",
-                      backgroundColor: `${corPrimaria || "#0088FF"}15`,
-                      boxShadow: `0 4px 14px -2px ${corPrimaria || "#0088FF"}70`,
-                    }
-                  : undefined
-              }
-              className={`p-2 sm:p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden active:scale-[0.97] hover:scale-[1.01] duration-150 ${
-                !isMoto
-                  ? "ring-2 ring-primary-600/50 shadow-sm"
-                  : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
-              }`}
-            >
-              <div className="flex items-center justify-between w-full">
-                <div
-                  style={
-                    !isMoto
-                      ? {
-                          backgroundColor: corPrimaria || "#0088FF",
-                          color: "#FFFFFF",
-                        }
-                      : undefined
-                  }
-                  className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
-                    !isMoto ? "shadow-2xs" : "bg-slate-100 text-slate-700"
-                  }`}
-                >
-                  <Car className="w-4 h-4 stroke-[2.4]" />
-                </div>
-                <span className="text-[9.5px] font-black uppercase tracking-wide text-amber-900 bg-primary-50/90 px-1.5 py-0.5 rounded-md">
-                  Conforto
-                </span>
-              </div>
-
-              <div className="mt-1">
-                <span className="text-xs sm:text-[13px] font-black text-slate-950 block truncate">
-                  Partiu Carro
-                </span>
-                <span className="text-[10px] sm:text-[10.5px] text-slate-500 font-medium block truncate">
-                  ~{pickupMinCarro} min • 4 lugares
-                </span>
-                <span
-                  style={!isMoto ? { color: corSecundaria || "#0F172A" } : undefined}
-                  className="text-sm sm:text-base font-black text-slate-950 block mt-0.5 tracking-tight"
-                >
-                  {precoCarro}
-                </span>
-              </div>
-            </button>
+            <VehicleOptionCard
+              isSelected={!isMoto}
+              category="CARRO"
+              title="Partiu Carro"
+              badgeText="Conforto"
+              badgeClass="text-amber-900 bg-primary-50/90"
+              etaMinutes={pickupMinCarro}
+              capacityText="4 lugares"
+              price={precoCarro}
+              icon={Car}
+              onSelect={handleSelectCategory}
+              corPrimaria={corPrimaria}
+              corSecundaria={corSecundaria}
+            />
           </div>
 
           {/* 3. SEÇÃO DE PAGAMENTO (COMPACTA EM LINHA ÚNICA / CÉLULA) */}

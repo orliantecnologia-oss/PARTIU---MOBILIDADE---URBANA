@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { createPortal } from "react-dom";
 import mapboxgl from "mapbox-gl";
 import { Navigation, Compass, LocateFixed, Layers, Check } from "lucide-react";
@@ -145,18 +145,6 @@ function createUserPuckElement(): HTMLDivElement {
   }
 
   container.innerHTML = `
-    <!-- Onda de Pulso 1 (Radar Ripple Primário) -->
-    <div style="
-      position: absolute;
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0, 136, 255, 0.45) 0%, rgba(0, 198, 255, 0.25) 50%, rgba(0, 136, 255, 0) 75%);
-      border: 1.5px solid rgba(0, 136, 255, 0.6);
-      animation: partiuRadarWave 2s cubic-bezier(0.1, 0.5, 0.3, 1) infinite;
-    "></div>
-
-    <!-- Onda de Pulso 2 (Radar Ripple Secundário com Delay) -->
     <div style="
       position: absolute;
       width: 52px;
@@ -193,7 +181,7 @@ function createUserPuckElement(): HTMLDivElement {
   return container;
 }
 
-export function PartiuRideMap({
+export const PartiuRideMap = memo(function PartiuRideMap({
   status,
   modalidade = "POP",
   origemCoords = DEFAULT_CENTER,
@@ -1553,4 +1541,4 @@ export function PartiuRideMap({
 
     </div>
   );
-}
+});

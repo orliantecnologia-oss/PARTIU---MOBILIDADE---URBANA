@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { Link, useLocation } from "@tanstack/react-router";
 import { Car, Package, Compass, CreditCard, User, Truck, Shield, HelpCircle } from "lucide-react";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
@@ -18,7 +18,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   HelpCircle,
 };
 
-export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
+export const HomeBottomNav = memo(function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
   const location = useLocation();
   const pathname = location.pathname;
   const { menuBuilder, corPrimaria } = useBrandTheme();
@@ -164,4 +164,4 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
       </div>
     </nav>
   );
-}
+});

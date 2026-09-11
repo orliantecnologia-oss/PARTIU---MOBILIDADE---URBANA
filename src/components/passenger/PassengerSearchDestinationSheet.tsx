@@ -64,7 +64,104 @@ const VIAGENS_RECENTES_DEFAULT: RecentItem[] = [
   },
 ];
 
-export function PassengerSearchDestinationSheet() {
+interface SearchDestinationItemRowProps {
+  item: GeocodedPlace;
+  distText: string | null;
+  onSelect: (item: GeocodedPlace) => void;
+  getIcon: (label: string) => React.ReactNode;
+}
+
+const SearchDestinationItemRow = React.memo(function SearchDestinationItemRow({
+  item,
+  distText,
+  onSelect,
+  getIcon,
+}: SearchDestinationItemRowProps) {
+  const handleClick = React.useCallback(() => {
+    onSelect(item);
+  }, [item, onSelect]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="w-full p-3 flex items-center gap-3 text-left hover:bg-slate-50 rounded-2xl transition active:scale-[0.99] cursor-pointer group"
+    >
+      <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-amber-100 text-slate-700 group-hover:text-slate-950 flex items-center justify-center shrink-0 transition">
+        {getIcon(item.label)}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <p className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight group-hover:text-amber-900 transition">
+          {item.label}
+        </p>
+        <p className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
+          {item.sublabel || item.endereco}
+        </p>
+      </div>
+
+      {distText && (
+        <span className="text-[10px] font-black text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 shrink-0">
+          {distText}
+        </span>
+      )}
+
+      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-600 shrink-0 transition" />
+    </button>
+  );
+});
+
+interface RecentTripItemRowProps {
+  item: RecentItem;
+  distText: string | null;
+  onSelect: (endereco: string, coords?: [number, number], label?: string) => void;
+}
+
+const RecentTripItemRow = React.memo(function RecentTripItemRow({
+  item,
+  distText,
+  onSelect,
+}: RecentTripItemRowProps) {
+  const handleClick = React.useCallback(() => {
+    onSelect(item.endereco, item.coords, item.label);
+  }, [item, onSelect]);
+
+  return (
+    <button
+      type="button"
+      onClick={handleClick}
+      className="w-full p-3 flex items-center gap-3 text-left hover:bg-slate-50 rounded-2xl transition active:scale-[0.99] cursor-pointer group"
+    >
+      <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-amber-100 text-slate-500 group-hover:text-slate-950 flex items-center justify-center shrink-0 transition">
+        <Clock className="w-4 h-4 stroke-[2.2]" />
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight">
+            {item.label}
+          </span>
+          <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
+            Recente
+          </span>
+        </div>
+        <p className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
+          {item.endereco}
+        </p>
+      </div>
+
+      {distText && (
+        <span className="text-[10px] font-black text-amber-800 bg-primary-50 px-2 py-0.5 rounded-full border border-amber-200/70 shrink-0">
+          {distText}
+        </span>
+      )}
+
+      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-600 shrink-0 transition" />
+    </button>
+  );
+});
+
+export const PassengerSearchDestinationSheet = React.memo(function PassengerSearchDestinationSheet() {
   const { corPrimaria, corSecundaria, corTextoPrimaria } = useBrandTheme();
 
   const {
@@ -207,7 +304,7 @@ export function PassengerSearchDestinationSheet() {
       } finally {
         if (ativo) setCarregandoLugares(false);
       }
-    }, 140);
+    }, 350);
 
     return () => {
       ativo = false;
@@ -667,44 +764,20 @@ export function PassengerSearchDestinationSheet() {
               {carregandoLugares ? (
                 <AddressSearchSkeleton />
               ) : (
-                lugaresEncontrados.map((item) => {
-                const distText = getDistanciaTexto(item.coords);
-                return (
-                  <button
+                lugaresEncontrados.map((item) => (
+                  <SearchDestinationItemRow
                     key={item.id}
-                    type="button"
-                    onClick={() => {
-                      if (campoAtivo === "embarque") {
-                        handleSelectOrigem(item);
-                      } else {
-                        handleSelectDestino(item.endereco, item.coords, item.label);
-                      }
-                    }}
-                    className="w-full p-3 flex items-center gap-3 text-left hover:bg-slate-50 rounded-2xl transition active:scale-[0.99] cursor-pointer group"
-                  >
-                    <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-amber-100 text-slate-700 group-hover:text-slate-950 flex items-center justify-center shrink-0 transition">
-                      {getCategoryIcon(item.label)}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight group-hover:text-amber-900 transition">
-                        {item.label}
-                      </p>
-                      <p className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
-                        {item.sublabel || item.endereco}
-                      </p>
-                    </div>
-
-                    {distText && (
-                      <span className="text-[10px] font-black text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200 shrink-0">
-                        {distText}
-                      </span>
-                    )}
-
-                    <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-600 shrink-0 transition" />
-                  </button>
-                );
-              }))}
+                    item={item}
+                    distText={getDistanciaTexto(item.coords)}
+                    onSelect={
+                      campoAtivo === "embarque"
+                        ? handleSelectOrigem
+                        : (lugar) => handleSelectDestino(lugar.endereco, lugar.coords, lugar.label)
+                    }
+                    getIcon={getCategoryIcon}
+                  />
+                ))
+              )}
             </div>
           ) : (
             /* CASO B: SEM DIGITAÇÃO -> AS ÚLTIMAS 2 VIAGENS RECENTES E LOCAIS POPULARES */
@@ -720,43 +793,14 @@ export function PassengerSearchDestinationSheet() {
                   </div>
 
                   <div className="space-y-1">
-                    {historicoRecente.slice(0, 2).map((item) => {
-                      const distText = getDistanciaTexto(item.coords);
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => handleSelectDestino(item.endereco, item.coords, item.label)}
-                          className="w-full p-3 flex items-center gap-3 text-left hover:bg-slate-50 rounded-2xl transition active:scale-[0.99] cursor-pointer group"
-                        >
-                          <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-amber-100 text-slate-500 group-hover:text-slate-950 flex items-center justify-center shrink-0 transition">
-                            <Clock className="w-4 h-4 stroke-[2.2]" />
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight">
-                                {item.label}
-                              </span>
-                              <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
-                                Recente
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
-                              {item.endereco}
-                            </p>
-                          </div>
-
-                          {distText && (
-                            <span className="text-[10px] font-black text-amber-800 bg-primary-50 px-2 py-0.5 rounded-full border border-amber-200/70 shrink-0">
-                              {distText}
-                            </span>
-                          )}
-
-                          <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-600 shrink-0 transition" />
-                        </button>
-                      );
-                    })}
+                    {historicoRecente.slice(0, 2).map((item) => (
+                      <RecentTripItemRow
+                        key={item.id}
+                        item={item}
+                        distText={getDistanciaTexto(item.coords)}
+                        onSelect={handleSelectDestino}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
@@ -833,4 +877,4 @@ export function PassengerSearchDestinationSheet() {
       )}
     </div>
   );
-}
+});
