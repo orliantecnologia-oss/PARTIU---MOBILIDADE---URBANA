@@ -21,18 +21,19 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
   const location = useLocation();
   const pathname = location.pathname;
-  const { corPrimaria, corTextoPrimaria, menuBuilder } = useBrandTheme();
+  const { corPrimaria, menuBuilder } = useBrandTheme();
 
   const customTabs = menuBuilder?.abasNavegacaoInferior?.filter((t) => t.ativo);
+  const accentColor = corPrimaria || "#FFDE00";
 
   // Se houver abas customizadas no Menu Builder White Label, renderiza-as dinamicamente
   if (customTabs && customTabs.length > 0) {
     return (
       <nav
-        className="w-full bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-30 py-1.5 px-4 flex items-center justify-around pb-[max(0.75rem,env(safe-area-inset-bottom,12px))] shrink-0"
+        className="w-full bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] z-30 py-2 px-4 flex items-center justify-around pb-[max(0.75rem,env(safe-area-inset-bottom,12px))] shrink-0"
         aria-label="Navegação Principal White Label"
       >
-        <div className="w-full max-w-md flex items-center justify-around gap-2">
+        <div className="w-full max-w-md flex items-center justify-around gap-1">
           {customTabs
             .sort((a, b) => a.ordem - b.ordem)
             .map((tab) => {
@@ -46,19 +47,35 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
                 <Link
                   key={tab.id}
                   to={tab.rota as any}
-                  style={{
-                    backgroundColor: isActive ? (corPrimaria || "#FFDE00") : "transparent",
-                    color: isActive ? (corTextoPrimaria || "#0F172A") : undefined,
-                  }}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer font-bold text-xs ${
-                    isActive
-                      ? "shadow-xs font-black"
-                      : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/80"
-                  }`}
+                  className="flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer relative group"
                   aria-label={tab.rotulo}
                 >
-                  <IconComp className="w-4 h-4 stroke-[2.4]" />
-                  <span>{tab.rotulo}</span>
+                  <IconComp
+                    className={`w-5 h-5 transition-colors duration-200 ${
+                      isActive
+                        ? "text-slate-950 stroke-[2.3]"
+                        : "text-[#A0A0A0] stroke-[1.8] group-hover:text-slate-600"
+                    }`}
+                  />
+                  <span
+                    className={`text-[11px] mt-0.5 tracking-tight transition-colors duration-200 ${
+                      isActive
+                        ? "text-slate-950 font-bold"
+                        : "text-[#A0A0A0] font-medium group-hover:text-slate-600"
+                    }`}
+                  >
+                    {tab.rotulo}
+                  </span>
+
+                  {/* Dot Indicator Minimalista: Ponto Amarelo Vibrante Marca Partiu */}
+                  {isActive ? (
+                    <span
+                      style={{ backgroundColor: accentColor }}
+                      className="w-1.5 h-1.5 rounded-full mt-1 shadow-xs animate-in zoom-in-75 duration-200"
+                    />
+                  ) : (
+                    <span className="w-1.5 h-1.5 rounded-full mt-1 opacity-0 pointer-events-none" />
+                  )}
                 </Link>
               );
             })}
@@ -67,50 +84,82 @@ export function HomeBottomNav({ activeTab }: HomeBottomNavProps) {
     );
   }
 
-  // Fallback padrão canônico
+  // Fallback padrão canônico: Corridas e Entregas
   const isCorridas = activeTab ? activeTab === "corridas" : pathname === "/app" || pathname === "/app/";
   const isEntregas = activeTab ? activeTab === "entregas" : pathname === "/app/encomendas" || pathname === "/app/encomendas/";
 
   return (
     <nav
-      className="w-full bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-30 py-1.5 px-4 flex items-center justify-around pb-[max(0.75rem,env(safe-area-inset-bottom,12px))] shrink-0"
+      className="w-full bg-white border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.04)] z-30 py-2 px-4 flex items-center justify-around pb-[max(0.75rem,env(safe-area-inset-bottom,12px))] shrink-0"
       aria-label="Navegação Principal"
     >
-      <div className="w-full max-w-md flex items-center justify-around gap-2">
-        {/* Aba 1: Corridas (Ícone de Carro) */}
+      <div className="w-full max-w-md flex items-center justify-around gap-1">
+        {/* Aba 1: Corridas */}
         <Link
           to="/app"
-          style={{
-            backgroundColor: isCorridas ? (corPrimaria || "#FFDE00") : "transparent",
-            color: isCorridas ? (corTextoPrimaria || "#0F172A") : undefined,
-          }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer font-bold text-xs ${
-            isCorridas
-              ? "shadow-xs font-black"
-              : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/80"
-          }`}
+          className="flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer relative group"
           aria-label="Aba de Corridas"
         >
-          <Car className="w-4 h-4 stroke-[2.4]" />
-          <span>Corridas</span>
+          <Car
+            className={`w-5 h-5 transition-colors duration-200 ${
+              isCorridas
+                ? "text-slate-950 stroke-[2.3]"
+                : "text-[#A0A0A0] stroke-[1.8] group-hover:text-slate-600"
+            }`}
+          />
+          <span
+            className={`text-[11px] mt-0.5 tracking-tight transition-colors duration-200 ${
+              isCorridas
+                ? "text-slate-950 font-bold"
+                : "text-[#A0A0A0] font-medium group-hover:text-slate-600"
+            }`}
+          >
+            Corridas
+          </span>
+
+          {/* Dot Indicator Minimalista */}
+          {isCorridas ? (
+            <span
+              style={{ backgroundColor: accentColor }}
+              className="w-1.5 h-1.5 rounded-full mt-1 shadow-xs animate-in zoom-in-75 duration-200"
+            />
+          ) : (
+            <span className="w-1.5 h-1.5 rounded-full mt-1 opacity-0 pointer-events-none" />
+          )}
         </Link>
 
-        {/* Aba 2: Entregas (Ícone de Pacote / Caixa) */}
+        {/* Aba 2: Entregas */}
         <Link
           to="/app/encomendas"
-          style={{
-            backgroundColor: isEntregas ? (corPrimaria || "#FFDE00") : "transparent",
-            color: isEntregas ? (corTextoPrimaria || "#0F172A") : undefined,
-          }}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer font-bold text-xs ${
-            isEntregas
-              ? "shadow-xs font-black"
-              : "text-slate-500 hover:text-slate-900 hover:bg-slate-100/80"
-          }`}
+          className="flex-1 flex flex-col items-center justify-center py-1 px-2 rounded-xl transition-all duration-200 active:scale-95 cursor-pointer relative group"
           aria-label="Aba de Entregas"
         >
-          <Package className="w-4 h-4 stroke-[2.4]" />
-          <span>Entregas</span>
+          <Package
+            className={`w-5 h-5 transition-colors duration-200 ${
+              isEntregas
+                ? "text-slate-950 stroke-[2.3]"
+                : "text-[#A0A0A0] stroke-[1.8] group-hover:text-slate-600"
+            }`}
+          />
+          <span
+            className={`text-[11px] mt-0.5 tracking-tight transition-colors duration-200 ${
+              isEntregas
+                ? "text-slate-950 font-bold"
+                : "text-[#A0A0A0] font-medium group-hover:text-slate-600"
+            }`}
+          >
+            Entregas
+          </span>
+
+          {/* Dot Indicator Minimalista */}
+          {isEntregas ? (
+            <span
+              style={{ backgroundColor: accentColor }}
+              className="w-1.5 h-1.5 rounded-full mt-1 shadow-xs animate-in zoom-in-75 duration-200"
+            />
+          ) : (
+            <span className="w-1.5 h-1.5 rounded-full mt-1 opacity-0 pointer-events-none" />
+          )}
         </Link>
       </div>
     </nav>
