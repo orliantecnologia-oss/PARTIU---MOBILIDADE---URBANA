@@ -36,6 +36,7 @@ import {
   type CancellationFeeSettlement,
 } from "./partiu-financial-engine";
 import { atomicMatchingEngine } from "./dispatch-atomic";
+import { redisLuaEngine } from "./spatial";
 import { silentCatchWarn } from "@/lib/structured-logger";
 
 
@@ -502,6 +503,7 @@ export function motoristaAceitarCorrida(motorista?: MotoristaInfo): CorridaParti
     driverStateMachine.transitionRide(condutor.id, atual.id, "OFFER_RECEIVED", "DRIVER");
     driverStateMachine.transitionRide(condutor.id, atual.id, "OFFER_ACCEPTED", "DRIVER");
     driverStateMachine.transitionRide(condutor.id, atual.id, "HEADING_TO_PICKUP", "DRIVER");
+    void redisLuaEngine.assignAndEvict(condutor.id);
   } catch (err) { silentCatchWarn("partiu-engine", err); }
 
   if (typeof window !== "undefined") {
@@ -681,6 +683,7 @@ export function finalizarViagem(): CorridaPartiu | null {
   try {
     driverStateMachine.transitionRide(condutorId, atual.id, "COMPLETING", "DRIVER");
     driverStateMachine.transitionRide(condutorId, atual.id, "COMPLETED", "DRIVER");
+    void redisLuaEngine.releaseToCell(condutorId);
   } catch (err) { silentCatchWarn("partiu-engine", err); }
 
   // Executa liquidação imutável no ledger financeiro (centavos / minor units)
@@ -725,6 +728,7 @@ export function cancelarCorrida(): CancellationFeeSettlement | null {
   let feeSettlement: CancellationFeeSettlement | null = null;
 
   if (atual && atual.motorista?.id) {
+    void redisLuaEngine.releaseToCell(atual.motorista.id);
     const elapsedSeconds = atual.aceitoEm
       ? (Date.now() - atual.aceitoEm) / 1000
       : (Date.now() - atual.criadoEm) / 1000;

@@ -19,6 +19,7 @@ import {
   enqueueDurableOfflineEvent,
   syncDurableQueueWithServer,
 } from "@/lib/offline-durable-queue";
+import { h3SpatialIndex, redisLuaEngine } from "@/lib/spatial";
 
 export type DriverOperationalState =
   | "OFFLINE"
@@ -123,6 +124,9 @@ export class DriverLocationService {
     this.scheduleTransmissionLoop();
     void this.solicitarWakeLock();
     this.iniciarKeepAliveAudio();
+    if (this.profile?.driverId) {
+      void redisLuaEngine.setDriverOnline(this.profile.driverId);
+    }
     return true;
   }
 
@@ -134,6 +138,9 @@ export class DriverLocationService {
     this.stopGpsTracking();
     this.liberarWakeLock();
     this.pararKeepAliveAudio();
+    if (this.profile?.driverId) {
+      void redisLuaEngine.setDriverOffline(this.profile.driverId);
+    }
 
     if (this.profile) {
       void this.syncToSupabase({
@@ -445,6 +452,12 @@ export class DriverLocationService {
             detail: { coords: [payload.lng, payload.lat], heading: payload.heading, speed: payload.speedKmh },
           })
         );
+      }
+
+      // Sincroniza imediatamente com o Índice Espacial Hexagonal H3 / Redis
+      if (this.profile?.driverId) {
+        const h3Cell = h3SpatialIndex.latLngToCell(payload.lat, payload.lng);
+        void redisLuaEngine.updateLocation(this.profile.driverId, payload.lat, payload.lng, h3Cell, now);
       }
 
       // Sincroniza com o Supabase

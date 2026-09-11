@@ -19,6 +19,7 @@
  */
 
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { h3DispatchEngine } from "@/lib/spatial";
 
 export interface CandidateDriverProfile {
   driverId: string;
@@ -158,6 +159,51 @@ export class MatchingEngine {
     const radiusMeters = request.radiusMeters || 8000;
     const tenantId = request.tenantId || "00000000-0000-0000-0000-000000000000";
     const limit = request.limit || 10;
+
+    // 0. Consulta L1 de Ultra-Baixa Latência no Índice Espacial H3 / Redis
+    try {
+      const h3Candidates = await h3DispatchEngine.fetchCandidatesInH3Rings({
+        pickupLat: passengerLat,
+        pickupLng: passengerLng,
+        maxRings: Math.min(8, Math.max(2, Math.round(radiusMeters / 250))),
+        limit,
+      });
+
+      if (h3Candidates.length > 0) {
+        return h3Candidates.map((c) => {
+          const etaMinutes = Math.max(1, Math.round(c.distanceApproxMeters / 450));
+          const score = this.calculateScore(
+            {
+              distanceMeters: c.distanceApproxMeters,
+              etaMinutes,
+              subscriptionPlan: "OURO",
+              acceptanceRate: 98,
+              rating: 4.95,
+              cancellationRate: 1.0,
+            },
+            radiusMeters
+          );
+
+          return {
+            driverId: c.driverId,
+            name: "Motorista Parceiro",
+            category: category,
+            status: "AVAILABLE",
+            subscriptionPlan: "OURO",
+            lat: c.lat,
+            lng: c.lng,
+            rating: 4.95,
+            acceptanceRate: 98,
+            cancellationRate: 1.0,
+            distanceMeters: c.distanceApproxMeters,
+            etaMinutes,
+            dispatchScore: score,
+          };
+        });
+      }
+    } catch (err) {
+      console.warn("[MatchingEngine] Falha ao consultar L1 H3/Redis:", err);
+    }
 
     // 1. Tentativa primária no PostgreSQL via RPC PostGIS
     if (isSupabaseConfigured()) {

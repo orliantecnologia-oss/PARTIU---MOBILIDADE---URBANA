@@ -31,6 +31,8 @@ export interface H3HeatmapCell {
   tipo: 'DEMANDA' | 'OFERTA';
 }
 
+import { h3SpatialIndex } from "./spatial";
+
 export class H3SpatialEngine {
   // Constantes de escala por resolução (~área de célula)
   private static readonly RES_SPACING: Record<number, number> = {
@@ -46,43 +48,42 @@ export class H3SpatialEngine {
   }> = new Map();
 
   /**
-   * Converte coordenadas geográficas (lat, lng) para índice de célula hexagonal
+   * Converte coordenadas geográficas (lat, lng) para índice de célula hexagonal H3
    */
   public latLngToH3Index(lat: number, lng: number, resolution: number = 8): string {
-    const spacing = H3SpatialEngine.RES_SPACING[resolution] || 0.005;
-    
-    // Projeção axial hexagonal sobre coordenadas planas aproximadas
-    const x = (lng * Math.cos(lat * (Math.PI / 180))) / spacing;
-    const y = lat / spacing;
-
-    // Matriz de conversão para coordenadas cúbicas de hexágono
-    const q = (Math.sqrt(3) / 3 * x - 1 / 3 * y);
-    const r = (2 / 3 * y);
-
-    // Arredondamento hexagonal cúbico
-    let rx = Math.round(q);
-    let ry = Math.round(-q - r);
-    let rz = Math.round(r);
-
-    const xDiff = Math.abs(rx - q);
-    const yDiff = Math.abs(ry - (-q - r));
-    const zDiff = Math.abs(rz - r);
-
-    if (xDiff > yDiff && xDiff > zDiff) {
-      rx = -ry - rz;
-    } else if (yDiff > zDiff) {
-      ry = -rx - rz;
-    } else {
-      rz = -rx - ry;
+    try {
+      return h3SpatialIndex.latLngToCell(lat, lng, resolution);
+    } catch {
+      const spacing = H3SpatialEngine.RES_SPACING[resolution] || 0.005;
+      const x = (lng * Math.cos(lat * (Math.PI / 180))) / spacing;
+      const y = lat / spacing;
+      const q = (Math.sqrt(3) / 3 * x - 1 / 3 * y);
+      const r = (2 / 3 * y);
+      let rx = Math.round(q);
+      let ry = Math.round(-q - r);
+      let rz = Math.round(r);
+      const xDiff = Math.abs(rx - q);
+      const yDiff = Math.abs(ry - (-q - r));
+      const zDiff = Math.abs(rz - r);
+      if (xDiff > yDiff && xDiff > zDiff) {
+        rx = -ry - rz;
+      } else if (yDiff > zDiff) {
+        ry = -rx - rz;
+      } else {
+        rz = -rx - ry;
+      }
+      return `h3_res${resolution}_${rx}_${rz}`;
     }
-
-    return `h3_res${resolution}_${rx}_${rz}`;
   }
 
   /**
    * Converte um índice de célula hexagonal para sua coordenada central (lat, lng)
    */
   public h3ToGeo(cellIndex: string): H3Coord {
+    if (h3SpatialIndex.isValidCell(cellIndex)) {
+      const pt = h3SpatialIndex.cellToLatLng(cellIndex);
+      return { lat: Number(pt.lat.toFixed(6)), lng: Number(pt.lng.toFixed(6)) };
+    }
     const parts = cellIndex.split('_');
     const p1 = parts[1] ?? 'res8';
     const p2 = parts[2] ?? '0';
@@ -90,15 +91,12 @@ export class H3SpatialEngine {
     const resolution = parseInt(p1.replace('res', ''), 10) || 8;
     const q = parseInt(p2, 10) || 0;
     const r = parseInt(p3, 10) || 0;
-
     const spacing = H3SpatialEngine.RES_SPACING[resolution] || 0.005;
-
     const y = (3 / 2 * r) * spacing;
     const lat = y;
     const cosLat = Math.cos(lat * (Math.PI / 180)) || 1;
     const x = (Math.sqrt(3) * (q + r / 2)) * spacing;
     const lng = x / cosLat;
-
     return {
       lat: Number(lat.toFixed(6)),
       lng: Number(lng.toFixed(6))
