@@ -321,26 +321,29 @@ function PartiuPassengerHomeContent() {
       };
     }
 
+    if (mapStatus === "IDLE") {
+      return {
+        top: 80,
+        bottom: 220,
+        left: 32,
+        right: 32,
+      };
+    }
+
     return undefined;
   }, [isSearching, mapStatus, activeSheetHeight]);
 
   return (
-    <div className="relative w-full h-[100dvh] max-h-[100dvh] bg-slate-100 overflow-hidden font-sans select-none flex flex-col">
+    <div className="relative w-full h-[100dvh] max-h-[100dvh] bg-slate-950 overflow-hidden font-sans select-none flex flex-col">
       {/* BANNER DE RESILIÊNCIA DE REDE & TOAST FLUTUANTE DE RINGING */}
       <NetworkReconnectionBanner />
       <LiveRingingToast />
       <GpsPermissionModal />
 
       {/* ========================================================================= */}
-      {/* SEÇÃO DO MAPA: HALF-MAP (43dvh) NO ESTADO IDLE / TELA CHEIA NOS DEMAIS    */}
+      {/* SEÇÃO DO MAPA: TELA CHEIA EM TODOS OS ESTADOS (FUNDO TOTALMENTE VISÍVEL)  */}
       {/* ========================================================================= */}
-      <div
-        className={`w-full transition-[height] duration-300 ease-out pointer-events-auto ${
-          state === "IDLE"
-            ? "relative h-[43dvh] shrink-0 z-0"
-            : "absolute inset-0 z-0 h-full"
-        }`}
-      >
+      <div className="absolute inset-0 z-0 h-full w-full pointer-events-auto">
         <PartiuRideMap
           status={mapStatus}
           modalidade={categoriaVeiculo === "MOTO" ? "MOTO" : "POP"}
@@ -389,16 +392,11 @@ function PartiuPassengerHomeContent() {
           />
 
           {/* ========================================================================= */}
-          {/* CONTÊINER BRANCO INFERIOR (PADRÃO 99): BORDA ARREDONDADA E OVERLAP       */}
+          {/* PAINEL INFERIOR FLUTUANTE SOBRE O MAPA (SEM FUNDO PRETO / MAPA VISÍVEL)  */}
           {/* ========================================================================= */}
-          <div className="relative flex-1 bg-white rounded-t-[28px] -mt-6 z-10 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] flex flex-col justify-between overflow-hidden">
-            {/* Indicador de Arrasto / Pílula Central Cinza 99 */}
-            <div className="w-full pt-2.5 pb-1 flex justify-center shrink-0">
-              <div className="w-10 h-1 bg-slate-300 rounded-full" />
-            </div>
-
-            {/* BLOCO 1 (DESTINO): Card "Para onde vamos?" + Histórico de 2 endereços */}
-            <div className="w-full max-w-lg mx-auto px-4 shrink-0 mb-1.5">
+          <div className="absolute inset-x-0 bottom-0 z-20 pointer-events-none flex flex-col justify-end w-full max-w-lg mx-auto pb-[max(0.5rem,env(safe-area-inset-bottom))] space-y-2">
+            {/* BLOCO 1 (DESTINO): Card flutuante "Para onde vamos?" + Histórico */}
+            <div className="w-full px-3.5 pointer-events-auto">
               <DestinationCard
                 onSearchClick={startSearch}
                 onEditPickupClick={startEditingPickup}
@@ -410,9 +408,9 @@ function PartiuPassengerHomeContent() {
               />
             </div>
 
-            {/* BLOCO 2 (BANNERS): Carrossel de Banners Promocionais (Apenas Scroll Horizontal) */}
+            {/* BLOCO 2 (BANNERS): Carrossel de Banners Promocionais Flutuante */}
             {activeBanners && activeBanners.length > 0 && (
-              <div className="w-full max-w-lg mx-auto px-4 flex-1 min-h-0 flex flex-col justify-center overflow-hidden">
+              <div className="w-full px-3.5 overflow-hidden pointer-events-auto">
                 <PromoCarousel
                   banners={activeBanners}
                   autoPlayIntervalMs={3000}
@@ -420,8 +418,8 @@ function PartiuPassengerHomeContent() {
               </div>
             )}
 
-            {/* RODAPÉ: Barra de Navegação Inferior Fixa Ancorada na Base */}
-            <div className="w-full shrink-0 bg-[#020617]">
+            {/* RODAPÉ: Barra de Navegação Flutuante Sem Fundo Preto */}
+            <div className="w-full px-3.5 pointer-events-auto">
               <HomeBottomNav activeTab="corridas" />
             </div>
           </div>
