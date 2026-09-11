@@ -332,12 +332,12 @@ function PartiuPassengerHomeContent() {
       <GpsPermissionModal />
 
       {/* ========================================================================= */}
-      {/* SEÇÃO DO MAPA: HALF-MAP (46dvh) NO ESTADO IDLE / TELA CHEIA NOS DEMAIS    */}
+      {/* SEÇÃO DO MAPA: HALF-MAP (43dvh) NO ESTADO IDLE / TELA CHEIA NOS DEMAIS    */}
       {/* ========================================================================= */}
       <div
         className={`w-full transition-[height] duration-300 ease-out pointer-events-auto ${
           state === "IDLE"
-            ? "relative h-[46dvh] shrink-0 z-0"
+            ? "relative h-[43dvh] shrink-0 z-0"
             : "absolute inset-0 z-0 h-full"
         }`}
       >
