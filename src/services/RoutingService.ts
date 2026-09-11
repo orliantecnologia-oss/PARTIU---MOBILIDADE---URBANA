@@ -17,6 +17,7 @@
  */
 
 import { routingCache } from "./RoutingCache";
+import { MapboxConfig } from "@/config/MapboxConfig";
 
 export interface RouteMetrics {
   distanceMeters: number;
@@ -57,7 +58,7 @@ const DEFAULT_MAPBOX_TOKEN =
     (process.env?.["VITE_MAPBOX_TOKEN"] ||
       process.env?.["VITE_MAPBOX_ACCESS_TOKEN"] ||
       process.env?.["MAPBOX_TOKEN"])) ||
-  "pk.eyJ1IjoiZXhhbXBsZS11c2VyIiwiYSI6ImNsZXhhbXBsZTAwMDAwIn0.ZXhhbXBsZV90b2tlbl9mb3JfY2k";
+  MapboxConfig.DEFAULT_TOKEN;
 
 const DEFAULT_GOOGLE_KEY =
   (typeof import.meta !== "undefined" && import.meta.env?.["VITE_GOOGLE_MAPS_API_KEY"]) ||

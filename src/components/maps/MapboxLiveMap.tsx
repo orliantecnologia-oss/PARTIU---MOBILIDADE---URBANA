@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { getPontosEmbarqueConfig, type PontoEmbarqueConfig } from "@/lib/pontos-embarque-store";
 import type { TelemetriaVeiculo } from "@/lib/superadmin-config";
+import { MapboxConfig } from "@/config/MapboxConfig";
+import { mapboxService } from "@/services/MapboxService";
 
 const MAPBOX_TOKEN =
   (typeof import.meta !== "undefined" &&
@@ -123,18 +125,16 @@ export function MapboxLiveMap({
 
   useEffect(() => {
     if (!mapContainer.current) return;
-    if (!MAPBOX_TOKEN) {
-      setFalhaMapa(true);
-      return;
+    const hasValidToken = MapboxConfig.hasValidToken();
+    if (hasValidToken && MAPBOX_TOKEN) {
+      mapboxgl.accessToken = MAPBOX_TOKEN;
     }
 
     let mapInstance: mapboxgl.Map;
     try {
-      mapboxgl.accessToken = MAPBOX_TOKEN;
-
       mapInstance = new mapboxgl.Map({
         container: mapContainer.current,
-        style: mapStyles[estiloMapa],
+        style: hasValidToken ? mapStyles[estiloMapa] : mapboxService.getOpenStreetMapStyle(),
         center: [-35.85, -9.75],
         zoom: 9.6,
         pitch: is3D ? 48 : 0,

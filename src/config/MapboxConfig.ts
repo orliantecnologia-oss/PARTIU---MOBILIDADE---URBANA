@@ -100,6 +100,14 @@ export class MapboxConfig {
   }
 
   /**
+   * Verifica se o token configurado é um token de produção Mapbox válido (formato pk.*)
+   */
+  public static hasValidToken(): boolean {
+    const token = MapboxConfig.getAccessToken();
+    return Boolean(token && token.startsWith("pk.") && !token.includes("example") && token.length > 20);
+  }
+
+  /**
    * Retorna a configuração consolidada do ambiente
    */
   public static getConfig(): MapboxEnvironmentConfig {

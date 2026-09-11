@@ -12,6 +12,7 @@
 import { calcularDistanciaHaversine } from "./eta-service";
 import { silentCatchWarn } from "@/lib/structured-logger";
 import { reverseGeocodingService } from "@/services/ReverseGeocodingService";
+import { MapboxConfig } from "@/config/MapboxConfig";
 
 
 export interface GeocodedPlace {
@@ -32,7 +33,7 @@ const MAPBOX_TOKEN =
     (process.env?.["VITE_MAPBOX_TOKEN"] ||
       process.env?.["VITE_MAPBOX_ACCESS_TOKEN"] ||
       process.env?.["MAPBOX_TOKEN"])) ||
-  "pk.eyJ1IjoiZXhhbXBsZS11c2VyIiwiYSI6ImNsZXhhbXBsZTAwMDAwIn0.ZXhhbXBsZV90b2tlbl9mb3JfY2k";
+  MapboxConfig.DEFAULT_TOKEN;
 
 // Catálogo regional detalhado de Itaperuna, RJ
 export const LUGARES_CURADOS_ITAPERUNA: GeocodedPlace[] = [

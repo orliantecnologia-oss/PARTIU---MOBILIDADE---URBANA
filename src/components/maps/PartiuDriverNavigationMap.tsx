@@ -87,18 +87,23 @@ export function PartiuDriverNavigationMap({
     if (!mapContainer.current) return;
 
     try {
-      mapboxgl.accessToken = MAPBOX_TOKEN;
+      const hasValidToken = MapboxConfig.hasValidToken();
+      if (hasValidToken && MAPBOX_TOKEN) {
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+      }
 
       const initialCenter: [number, number] =
         currentDriverPos[0] !== 0 && currentDriverPos[1] !== 0
           ? currentDriverPos
           : MapboxConfig.DEFAULT_CENTER;
 
+      const initialStyle = hasValidToken
+        ? (modoNoturno ? "mapbox://styles/mapbox/dark-v11" : mapboxService.getStyleUrl("streets"))
+        : mapboxService.getOpenStreetMapStyle();
+
       const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: modoNoturno
-          ? "mapbox://styles/mapbox/dark-v11"
-          : mapboxService.getStyleUrl("streets"),
+        style: initialStyle,
         center: initialCenter,
         zoom: 16.5,
         pitch: estado === "HEADING_TO_PICKUP" || estado === "IN_PROGRESS" ? 55 : 0,
@@ -107,7 +112,9 @@ export function PartiuDriverNavigationMap({
       });
 
       map.on("load", () => {
-        mapboxService.applyUberCleanFilters(map);
+        if (hasValidToken) {
+          mapboxService.applyUberCleanFilters(map);
+        }
         setMapLoaded(true);
         mapRef.current = map;
 

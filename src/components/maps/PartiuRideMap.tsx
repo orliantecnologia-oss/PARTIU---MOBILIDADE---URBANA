@@ -234,11 +234,18 @@ export const PartiuRideMap = memo(function PartiuRideMap({
     if (!mapContainer.current) return;
 
     try {
-      mapboxgl.accessToken = MAPBOX_TOKEN;
+      const hasValidToken = MapboxConfig.hasValidToken();
+      if (hasValidToken && MAPBOX_TOKEN) {
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+      }
+
+      const initialStyle = hasValidToken
+        ? mapboxService.getStyleUrl("streets")
+        : mapboxService.getOpenStreetMapStyle();
 
       const map = new mapboxgl.Map({
         container: mapContainer.current,
-        style: mapboxService.getStyleUrl("streets"),
+        style: initialStyle,
         center: origemCoords,
         zoom: 16.5,
         pitch: status === "A_CAMINHO" || status === "EM_VIAGEM" ? 60 : 35,
@@ -248,8 +255,10 @@ export const PartiuRideMap = memo(function PartiuRideMap({
       } as any);
 
       map.on("load", async () => {
-        // Aplica a paleta limpa estilo Google Maps (fundo #F1F3F4, ruas brancas, zero POIs comerciais)
-        mapboxService.applyGoogleMapsPalette(map);
+        // Aplica a paleta limpa estilo Google Maps se estiver em estilo Mapbox nativo
+        if (hasValidToken) {
+          mapboxService.applyGoogleMapsPalette(map);
+        }
         // Registra assets nativos para SymbolLayers e marcadores
         await registerAllMapAssets(map);
         // await registerAllMapboxMarkers(map);
@@ -594,12 +603,23 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         }, 350);
       });
 
-      map.on("error", () => {
-        setMapError(true);
+      map.on("error", (e: any) => {
+        const msg = (e?.error?.message || e?.message || "").toLowerCase();
+        const status = e?.error?.status || e?.status;
+        if (status === 401 || status === 403 || msg.includes("unauthorized") || msg.includes("forbidden") || msg.includes("invalid token")) {
+          try {
+            map.setStyle(mapboxService.getOpenStreetMapStyle() as any);
+          } catch {
+            setMapError(true);
+          }
+        } else {
+          silentCatchWarn("PartiuRideMap:mapbox-warning", e?.error || e);
+        }
       });
 
       mapRef.current = map;
-    } catch {
+    } catch (err) {
+      silentCatchWarn("PartiuRideMap:init-error", err);
       setMapError(true);
     }
 
