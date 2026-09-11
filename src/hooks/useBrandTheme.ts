@@ -131,6 +131,17 @@ export function useBrandTheme() {
   const nomeModuloPay = "99Pay";
   const nomeModuloEntrega = config.businessModels?.verticais?.DELIVERY_FLASH?.nomeExibicao || "Entrega";
 
+  // Gradientes e Sincronização Cabeçalho ↔ Rodapé
+  const corCabecalhoInicio = branding?.header_gradient_start || "#0A2342";
+  const corCabecalhoFim = branding?.header_gradient_end || "#00529B";
+  const rodapeSincronizadoComCabecalho = branding?.footer_sync_with_header !== false;
+  const corRodapeInicio = rodapeSincronizadoComCabecalho
+    ? corCabecalhoInicio
+    : (branding?.footer_gradient_start || corCabecalhoInicio);
+  const corRodapeFim = rodapeSincronizadoComCabecalho
+    ? corCabecalhoFim
+    : (branding?.footer_gradient_end || corCabecalhoFim);
+
   return {
     // Legado 100% preservado
     identidade,
@@ -143,6 +154,11 @@ export function useBrandTheme() {
     corFundoApp,
     nomeModuloPay,
     nomeModuloEntrega,
+    corCabecalhoInicio,
+    corCabecalhoFim,
+    rodapeSincronizadoComCabecalho,
+    corRodapeInicio,
+    corRodapeFim,
     bannerComunicacao: identidade.bannerComunicacao,
     bannersComunicacao: identidade.bannersComunicacao?.length
       ? identidade.bannersComunicacao

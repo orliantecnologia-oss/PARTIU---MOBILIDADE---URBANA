@@ -16,6 +16,9 @@ export const DEFAULT_BRANDING: AppBrandingRecord = {
   favicon_url: "/favicon.svg",
   header_gradient_start: "#0A2342",
   header_gradient_end: "#00529B",
+  footer_sync_with_header: true,
+  footer_gradient_start: "#0A2342",
+  footer_gradient_end: "#00529B",
   border_radius: "16px",
   font_family: "Plus Jakarta Sans",
 };

@@ -30,6 +30,19 @@ export class ThemeEngine {
       root.style.setProperty("--color-text-secondary", branding.text_secondary);
       root.style.setProperty("--header-gradient-start", branding.header_gradient_start);
       root.style.setProperty("--header-gradient-end", branding.header_gradient_end);
+
+      // Sincronização do Rodapé com o Cabeçalho (Padrão: true)
+      const isFooterSynced = branding.footer_sync_with_header !== false;
+      const footerStart = isFooterSynced
+        ? branding.header_gradient_start
+        : (branding.footer_gradient_start || branding.header_gradient_start);
+      const footerEnd = isFooterSynced
+        ? branding.header_gradient_end
+        : (branding.footer_gradient_end || branding.header_gradient_end);
+
+      root.style.setProperty("--footer-gradient-start", footerStart);
+      root.style.setProperty("--footer-gradient-end", footerEnd);
+      root.style.setProperty("--footer-sync-with-header", isFooterSynced ? "1" : "0");
       root.style.setProperty("--app-border-radius", branding.border_radius);
 
       // 2. Mapeamento Retrocompatível com Tailwind v4 & Shadcn/UI

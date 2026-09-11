@@ -136,7 +136,12 @@ export function BottomNav() {
     >
       <div className="w-full pointer-events-auto">
         {/* Pílula Flutuante Focada em Corrida e Entrega — Alto Contraste Moderno */}
-        <div className="flex items-center justify-between rounded-full bg-[#090D1A]/95 backdrop-blur-xl p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.35)] border border-white/20 ring-1 ring-white/10">
+        <div
+          className="flex items-center justify-between rounded-full backdrop-blur-xl p-1.5 shadow-[0_16px_40px_rgba(0,51,102,0.40)] border border-white/20 ring-1 ring-white/10"
+          style={{
+            background: "linear-gradient(135deg, var(--footer-gradient-start, var(--header-gradient-start, #0088FF)) 0%, var(--footer-gradient-end, var(--header-gradient-end, #003366)) 100%)",
+          }}
+        >
           {/* 1. Modo: Corrida */}
           <Link
             to="/app"
@@ -144,7 +149,7 @@ export function BottomNav() {
               isCorridaActive
                 ? {
                     backgroundColor: "#FFFFFF",
-                    color: "#090D1A",
+                    color: "var(--footer-gradient-end, #003366)",
                     boxShadow: "0 4px 16px rgba(255, 255, 255, 0.35)",
                   }
                 : undefined
@@ -152,11 +157,11 @@ export function BottomNav() {
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full transition-all duration-200 active:scale-95 cursor-pointer font-black text-xs ${
               isCorridaActive
                 ? "shadow-sm"
-                : "text-slate-300 hover:text-white hover:bg-white/10"
+                : "text-white/80 hover:text-white hover:bg-white/15"
             }`}
           >
-            <Car className={`w-4 h-4 ${isCorridaActive ? "text-[#090D1A] stroke-[2.6]" : "text-slate-300 stroke-[2]"}`} />
-            <span className={isCorridaActive ? "text-[#090D1A] font-black" : "text-slate-300 font-bold"}>Corrida</span>
+            <Car className={`w-4 h-4 ${isCorridaActive ? "text-[var(--footer-gradient-end,#003366)] stroke-[2.6]" : "text-white/80 stroke-[2]"}`} />
+            <span className={isCorridaActive ? "text-[var(--footer-gradient-end,#003366)] font-black" : "text-white/85 font-bold"}>Corrida</span>
           </Link>
 
           {/* 2. Modo: Entrega */}
@@ -166,7 +171,7 @@ export function BottomNav() {
               isEntregaActive
                 ? {
                     backgroundColor: "#FFFFFF",
-                    color: "#090D1A",
+                    color: "var(--footer-gradient-end, #003366)",
                     boxShadow: "0 4px 16px rgba(255, 255, 255, 0.35)",
                   }
                 : undefined
@@ -174,11 +179,11 @@ export function BottomNav() {
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full transition-all duration-200 active:scale-95 cursor-pointer font-black text-xs ${
               isEntregaActive
                 ? "shadow-sm"
-                : "text-slate-300 hover:text-white hover:bg-white/10"
+                : "text-white/80 hover:text-white hover:bg-white/15"
             }`}
           >
-            <Package className={`w-4 h-4 ${isEntregaActive ? "text-[#090D1A] stroke-[2.6]" : "text-slate-300 stroke-[2]"}`} />
-            <span className={isEntregaActive ? "text-[#090D1A] font-black" : "text-slate-300 font-bold"}>{nomeModuloEntrega || "Entrega"}</span>
+            <Package className={`w-4 h-4 ${isEntregaActive ? "text-[var(--footer-gradient-end,#003366)] stroke-[2.6]" : "text-white/80 stroke-[2]"}`} />
+            <span className={isEntregaActive ? "text-[var(--footer-gradient-end,#003366)] font-black" : "text-white/85 font-bold"}>{nomeModuloEntrega || "Entrega"}</span>
           </Link>
         </div>
       </div>

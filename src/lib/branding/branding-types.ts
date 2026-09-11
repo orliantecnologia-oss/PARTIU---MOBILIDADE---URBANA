@@ -21,6 +21,9 @@ export interface AppBrandingRecord {
   favicon_url?: string | null;
   header_gradient_start: string;
   header_gradient_end: string;
+  footer_sync_with_header?: boolean;
+  footer_gradient_start?: string;
+  footer_gradient_end?: string;
   border_radius: string;
   font_family: string;
   created_at?: string;

@@ -41,6 +41,9 @@ import {
   Store,
   CheckCircle2,
   AlertTriangle,
+  Link2,
+  Unlink,
+  Sliders,
 } from "lucide-react";
 import {
   type BusinessVerticalId,
@@ -1056,7 +1059,12 @@ function WhiteLabelStudioContent() {
                         type="color"
                         value={branding?.header_gradient_start || "#0088FF"}
                         onChange={(e) => {
-                          updateBranding({ header_gradient_start: e.target.value });
+                          const val = e.target.value;
+                          const isSynced = branding?.footer_sync_with_header !== false;
+                          updateBranding({
+                            header_gradient_start: val,
+                            ...(isSynced ? { footer_gradient_start: val } : {}),
+                          });
                           triggerSaveFeedback();
                         }}
                         className="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent"
@@ -1065,7 +1073,12 @@ function WhiteLabelStudioContent() {
                         type="text"
                         value={branding?.header_gradient_start || "#0088FF"}
                         onChange={(e) => {
-                          updateBranding({ header_gradient_start: e.target.value });
+                          const val = e.target.value;
+                          const isSynced = branding?.footer_sync_with_header !== false;
+                          updateBranding({
+                            header_gradient_start: val,
+                            ...(isSynced ? { footer_gradient_start: val } : {}),
+                          });
                           triggerSaveFeedback();
                         }}
                         className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono"
@@ -1083,7 +1096,12 @@ function WhiteLabelStudioContent() {
                         type="color"
                         value={branding?.header_gradient_end || "#003366"}
                         onChange={(e) => {
-                          updateBranding({ header_gradient_end: e.target.value });
+                          const val = e.target.value;
+                          const isSynced = branding?.footer_sync_with_header !== false;
+                          updateBranding({
+                            header_gradient_end: val,
+                            ...(isSynced ? { footer_gradient_end: val } : {}),
+                          });
                           triggerSaveFeedback();
                         }}
                         className="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent"
@@ -1092,12 +1110,143 @@ function WhiteLabelStudioContent() {
                         type="text"
                         value={branding?.header_gradient_end || "#003366"}
                         onChange={(e) => {
-                          updateBranding({ header_gradient_end: e.target.value });
+                          const val = e.target.value;
+                          const isSynced = branding?.footer_sync_with_header !== false;
+                          updateBranding({
+                            header_gradient_end: val,
+                            ...(isSynced ? { footer_gradient_end: val } : {}),
+                          });
                           triggerSaveFeedback();
                         }}
                         className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono"
                       />
                     </div>
+                  </div>
+
+                  {/* ============================================================= */}
+                  {/* SINCRONIZAÇÃO E CUSTOMIZAÇÃO DO RODAPÉ (FOOTER BRANDING)      */}
+                  {/* ============================================================= */}
+                  <div className="col-span-full p-4 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-white">
+                            Cor do Rodapé (Navegação Inferior)
+                          </span>
+                          {branding?.footer_sync_with_header !== false ? (
+                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                              <Link2 className="w-3 h-3" /> Sincronizado com Cabeçalho
+                            </span>
+                          ) : (
+                            <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                              <Unlink className="w-3 h-3" /> Customização Separada
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          {branding?.footer_sync_with_header !== false
+                            ? "Por padrão, o rodapé segue automaticamente as mesmas cores e degradê do cabeçalho em tempo real."
+                            : "O rodapé está operando com cores personalizadas independentes do cabeçalho."}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const currentlySynced = branding?.footer_sync_with_header !== false;
+                          if (currentlySynced) {
+                            // Alternar para customização separada mantendo as cores atuais como ponto de partida
+                            updateBranding({
+                              footer_sync_with_header: false,
+                              footer_gradient_start: branding?.footer_gradient_start || branding?.header_gradient_start || "#0088FF",
+                              footer_gradient_end: branding?.footer_gradient_end || branding?.header_gradient_end || "#003366",
+                            });
+                          } else {
+                            // Voltar a sincronizar com o cabeçalho
+                            updateBranding({
+                              footer_sync_with_header: true,
+                              footer_gradient_start: branding?.header_gradient_start || "#0088FF",
+                              footer_gradient_end: branding?.header_gradient_end || "#003366",
+                            });
+                          }
+                          triggerSaveFeedback();
+                        }}
+                        className={`text-xs font-bold px-3.5 py-2 rounded-xl transition cursor-pointer flex items-center gap-2 shrink-0 ${
+                          branding?.footer_sync_with_header !== false
+                            ? "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700"
+                            : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-md"
+                        }`}
+                      >
+                        {branding?.footer_sync_with_header !== false ? (
+                          <>
+                            <Sliders className="w-3.5 h-3.5 text-primary-400" />
+                            <span>Customizar Rodapé Separadamente</span>
+                          </>
+                        ) : (
+                          <>
+                            <Link2 className="w-3.5 h-3.5" />
+                            <span>Sincronizar com Cabeçalho</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Controles de Cores Independentes para o Rodapé (quando desvinculado) */}
+                    {branding?.footer_sync_with_header === false && (
+                      <div className="pt-3 border-t border-slate-800/80 grid grid-cols-1 sm:grid-cols-2 gap-3 animate-in fade-in">
+                        <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1.5">
+                          <label className="text-[11px] font-bold text-slate-300 block">
+                            Rodapé (Início Gradiente)
+                          </label>
+                          <div className="flex items-center gap-2.5">
+                            <input
+                              type="color"
+                              value={branding?.footer_gradient_start || branding?.header_gradient_start || "#0088FF"}
+                              onChange={(e) => {
+                                updateBranding({ footer_gradient_start: e.target.value });
+                                triggerSaveFeedback();
+                              }}
+                              className="w-8 h-8 rounded-lg cursor-pointer border-0 bg-transparent"
+                            />
+                            <input
+                              type="text"
+                              value={branding?.footer_gradient_start || branding?.header_gradient_start || "#0088FF"}
+                              onChange={(e) => {
+                                updateBranding({ footer_gradient_start: e.target.value });
+                                triggerSaveFeedback();
+                              }}
+                              className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white font-mono"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl space-y-1.5">
+                          <label className="text-[11px] font-bold text-slate-300 block">
+                            Rodapé (Fim Gradiente)
+                          </label>
+                          <div className="flex items-center gap-2.5">
+                            <input
+                              type="color"
+                              value={branding?.footer_gradient_end || branding?.header_gradient_end || "#003366"}
+                              onChange={(e) => {
+                                updateBranding({ footer_gradient_end: e.target.value });
+                                triggerSaveFeedback();
+                              }}
+                              className="w-8 h-8 rounded-lg cursor-pointer border-0 bg-transparent"
+                            />
+                            <input
+                              type="text"
+                              value={branding?.footer_gradient_end || branding?.header_gradient_end || "#003366"}
+                              onChange={(e) => {
+                                updateBranding({ footer_gradient_end: e.target.value });
+                                triggerSaveFeedback();
+                              }}
+                              className="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Cor de Destaque / Acentos */}
@@ -1149,6 +1298,11 @@ function WhiteLabelStudioContent() {
                         background_color: designSystem?.paletaPrimaria?.corFundoApp || branding.background_color,
                         surface_color: designSystem?.paletaPrimaria?.corSuperficieCard || branding.surface_color,
                         text_primary: designSystem?.paletaPrimaria?.corTextoPrincipal || branding.text_primary,
+                        header_gradient_start: branding.header_gradient_start,
+                        header_gradient_end: branding.header_gradient_end,
+                        footer_sync_with_header: branding.footer_sync_with_header !== false,
+                        footer_gradient_start: branding.footer_gradient_start || branding.header_gradient_start,
+                        footer_gradient_end: branding.footer_gradient_end || branding.header_gradient_end,
                       });
                       triggerSaveFeedback();
                     }}
@@ -1877,16 +2031,26 @@ function WhiteLabelStudioContent() {
                   </div>
 
                   {/* Header do App Simulado com Curvatura em Arco Padrão 99 */}
-                  <div className="relative w-full h-[76px] overflow-hidden bg-slate-100">
-                    <div
+                  <div className="relative w-full h-[74px] overflow-visible bg-slate-100">
+                    <svg
+                      className="absolute top-0 left-0 w-full h-[74px] pointer-events-auto overflow-visible"
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="none"
                       style={{
-                        background: `linear-gradient(180deg, ${branding?.header_gradient_start || "#0088FF"} 0%, ${branding?.header_gradient_end || "#003366"} 100%)`,
-                        borderBottomLeftRadius: "50%",
-                        borderBottomRightRadius: "50%",
-                        boxShadow: "0 6px 18px rgba(0, 0, 0, 0.25)",
+                        filter: "drop-shadow(0 6px 12px rgba(0, 51, 102, 0.35))",
                       }}
-                      className="absolute -top-[52px] left-1/2 -translate-x-1/2 w-[160%] h-[125px]"
-                    />
+                    >
+                      <defs>
+                        <linearGradient id="simHeaderGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stopColor={branding?.header_gradient_start || "#0088FF"} />
+                          <stop offset="100%" stopColor={branding?.header_gradient_end || "#003366"} />
+                        </linearGradient>
+                      </defs>
+                      <path
+                        d="M 0,0 L 100,0 L 100,54 C 74,98 26,98 0,54 Z"
+                        fill="url(#simHeaderGradient)"
+                      />
+                    </svg>
                     <div className="relative z-10 px-4 pt-2.5 flex items-center justify-between text-white">
                       <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-full bg-white/20 ring-2 ring-white/80 overflow-hidden flex items-center justify-center font-black text-[10px]">
@@ -1972,31 +2136,44 @@ function WhiteLabelStudioContent() {
                     </div>
                   </div>
 
-                  {/* Barra de Navegação Inferior Simulada (Adaptada ao Tema) */}
-                  <div
-                    style={{
-                      background: `linear-gradient(180deg, ${branding?.surface_color || "#0F172A"} 0%, ${branding?.background_color || "#020617"} 100%)`,
-                      borderTopLeftRadius: "16px",
-                      borderTopRightRadius: "16px",
-                    }}
-                    className="border-t border-white/10 px-4 py-2.5 flex items-center justify-around"
-                  >
-                    <div
-                      style={{
-                        backgroundColor: branding?.text_primary || "#FFFFFF",
-                        color: branding?.background_color || "#090D1A",
-                      }}
-                      className="px-3 py-1 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm"
-                    >
-                      <Car className="w-3.5 h-3.5" />
-                      <span>Corridas</span>
-                    </div>
+                  {/* Barra de Navegação Inferior Simulada (Sincronizada por Padrão ou Customizada) */}
+                  {(() => {
+                    const isSynced = branding?.footer_sync_with_header !== false;
+                    const fStart = isSynced
+                      ? (branding?.header_gradient_start || "#0088FF")
+                      : (branding?.footer_gradient_start || branding?.header_gradient_start || "#0088FF");
+                    const fEnd = isSynced
+                      ? (branding?.header_gradient_end || "#003366")
+                      : (branding?.footer_gradient_end || branding?.header_gradient_end || "#003366");
 
-                    <div className="px-3 py-1 text-xs font-bold text-white/60 flex items-center gap-1.5">
-                      <Package className="w-3.5 h-3.5" />
-                      <span>Entregas</span>
-                    </div>
-                  </div>
+                    return (
+                      <div
+                        style={{
+                          background: `linear-gradient(180deg, ${fStart} 0%, ${fEnd} 100%)`,
+                          borderTopLeftRadius: "18px",
+                          borderTopRightRadius: "18px",
+                          boxShadow: "0 -4px 18px rgba(0, 51, 102, 0.35)",
+                        }}
+                        className="border-t border-white/20 px-4 py-2.5 flex items-center justify-around"
+                      >
+                        <div
+                          style={{
+                            backgroundColor: "#FFFFFF",
+                            color: fEnd,
+                          }}
+                          className="px-3 py-1 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm"
+                        >
+                          <Car className="w-3.5 h-3.5" />
+                          <span>Corridas</span>
+                        </div>
+
+                        <div className="px-3 py-1 text-xs font-bold text-white/80 flex items-center gap-1.5">
+                          <Package className="w-3.5 h-3.5" />
+                          <span>Entregas</span>
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
