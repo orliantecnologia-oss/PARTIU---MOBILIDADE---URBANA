@@ -1084,6 +1084,12 @@ import "./driver-reliability-12h.test.ts";
 // Suíte Oficial V6: Auditoria Arquitetural e Capacidade Municipal (10.000 Motoristas)
 import "./city-scale-architectural-audit.test.ts";
 
+// Suíte Oficial V6: Motor Espacial H3 Hexagonal & Redis Atômico (Uber H3 + Lua)
+import "./h3-redis-spatial.test.ts";
+
+// Suíte Oficial V6: Despacho em Ondas (Wave Dispatch) & Segurança 99 (99Mulher + Bloqueio Mútuo)
+import "./wave-dispatch-safety.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");

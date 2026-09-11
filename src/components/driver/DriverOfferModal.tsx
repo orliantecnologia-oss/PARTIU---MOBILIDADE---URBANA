@@ -46,7 +46,7 @@ export function DriverOfferModal({
   oferta,
   onAceitar,
   onRecusar,
-  countdownSeconds = 10,
+  countdownSeconds = 15,
 }: DriverOfferModalProps) {
   const [secondsRemaining, setSecondsRemaining] = useState(countdownSeconds);
 

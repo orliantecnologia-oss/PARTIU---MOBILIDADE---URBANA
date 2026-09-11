@@ -56,6 +56,7 @@ export interface PassengerPreferences {
   arCondicionado: boolean;
   viagemSilenciosa: boolean;
   bagagemPortaMalas: boolean;
+  isFemaleOnly: boolean;
 }
 
 interface PassengerRideContextValue {
@@ -480,6 +481,7 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
     arCondicionado: false,
     viagemSilenciosa: false,
     bagagemPortaMalas: false,
+    isFemaleOnly: false,
   });
   const [precisaTroco, setPrecisaTroco] = useState("nao");
   const [pagamentoNaMaquininha, setPagamentoNaMaquininha] = useState(false);
@@ -890,6 +892,7 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       formaPagamento: formaPagamento === "pix" ? "pix" : "dinheiro",
       passageiroNome: viajanteOutraPessoa && nomeOutroPassageiro.trim() ? nomeOutroPassageiro.trim() : "Rodrigo Gomes",
       passageiroTelefone: "(22) 99876-5432",
+      isFemaleOnly: preferences.isFemaleOnly,
     });
 
     setActiveRide(novaCorrida);

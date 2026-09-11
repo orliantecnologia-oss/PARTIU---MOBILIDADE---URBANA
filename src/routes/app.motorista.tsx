@@ -93,6 +93,7 @@ import { dispatchQueueBuilder } from "@/services/DispatchQueueBuilder";
 import { DeliveryPinNumpadBottomSheet } from "@/components/driver/DeliveryPinNumpadBottomSheet";
 import { DriverAccessGuard } from "@/components/driver/DriverAccessGuard";
 import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
+import { h3DispatchEngine } from "@/lib/spatial";
 import { chatRealtimeService } from "@/services/ChatRealtimeService";
 import {
   DriverCancelBottomSheet,
@@ -530,6 +531,7 @@ export function PartiuDriverCockpit() {
 
   function handleAceitarOferta() {
     if (ofertaAtiva) {
+      void h3DispatchEngine.acceptWaveOffer(ofertaAtiva.id, perfilMotorista.id);
       void driverOfferEngine.claimOffer(ofertaAtiva.id, perfilMotorista.id);
       if (ofertaAtiva.isReal) {
         motoristaAceitarCorrida();
@@ -540,6 +542,7 @@ export function PartiuDriverCockpit() {
 
   function handleRecusarOferta() {
     if (ofertaAtiva) {
+      void h3DispatchEngine.declineWaveOffer(ofertaAtiva.id, perfilMotorista.id);
       driverOfferEngine.rejectOffer(ofertaAtiva.id, perfilMotorista.id, "REJECTED_BY_DRIVER");
     }
     setEstadoCockpit("IDLE");
@@ -1176,7 +1179,7 @@ export function PartiuDriverCockpit() {
                   ? Number((ofertaAtiva.valorLiquido / ofertaAtiva.distanciaKm).toFixed(2))
                   : 3.6,
             }}
-            countdownSeconds={10}
+            countdownSeconds={15}
             onAceitar={handleAceitarOferta}
             onRecusar={handleRecusarOferta}
           />

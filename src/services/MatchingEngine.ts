@@ -19,7 +19,12 @@
  */
 
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
-import { h3DispatchEngine } from "@/lib/spatial";
+import {
+  h3DispatchEngine,
+  type CandidateH3Driver,
+  type WaveDispatchConfig,
+  type WaveDispatchResult,
+} from "@/lib/spatial";
 
 export interface CandidateDriverProfile {
   driverId: string;
@@ -44,6 +49,7 @@ export interface CandidateDriverProfile {
   etaMinutes: number;
   dispatchScore: number;
   finalScore?: number;
+  gender?: "FEMALE" | "MALE" | "OTHER" | "UNSPECIFIED";
 }
 
 export interface MatchRequest {
@@ -57,6 +63,10 @@ export interface MatchRequest {
   tenantId?: string;
   limit?: number;
   fareBrl?: number;
+  riderId?: string;
+  isFemaleOnly?: boolean;
+  waveDispatch?: boolean;
+  blockedDriverIds?: string[];
 }
 
 export class MatchingEngine {
@@ -162,12 +172,22 @@ export class MatchingEngine {
 
     // 0. Consulta L1 de Ultra-Baixa Latência no Índice Espacial H3 / Redis
     try {
-      const h3Candidates = await h3DispatchEngine.fetchCandidatesInH3Rings({
+      let h3Candidates = await h3DispatchEngine.fetchCandidatesInH3Rings({
         pickupLat: passengerLat,
         pickupLng: passengerLng,
         maxRings: Math.min(8, Math.max(2, Math.round(radiusMeters / 250))),
         limit,
       });
+
+      // Filtro de Segurança 99Mulher
+      if (request.isFemaleOnly) {
+        h3Candidates = h3DispatchEngine.filterFemaleDrivers(h3Candidates);
+      }
+
+      // Filtro de Segurança Bloqueio Mútuo
+      if (request.blockedDriverIds && request.blockedDriverIds.length > 0) {
+        h3Candidates = h3DispatchEngine.filterBlockedDrivers(h3Candidates, new Set(request.blockedDriverIds));
+      }
 
       if (h3Candidates.length > 0) {
         return h3Candidates.map((c) => {
@@ -198,6 +218,7 @@ export class MatchingEngine {
             distanceMeters: c.distanceApproxMeters,
             etaMinutes,
             dispatchScore: score,
+            gender: c.gender,
           };
         });
       }
@@ -414,6 +435,39 @@ export class MatchingEngine {
     const withinRadius = candidates.filter((c) => c.distanceMeters <= radiusMeters);
     withinRadius.sort((a, b) => (b.finalScore ?? b.dispatchScore) - (a.finalScore ?? a.dispatchScore));
     return withinRadius.slice(0, limit);
+  }
+
+  /**
+   * Executa o Despacho em Ondas (Wave Dispatching) padrão Uber/99
+   * Divide candidatos em lotes (ex: 5 motoristas) com janela de 15 segundos
+   */
+  public async dispatchRideInWaves(
+    rideId: string,
+    request: MatchRequest,
+    config: Partial<WaveDispatchConfig> = {},
+    checkRideStatus?: () => Promise<string | null>
+  ): Promise<WaveDispatchResult> {
+    // 1. Busca os candidatos elegíveis ordenados
+    const drivers = await this.findBestDrivers(request);
+    if (drivers.length === 0) {
+      return { success: false, reason: "NO_CANDIDATES" };
+    }
+
+    // 2. Mapeia para CandidateH3Driver
+    const waveSize = config.waveSize || 5;
+    const candidates: CandidateH3Driver[] = drivers.map((d, index) => ({
+      driverId: d.driverId,
+      lat: d.lat,
+      lng: d.lng,
+      cell: "",
+      ring: Math.floor(index / waveSize),
+      distanceApproxMeters: d.distanceMeters,
+      lastSeenTimestamp: Date.now(),
+      gender: d.gender,
+    }));
+
+    // 3. Aciona o loop de despacho em ondas com timer de 15s e evicção atômica
+    return h3DispatchEngine.executeWaveDispatch(rideId, candidates, config, checkRideStatus);
   }
 }
 
