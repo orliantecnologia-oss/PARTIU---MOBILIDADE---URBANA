@@ -9,6 +9,7 @@
  */
 
 import { h3SpatialIndex, DEFAULT_H3_SURGE_RESOLUTION } from "./h3-spatial-index";
+import type * as GeoJSON from "geojson";
 
 export interface DemandEvent {
   cell: string;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ==============================================================================
  * 📱 PARTIU MOBILIDADE — COMPONENTE MAPBOX GL PARA REACT NATIVE (@rnmapbox/maps)

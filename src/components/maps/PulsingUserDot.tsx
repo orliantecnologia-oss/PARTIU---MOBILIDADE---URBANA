@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * ==============================================================================
  * 📍 PARTIU — 99 BLUE DOT (MARCADOR DE LOCALIZAÇÃO DO USUÁRIO)

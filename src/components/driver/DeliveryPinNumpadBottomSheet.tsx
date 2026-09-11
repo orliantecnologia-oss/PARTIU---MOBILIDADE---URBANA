@@ -50,7 +50,7 @@ export const DeliveryPinNumpadBottomSheet = memo(function DeliveryPinNumpadBotto
   onCancel,
   onStartReturn,
 }: DeliveryPinNumpadBottomSheetProps) {
-  const { corPrimaria, corTextoPrimaria, corCabecalhoInicio, corCabecalhoFim, branding } = useBrandTheme();
+  const { nomeApp, corPrimaria, corTextoPrimaria, corCabecalhoInicio, corCabecalhoFim, branding } = useBrandTheme();
   const accentColor = branding?.accent_color || corPrimaria || "#0088FF";
   const brandGradient = `linear-gradient(135deg, var(--header-gradient-start, ${corCabecalhoInicio}) 0%, var(--header-gradient-end, ${corCabecalhoFim}) 100%)`;
 

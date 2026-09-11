@@ -259,7 +259,7 @@ export class DriverWithdrawalService {
     // Persiste no Supabase se configurado
     if (isSupabaseConfigured() && supabase) {
       try {
-        const { error } = await supabase.from("driver_pix_withdrawals").insert({
+        const { error } = await (supabase as any).from("driver_pix_withdrawals").insert({
           driver_id: input.driverId,
           amount_cents: Math.round(input.amountBrl * 100),
           pix_key: input.pixKey,

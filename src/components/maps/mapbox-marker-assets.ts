@@ -398,6 +398,4 @@ export async function registerAllMapboxMarkers(map: mapboxgl.Map): Promise<void>
       }
     }
   }
-
-  }
 }

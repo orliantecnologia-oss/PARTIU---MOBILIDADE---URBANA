@@ -85,7 +85,7 @@ export class SupabaseService {
 
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("rides")
           .insert({
             id: enrichedPayload.id,

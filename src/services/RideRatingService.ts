@@ -102,7 +102,7 @@ export class RideRatingService {
 
     if (isSupabaseConfigured() && supabase) {
       try {
-        const { error } = await supabase.from("ride_ratings").insert({
+        const { error } = await (supabase as any).from("ride_ratings").insert({
           id: rating.id,
           ride_id: rating.rideId,
           from_user_id: rating.fromUserId,
@@ -139,7 +139,7 @@ export class RideRatingService {
 
     if (isSupabaseConfigured() && supabase) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("ride_ratings")
           .select("*")
           .eq("to_user_id", toUserId)

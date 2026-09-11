@@ -147,6 +147,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
     telefoneOutroPassageiro,
     setViajanteOutraPessoa,
     setNomeOutroPassageiro,
+    setTelefoneOutroPassageiro,
     paradas,
     adicionarParada,
     removerParada,

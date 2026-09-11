@@ -9,6 +9,7 @@
 
 import { MAP_SOURCES, MAP_ASSETS } from "./MapConstants";
 import type mapboxgl from "mapbox-gl";
+import type * as GeoJSON from "geojson";
 
 export interface DriverFeatureProperties {
   driverId: string;

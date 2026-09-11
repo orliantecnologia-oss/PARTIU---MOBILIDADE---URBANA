@@ -262,7 +262,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
               <div className="space-y-2 pt-2">
                 <button
                   type="button"
-                  onClick={confirmCancel}
+                  onClick={() => confirmCancel()}
                   className="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-black transition active:scale-95 cursor-pointer shadow-md shadow-rose-600/20 touch-manipulation"
                 >
                   Sim, Cancelar Corrida

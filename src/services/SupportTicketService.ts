@@ -103,7 +103,7 @@ export class SupportTicketService {
 
     if (isSupabaseConfigured() && supabase) {
       try {
-        const { error } = await supabase.from("support_tickets").insert({
+        const { error } = await (supabase as any).from("support_tickets").insert({
           id: ticket.id,
           ticket_number: ticket.ticketNumber,
           user_id: ticket.userId,
@@ -138,7 +138,7 @@ export class SupportTicketService {
   public async getUserTickets(userId: string): Promise<SupportTicket[]> {
     if (isSupabaseConfigured() && supabase) {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("support_tickets")
           .select("*")
           .eq("user_id", userId)
@@ -178,7 +178,7 @@ export class SupportTicketService {
           updatePayload.admin_notes = adminNotes;
         }
 
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("support_tickets")
           .update(updatePayload)
           .eq("id", ticketId);

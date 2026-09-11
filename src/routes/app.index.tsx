@@ -11,6 +11,7 @@ import {
   HomeBottomNav,
   AnimatedWaveHeader,
   RECENT_SEARCH_MOCKS,
+  RecentAddressItem,
   PROMO_BANNERS_MOCK,
   PromoBannerItem,
 } from "@/components/home";
