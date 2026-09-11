@@ -73,7 +73,7 @@ export function Header({
 
   return (
     <header
-      className={`relative z-30 w-full select-none shrink-0 ${className}`}
+      className={`absolute top-0 left-0 right-0 z-30 w-full select-none pointer-events-auto ${className}`}
       style={{
         background: "linear-gradient(180deg, var(--header-gradient-start, #0088FF) 0%, var(--header-gradient-end, #003366) 100%)",
         borderBottomLeftRadius: 20,
