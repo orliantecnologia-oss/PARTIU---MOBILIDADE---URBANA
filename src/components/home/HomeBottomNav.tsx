@@ -18,16 +18,16 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   HelpCircle,
 };
 
-/** Fundo preto obsidian com contraste máximo e profundidade */
+/** Fundo estrutural adaptável com contraste máximo e profundidade */
 const NAV_STYLE: React.CSSProperties = {
-  background: "linear-gradient(180deg, #0F172A 0%, #020617 100%)",
+  background: "linear-gradient(180deg, var(--color-surface, #0F172A) 0%, var(--color-background, #020617) 100%)",
   boxShadow: "0 -8px 36px rgba(0, 0, 0, 0.45), 0 -2px 10px rgba(0, 0, 0, 0.3)",
 };
 
-/** Pílula ativa de altíssimo contraste (Branco puro sobre fundo escuro = 21:1) */
+/** Pílula ativa de altíssimo contraste (Padrão adaptável ao tema ativo) */
 const ACTIVE_PILL_STYLE: React.CSSProperties = {
-  backgroundColor: "#FFFFFF",
-  color: "#090D1A",
+  backgroundColor: "var(--color-text-primary, #FFFFFF)",
+  color: "var(--color-background, #090D1A)",
   boxShadow: "0 4px 20px rgba(255, 255, 255, 0.35)",
 };
 

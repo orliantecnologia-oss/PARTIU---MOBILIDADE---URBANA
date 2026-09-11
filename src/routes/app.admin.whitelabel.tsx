@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { GuardiaoAcesso } from "@/components/admin/GuardiaoAcesso";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
+import { useBranding } from "@/hooks/useBranding";
+import { BRANDING_PRESETS, DEFAULT_BRANDING, type AppBrandingRecord } from "@/lib/branding";
 import {
   Sparkles,
   Palette,
@@ -109,6 +111,18 @@ function WhiteLabelStudioContent() {
     resetToDefaults,
   } = useBrandTheme();
 
+  const {
+    branding,
+    activeTenantId: saasTenantId,
+    setTenantId: setSaasTenantId,
+    updateBranding,
+    applyPreset: applySaasPreset,
+    uploadAsset,
+    isSyncing,
+    lastSyncedAt,
+    resetToDefault: resetSaasBranding,
+  } = useBranding();
+
   const [activeTab, setActiveTab] = useState<ActiveTab>("brand");
   const [salvoFeedback, setSalvoFeedback] = useState(false);
   const [modalClonarAberto, setModalClonarAberto] = useState(false);
@@ -118,6 +132,47 @@ function WhiteLabelStudioContent() {
   const [modalImportarAberto, setModalImportarAberto] = useState(false);
   const [importJsonText, setImportJsonText] = useState("");
   const [importErro, setImportErro] = useState<string | null>(null);
+
+  // Upload de Mídia para Supabase Storage
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function handleFileUpload(file: File, type: "logo" | "splash" | "favicon") {
+    try {
+      setUploadingField(type);
+      setUploadError(null);
+      const url = await uploadAsset(file, type);
+      if (url) {
+        if (type === "logo") {
+          updateConfig({
+            brandCenter: {
+              ...brand,
+              logos: { ...brand.logos, logoPrincipalUrl: url },
+            },
+          });
+        } else if (type === "splash") {
+          updateConfig({
+            brandCenter: {
+              ...brand,
+              splash: { ...brand.splash, splashAndroidUrl: url, splashIosUrl: url },
+            },
+          });
+        } else if (type === "favicon") {
+          updateConfig({
+            brandCenter: {
+              ...brand,
+              favicons: { ...brand.favicons, faviconDesktopUrl: url },
+            },
+          });
+        }
+        triggerSaveFeedback();
+      }
+    } catch (err: any) {
+      setUploadError(err?.message || "Erro no upload do arquivo.");
+    } finally {
+      setUploadingField(null);
+    }
+  }
 
   // Live Preview Device Simulator State
   const [previewDevice, setPreviewDevice] = useState<"MOBILE" | "TABLET" | "DESKTOP">("MOBILE");
@@ -129,16 +184,13 @@ function WhiteLabelStudioContent() {
     setTimeout(() => setSalvoFeedback(false), 2500);
   }
 
-  // Presets disponíveis para teste instantâneo
-  const presets = [
-    { id: "partiu-oficial", nome: "PARTIU Amarelo Oficial", cor: "#0088FF" },
-    { id: "99-ouro", nome: "99 Amarelo Ouro", cor: "#FBC02D" },
-    { id: "uber-tech", nome: "Uber Minimal Dark", cor: "#000000" },
-    { id: "indrive-verde", nome: "inDrive Verde Neon", cor: "#B2E535" },
-    { id: "cabify-roxo", nome: "Cabify Roxo Moderno", cor: "#7158E2" },
-    { id: "citydrive-emerald", nome: "CityDrive Emerald", cor: "#059669" },
-    { id: "motorapido-crimson", nome: "MotoRápido Crimson", cor: "#E11D48" },
-  ];
+  // 5 Presets Canônicos Solicitados (Azul Tech, Verde, Roxo, Vermelho, Preto Luxo)
+  const presets = BRANDING_PRESETS.map((p) => ({
+    id: p.id,
+    nome: p.name,
+    cor: p.previewColors.secondary,
+    preset: p,
+  }));
 
   return (
     <div className="w-full min-h-screen bg-slate-900 text-slate-100 font-sans pb-24">
@@ -268,8 +320,9 @@ function WhiteLabelStudioContent() {
             <button
               key={p.id}
               type="button"
-              onClick={() => {
+              onClick={async () => {
                 applyPreset(p.id);
+                await applySaasPreset(p.id);
                 triggerSaveFeedback();
               }}
               className="flex items-center gap-2 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-300 transition cursor-pointer shrink-0"
@@ -475,12 +528,107 @@ function WhiteLabelStudioContent() {
               {/* Logotipos */}
               <div className="space-y-3 pt-2">
                 <h3 className="text-xs font-black uppercase tracking-wider text-primary-600">
-                  Logotipos &amp; Ícones (URLs públicas ou locais)
+                  Logotipos &amp; Recursos de Mídia (Supabase Storage)
                 </h3>
+
+                {uploadError && (
+                  <div className="p-3 bg-red-950/80 border border-red-800 rounded-xl text-xs text-red-300 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 shrink-0" />
+                    <span>{uploadError}</span>
+                  </div>
+                )}
+
+                {/* Upload Cards com Preview ao Vivo */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* Upload Logo Principal */}
+                  <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col items-center text-center space-y-3">
+                    <span className="text-xs font-bold text-slate-300">Logo Principal</span>
+                    <div className="w-20 h-20 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-2 overflow-hidden">
+                      {branding?.logo_url ? (
+                        <img src={branding.logo_url} alt="Logo" className="w-full h-full object-contain" />
+                      ) : (
+                        <span className="text-xs text-slate-500 font-bold">Sem Logo</span>
+                      )}
+                    </div>
+                    <label className="w-full cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/png,image/svg+xml,image/webp,image/jpeg"
+                        className="hidden"
+                        disabled={uploadingField === "logo"}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(file, "logo");
+                        }}
+                      />
+                      <span className="inline-flex items-center justify-center gap-1.5 w-full bg-primary-600 hover:bg-primary-500 text-slate-950 font-bold text-xs py-2 px-3 rounded-xl transition">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{uploadingField === "logo" ? "Enviando..." : "Upload Logo (<5MB)"}</span>
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Upload Splash Logo */}
+                  <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col items-center text-center space-y-3">
+                    <span className="text-xs font-bold text-slate-300">Logo Splash Screen</span>
+                    <div className="w-20 h-20 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-2 overflow-hidden">
+                      {branding?.splash_logo_url ? (
+                        <img src={branding.splash_logo_url} alt="Splash" className="w-full h-full object-contain" />
+                      ) : (
+                        <span className="text-xs text-slate-500 font-bold">Sem Splash</span>
+                      )}
+                    </div>
+                    <label className="w-full cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/png,image/svg+xml,image/webp,image/jpeg"
+                        className="hidden"
+                        disabled={uploadingField === "splash"}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(file, "splash");
+                        }}
+                      />
+                      <span className="inline-flex items-center justify-center gap-1.5 w-full bg-primary-600 hover:bg-primary-500 text-slate-950 font-bold text-xs py-2 px-3 rounded-xl transition">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{uploadingField === "splash" ? "Enviando..." : "Upload Splash (<5MB)"}</span>
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Upload Favicon */}
+                  <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col items-center text-center space-y-3">
+                    <span className="text-xs font-bold text-slate-300">Favicon do Navegador</span>
+                    <div className="w-20 h-20 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-2 overflow-hidden">
+                      {branding?.favicon_url ? (
+                        <img src={branding.favicon_url} alt="Favicon" className="w-8 h-8 object-contain" />
+                      ) : (
+                        <span className="text-xs text-slate-500 font-bold">Sem Favicon</span>
+                      )}
+                    </div>
+                    <label className="w-full cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/png,image/svg+xml,image/webp,image/x-icon"
+                        className="hidden"
+                        disabled={uploadingField === "favicon"}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleFileUpload(file, "favicon");
+                        }}
+                      />
+                      <span className="inline-flex items-center justify-center gap-1.5 w-full bg-primary-600 hover:bg-primary-500 text-slate-950 font-bold text-xs py-2 px-3 rounded-xl transition">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>{uploadingField === "favicon" ? "Enviando..." : "Upload Favicon (<5MB)"}</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-medium text-slate-300 block mb-1">
-                      Logo Principal
+                      Logo Principal (URL direta)
                     </label>
                     <input
                       type="text"
@@ -897,6 +1045,118 @@ function WhiteLabelStudioContent() {
                       />
                     </div>
                   </div>
+
+                  {/* Gradiente do Cabeçalho Padrão 99 (Início) */}
+                  <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl space-y-2">
+                    <label className="text-xs font-bold text-slate-300 block">
+                      Cabeçalho Curvo (Início Gradiente)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={branding?.header_gradient_start || "#0088FF"}
+                        onChange={(e) => {
+                          updateBranding({ header_gradient_start: e.target.value });
+                          triggerSaveFeedback();
+                        }}
+                        className="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={branding?.header_gradient_start || "#0088FF"}
+                        onChange={(e) => {
+                          updateBranding({ header_gradient_start: e.target.value });
+                          triggerSaveFeedback();
+                        }}
+                        className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Gradiente do Cabeçalho Padrão 99 (Fim) */}
+                  <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl space-y-2">
+                    <label className="text-xs font-bold text-slate-300 block">
+                      Cabeçalho Curvo (Fim Gradiente)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={branding?.header_gradient_end || "#003366"}
+                        onChange={(e) => {
+                          updateBranding({ header_gradient_end: e.target.value });
+                          triggerSaveFeedback();
+                        }}
+                        className="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={branding?.header_gradient_end || "#003366"}
+                        onChange={(e) => {
+                          updateBranding({ header_gradient_end: e.target.value });
+                          triggerSaveFeedback();
+                        }}
+                        className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Cor de Destaque / Acentos */}
+                  <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl space-y-2">
+                    <label className="text-xs font-bold text-slate-300 block">
+                      Cor de Destaque (Accent / Cyan)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={branding?.accent_color || "#00C6FF"}
+                        onChange={(e) => {
+                          updateBranding({ accent_color: e.target.value });
+                          triggerSaveFeedback();
+                        }}
+                        className="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={branding?.accent_color || "#00C6FF"}
+                        onChange={(e) => {
+                          updateBranding({ accent_color: e.target.value });
+                          triggerSaveFeedback();
+                        }}
+                        className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botão de Ação: Salvar e Sincronizar em Tempo Real no Supabase */}
+                <div className="pt-2 flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs text-slate-300 font-medium">
+                      {isSyncing
+                        ? "Sincronizando com Supabase..."
+                        : lastSyncedAt
+                        ? `Sincronizado às ${lastSyncedAt.toLocaleTimeString()}`
+                        : "Conectado ao Supabase Realtime"}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      await updateBranding({
+                        primary_color: designSystem?.paletaPrimaria?.corPrincipal || branding.primary_color,
+                        secondary_color: designSystem?.paletaPrimaria?.corSecundaria || branding.secondary_color,
+                        background_color: designSystem?.paletaPrimaria?.corFundoApp || branding.background_color,
+                        surface_color: designSystem?.paletaPrimaria?.corSuperficieCard || branding.surface_color,
+                        text_primary: designSystem?.paletaPrimaria?.corTextoPrincipal || branding.text_primary,
+                      });
+                      triggerSaveFeedback();
+                    }}
+                    className="flex items-center gap-2 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-slate-950 font-black text-xs py-2.5 px-5 rounded-xl shadow-lg transition cursor-pointer"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Salvar e Aplicar Imediatamente (Realtime)</span>
+                  </button>
                 </div>
               </div>
 
@@ -1616,25 +1876,37 @@ function WhiteLabelStudioContent() {
                     <span>5G 100%</span>
                   </div>
 
-                  {/* Header do App Simulado */}
-                  <div
-                    style={{
-                      backgroundColor: designSystem?.paletaPrimaria?.corPrincipal || "#0088FF",
-                      color: designSystem?.paletaPrimaria?.corTextoPrincipal || "#0F172A",
-                    }}
-                    className="px-4 py-3 flex items-center justify-between border-b border-black/5"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-xl bg-slate-950 text-white flex items-center justify-center font-black text-xs">
-                        {brand?.nomePlataforma?.slice(0, 1) || "P"}
+                  {/* Header do App Simulado com Curvatura em Arco Padrão 99 */}
+                  <div className="relative w-full h-[76px] overflow-hidden bg-slate-100">
+                    <div
+                      style={{
+                        background: `linear-gradient(180deg, ${branding?.header_gradient_start || "#0088FF"} 0%, ${branding?.header_gradient_end || "#003366"} 100%)`,
+                        borderBottomLeftRadius: "50%",
+                        borderBottomRightRadius: "50%",
+                        boxShadow: "0 6px 18px rgba(0, 0, 0, 0.25)",
+                      }}
+                      className="absolute -top-[52px] left-1/2 -translate-x-1/2 w-[160%] h-[125px]"
+                    />
+                    <div className="relative z-10 px-4 pt-2.5 flex items-center justify-between text-white">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-white/20 ring-2 ring-white/80 overflow-hidden flex items-center justify-center font-black text-[10px]">
+                          {branding?.logo_url ? (
+                            <img src={branding.logo_url} alt="" className="w-full h-full object-contain" />
+                          ) : (
+                            branding?.app_name?.slice(0, 2) || "PA"
+                          )}
+                        </div>
+                        <div className="flex flex-col text-left">
+                          <span className="text-[8px] font-black uppercase tracking-widest text-white/80">
+                            {branding?.app_name || "PARTIU"}
+                          </span>
+                          <span className="text-xs font-bold truncate">Olá, Passageiro! 👋</span>
+                        </div>
                       </div>
-                      <span className="font-black text-sm tracking-tight">
-                        {brand?.nomePlataforma || "PARTIU"}
+                      <span className="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded-full border border-white/30">
+                        {geo?.cidadeSede || "Itaperuna"}
                       </span>
                     </div>
-                    <span className="text-[11px] font-bold bg-black/10 px-2 py-0.5 rounded-full">
-                      {geo?.cidadeSede || "Itaperuna"}
-                    </span>
                   </div>
 
                   {/* Conteúdo Simulado (Home Blocks) */}
@@ -1700,20 +1972,27 @@ function WhiteLabelStudioContent() {
                     </div>
                   </div>
 
-                  {/* Barra de Navegação Inferior Simulada */}
-                  <div className="bg-white border-t border-slate-200 px-4 py-2 flex items-center justify-around">
+                  {/* Barra de Navegação Inferior Simulada (Adaptada ao Tema) */}
+                  <div
+                    style={{
+                      background: `linear-gradient(180deg, ${branding?.surface_color || "#0F172A"} 0%, ${branding?.background_color || "#020617"} 100%)`,
+                      borderTopLeftRadius: "16px",
+                      borderTopRightRadius: "16px",
+                    }}
+                    className="border-t border-white/10 px-4 py-2.5 flex items-center justify-around"
+                  >
                     <div
                       style={{
-                        backgroundColor: designSystem?.paletaPrimaria?.corPrincipal || "#0088FF",
-                        color: designSystem?.paletaPrimaria?.corTextoPrincipal || "#0F172A",
+                        backgroundColor: branding?.text_primary || "#FFFFFF",
+                        color: branding?.background_color || "#090D1A",
                       }}
-                      className="px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1.5"
+                      className="px-3 py-1 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm"
                     >
                       <Car className="w-3.5 h-3.5" />
                       <span>Corridas</span>
                     </div>
 
-                    <div className="px-3 py-1.5 text-xs font-bold text-slate-400 flex items-center gap-1.5">
+                    <div className="px-3 py-1 text-xs font-bold text-white/60 flex items-center gap-1.5">
                       <Package className="w-3.5 h-3.5" />
                       <span>Entregas</span>
                     </div>

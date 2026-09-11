@@ -1,7 +1,7 @@
 import React from "react";
 import { Bell } from "lucide-react";
 import { USER_PROFILE_MOCK } from "./home-mock-data";
-import { gradients } from "@/lib/design-tokens";
+import { useBrandTheme } from "@/hooks/useBrandTheme";
 
 export interface AnimatedWaveHeaderProps {
   userName?: string;
@@ -30,16 +30,17 @@ export function AnimatedWaveHeader({
   onOpenNotifications,
   hasUnreadNotifications = true,
 }: AnimatedWaveHeaderProps) {
+  const { nomeApp } = useBrandTheme();
   const nomeExibicao = (userName || USER_PROFILE_MOCK.nome).trim();
   const primeiroNome = nomeExibicao.split(/\s+/)[0] || "Rodrigo";
   const iniciais = primeiroNome.substring(0, 2).toUpperCase();
 
   return (
     <header className="absolute top-0 left-0 right-0 z-30 w-full h-[90px] sm:h-[96px] overflow-hidden pointer-events-none select-none">
-      {/* 1. CAMADA COM CURVATURA EM ARCO NA BASE (PADRÃO 99) */}
+      {/* 1. CAMADA COM CURVATURA EM ARCO NA BASE (PADRÃO 99) COM DEGRADÊ DINÂMICO */}
       <div
         style={{
-          background: gradients.header || "linear-gradient(180deg, #0088FF 0%, #003366 100%)",
+          background: "linear-gradient(180deg, var(--header-gradient-start, #0088FF) 0%, var(--header-gradient-end, #003366) 100%)",
           borderBottomLeftRadius: "50%",
           borderBottomRightRadius: "50%",
           boxShadow: "0 10px 30px rgba(0, 51, 102, 0.35), 0 2px 8px rgba(0, 0, 0, 0.15)",
@@ -74,7 +75,7 @@ export function AnimatedWaveHeader({
 
           <div className="flex flex-col text-left justify-center min-w-0">
             <span className="text-[9.5px] font-black uppercase tracking-[0.16em] text-white/80 leading-none mb-0.5">
-              PARTIU
+              {nomeApp || "PARTIU"}
             </span>
             <h1 className="text-sm sm:text-base font-black tracking-tight leading-tight text-white drop-shadow-xs truncate">
               Olá, {primeiroNome}! 👋

@@ -18,7 +18,7 @@ export function HomeHeader({
   onOpenNotifications,
   hasUnreadNotifications = true,
 }: HomeHeaderProps) {
-  const { corPrimaria, corTextoPrimaria } = useBrandTheme();
+  const { nomeApp, corPrimaria, corTextoPrimaria } = useBrandTheme();
   const nomeExibicao = (userName || USER_PROFILE_MOCK.nome).trim();
   const primeiroNome = nomeExibicao.split(/\s+/)[0] || "Rodrigo";
   const iniciais = primeiroNome.substring(0, 2).toUpperCase();
@@ -26,7 +26,7 @@ export function HomeHeader({
   return (
     <header
       style={{
-        background: "linear-gradient(180deg, #0088FF 0%, #003366 100%)",
+        background: "linear-gradient(180deg, var(--header-gradient-start, #0088FF) 0%, var(--header-gradient-end, #003366) 100%)",
         color: "#FFFFFF",
       }}
       className="sticky top-0 z-30 w-full px-3.5 py-2 sm:py-2.5 rounded-b-2xl shadow-lg flex items-center justify-between transition-all shrink-0"
@@ -56,7 +56,7 @@ export function HomeHeader({
 
         <div className="flex flex-col text-left">
           <span className="text-[9px] font-black uppercase tracking-wider text-white/70 leading-none mb-0.5">
-            Partiu
+            {nomeApp || "PARTIU"}
           </span>
           <h1 className="text-sm sm:text-base font-black tracking-tight leading-tight text-white">
             Olá, {primeiroNome}!

@@ -11,7 +11,11 @@ import {
   type HomeBlockItem,
 } from "@/lib/white-label";
 
+import { useBranding } from "@/hooks/useBranding";
+
 export function useBrandTheme() {
+  const brandingCtx = useBranding();
+  const branding = brandingCtx?.branding;
   const [identidade, setIdentidade] = useState<ConfigIdentidadeVisual>(() => {
     return getIdentidadeVisual();
   });
@@ -116,14 +120,14 @@ export function useBrandTheme() {
     return fresh;
   }, []);
 
-  // Mapeamentos unificados: WhiteLabel tem precedência, fallback para identidade legada
-  const nomeApp = config.brandCenter?.nomePlataforma || identidade.nomeApp || "PARTIU";
-  const sloganApp = config.brandCenter?.slogan || identidade.sloganApp || "Mobilidade inteligente para sua cidade";
-  const corPrimaria = config.designSystem?.paletaPrimaria?.corPrincipal || identidade.corPrimaria || "#003366";
-  const corPrimariaHover = config.designSystem?.paletaPrimaria?.corPrincipalHover || identidade.corPrimariaHover || "#002244";
-  const corSecundaria = config.designSystem?.paletaPrimaria?.corSecundaria || identidade.corSecundaria || "#0088FF";
-  const corTextoPrimaria = config.designSystem?.paletaPrimaria?.corTextoPrincipal || identidade.corTextoPrimaria || "#FFFFFF";
-  const corFundoApp = config.designSystem?.paletaPrimaria?.corFundoApp || identidade.corFundoApp || "#F8FAFC";
+  // Mapeamentos unificados: Branding Supabase Realtime tem precedência máxima, seguido de WhiteLabel e legado
+  const nomeApp = branding?.app_name || config.brandCenter?.nomePlataforma || identidade.nomeApp || "PARTIU";
+  const sloganApp = branding?.company_name || config.brandCenter?.slogan || identidade.sloganApp || "Mobilidade inteligente para sua cidade";
+  const corPrimaria = branding?.primary_color || config.designSystem?.paletaPrimaria?.corPrincipal || identidade.corPrimaria || "#003366";
+  const corPrimariaHover = branding?.secondary_color || config.designSystem?.paletaPrimaria?.corPrincipalHover || identidade.corPrimariaHover || "#002244";
+  const corSecundaria = branding?.secondary_color || config.designSystem?.paletaPrimaria?.corSecundaria || identidade.corSecundaria || "#0088FF";
+  const corTextoPrimaria = branding?.text_primary || config.designSystem?.paletaPrimaria?.corTextoPrincipal || identidade.corTextoPrimaria || "#FFFFFF";
+  const corFundoApp = branding?.background_color || config.designSystem?.paletaPrimaria?.corFundoApp || identidade.corFundoApp || "#F8FAFC";
   const nomeModuloPay = "99Pay";
   const nomeModuloEntrega = config.businessModels?.verticais?.DELIVERY_FLASH?.nomeExibicao || "Entrega";
 
@@ -181,5 +185,7 @@ export function useBrandTheme() {
       }
     },
     resetToDefaults,
+    branding,
+    brandingCtx,
   };
 }

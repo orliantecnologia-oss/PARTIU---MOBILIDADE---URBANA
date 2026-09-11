@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileViewportContainer } from "@/components/layout/MobileViewportContainer";
+import { BrandingProvider, SplashScreen } from "@/components/branding";
 
 function NotFoundComponent() {
   return (
@@ -174,9 +175,12 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MobileViewportContainer>
-        <Outlet />
-      </MobileViewportContainer>
+      <BrandingProvider>
+        <SplashScreen minDurationMs={1000} />
+        <MobileViewportContainer>
+          <Outlet />
+        </MobileViewportContainer>
+      </BrandingProvider>
     </QueryClientProvider>
   );
 }
