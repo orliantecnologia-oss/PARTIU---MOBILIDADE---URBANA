@@ -63,10 +63,10 @@ function AdminLoginPage() {
   function preencherCredencialRapida(tipo: "dono" | "admin") {
     if (tipo === "dono") {
       setEmail("dono@partiu.app");
-      setSenha("");
+      setSenha("123456");
     } else {
       setEmail("admin@partiu.app");
-      setSenha("");
+      setSenha("123456");
     }
     setErro(null);
   }
@@ -205,6 +205,12 @@ function AdminLoginPage() {
                 <p className="text-[10px] text-slate-400 font-mono">admin@partiu.app</p>
                 <p className="text-[9px] text-emerald-400 font-mono">Despacho &amp; Frota</p>
               </button>
+            </div>
+
+            <div className="text-center pt-1">
+              <span className="text-[10px] text-slate-400 bg-slate-950/70 border border-slate-800 px-3 py-1 rounded-full inline-block">
+                🔑 Senha padrão: <span className="font-mono text-emerald-400 font-bold">123456</span> ou <span className="font-mono text-emerald-400 font-bold">partiu2026</span>
+              </span>
             </div>
           </div>
         </div>
