@@ -1093,6 +1093,9 @@ import "./wave-dispatch-safety.test.ts";
 // Suíte Oficial V6: GPS, Geofencing Automático (<50m), Navegação Waze/Maps & Simulador de Frotas
 import "./gps-geofence-navigation.test.ts";
 
+// Suíte Oficial V6: Avaliação Pós-Corrida com Tags Qualitativas 99, Central de Ajuda & Métricas Prometheus
+import "./social-safety-support-metrics.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");

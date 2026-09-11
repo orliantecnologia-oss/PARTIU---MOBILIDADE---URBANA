@@ -38,6 +38,8 @@ export interface RedisSpatialStoreInterface {
   setNxPx(key: string, value: string, ttlMs: number): Promise<boolean>;
 
   clearAll(): void;
+  getActiveDriversCount(): number;
+  getActiveCellsCount(): number;
 }
 
 /**
@@ -48,6 +50,26 @@ export class InMemorySpatialStore implements RedisSpatialStoreInterface {
   private hashes: Map<string, Map<string, string>> = new Map();
   private strings: Map<string, string> = new Map();
   private expirations: Map<string, NodeJS.Timeout> = new Map();
+
+  public getActiveDriversCount(): number {
+    let count = 0;
+    for (const [key] of this.hashes.entries()) {
+      if (key.startsWith("driver:") && key.endsWith(":loc")) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  public getActiveCellsCount(): number {
+    let count = 0;
+    for (const [key, zset] of this.zsets.entries()) {
+      if (key.startsWith("h3:") && zset.size > 0) {
+        count++;
+      }
+    }
+    return count;
+  }
 
   public async zadd(key: string, score: number, member: string): Promise<number> {
     let zset = this.zsets.get(key);
@@ -209,3 +231,4 @@ export class InMemorySpatialStore implements RedisSpatialStoreInterface {
 
 // Instância Singleton compartilhada
 export const spatialStore: RedisSpatialStoreInterface = new InMemorySpatialStore();
+export const redisSpatialStore = spatialStore;
