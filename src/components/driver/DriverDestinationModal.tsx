@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import {
   X,
   Compass,
@@ -22,13 +22,14 @@ export interface DriverDestinationModalProps {
   onDestinationSet: (destination: DriverDestination | null) => void;
 }
 
-export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = ({
+export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = memo(({
   isOpen,
   onClose,
   driverId,
   onDestinationSet,
 }) => {
-  const { corPrimaria, corTextoPrimaria } = useBrandTheme();
+  const { corPrimaria, corTextoPrimaria, corCabecalhoInicio, corCabecalhoFim, branding } = useBrandTheme();
+  const accentColor = branding?.accent_color || corPrimaria || "#0088FF";
   const [addressInput, setAddressInput] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -79,7 +80,13 @@ export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = ({
         {/* Cabeçalho */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center"
+              style={{
+                backgroundColor: `${corPrimaria}15`,
+                color: corPrimaria,
+              }}
+            >
               <Compass className="w-4 h-4 stroke-[2.5]" />
             </div>
             <div>
@@ -100,10 +107,19 @@ export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = ({
 
         {/* Destino Ativo Atual se Houver */}
         {activeDest && (
-          <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 flex items-center justify-between">
+          <div
+            className="p-3 rounded-2xl flex items-center justify-between border"
+            style={{
+              backgroundColor: `${accentColor}10`,
+              borderColor: `${accentColor}35`,
+            }}
+          >
             <div className="min-w-0 pr-2">
-              <div className="flex items-center gap-1 text-[11px] font-bold text-amber-800 uppercase tracking-wider">
-                <CheckCircle2 className="w-3.5 h-3.5 text-amber-600" />
+              <div
+                className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider"
+                style={{ color: corPrimaria }}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" style={{ color: accentColor }} />
                 <span>Destino Ativo Agora</span>
               </div>
               <p className="text-xs font-black text-slate-900 truncate mt-0.5">
@@ -145,7 +161,7 @@ export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = ({
                   lng: -41.89,
                 })
               }
-              className="p-3 rounded-2xl border border-slate-200 hover:border-amber-400 bg-slate-50/70 text-left transition active:scale-95 disabled:opacity-50 flex items-center gap-2.5"
+              className="p-3 rounded-2xl border border-slate-200 hover:border-slate-300 bg-slate-50/70 text-left transition active:scale-95 disabled:opacity-50 flex items-center gap-2.5"
             >
               <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
                 <Home className="w-4 h-4" />
@@ -165,9 +181,12 @@ export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = ({
                   lng: -41.88,
                 })
               }
-              className="p-3 rounded-2xl border border-slate-200 hover:border-amber-400 bg-slate-50/70 text-left transition active:scale-95 disabled:opacity-50 flex items-center gap-2.5"
+              className="p-3 rounded-2xl border border-slate-200 hover:border-slate-300 bg-slate-50/70 text-left transition active:scale-95 disabled:opacity-50 flex items-center gap-2.5"
             >
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                style={{ backgroundColor: `${accentColor}18`, color: corPrimaria }}
+              >
                 <Building2 className="w-4 h-4" />
               </div>
               <div className="min-w-0">
@@ -191,7 +210,7 @@ export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = ({
                 value={addressInput}
                 onChange={(e) => setAddressInput(e.target.value)}
                 placeholder="Ex: Rua Dez de Maio, Bairro Aeroporto..."
-                className="w-full text-xs font-medium pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full text-xs font-medium pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-400"
               />
             </div>
             <button
@@ -199,10 +218,10 @@ export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = ({
               disabled={remaining <= 0 && !activeDest}
               onClick={handleSetCustomAddress}
               style={{
-                backgroundColor: corPrimaria || "#0088FF",
+                background: `linear-gradient(135deg, var(--header-gradient-start, ${corCabecalhoInicio}) 0%, var(--header-gradient-end, ${corCabecalhoFim}) 100%)`,
                 color: corTextoPrimaria || "#FFFFFF",
               }}
-              className="px-4 py-2.5 rounded-xl text-xs font-black shadow-md transition active:scale-95 disabled:opacity-50 shrink-0"
+              className="px-4 py-2.5 rounded-xl text-xs font-black shadow-md transition active:scale-95 disabled:opacity-50 shrink-0 cursor-pointer"
             >
               Definir
             </button>
@@ -225,4 +244,4 @@ export const DriverDestinationModal: React.FC<DriverDestinationModalProps> = ({
       </div>
     </div>
   );
-};
+});

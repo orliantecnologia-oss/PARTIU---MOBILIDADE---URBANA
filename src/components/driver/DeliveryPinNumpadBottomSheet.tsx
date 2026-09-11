@@ -12,7 +12,7 @@
  * ==============================================================================
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import {
   KeyRound,
   ShieldCheck,
@@ -39,7 +39,7 @@ export interface DeliveryPinNumpadBottomSheetProps {
   onStartReturn?: () => void;
 }
 
-export function DeliveryPinNumpadBottomSheet({
+export const DeliveryPinNumpadBottomSheet = memo(function DeliveryPinNumpadBottomSheet({
   isOpen,
   mode,
   deliveryId,
@@ -50,7 +50,9 @@ export function DeliveryPinNumpadBottomSheet({
   onCancel,
   onStartReturn,
 }: DeliveryPinNumpadBottomSheetProps) {
-  const { corPrimaria, corTextoPrimaria } = useBrandTheme();
+  const { corPrimaria, corTextoPrimaria, corCabecalhoInicio, corCabecalhoFim, branding } = useBrandTheme();
+  const accentColor = branding?.accent_color || corPrimaria || "#0088FF";
+  const brandGradient = `linear-gradient(135deg, var(--header-gradient-start, ${corCabecalhoInicio}) 0%, var(--header-gradient-end, ${corCabecalhoFim}) 100%)`;
 
   const [digits, setDigits] = useState<string>("");
   const [isValidating, setIsValidating] = useState(false);
@@ -159,11 +161,12 @@ export function DeliveryPinNumpadBottomSheet({
           <div className="flex items-start justify-between gap-3">
             <div>
               <span
-                className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md inline-block ${
-                  isPickup
-                    ? "bg-primary-50 text-amber-950 border border-primary-500"
-                    : "bg-emerald-100 text-emerald-950 border border-emerald-300"
-                }`}
+                className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md inline-block border"
+                style={{
+                  backgroundColor: `${corPrimaria}10`,
+                  color: corPrimaria,
+                  borderColor: `${corPrimaria}25`,
+                }}
               >
                 {isPickup ? "● ETAPA 1 — COLETA" : "● ETAPA 2 — ENTREGA FINAL"}
               </span>
@@ -199,13 +202,12 @@ export function DeliveryPinNumpadBottomSheet({
                     errorMessage
                       ? "bg-rose-50 text-rose-700 border-2 border-rose-500 shadow-sm"
                       : digit
-                      ? isPickup
-                        ? "bg-primary-50 text-slate-950 border-2 border-primary-600 shadow-sm"
-                        : "bg-emerald-50 text-slate-950 border-2 border-emerald-500 shadow-sm"
+                      ? "bg-slate-50 text-slate-950 border-2 shadow-sm"
                       : isCurrent
                       ? "bg-white text-slate-950 border-2 border-slate-950 animate-pulse shadow-xs"
                       : "bg-slate-100 text-slate-400 border border-slate-200"
                   }`}
+                  style={digit ? { borderColor: corPrimaria } : {}}
                 >
                   {digit || "•"}
                 </div>
@@ -268,7 +270,7 @@ export function DeliveryPinNumpadBottomSheet({
             type="button"
             onClick={() => submitPin(digits)}
             disabled={digits.length < 4 || isValidating}
-            style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+            style={{ background: brandGradient, color: corTextoPrimaria }}
             className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-98 flex items-center justify-center gap-2 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
           >
             {isValidating ? (
@@ -300,8 +302,8 @@ export function DeliveryPinNumpadBottomSheet({
         <div className="fixed inset-0 z-60 bg-black/70 flex items-center justify-center p-4 animate-in fade-in">
           <div className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 space-y-4 text-left">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-amber-700 font-black text-sm">
-                <AlertTriangle className="w-5 h-5 text-primary-700" />
+              <div className="flex items-center gap-2 font-black text-sm" style={{ color: corPrimaria }}>
+                <AlertTriangle className="w-5 h-5" style={{ color: accentColor }} />
                 <span>Suporte ao Condutor</span>
               </div>
               <button
@@ -323,10 +325,10 @@ export function DeliveryPinNumpadBottomSheet({
                 href="https://wa.me/5522999605162?text=Olá!%20Estou%20com%20problemas%20para%20validar%20o%20PIN%20de%20entrega%20no%20app%20Partiu."
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-3 px-4 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center gap-2 border border-emerald-200 transition"
+                className="w-full py-3 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center gap-2 border border-slate-200 transition"
               >
-                <Phone className="w-4 h-4 text-emerald-600" />
-                <span>Ligar para a Central PARTIU</span>
+                <Phone className="w-4 h-4" style={{ color: corPrimaria }} />
+                <span>Ligar para a Central {nomeApp}</span>
               </a>
 
               {onStartReturn && (
@@ -368,4 +370,4 @@ export function DeliveryPinNumpadBottomSheet({
       `}</style>
     </>
   );
-}
+});

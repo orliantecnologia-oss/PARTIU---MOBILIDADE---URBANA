@@ -14,7 +14,7 @@
 import React, { useEffect, useState } from "react";
 import { CheckCircle2, Sparkles, Zap, ShieldCheck } from "lucide-react";
 import { silentCatchWarn } from "@/lib/structured-logger";
-
+import { useBrandTheme } from "@/hooks/useBrandTheme";
 
 interface SubscriptionSuccessModalProps {
   isOpen: boolean;
@@ -29,6 +29,8 @@ export function SubscriptionSuccessModal({
   title = "🎉 Dia liberado!",
   subtitle = "Boas corridas. Você está 100% livre de comissões.",
 }: SubscriptionSuccessModalProps) {
+  const { corPrimaria, corSecundaria, corTextoPrimaria, corCabecalhoInicio, corCabecalhoFim, branding } = useBrandTheme();
+  const accentColor = branding?.accent_color || corSecundaria || "#00C6FF";
   const [countdown, setCountdown] = useState(2);
 
   // Toca tom sintetizado de sucesso (Web Audio API sem dependências externas)
@@ -101,8 +103,22 @@ export function SubscriptionSuccessModal({
         ))}
       </div>
 
-      <div className="relative bg-slate-900 border-2 border-emerald-500/80 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center text-white shadow-2xl shadow-emerald-500/20 space-y-4 animate-in zoom-in-95 duration-200">
-        <div className="w-20 h-20 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-400 flex items-center justify-center mx-auto shadow-lg shadow-emerald-500/30">
+      <div
+        style={{
+          borderColor: `${accentColor}80`,
+          boxShadow: `0 20px 50px -10px ${corPrimaria}60`,
+        }}
+        className="relative bg-slate-900 border-2 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center text-white space-y-4 animate-in zoom-in-95 duration-200"
+      >
+        <div
+          style={{
+            backgroundColor: `${corPrimaria}30`,
+            borderColor: accentColor,
+            color: accentColor,
+            boxShadow: `0 8px 25px -4px ${corPrimaria}50`,
+          }}
+          className="w-20 h-20 rounded-full border-2 flex items-center justify-center mx-auto"
+        >
           <CheckCircle2 className="w-10 h-10" />
         </div>
 
@@ -111,8 +127,15 @@ export function SubscriptionSuccessModal({
           <p className="text-sm text-slate-300 font-medium">{subtitle}</p>
         </div>
 
-        <div className="p-3 bg-emerald-950/40 rounded-2xl border border-emerald-500/30 text-xs text-emerald-200 flex items-center justify-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+        <div
+          style={{
+            backgroundColor: `${corPrimaria}20`,
+            borderColor: `${corPrimaria}40`,
+            color: accentColor,
+          }}
+          className="p-3 rounded-2xl border text-xs flex items-center justify-center gap-2"
+        >
+          <ShieldCheck className="w-4 h-4 shrink-0" />
           <span>Ativação Instantânea Reconhecida via Webhook</span>
         </div>
 
@@ -120,7 +143,12 @@ export function SubscriptionSuccessModal({
           <button
             type="button"
             onClick={onComplete}
-            className="w-full h-14 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            style={{
+              background: `linear-gradient(135deg, ${corCabecalhoInicio}, ${corCabecalhoFim})`,
+              color: corTextoPrimaria,
+              boxShadow: `0 8px 25px -4px ${corPrimaria}60`,
+            }}
+            className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-white/20"
           >
             <span>ENTRAR NO COCKPIT ({countdown}s)</span>
             <Zap className="w-4 h-4" />

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import {
   AlertTriangle,
   X,
@@ -72,7 +72,7 @@ interface DriverCancelBottomSheetProps {
   isSubmitting?: boolean;
 }
 
-export function DriverCancelBottomSheet({
+export const DriverCancelBottomSheet = memo(function DriverCancelBottomSheet({
   isOpen,
   onClose,
   onConfirm,
@@ -156,7 +156,7 @@ export function DriverCancelBottomSheet({
             );
           })}
 
-          <div className="p-3 bg-primary-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 leading-relaxed mt-2">
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600 leading-relaxed mt-2">
             ⚠️ O cancelamento é auditado e georreferenciado pelo sistema. Cancelamentos sem motivo
             justificado podem impactar seu índice de aceitação.
           </div>
@@ -188,4 +188,4 @@ export function DriverCancelBottomSheet({
       </div>
     </div>
   );
-}
+});

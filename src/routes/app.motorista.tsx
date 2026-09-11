@@ -194,8 +194,14 @@ export function PartiuDriverCockpit() {
     corSecundaria,
     corTextoPrimaria,
     corFundoApp,
+    corCabecalhoInicio,
+    corCabecalhoFim,
+    branding,
     nomeModuloEntrega,
   } = useBrandTheme();
+
+  const accentColor = branding?.accent_color || corSecundaria || "#0088FF";
+  const brandGradient = `linear-gradient(135deg, var(--header-gradient-start, ${corCabecalhoInicio}) 0%, var(--header-gradient-end, ${corCabecalhoFim}) 100%)`;
 
   // Status de Disponibilidade & Trava de Diária Inteligente (SaaS Model)
   const [isOnline, setIsOnline] = useState(() => driverSubscriptionService.isDriverUnlocked(MOTORISTA_CONTA_PADRAO.id));
@@ -1024,10 +1030,10 @@ export function PartiuDriverCockpit() {
             <span className="text-xs font-black text-slate-950 block leading-tight truncate max-w-[85px] min-[360px]:max-w-[105px] sm:max-w-none">
               Carlos E.
             </span>
-            <span className="text-[10px] font-bold text-primary-700 flex items-center gap-1 leading-none mt-0.5">
-              <Star className="w-2.5 h-2.5 fill-amber-500" />
+            <span className="text-[10px] font-bold flex items-center gap-1 leading-none mt-0.5" style={{ color: corPrimaria }}>
+              <Star className="w-2.5 h-2.5 fill-current" style={{ color: accentColor }} />
               <span>4.98</span>
-              <span className="text-[9px] font-black px-1 rounded bg-primary-50 text-amber-900 border border-amber-200">
+              <span className="text-[9px] font-black px-1 rounded border" style={{ backgroundColor: `${corPrimaria}10`, color: corPrimaria, borderColor: `${corPrimaria}25` }}>
                 {loyaltyProfile.badgeIcon} {loyaltyProfile.tierName}
               </span>
             </span>
@@ -1041,8 +1047,9 @@ export function PartiuDriverCockpit() {
             type="button"
             onClick={toggleSom}
             className={`w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-90 bg-white/95 backdrop-blur-md border border-slate-200 ${
-              somAtivo ? "text-emerald-600" : "text-slate-400"
+              somAtivo ? "text-slate-900" : "text-slate-400"
             }`}
+            style={somAtivo ? { color: corPrimaria } : {}}
             title={somAtivo ? "Som do radar ativado" : "Som silenciado"}
           >
             {somAtivo ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
@@ -1055,7 +1062,7 @@ export function PartiuDriverCockpit() {
             className="px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-[11px] font-black text-slate-800 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
             title="Ver e Gerenciar Plano de Assinatura"
           >
-            <span className="w-2 h-2 rounded-full bg-primary-600 shrink-0" />
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
             <span className="truncate max-w-[70px] sm:max-w-none">{driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%)</span>
           </button>
 
@@ -1066,7 +1073,7 @@ export function PartiuDriverCockpit() {
             className="px-2.5 sm:px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-xs font-black text-slate-950 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
             title="Ver saldo e sacar via PIX"
           >
-            <span className="text-xs text-primary-600">⚡</span>
+            <span className="text-xs" style={{ color: accentColor }}>⚡</span>
             <span>{ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
           </button>
 
@@ -1074,10 +1081,17 @@ export function PartiuDriverCockpit() {
           <button
             type="button"
             onClick={handleToggleOnline}
-            className={`px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 ${
+            style={
               isOnline
-                ? "bg-emerald-500 text-slate-950 shadow-emerald-500/20"
-                : "bg-white/95 text-slate-500 border border-slate-200"
+                ? {
+                    background: brandGradient,
+                    color: corTextoPrimaria,
+                    boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                  }
+                : {}
+            }
+            className={`px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer ${
+              isOnline ? "" : "bg-white/95 text-slate-500 border border-slate-200"
             }`}
           >
             <Power className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -1143,13 +1157,14 @@ export function PartiuDriverCockpit() {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
                 <h3 className="text-sm font-black text-slate-950">Trip Radar em Busca</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setModalPlanosAberto(true)}
-                className="text-[10px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-200 transition"
+                style={{ backgroundColor: `${corPrimaria}10`, color: corPrimaria, borderColor: `${corPrimaria}25` }}
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full border transition hover:opacity-80"
               >
                 Plano {driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%) • Alterar
               </button>
@@ -1157,11 +1172,20 @@ export function PartiuDriverCockpit() {
 
             {/* WIDGET: MODO DESTINO ("IR PARA CASA") */}
             {destinoAtivo ? (
-              <div className="p-2.5 rounded-2xl bg-amber-50/90 border border-amber-200/90 flex items-center justify-between text-xs">
+              <div
+                className="p-2.5 rounded-2xl flex items-center justify-between text-xs border"
+                style={{
+                  backgroundColor: `${accentColor}10`,
+                  borderColor: `${accentColor}30`,
+                }}
+              >
                 <div className="flex items-center gap-2 min-w-0 pr-2">
                   <span className="text-sm">🎯</span>
                   <div className="min-w-0">
-                    <span className="text-[10px] text-amber-800 font-bold uppercase tracking-wider block">
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wider block"
+                      style={{ color: corPrimaria }}
+                    >
                       Modo Destino Ativo
                     </span>
                     <span className="font-black text-slate-900 truncate block">
@@ -1175,7 +1199,7 @@ export function PartiuDriverCockpit() {
                     driverDestinationModeService.clearDestination(perfilMotorista.id);
                     setDestinoAtivo(null);
                   }}
-                  className="px-2 py-1 rounded-xl bg-white border border-amber-300 text-rose-600 hover:bg-rose-50 text-[11px] font-black shrink-0 transition"
+                  className="px-2 py-1 rounded-xl bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-[11px] font-black shrink-0 transition"
                   title="Desativar Modo Destino"
                 >
                   ✕ Cancelar
@@ -1191,18 +1215,34 @@ export function PartiuDriverCockpit() {
                   <span className="text-sm">🎯</span>
                   <span>Definir Destino ("Ir para Casa")</span>
                 </div>
-                <span className="text-[10px] text-amber-700 font-bold bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                  style={{
+                    backgroundColor: `${corPrimaria}10`,
+                    color: corPrimaria,
+                    borderColor: `${corPrimaria}20`,
+                  }}
+                >
                   {driverDestinationModeService.getRemainingUses(perfilMotorista.id)} restantes
                 </span>
               </button>
             )}
 
             {/* AUDITORIA 10: WIDGET OFICIAL ECONOMIA PARTIU */}
-            <div className="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 rounded-2xl border border-emerald-200 space-y-1.5">
+            <div
+              className="p-3.5 rounded-2xl border space-y-1.5"
+              style={{
+                background: `linear-gradient(135deg, ${corPrimaria}08 0%, ${corSecundaria}12 100%)`,
+                borderColor: `${corPrimaria}25`,
+              }}
+            >
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 flex items-center gap-1">
-                  <PiggyBank className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Economia PARTIU (Mês Atual)</span>
+                <span
+                  className="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5"
+                  style={{ color: corPrimaria }}
+                >
+                  <PiggyBank className="w-4 h-4" style={{ color: accentColor }} />
+                  <span>Economia {nomeApp} (Mês Atual)</span>
                 </span>
                 <span className="text-[10px] font-bold text-slate-500">
                   {corridasFeitas} corridas hoje
@@ -1210,17 +1250,21 @@ export function PartiuDriverCockpit() {
               </div>
               <div className="flex items-baseline justify-between">
                 <div>
-                  <span className="text-xl font-black text-emerald-700">
+                  <span
+                    className="text-xl font-black"
+                    style={{ color: corPrimaria }}
+                  >
                     +{wallet.totalSavingsVersusUberBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                   </span>
-                  <span className="text-[10px] text-emerald-800 font-semibold block">
+                  <span className="text-[10px] text-slate-600 font-medium block">
                     guardados no seu bolso comparado à taxa de 20%
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setModalEconomiaAberto(true)}
-                  className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 underline flex items-center gap-0.5"
+                  style={{ color: corPrimaria }}
+                  className="text-[11px] font-bold hover:underline flex items-center gap-0.5"
                 >
                   <span>Ver Detalhes</span>
                   <ArrowUpRight className="w-3 h-3" />
@@ -1230,12 +1274,20 @@ export function PartiuDriverCockpit() {
 
             {/* Inadimplência ou Carência Aviso */}
             {subscription.status === "GRACE_PERIOD" && (
-              <div className="p-2.5 rounded-xl bg-primary-50 border border-amber-200 text-[11px] text-amber-900 flex items-center justify-between">
+              <div
+                className="p-2.5 rounded-xl border text-[11px] flex items-center justify-between"
+                style={{
+                  backgroundColor: `${corPrimaria}08`,
+                  borderColor: `${corPrimaria}25`,
+                  color: corPrimaria,
+                }}
+              >
                 <span>⚠️ Mensalidade em carência ({subscription.accumulatedDebtBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}). Regularize para evitar suspensão.</span>
                 <button
                   type="button"
                   onClick={() => setModalPlanosAberto(true)}
-                  className="font-bold underline text-amber-800 shrink-0 ml-1"
+                  className="font-bold underline shrink-0 ml-1"
+                  style={{ color: corPrimaria }}
                 >
                   Pagar PIX
                 </button>
@@ -1244,7 +1296,7 @@ export function PartiuDriverCockpit() {
 
             <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-100 font-semibold">
               <span>Fundo Proteção: {wallet.protectionFundBalanceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-              <span className="text-primary-700 font-black">100% Repasse D+0</span>
+              <span className="font-black" style={{ color: corPrimaria }}>100% Repasse D+0</span>
             </div>
           </div>
         )}
@@ -1283,7 +1335,14 @@ export function PartiuDriverCockpit() {
 
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="min-w-0 flex-1 pr-2">
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 uppercase tracking-wider inline-block">
+                <span
+                  className="text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider inline-block"
+                  style={{
+                    backgroundColor: `${corPrimaria}10`,
+                    color: corPrimaria,
+                    borderColor: `${corPrimaria}25`,
+                  }}
+                >
                   A Caminho do Embarque
                 </span>
                 <h3 className="text-base font-black text-slate-950 mt-1 truncate">{ofertaAtiva.passageiro}</h3>
@@ -1295,7 +1354,11 @@ export function PartiuDriverCockpit() {
                 <button
                   type="button"
                   onClick={() => setIsChatOpen(true)}
-                  className="relative w-12 h-12 rounded-2xl bg-primary-600 hover:bg-amber-500 text-slate-950 border border-primary-600 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                  style={{
+                    background: brandGradient,
+                    color: corTextoPrimaria,
+                  }}
+                  className="relative w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
                   title="Abrir Chat Operacional Seguro"
                   aria-label={`Abrir chat operacional${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
                 >
@@ -1335,7 +1398,7 @@ export function PartiuDriverCockpit() {
                 onClick={() => handleNavegarExterno("google_maps")}
                 className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
               >
-                <MapPin className="w-4 h-4 text-emerald-600" />
+                <MapPin className="w-4 h-4" style={{ color: accentColor }} />
                 <span>Google Maps</span>
               </button>
             </div>
@@ -1344,7 +1407,10 @@ export function PartiuDriverCockpit() {
             <button
               type="button"
               onClick={handleChegueiAoLocal}
-              style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+              style={{
+                background: brandGradient,
+                color: corTextoPrimaria,
+              }}
               className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>✓ CHEGUEI AO LOCAL DE EMBARQUE</span>
@@ -1366,7 +1432,7 @@ export function PartiuDriverCockpit() {
 
         {/* ESTADO 4: CONFIRMAÇÃO DE EMBARQUE INTELIGENTE (MODELO PROFISSIONAL 99 / UBER — SEM PIN OBRIGATÓRIO) */}
         {estadoCockpit === "WAITING_PIN" && ofertaAtiva && (
-          <div className="p-4 sm:p-5 rounded-3xl bg-white/98 backdrop-blur-md border-2 border-emerald-400 shadow-2xl space-y-3.5 animate-in slide-in-from-bottom duration-200">
+          <div className="p-4 sm:p-5 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200 shadow-2xl space-y-3.5 animate-in slide-in-from-bottom duration-200">
             {/* Barra tátil */}
             <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
 
@@ -1374,18 +1440,38 @@ export function PartiuDriverCockpit() {
               <>
                 {/* Cabeçalho de Coleta Segura */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-1.5 text-amber-700 font-black text-xs uppercase tracking-wider">
-                    <Package className="w-4 h-4 text-primary-700" />
+                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wider" style={{ color: corPrimaria }}>
+                    <Package className="w-4 h-4" style={{ color: accentColor }} />
                     <span>Coleta de Pacote no Remetente</span>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-md border"
+                    style={{
+                      backgroundColor: `${accentColor}12`,
+                      color: corPrimaria,
+                      borderColor: `${accentColor}30`,
+                    }}
+                  >
                     Geofence Coleta OK ✓
                   </span>
                 </div>
 
                 {/* Dados da Encomenda */}
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-primary-50/60 border border-amber-200">
-                  <div className="w-12 h-12 rounded-2xl bg-primary-50 text-amber-900 flex items-center justify-center font-black text-lg border border-primary-500 shadow-xs shrink-0">
+                <div
+                  className="flex items-center gap-3 p-3 rounded-2xl border"
+                  style={{
+                    backgroundColor: `${corPrimaria}08`,
+                    borderColor: `${corPrimaria}25`,
+                  }}
+                >
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg border shadow-xs shrink-0"
+                    style={{
+                      backgroundColor: `${corPrimaria}15`,
+                      color: corPrimaria,
+                      borderColor: `${corPrimaria}30`,
+                    }}
+                  >
                     <Box className="w-6 h-6" />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -1395,7 +1481,7 @@ export function PartiuDriverCockpit() {
                     <p className="text-xs text-slate-600 truncate mt-0.5">
                       Remetente: <span className="font-bold text-slate-800">{ofertaAtiva.passageiro}</span>
                     </p>
-                    <p className="text-[11px] text-amber-800 font-semibold truncate">
+                    <p className="text-[11px] font-semibold truncate text-slate-500">
                       Entregar para: {ofertaAtiva.destinatarioNome || "Destinatário"}
                     </p>
                   </div>
@@ -1409,7 +1495,7 @@ export function PartiuDriverCockpit() {
                   </div>
                   <div className="text-right shrink-0">
                     <span className="text-xs font-black text-slate-950 block">{ofertaAtiva.distanciaKm} km</span>
-                    <span className="text-[10px] font-bold text-emerald-600">Flash Express</span>
+                    <span className="text-[10px] font-bold" style={{ color: corPrimaria }}>Flash Express</span>
                   </div>
                 </div>
 
@@ -1419,7 +1505,7 @@ export function PartiuDriverCockpit() {
                     className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
                       waitingTimerStatus.isGracePeriodActive
                         ? "bg-slate-50 text-slate-700 border-slate-200"
-                        : "bg-primary-50 text-amber-900 border-primary-500"
+                        : "bg-slate-100 text-slate-900 border-slate-300"
                     }`}
                   >
                     <span>
@@ -1455,8 +1541,15 @@ export function PartiuDriverCockpit() {
                   <ChevronRight className="w-4 h-4" />
                 </button>
 
-                <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-amber-700 bg-primary-50 border border-amber-200 rounded-xl py-2 px-3">
-                  <ShieldCheck className="w-4 h-4 shrink-0 text-primary-700" />
+                <div
+                  className="flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-xl py-2 px-3 border"
+                  style={{
+                    backgroundColor: `${corPrimaria}08`,
+                    borderColor: `${corPrimaria}25`,
+                    color: corPrimaria,
+                  }}
+                >
+                  <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
                   <span>Cadeia de Custódia: Solicite o PIN 1 ao remetente</span>
                 </div>
               </>
@@ -1464,11 +1557,18 @@ export function PartiuDriverCockpit() {
               <>
                 {/* Cabeçalho do Ponto de Embarque */}
                 <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-1.5 text-emerald-700 font-black text-xs uppercase tracking-wider">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wider" style={{ color: corPrimaria }}>
+                    <CheckCircle2 className="w-4 h-4" style={{ color: accentColor }} />
                     <span>Passageiro no Local de Embarque</span>
                   </div>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-md border"
+                    style={{
+                      backgroundColor: `${accentColor}12`,
+                      color: corPrimaria,
+                      borderColor: `${accentColor}30`,
+                    }}
+                  >
                     GPS Sincronizado ✓
                   </span>
                 </div>
@@ -1481,33 +1581,40 @@ export function PartiuDriverCockpit() {
                         <img
                           src={ofertaAtiva.passageiroFoto}
                           alt={ofertaAtiva.passageiro}
-                          className="w-12 h-12 rounded-full object-cover border-2 border-emerald-400 shadow-xs"
+                          className="w-12 h-12 rounded-full object-cover border-2 shadow-xs" style={{ borderColor: accentColor }}
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 font-black text-lg flex items-center justify-center border-2 border-emerald-400 shadow-xs">
+                        <div
+                          className="w-12 h-12 rounded-full font-black text-lg flex items-center justify-center border-2 shadow-xs"
+                          style={{
+                            backgroundColor: `${corPrimaria}15`,
+                            color: corPrimaria,
+                            borderColor: accentColor,
+                          }}
+                        >
                           {ofertaAtiva.passageiro.charAt(0)}
                         </div>
                       )}
-                      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black border-2 border-white shadow-xs">
+                      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center text-[10px] font-black border-2 border-white shadow-xs" style={{ backgroundColor: accentColor }}>
                         ✓
                       </span>
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <h3 className="text-base font-black text-slate-950 truncate">{ofertaAtiva.passageiro}</h3>
-                        <span className="text-xs font-black text-primary-700 flex items-center gap-0.5">
-                          <Star className="w-3.5 h-3.5 fill-amber-400 text-primary-600" />
+                        <span className="text-xs font-black flex items-center gap-0.5" style={{ color: corPrimaria }}>
+                          <Star className="w-3.5 h-3.5 fill-current" style={{ color: accentColor }} />
                           {ofertaAtiva.passageiroAvaliacao || 4.98}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5 text-[11px] text-slate-600 mt-0.5 flex-wrap">
-                        <span className="font-bold text-emerald-700 bg-emerald-100/70 px-1.5 py-0.5 rounded">
+                        <span className="font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: `${accentColor}15`, color: corPrimaria }}>
                           CPF Verificado
                         </span>
                         <span>•</span>
                         <span>{ofertaAtiva.passageiroTotalCorridas || 48} viagens</span>
                         <span>•</span>
-                        <span className="font-bold text-amber-700 bg-primary-50 border border-amber-200 px-1.5 py-0.5 rounded">
+                        <span className="font-bold px-1.5 py-0.5 rounded border" style={{ backgroundColor: `${corPrimaria}10`, color: corPrimaria, borderColor: `${corPrimaria}20` }}>
                           ⭐ {ofertaAtiva.passageiroTrustTier || "Elite"}
                         </span>
                       </div>
@@ -1519,7 +1626,11 @@ export function PartiuDriverCockpit() {
                     <button
                       type="button"
                       onClick={() => setIsChatOpen(true)}
-                      className="relative w-11 h-11 rounded-xl bg-primary-600 hover:bg-amber-500 text-slate-950 border border-primary-600 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                      style={{
+                        background: brandGradient,
+                        color: corTextoPrimaria,
+                      }}
+                      className="relative w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
                       title="Abrir Chat Operacional com o Passageiro"
                       aria-label={`Abrir chat com o passageiro${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
                     >
@@ -1552,7 +1663,7 @@ export function PartiuDriverCockpit() {
                   </div>
                   <div className="text-right shrink-0">
                     <span className="text-xs font-black text-slate-950 block">{ofertaAtiva.distanciaKm} km</span>
-                    <span className="text-[10px] font-bold text-emerald-600">Livre de Fricção</span>
+                    <span className="text-[10px] font-bold" style={{ color: corPrimaria }}>Livre de Fricção</span>
                   </div>
                 </div>
 
@@ -1562,7 +1673,7 @@ export function PartiuDriverCockpit() {
                     className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
                       waitingTimerStatus.isGracePeriodActive
                         ? "bg-slate-50 text-slate-700 border-slate-200"
-                        : "bg-primary-50 text-amber-900 border-primary-500"
+                        : "bg-slate-100 text-slate-900 border-slate-300"
                     }`}
                   >
                     <span>
@@ -1598,7 +1709,10 @@ export function PartiuDriverCockpit() {
                 <button
                   type="button"
                   onClick={handleConfirmarEmbarqueSmart}
-                  style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                  style={{
+                    background: brandGradient,
+                    color: corTextoPrimaria,
+                  }}
                   className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>PASSAGEIRO EMBARCOU • INICIAR CORRIDA</span>
@@ -1607,8 +1721,8 @@ export function PartiuDriverCockpit() {
 
                 {/* Rodapé com Indicador de Embarque Smart e Cancelamento Justificado */}
                 <div className="flex items-center justify-between pt-1 text-[11px] px-1">
-                  <span className="font-bold text-emerald-700 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="font-bold flex items-center gap-1" style={{ color: corPrimaria }}>
+                    <ShieldCheck className="w-3.5 h-3.5" style={{ color: accentColor }} />
                     Embarque Smart sem PIN
                   </span>
 
@@ -1638,9 +1752,10 @@ export function PartiuDriverCockpit() {
                     return (
                       <div
                         key={idx}
+                        style={digit ? { borderColor: corPrimaria } : {}}
                         className={`w-11 h-12 rounded-xl flex items-center justify-center font-mono text-xl font-black transition-all ${
                           digit
-                            ? "bg-primary-50 text-slate-950 border-2 border-primary-600 shadow-sm"
+                            ? "bg-slate-50 text-slate-950 border-2 shadow-sm"
                             : isCurrent
                             ? "bg-white text-slate-950 border-2 border-slate-400 animate-pulse"
                             : "bg-slate-50 text-slate-300 border border-slate-200"
@@ -1741,11 +1856,14 @@ export function PartiuDriverCockpit() {
               <>
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="min-w-0 flex-1 pr-2">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider inline-block ${
-                      ofertaAtiva.tipo === "ENTREGA"
-                        ? "text-amber-700 bg-primary-50 border-amber-200"
-                        : "text-emerald-700 bg-emerald-50 border-emerald-200"
-                    }`}>
+                    <span
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider inline-block"
+                      style={{
+                        backgroundColor: `${corPrimaria}10`,
+                        color: corPrimaria,
+                        borderColor: `${corPrimaria}25`,
+                      }}
+                    >
                       {ofertaAtiva.tipo === "ENTREGA"
                         ? `● Em Rota para o Destinatário ${currentStopNumber > 1 ? `(Parada ${currentStopNumber})` : ""}`
                         : "● Viagem em Andamento"}
@@ -1762,7 +1880,11 @@ export function PartiuDriverCockpit() {
                     <button
                       type="button"
                       onClick={() => setIsChatOpen(true)}
-                      className="relative w-11 h-11 rounded-xl bg-primary-600 hover:bg-amber-500 text-slate-950 border border-primary-600 flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
+                      style={{
+                        background: brandGradient,
+                        color: corTextoPrimaria,
+                      }}
+                      className="relative w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
                       title="Abrir Chat Operacional"
                       aria-label={`Abrir chat operacional${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
                     >
@@ -1794,7 +1916,7 @@ export function PartiuDriverCockpit() {
                     onClick={() => handleNavegarExterno("google_maps")}
                     className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                   >
-                    <MapPin className="w-4 h-4 text-emerald-600" />
+                    <MapPin className="w-4 h-4" style={{ color: accentColor }} />
                     <span>Google Maps</span>
                   </button>
                 </div>
@@ -1806,9 +1928,14 @@ export function PartiuDriverCockpit() {
                       <button
                         type="button"
                         onClick={handleAbrirModalDevolucao}
-                        className="h-14 rounded-2xl bg-primary-50 hover:bg-amber-100 text-amber-900 border border-primary-500 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer text-center px-2"
+                        style={{
+                          backgroundColor: `${corPrimaria}08`,
+                          borderColor: `${corPrimaria}30`,
+                          color: corPrimaria,
+                        }}
+                        className="h-14 rounded-2xl border font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer text-center px-2"
                       >
-                        <UserX className="w-4 h-4 shrink-0 text-amber-700" />
+                        <UserX className="w-4 h-4 shrink-0" style={{ color: corPrimaria }} />
                         <span>Destinatário Ausente?</span>
                       </button>
 
@@ -1828,7 +1955,7 @@ export function PartiuDriverCockpit() {
                     </div>
 
                     <div className="flex items-center justify-center gap-1 text-[11px] text-slate-500 font-semibold text-center">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <ShieldCheck className="w-3.5 h-3.5" style={{ color: accentColor }} />
                       <span>Exige PIN 2 do destinatário para liberar entrega e PIX</span>
                     </div>
                   </div>
@@ -1836,7 +1963,11 @@ export function PartiuDriverCockpit() {
                   <button
                     type="button"
                     onClick={handleConcluirCorrida}
-                    className="w-full h-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                    style={{
+                      background: brandGradient,
+                      color: corTextoPrimaria,
+                    }}
+                    className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <span>🏁 FINALIZAR CORRIDA &amp; RECEBER PIX D+0</span>
                   </button>
@@ -1868,16 +1999,22 @@ export function PartiuDriverCockpit() {
             </div>
 
             {/* Cronômetro de Carência Obrigatória (5 minutos / 300s) */}
-            <div className="p-3.5 bg-primary-50 rounded-2xl border border-amber-200 text-center space-y-1">
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 block">
+            <div
+              className="p-3.5 rounded-2xl border text-center space-y-1"
+              style={{
+                backgroundColor: `${corPrimaria}08`,
+                borderColor: `${corPrimaria}25`,
+              }}
+            >
+              <span className="text-[10px] font-black uppercase tracking-wider block" style={{ color: corPrimaria }}>
                 Tolerância Obrigatória de Espera (99Entrega)
               </span>
-              <div className="text-3xl font-mono font-black text-amber-950">
+              <div className="text-3xl font-mono font-black" style={{ color: corPrimaria }}>
                 {Math.floor(waitStatus.elapsedSeconds / 60).toString().padStart(2, "0")}:
                 {(waitStatus.elapsedSeconds % 60).toString().padStart(2, "0")}{" "}
-                <span className="text-xs text-amber-700 font-sans font-bold">/ 05:00 min</span>
+                <span className="text-xs font-sans font-bold text-slate-500">/ 05:00 min</span>
               </div>
-              <p className="text-[11px] text-amber-800">
+              <p className="text-[11px] text-slate-600">
                 {waitStatus.canInitiateReturn
                   ? "✓ Tolerância e tentativas cumpridas! Devolução liberada."
                   : "Aguarde e tente contatar o destinatário antes de devolver."}
@@ -1895,7 +2032,7 @@ export function PartiuDriverCockpit() {
                   onClick={() => handleRegistrarContato("CALL")}
                   className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-[11px] flex flex-col items-center gap-1 active:scale-95 transition"
                 >
-                  <Phone className="w-4 h-4 text-emerald-600" />
+                  <Phone className="w-4 h-4" style={{ color: corPrimaria }} />
                   <span>Ligação</span>
                 </button>
                 <button
@@ -1903,7 +2040,7 @@ export function PartiuDriverCockpit() {
                   onClick={() => handleRegistrarContato("MESSAGE")}
                   className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-900 font-bold text-[11px] flex flex-col items-center gap-1 active:scale-95 transition"
                 >
-                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  <MessageCircle className="w-4 h-4" style={{ color: corPrimaria }} />
                   <span>WhatsApp</span>
                 </button>
                 <button
@@ -1917,7 +2054,7 @@ export function PartiuDriverCockpit() {
               </div>
 
               {waitStatus.contactAttempts.length > 0 && (
-                <div className="text-[11px] text-emerald-700 font-semibold text-center pt-1">
+                <div className="text-[11px] font-semibold text-center pt-1" style={{ color: corPrimaria }}>
                   ✓ {waitStatus.contactAttempts.length} tentativa(s) registrada(s) na auditoria.
                 </div>
               )}
@@ -1928,7 +2065,8 @@ export function PartiuDriverCockpit() {
               <button
                 type="button"
                 onClick={handleIniciarDevolucao}
-                className="w-full py-3.5 rounded-2xl bg-primary-600 hover:bg-amber-600 text-slate-950 font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+                style={{ background: brandGradient, color: corTextoPrimaria }}
+                className="w-full py-3.5 rounded-2xl font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <RotateCcw className="w-4 h-4" />
                 <span>INICIAR DEVOLUÇÃO AO REMETENTE</span>
@@ -1953,7 +2091,7 @@ export function PartiuDriverCockpit() {
           <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 text-slate-900 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
               <div className="flex items-center gap-2">
-                <RotateCcw className="w-5 h-5 text-emerald-600" />
+                <RotateCcw className="w-5 h-5" style={{ color: accentColor }} />
                 <h3 className="text-sm font-black text-slate-950">Confirmar Devolução</h3>
               </div>
               <button
@@ -1965,10 +2103,16 @@ export function PartiuDriverCockpit() {
               </button>
             </div>
 
-            <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-950 space-y-1">
-              <span className="font-black block">Remetente Presente no Local:</span>
+            <div
+              className="p-3 rounded-2xl border text-xs space-y-1 text-slate-900"
+              style={{
+                backgroundColor: `${corPrimaria}08`,
+                borderColor: `${corPrimaria}25`,
+              }}
+            >
+              <span className="font-black block" style={{ color: corPrimaria }}>Remetente Presente no Local:</span>
               <p>Solicite o PIN de 4 dígitos ao remetente ou confirme a entrega do pacote de volta.</p>
-              <p className="font-bold text-amber-700 pt-1">
+              <p className="font-bold pt-1" style={{ color: corPrimaria }}>
                 Compensação Condutor: R$ {returnDetails.driverReturnCompensationBrl.toFixed(2)}
               </p>
             </div>
@@ -1984,7 +2128,7 @@ export function PartiuDriverCockpit() {
                 value={pinDevolucaoDigitado}
                 onChange={(e) => setPinDevolucaoDigitado(e.target.value)}
                 placeholder={returnDetails.returnOtpExpected}
-                className="w-36 mx-auto px-4 py-2.5 text-center font-mono font-black text-xl rounded-xl bg-slate-100 border border-slate-300 focus:outline-none focus:border-emerald-500 tracking-widest"
+                className="w-36 mx-auto px-4 py-2.5 text-center font-mono font-black text-xl rounded-xl bg-slate-100 border border-slate-300 focus:outline-none focus:border-slate-400 tracking-widest"
               />
               {erroPinDevolucao && (
                 <p className="text-xs text-rose-600 font-bold">{erroPinDevolucao}</p>
@@ -2011,7 +2155,8 @@ export function PartiuDriverCockpit() {
             <button
               type="button"
               onClick={handleConcluirDevolucao}
-              className="w-full h-14 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              style={{ background: brandGradient, color: corTextoPrimaria }}
+              className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
             >
               <CheckCircle2 className="w-5 h-5 text-slate-950" />
               <span>FINALIZAR DEVOLUÇÃO &amp; RECEBER PIX D+0</span>
@@ -2062,7 +2207,7 @@ export function PartiuDriverCockpit() {
           <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                <ShieldCheck className="w-5 h-5" style={{ color: accentColor }} />
                 <h3 className="text-base font-black text-slate-950">Perfil do Parceiro {nomeApp}</h3>
               </div>
               <button
@@ -2085,12 +2230,12 @@ export function PartiuDriverCockpit() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <h4 className="text-sm font-black text-slate-950">Carlos Eduardo</h4>
-                  <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-1.5 py-0.2 rounded border border-emerald-200">
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded border" style={{ backgroundColor: `${accentColor}15`, color: corPrimaria, borderColor: `${accentColor}30` }}>
                     Ativo
                   </span>
                 </div>
                 <p className="text-xs text-slate-600">Chevrolet Onix Plus 2024</p>
-                <p className="text-[11px] font-mono font-bold text-amber-700">MOB-8K99</p>
+                <p className="text-[11px] font-mono font-bold" style={{ color: corPrimaria }}>MOB-8K99</p>
               </div>
             </div>
 
@@ -2098,8 +2243,8 @@ export function PartiuDriverCockpit() {
             <div className="grid grid-cols-2 gap-2">
               <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center">
                 <span className="text-[10px] text-slate-500 block font-semibold">Avaliação</span>
-                <span className="text-lg font-black text-primary-700 flex items-center justify-center gap-1">
-                  <Star className="w-4 h-4 fill-amber-500" />
+                <span className="text-lg font-black flex items-center justify-center gap-1" style={{ color: corPrimaria }}>
+                  <Star className="w-4 h-4 fill-current" style={{ color: accentColor }} />
                   4.98
                 </span>
                 <span className="text-[10px] text-slate-400">3.840 viagens</span>
@@ -2107,7 +2252,7 @@ export function PartiuDriverCockpit() {
 
               <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center">
                 <span className="text-[10px] text-slate-500 block font-semibold">Aceitação</span>
-                <span className="text-lg font-black text-emerald-600">98%</span>
+                <span className="text-lg font-black" style={{ color: corPrimaria }}>98%</span>
                 <span className="text-[10px] text-slate-400">Nível Diamante</span>
               </div>
 
@@ -2119,7 +2264,7 @@ export function PartiuDriverCockpit() {
 
               <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 text-center">
                 <span className="text-[10px] text-slate-500 block font-semibold">Hoje Conectado</span>
-                <span className="text-lg font-black text-amber-700">{horasOnline}</span>
+                <span className="text-lg font-black" style={{ color: corPrimaria }}>{horasOnline}</span>
                 <span className="text-[10px] text-slate-400">{corridasFeitas} corridas</span>
               </div>
             </div>
@@ -2135,7 +2280,7 @@ export function PartiuDriverCockpit() {
                   type="button"
                   onClick={toggleSom}
                   className={`px-3 py-1 rounded-full text-xs font-bold transition ${
-                    somAtivo ? "bg-emerald-500 text-slate-950" : "bg-slate-200 text-slate-700"
+                    somAtivo ? "bg-slate-900 text-white" : "bg-slate-200 text-slate-700"
                   }`}
                 >
                   {somAtivo ? "Ligado" : "Mudo"}
@@ -2158,7 +2303,7 @@ export function PartiuDriverCockpit() {
 
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 text-xs">
                 <span className="text-slate-500">Repasse Financeiro</span>
-                <span className="font-bold text-emerald-700">100% Líquido D+0</span>
+                <span className="font-bold" style={{ color: corPrimaria }}>100% Líquido D+0</span>
               </div>
             </div>
 
@@ -2206,8 +2351,8 @@ export function PartiuDriverCockpit() {
           <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-md w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 max-h-[90vh] overflow-y-auto pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <Percent className="w-5 h-5 text-primary-700" />
-                <h3 className="text-base font-black text-slate-950">Planos de Assinatura PARTIU</h3>
+                <Percent className="w-5 h-5" style={{ color: accentColor }} />
+                <h3 className="text-base font-black text-slate-950">Planos de Assinatura {nomeApp}</h3>
               </div>
               <button
                 type="button"
@@ -2231,21 +2376,22 @@ export function PartiuDriverCockpit() {
                     key={plan.id}
                     className={`p-3.5 rounded-2xl border-2 transition ${
                       isSelected
-                        ? "border-primary-600 bg-primary-50/40 shadow-md"
+                        ? "border-slate-900 bg-slate-50/80 shadow-md"
                         : "border-slate-200 bg-slate-50 hover:border-slate-300"
                     }`}
+                    style={isSelected ? { borderColor: corPrimaria, backgroundColor: `${corPrimaria}06` } : {}}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className={`w-3 h-3 rounded-full ${plan.badgeColor}`} />
                         <h4 className="font-black text-sm text-slate-950">{plan.name}</h4>
                         {plan.isPopular && (
-                          <span className="text-[9px] font-black uppercase bg-primary-100 text-amber-950 px-2 py-0.5 rounded-full">
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full" style={{ backgroundColor: `${accentColor}20`, color: corPrimaria }}>
                             Mais Popular
                           </span>
                         )}
                         {isSelected && (
-                          <span className="text-[9px] font-black uppercase bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full" style={{ backgroundColor: `${accentColor}20`, color: corPrimaria }}>
                             Plano Atual ✓
                           </span>
                         )}
@@ -2256,7 +2402,7 @@ export function PartiuDriverCockpit() {
                             ? "Sem Mensalidade"
                             : `${plan.monthlyFeeBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}/mês`}
                         </span>
-                        <span className="text-[11px] font-bold text-amber-700">
+                        <span className="text-[11px] font-bold" style={{ color: corPrimaria }}>
                           {plan.commissionPercent}% por corrida
                         </span>
                       </div>
@@ -2281,7 +2427,7 @@ export function PartiuDriverCockpit() {
                           Mudar para {plan.name}
                         </button>
                       ) : (
-                        <span className="text-xs font-bold text-emerald-700">Ativo</span>
+                        <span className="text-xs font-bold" style={{ color: corPrimaria }}>Ativo</span>
                       )}
                     </div>
                   </div>
@@ -2308,7 +2454,7 @@ export function PartiuDriverCockpit() {
           <div className="bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 shadow-2xl animate-in slide-in-from-bottom duration-200 text-slate-900 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <PiggyBank className="w-5 h-5 text-emerald-600" />
+                <PiggyBank className="w-5 h-5" style={{ color: accentColor }} />
                 <h3 className="text-base font-black text-slate-950">Seu Faturamento &amp; Economia</h3>
               </div>
               <button
@@ -2320,14 +2466,20 @@ export function PartiuDriverCockpit() {
               </button>
             </div>
 
-            <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-center space-y-1">
-              <span className="text-[10px] font-black uppercase text-emerald-800">
+            <div
+              className="p-4 rounded-2xl border text-center space-y-1"
+              style={{
+                backgroundColor: `${corPrimaria}08`,
+                borderColor: `${corPrimaria}25`,
+              }}
+            >
+              <span className="text-[10px] font-black uppercase" style={{ color: corPrimaria }}>
                 Economia Real no Seu Bolso (Mês)
               </span>
-              <div className="text-3xl font-black text-emerald-700">
+              <div className="text-3xl font-black" style={{ color: corPrimaria }}>
                 +{wallet.totalSavingsVersusUberBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </div>
-              <p className="text-xs text-emerald-800">
+              <p className="text-xs text-slate-600">
                 Comparativo direto com os 20% cobrados pelos aplicativos tradicionais.
               </p>
             </div>
@@ -2342,7 +2494,7 @@ export function PartiuDriverCockpit() {
               </div>
               <div className="flex justify-between items-center text-slate-600">
                 <span>Taxas Pagas ao PARTIU:</span>
-                <span className="font-black text-amber-700">
+                <span className="font-black" style={{ color: corPrimaria }}>
                   -{wallet.totalPlatformFeesPaidBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </span>
               </div>
@@ -2352,7 +2504,7 @@ export function PartiuDriverCockpit() {
                   -{(wallet.totalGrossEarnedBrl * 0.20).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </span>
               </div>
-              <div className="flex justify-between items-center pt-2 border-t border-slate-200 font-bold text-emerald-700">
+              <div className="flex justify-between items-center pt-2 border-t border-slate-200 font-bold" style={{ color: corPrimaria }}>
                 <span>Diferença a Seu Favor:</span>
                 <span className="text-sm font-black">
                   +{wallet.totalSavingsVersusUberBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
@@ -2410,7 +2562,7 @@ export function PartiuDriverCockpit() {
               </div>
               <div className="flex justify-between items-center text-slate-600">
                 <span>Comissão por Corrida:</span>
-                <span className="font-bold text-amber-700">{driverPlan?.commissionPercent || 3.0}%</span>
+                <span className="font-bold" style={{ color: corPrimaria }}>{driverPlan?.commissionPercent || 3.0}%</span>
               </div>
               <div className="flex justify-between items-center text-slate-600">
                 <span>Prazo de Carência:</span>
@@ -2430,7 +2582,8 @@ export function PartiuDriverCockpit() {
                     );
                     alert("Chave Copia e Cola do PIX copiada!");
                   }}
-                  className="text-amber-700 hover:text-amber-900 font-black text-xs"
+                  style={{ color: corPrimaria }}
+                  className="font-black text-xs hover:underline"
                 >
                   COPIAR
                 </button>
@@ -2453,7 +2606,8 @@ export function PartiuDriverCockpit() {
                   setModalRegularizacaoAberto(false);
                   alert("Pagamento PIX confirmado com sucesso! Sua conta foi desbloqueada imediatamente.");
                 }}
-                className="w-full h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5"
+                style={{ background: brandGradient, color: corTextoPrimaria }}
+                className="w-full h-12 rounded-2xl font-black text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>PAGUEI VIA PIX (DESBLOQUEIO IMEDIATO)</span>
@@ -2507,25 +2661,25 @@ export function PartiuDriverCockpit() {
               </button>
             </div>
 
-            <div className="p-4 bg-primary-50 rounded-2xl border border-amber-200 space-y-2 text-xs text-amber-950">
+            <div className="p-4 rounded-2xl border space-y-2 text-xs text-slate-900" style={{ backgroundColor: `${corPrimaria}08`, borderColor: `${corPrimaria}25` }}>
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-amber-800">Tempo no Embarque:</span>
-                <span className="font-mono font-black text-amber-950 text-sm">
+                <span className="font-semibold text-slate-600">Tempo no Embarque:</span>
+                <span className="font-mono font-black text-slate-900 text-sm">
                   {Math.floor((waitingTimerStatus?.elapsedSeconds || 300) / 60)}:
                   {((waitingTimerStatus?.elapsedSeconds || 300) % 60).toString().padStart(2, "0")} min
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-amber-800">Tolerância Expirada:</span>
-                <span className="font-bold text-emerald-700">✓ 5 min cumpridos</span>
+                <span className="font-semibold text-slate-600">Tolerância Expirada:</span>
+                <span className="font-bold" style={{ color: corPrimaria }}>✓ 5 min cumpridos</span>
               </div>
-              <div className="flex items-center justify-between border-t border-amber-200/60 pt-2">
+              <div className="flex items-center justify-between border-t border-slate-200 pt-2">
                 <span className="font-bold text-slate-700">Taxa de Cancelamento:</span>
                 <span className="font-black text-slate-900">R$ 6,00</span>
               </div>
-              <div className="flex items-center justify-between bg-white/80 p-2 rounded-xl border border-emerald-300">
-                <span className="font-black text-emerald-800">Seu Crédito Instantâneo PIX:</span>
-                <span className="font-black text-emerald-700 text-sm">+ R$ 4,50</span>
+              <div className="flex items-center justify-between bg-white/80 p-2 rounded-xl border" style={{ borderColor: `${accentColor}40` }}>
+                <span className="font-black" style={{ color: corPrimaria }}>Seu Crédito Instantâneo PIX:</span>
+                <span className="font-black text-sm" style={{ color: corPrimaria }}>+ R$ 4,50</span>
               </div>
             </div>
 

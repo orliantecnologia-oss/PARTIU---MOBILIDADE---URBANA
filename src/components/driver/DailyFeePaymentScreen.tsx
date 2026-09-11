@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import {
   ShieldAlert,
   Sparkles,
@@ -18,6 +18,7 @@ import {
   GeneratedPixPayment,
 } from "@/lib/ecosystem/driver-subscription-service";
 import { appSettingsService } from "@/lib/ecosystem/app-settings-service";
+import { useBrandTheme } from "@/hooks/useBrandTheme";
 
 interface DailyFeePaymentScreenProps {
   driverId: string;
@@ -26,12 +27,14 @@ interface DailyFeePaymentScreenProps {
   onPaymentSuccess: () => void;
 }
 
-export function DailyFeePaymentScreen({
+export const DailyFeePaymentScreen = memo(function DailyFeePaymentScreen({
   driverId,
   driverName = "Motorista Parceiro",
   vehicleType = "CARRO",
   onPaymentSuccess,
 }: DailyFeePaymentScreenProps) {
+  const { nomeApp, corPrimaria, corTextoPrimaria, corCabecalhoInicio, corCabecalhoFim, branding } = useBrandTheme();
+  const accentColor = branding?.accent_color || corPrimaria || "#0088FF";
   const [pixData, setPixData] = useState<GeneratedPixPayment | null>(null);
   const [copied, setCopied] = useState(false);
   const [verificando, setVerificando] = useState(false);
@@ -94,12 +97,22 @@ export function DailyFeePaymentScreen({
         {/* Topo / Alerta de Bloqueio */}
         <div className="flex items-start justify-between gap-3 border-b border-slate-800 pb-3.5">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-primary-600/20 text-primary-600 border border-yellow-500/30 flex items-center justify-center shrink-0">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border"
+              style={{
+                backgroundColor: `${corPrimaria}25`,
+                borderColor: `${corPrimaria}50`,
+                color: accentColor,
+              }}
+            >
               <ShieldAlert className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 block">
-                TRAVA DE DIÁRIA • SAAS PARTIU
+              <span
+                className="text-[10px] font-black uppercase tracking-widest block"
+                style={{ color: accentColor }}
+              >
+                TRAVA DE DIÁRIA • SAAS {nomeApp}
               </span>
               <h2 className="text-lg font-black text-white leading-tight">
                 Cockpit Bloqueado
@@ -110,23 +123,35 @@ export function DailyFeePaymentScreen({
           <span className="text-[11px] font-bold text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full flex items-center gap-1 shrink-0">
             {vehicleType === "MOTO" ? (
               <>
-                <Bike className="w-3.5 h-3.5 text-primary-600" /> Moto
+                <Bike className="w-3.5 h-3.5" style={{ color: accentColor }} /> Moto
               </>
             ) : (
               <>
-                <Car className="w-3.5 h-3.5 text-primary-600" /> Carro
+                <Car className="w-3.5 h-3.5" style={{ color: accentColor }} /> Carro
               </>
             )}
           </span>
         </div>
 
         {/* Regra de Ouro: 100% da corrida é do motorista */}
-        <div className="bg-gradient-to-r from-yellow-500/15 via-primary-600/10 to-transparent border border-yellow-500/30 rounded-2xl p-3.5 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-primary-600 text-slate-950 flex items-center justify-center shrink-0 font-black">
+        <div
+          className="border rounded-2xl p-3.5 flex items-center gap-3"
+          style={{
+            background: `linear-gradient(90deg, ${corPrimaria}25 0%, ${corPrimaria}10 100%)`,
+            borderColor: `${corPrimaria}40`,
+          }}
+        >
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-black text-xs"
+            style={{
+              background: `linear-gradient(135deg, ${corCabecalhoInicio} 0%, ${corCabecalhoFim} 100%)`,
+              color: corTextoPrimaria,
+            }}
+          >
             0%
           </div>
           <div className="text-xs">
-            <span className="font-black text-primary-500 block">
+            <span className="font-black block text-white">
               ZERO Comissão por Corrida!
             </span>
             <span className="text-slate-300">
@@ -150,7 +175,14 @@ export function DailyFeePaymentScreen({
             <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
               Validade Contínua
             </span>
-            <span className="text-xs font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2 py-0.5 rounded-full inline-flex items-center gap-1 mt-1">
+            <span
+              className="text-xs font-bold border px-2 py-0.5 rounded-full inline-flex items-center gap-1 mt-1"
+              style={{
+                backgroundColor: `${corPrimaria}25`,
+                borderColor: `${corPrimaria}50`,
+                color: corTextoPrimaria,
+              }}
+            >
               <Clock className="w-3 h-3" /> 24 Horas
             </span>
           </div>
@@ -162,9 +194,17 @@ export function DailyFeePaymentScreen({
             <button
               type="button"
               onClick={() => setTabQr("copiacola")}
+              style={
+                tabQr === "copiacola"
+                  ? {
+                      background: `linear-gradient(135deg, ${corCabecalhoInicio} 0%, ${corCabecalhoFim} 100%)`,
+                      color: corTextoPrimaria,
+                    }
+                  : {}
+              }
               className={`flex-1 py-1.5 rounded-lg transition ${
                 tabQr === "copiacola"
-                  ? "bg-primary-600 text-slate-950 shadow-xs"
+                  ? "shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -173,9 +213,17 @@ export function DailyFeePaymentScreen({
             <button
               type="button"
               onClick={() => setTabQr("qrcode")}
+              style={
+                tabQr === "qrcode"
+                  ? {
+                      background: `linear-gradient(135deg, ${corCabecalhoInicio} 0%, ${corCabecalhoFim} 100%)`,
+                      color: corTextoPrimaria,
+                    }
+                  : {}
+              }
               className={`flex-1 py-1.5 rounded-lg transition ${
                 tabQr === "qrcode"
-                  ? "bg-primary-600 text-slate-950 shadow-xs"
+                  ? "shadow-xs"
                   : "text-slate-400 hover:text-white"
               }`}
             >
@@ -198,7 +246,11 @@ export function DailyFeePaymentScreen({
                 <button
                   type="button"
                   onClick={handleCopiarPix}
-                  className="px-3 py-1.5 bg-primary-600 text-slate-950 font-black rounded-lg text-xs hover:bg-yellow-300 transition flex items-center gap-1 shrink-0 cursor-pointer"
+                  style={{
+                    background: `linear-gradient(135deg, ${corCabecalhoInicio} 0%, ${corCabecalhoFim} 100%)`,
+                    color: corTextoPrimaria,
+                  }}
+                  className="px-3 py-1.5 font-black rounded-lg text-xs transition flex items-center gap-1 shrink-0 cursor-pointer active:scale-95"
                 >
                   {copied ? (
                     <>
@@ -246,7 +298,11 @@ export function DailyFeePaymentScreen({
             type="button"
             disabled={verificando || sucesso}
             onClick={handleVerificarPagamento}
-            className="w-full py-3.5 rounded-2xl bg-primary-600 hover:bg-yellow-300 active:scale-[0.99] text-slate-950 font-black text-sm transition shadow-lg shadow-yellow-400/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            style={{
+              background: `linear-gradient(135deg, var(--header-gradient-start, ${corCabecalhoInicio}) 0%, var(--header-gradient-end, ${corCabecalhoFim}) 100%)`,
+              color: corTextoPrimaria,
+            }}
+            className="w-full py-3.5 rounded-2xl active:scale-[0.99] font-black text-sm transition shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {verificando ? (
               <span className="animate-pulse">Validando transação PIX...</span>
@@ -263,10 +319,10 @@ export function DailyFeePaymentScreen({
             onClick={handleSimularPagamento}
             className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-primary-600" /> Simular Pagamento Instantâneo (Homologação)
+            <Sparkles className="w-3.5 h-3.5" style={{ color: accentColor }} /> Simular Pagamento Instantâneo (Homologação)
           </button>
         </div>
       </div>
     </div>
   );
-}
+});

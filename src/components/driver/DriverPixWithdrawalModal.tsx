@@ -20,6 +20,7 @@ import {
   type PixKeyType,
   type WithdrawalReceipt,
 } from "@/services/DriverWithdrawalService";
+import { useBrandTheme } from "@/hooks/useBrandTheme";
 
 export interface DriverPixWithdrawalModalProps {
   isOpen: boolean;
@@ -38,6 +39,8 @@ export const DriverPixWithdrawalModal: React.FC<DriverPixWithdrawalModalProps> =
   chavePixPadrao = "",
   onWithdrawalSuccess,
 }) => {
+  const { corPrimaria, corSecundaria, corTextoPrimaria, corCabecalhoInicio, corCabecalhoFim, branding } = useBrandTheme();
+  const accentColor = branding?.accent_color || corSecundaria || "#00C6FF";
   const [keyType, setKeyType] = useState<PixKeyType>("CPF");
   const [pixKey, setPixKey] = useState(chavePixPadrao);
   const [amountStr, setAmountStr] = useState(saldoDisponivelBrl.toFixed(2));
@@ -189,8 +192,15 @@ export const DriverPixWithdrawalModal: React.FC<DriverPixWithdrawalModalProps> =
           /* Formulário de Solicitação */
           <form onSubmit={handleSubmit} className="py-3.5 space-y-3.5">
             {/* Saldo Atual */}
-            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-md space-y-1">
-              <span className="text-[10.5px] font-bold text-emerald-100 uppercase tracking-wider block">
+            <div
+              style={{
+                background: `linear-gradient(135deg, ${corCabecalhoInicio}, ${corCabecalhoFim})`,
+                color: corTextoPrimaria,
+                boxShadow: `0 8px 25px -4px ${corPrimaria}40`,
+              }}
+              className="p-3.5 rounded-2xl text-white space-y-1"
+            >
+              <span className="text-[10.5px] font-bold text-white/80 uppercase tracking-wider block">
                 Saldo Disponível para Saque
               </span>
               <div className="flex items-baseline justify-between">
@@ -222,13 +232,22 @@ export const DriverPixWithdrawalModal: React.FC<DriverPixWithdrawalModalProps> =
                       setKeyType(type);
                       setErrorMsg(null);
                     }}
+                    style={
+                      keyType === type
+                        ? {
+                            borderColor: corPrimaria,
+                            backgroundColor: `${corPrimaria}15`,
+                            color: corPrimaria,
+                          }
+                        : {}
+                    }
                     className={`py-2 px-1.5 rounded-xl border text-center transition flex flex-col items-center gap-1 cursor-pointer ${
                       keyType === type
-                        ? "border-emerald-600 bg-emerald-50/70 text-emerald-950 font-black shadow-xs"
+                        ? "font-black shadow-xs"
                         : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium"
                     }`}
                   >
-                    <Icon className={`w-3.5 h-3.5 ${keyType === type ? "text-emerald-700" : "text-slate-400"}`} />
+                    <Icon className="w-3.5 h-3.5" style={{ color: keyType === type ? corPrimaria : "#94A3B8" }} />
                     <span className="text-[10px]">{label}</span>
                   </button>
                 ))}
@@ -322,7 +341,12 @@ export const DriverPixWithdrawalModal: React.FC<DriverPixWithdrawalModalProps> =
             <button
               type="submit"
               disabled={isLoading || saldoDisponivelBrl <= 0}
-              className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              style={{
+                background: `linear-gradient(135deg, ${corCabecalhoInicio}, ${corCabecalhoFim})`,
+                color: corTextoPrimaria,
+                boxShadow: `0 8px 25px -4px ${corPrimaria}50`,
+              }}
+              className="w-full py-3 px-4 rounded-2xl text-white font-bold text-sm shadow-md hover:opacity-95 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer border border-white/20"
             >
               {isLoading ? (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
