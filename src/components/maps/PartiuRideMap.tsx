@@ -101,6 +101,98 @@ export interface PartiuRideMapProps {
   onOpenLayersModal?: (() => void) | undefined;
 }
 
+/**
+ * Cria o elemento HTML de pulsação contínua de radar na localização do usuário (Padrão 99/Uber)
+ */
+function createUserPuckElement(): HTMLDivElement {
+  const container = document.createElement("div");
+  container.className = "partiu-user-puck-container";
+  container.style.width = "52px";
+  container.style.height = "52px";
+  container.style.position = "relative";
+  container.style.display = "flex";
+  container.style.alignItems = "center";
+  container.style.justifyContent = "center";
+  container.style.pointerEvents = "none";
+
+  if (typeof document !== "undefined" && !document.getElementById("partiu-puck-keyframes")) {
+    const styleTag = document.createElement("style");
+    styleTag.id = "partiu-puck-keyframes";
+    styleTag.innerHTML = `
+      @keyframes partiuRadarWave {
+        0% {
+          transform: scale(0.3);
+          opacity: 0.95;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          transform: scale(1.65);
+          opacity: 0;
+        }
+      }
+      @keyframes partiuCoreGlow {
+        0%, 100% {
+          box-shadow: 0 0 8px rgba(0, 136, 255, 0.75), 0 2px 6px rgba(0, 51, 102, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 18px rgba(0, 198, 255, 0.95), 0 3px 10px rgba(0, 51, 102, 0.55);
+        }
+      }
+    `;
+    document.head.appendChild(styleTag);
+  }
+
+  container.innerHTML = `
+    <!-- Onda de Pulso 1 (Radar Ripple Primário) -->
+    <div style="
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 136, 255, 0.45) 0%, rgba(0, 198, 255, 0.25) 50%, rgba(0, 136, 255, 0) 75%);
+      border: 1.5px solid rgba(0, 136, 255, 0.6);
+      animation: partiuRadarWave 2s cubic-bezier(0.1, 0.5, 0.3, 1) infinite;
+    "></div>
+
+    <!-- Onda de Pulso 2 (Radar Ripple Secundário com Delay) -->
+    <div style="
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 198, 255, 0.35) 0%, rgba(0, 136, 255, 0) 70%);
+      border: 1px solid rgba(0, 198, 255, 0.45);
+      animation: partiuRadarWave 2s cubic-bezier(0.1, 0.5, 0.3, 1) 0.8s infinite;
+    "></div>
+
+    <!-- Halo Concêntrico Interno Estável -->
+    <div style="
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(0, 136, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+    "></div>
+
+    <!-- Ponto Central Sólido 99/Uber com Glow Dinâmico -->
+    <div style="
+      position: relative;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00A3FF 0%, #0066CC 100%);
+      border: 2.5px solid #FFFFFF;
+      animation: partiuCoreGlow 2s ease-in-out infinite;
+      z-index: 2;
+    "></div>
+  `;
+
+  return container;
+}
+
 export function PartiuRideMap({
   status,
   modalidade = "POP",
@@ -129,6 +221,9 @@ export function PartiuRideMap({
 
   const [showLayersMenu, setShowLayersMenu] = useState(false);
   const [activeStyleKey, setActiveStyleKey] = useState<"streets" | "traffic" | "satellite">("streets");
+
+  // Marcador de pulsação animada contínua do usuário
+  const userPulseMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
   // Marcador HTML para o badge flutuante de ETA do motorista
   const driverBadgeMarkerRef = useRef<mapboxgl.Marker | null>(null);
@@ -229,7 +324,7 @@ export function PartiuRideMap({
           },
         });
 
-        // Camada 1: Halo Concêntrico Azul Claro Suave (w-12 h-12 = 48px -> raio 24px)
+        // Camada 1: Halo Concêntrico WebGL (opacidade 0 para usar o marcador HTML animado com efeito de pulso)
         map.addLayer({
           id: "user-location-pulse-ring",
           type: "circle",
@@ -237,11 +332,11 @@ export function PartiuRideMap({
           paint: {
             "circle-radius": 24,
             "circle-color": "#3B82F6",
-            "circle-opacity": 0.20,
+            "circle-opacity": 0,
           },
         });
 
-        // Camada 2: Ponto Central Sólido 99 (w-4 h-4 = 16px -> raio 8px) com borda branca 2.5px
+        // Camada 2: Ponto Central WebGL (opacidade 0 para usar o marcador HTML animado com efeito de pulso)
         map.addLayer({
           id: "user-location-dot-core",
           type: "circle",
@@ -251,8 +346,21 @@ export function PartiuRideMap({
             "circle-color": "#2563EB",
             "circle-stroke-color": "#FFFFFF",
             "circle-stroke-width": 2.5,
+            "circle-opacity": 0,
+            "circle-stroke-opacity": 0,
           },
         });
+
+        // Marcador HTML de pulsação contínua (estilo radar 99/Uber) na localização do passageiro
+        if (userPulseMarkerRef.current) {
+          userPulseMarkerRef.current.remove();
+        }
+        userPulseMarkerRef.current = new mapboxgl.Marker({
+          element: createUserPuckElement(),
+          anchor: "center",
+        })
+          .setLngLat(origemCoords)
+          .addTo(map);
 
         // --------------------------------------------------------------------
         // C. FONTE E CAMADA: MOTORISTAS OCIOSOS REAIS (FROTA CADASTRADA)
@@ -472,6 +580,9 @@ export function PartiuRideMap({
         geolocate.on("geolocate", (e: any) => {
           if (e.coords) {
             const nextCoords: [number, number] = [e.coords.longitude, e.coords.latitude];
+            if (userPulseMarkerRef.current) {
+              userPulseMarkerRef.current.setLngLat(nextCoords);
+            }
             onUserLocationChange?.(nextCoords, e.coords.heading);
           }
         });
@@ -505,6 +616,10 @@ export function PartiuRideMap({
     }
 
     return () => {
+      if (userPulseMarkerRef.current) {
+        userPulseMarkerRef.current.remove();
+        userPulseMarkerRef.current = null;
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -528,6 +643,10 @@ export function PartiuRideMap({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
+
+    if (userPulseMarkerRef.current) {
+      userPulseMarkerRef.current.setLngLat(origemCoords);
+    }
 
     const userSource = map.getSource("user-location-source") as mapboxgl.GeoJSONSource | undefined;
     if (userSource) {
@@ -1099,6 +1218,9 @@ export function PartiuRideMap({
     };
 
     const flyToCoords = (coords: [number, number], heading?: number | null) => {
+      if (userPulseMarkerRef.current) {
+        userPulseMarkerRef.current.setLngLat(coords);
+      }
       onUserLocationChange?.(coords, heading ?? undefined);
       if (mapRef.current) {
         mapRef.current.flyTo({
