@@ -166,7 +166,7 @@ export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PART
 }
 
 export function PartiuDriverCockpitGuarded() {
-  const activeUser = typeof window !== "undefined" ? supabaseAuthService.getCurrentUser() : null;
+  const activeUser = typeof window !== "undefined" ? (supabaseAuthService?.getCurrentUser?.() || supabaseAuthService?.getStoredSession?.() || null) : null;
   const effectiveDriverId = activeUser?.role === "MOTORISTA" ? activeUser.id : MOTORISTA_CONTA_PADRAO.id;
 
   return (
@@ -207,7 +207,7 @@ export function PartiuDriverCockpit() {
   const accentColor = branding?.accent_color || corSecundaria || "#0088FF";
   const brandGradient = `linear-gradient(135deg, var(--header-gradient-start, ${corCabecalhoInicio}) 0%, var(--header-gradient-end, ${corCabecalhoFim}) 100%)`;
 
-  const activeUser = typeof window !== "undefined" ? supabaseAuthService.getCurrentUser() : null;
+  const activeUser = typeof window !== "undefined" ? (supabaseAuthService?.getCurrentUser?.() || supabaseAuthService?.getStoredSession?.() || null) : null;
   const effectiveDriverId = activeUser?.role === "MOTORISTA" ? activeUser.id : MOTORISTA_CONTA_PADRAO.id;
 
   // Status de Disponibilidade & Trava de Diária Inteligente (SaaS Model)

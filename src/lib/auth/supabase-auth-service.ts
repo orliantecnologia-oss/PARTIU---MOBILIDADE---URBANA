@@ -178,6 +178,13 @@ export class SupabaseAuthService {
   }
 
   /**
+   * Obtém o usuário ativo atual (alias para getStoredSession)
+   */
+  public getCurrentUser(): AuthUserProfile | null {
+    return this.getStoredSession();
+  }
+
+  /**
    * Salva a sessão ativa localmente
    */
   public saveStoredSession(user: AuthUserProfile): void {
