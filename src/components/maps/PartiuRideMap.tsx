@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { useEffect, useRef, useState, memo, useCallback } from "react";
 import { createPortal } from "react-dom";
 import mapboxgl from "mapbox-gl";
 import { Navigation, Compass, LocateFixed, Layers, Check } from "lucide-react";
@@ -229,47 +229,13 @@ export const PartiuRideMap = memo(function PartiuRideMap({
   const vehiclesAnimMapRef = useRef<Map<string, VehicleAnimState>>(new Map());
   const vehicleAnimRafRef = useRef<number | null>(null);
 
-  // 1. INICIALIZAÇÃO DO MAPBOX E REGISTRO DE ASSETS VETORIAIS HD
-  useEffect(() => {
-    if (!mapContainer.current) return;
+  // 1. CONFIGURAÇÃO UNIFICADA E RESILIENTE DE FONTES E CAMADAS DO MAPA
+  const setupMapLayers = useCallback(
+    async (map: mapboxgl.Map) => {
+      if (!map) return;
 
-    try {
-      const hasValidToken = MapboxConfig.hasValidToken();
-      if (hasValidToken && MAPBOX_TOKEN) {
-        mapboxgl.accessToken = MAPBOX_TOKEN;
-      }
-
-      const initialStyle = hasValidToken
-        ? mapboxService.getStyleUrl("streets")
-        : mapboxService.getOpenStreetMapStyle();
-
-      const map = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: initialStyle,
-        center: origemCoords,
-        zoom: 16.5,
-        pitch: status === "A_CAMINHO" || status === "EM_VIAGEM" ? 60 : 35,
-        bearing: 0,
-        attributionControl: false,
-        precompilePrograms: false,
-      } as any);
-
-      map.on("load", async () => {
-        // Aplica a paleta limpa estilo Google Maps se estiver em estilo Mapbox nativo
-        if (hasValidToken) {
-          mapboxService.applyGoogleMapsPalette(map);
-        }
-        // Registra assets nativos para SymbolLayers e marcadores
-        await registerAllMapAssets(map);
-        // await registerAllMapboxMarkers(map);
-
-        setMapLoaded(true);
-        mapRef.current = map;
-        map.resize();
-
-        // --------------------------------------------------------------------
-        // A. FONTE E CAMADA: ROTA POLYLINE (LINHA DA CORRIDA)
-        // --------------------------------------------------------------------
+      // A. FONTE E CAMADA: ROTA POLYLINE (LINHA DA CORRIDA)
+      if (!map.getSource("route-source")) {
         map.addSource("route-source", {
           type: "geojson",
           data: {
@@ -281,7 +247,9 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             },
           },
         });
+      }
 
+      if (!map.getLayer("route-casing")) {
         map.addLayer({
           id: "route-casing",
           type: "line",
@@ -293,7 +261,9 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             "line-opacity": 1.0,
           },
         });
+      }
 
+      if (!map.getLayer("route-line")) {
         map.addLayer({
           id: "route-line",
           type: "line",
@@ -305,10 +275,10 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             "line-opacity": 1.0,
           },
         });
+      }
 
-        // --------------------------------------------------------------------
-        // B. FONTE E CAMADAS: USER LOCATION (EXATO PONTO AZUL PADRÃO 99)
-        // --------------------------------------------------------------------
+      // B. FONTE E CAMADAS: LOCALIZAÇÃO DO PASSAGEIRO (PONTO AZUL 99)
+      if (!map.getSource("user-location-source")) {
         map.addSource("user-location-source", {
           type: "geojson",
           data: {
@@ -320,8 +290,9 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             },
           },
         });
+      }
 
-        // Camada 1: Halo Concêntrico WebGL (opacidade 0 para usar o marcador HTML animado com efeito de pulso)
+      if (!map.getLayer("user-location-pulse-ring")) {
         map.addLayer({
           id: "user-location-pulse-ring",
           type: "circle",
@@ -332,8 +303,9 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             "circle-opacity": 0,
           },
         });
+      }
 
-        // Camada 2: Ponto Central WebGL (opacidade 0 para usar o marcador HTML animado com efeito de pulso)
+      if (!map.getLayer("user-location-dot-core")) {
         map.addLayer({
           id: "user-location-dot-core",
           type: "circle",
@@ -347,21 +319,21 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             "circle-stroke-opacity": 0,
           },
         });
+      }
 
-        // Marcador HTML de pulsação contínua (estilo radar 99/Uber) na localização do passageiro
-        if (userPulseMarkerRef.current) {
-          userPulseMarkerRef.current.remove();
-        }
-        userPulseMarkerRef.current = new mapboxgl.Marker({
-          element: createUserPuckElement(),
-          anchor: "center",
-        })
-          .setLngLat(origemCoords)
-          .addTo(map);
+      // Marcador HTML de pulsação animada contínua do passageiro
+      if (userPulseMarkerRef.current) {
+        userPulseMarkerRef.current.remove();
+      }
+      userPulseMarkerRef.current = new mapboxgl.Marker({
+        element: createUserPuckElement(),
+        anchor: "center",
+      })
+        .setLngLat(origemCoords)
+        .addTo(map);
 
-        // --------------------------------------------------------------------
-        // C. FONTE E CAMADA: MOTORISTAS OCIOSOS REAIS (FROTA CADASTRADA)
-        // --------------------------------------------------------------------
+      // C. FONTE E CAMADA: MOTORISTAS OCIOSOS REAIS (FROTA EM TEMPO REAL)
+      if (!map.getSource("idle-drivers-source")) {
         map.addSource("idle-drivers-source", {
           type: "geojson",
           data: {
@@ -369,7 +341,9 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             features: [],
           },
         });
+      }
 
+      if (!map.getLayer("idle-drivers-layer")) {
         map.addLayer({
           id: "idle-drivers-layer",
           type: "symbol",
@@ -395,7 +369,6 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           },
         });
 
-        // Popup interativo ao clicar em um veículo parceiro real no mapa
         map.on("click", "idle-drivers-layer", (e) => {
           const feature = e.features?.[0] as any;
           if (!feature || !feature.properties) return;
@@ -430,10 +403,10 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         map.on("mouseleave", "idle-drivers-layer", () => {
           map.getCanvas().style.cursor = "";
         });
+      }
 
-        // --------------------------------------------------------------------
-        // D. FONTE E CAMADA: MOTORISTA ATIVO (SMOOTH TRACKING COM ROTAÇÃO)
-        // --------------------------------------------------------------------
+      // D. FONTE E CAMADA: MOTORISTA ATIVO
+      if (!map.getSource("active-driver-source")) {
         map.addSource("active-driver-source", {
           type: "geojson",
           data: {
@@ -449,49 +422,9 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             },
           },
         });
+      }
 
-        // --------------------------------------------------------------------
-        // E. FONTE E CAMADA: PINO DE EMBARQUE (ORIGEM)
-        // --------------------------------------------------------------------
-        const shouldShowOriginPinInitial =
-          status === "CONFIRMING_PICKUP" ||
-          status === "EDITING_PICKUP" ||
-          status === "REVIEWING_ROUTE" ||
-          status === "A_CAMINHO" ||
-          status === "EM_VIAGEM";
-
-        map.addSource("origin-pin-source", {
-          type: "geojson",
-          data: shouldShowOriginPinInitial
-            ? {
-                type: "Feature",
-                properties: {},
-                geometry: {
-                  type: "Point",
-                  coordinates: origemCoords,
-                },
-              }
-            : {
-                type: "FeatureCollection",
-                features: [],
-              },
-        });
-
-        // --------------------------------------------------------------------
-        // F. FONTE E CAMADA: PINO DE DESTINO (CHEGADA)
-        // --------------------------------------------------------------------
-        map.addSource("destination-pin-source", {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "Point",
-              coordinates: destinoCoords || origemCoords,
-            },
-          },
-        });
-
+      if (!map.getLayer("active-driver-layer")) {
         map.addLayer({
           id: "active-driver-layer",
           type: "symbol",
@@ -516,7 +449,36 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             "icon-ignore-placement": true,
           },
         });
+      }
 
+      // E. FONTE E CAMADA: PINO DE EMBARQUE (ORIGEM)
+      const shouldShowOriginPinInitial =
+        status === "CONFIRMING_PICKUP" ||
+        status === "EDITING_PICKUP" ||
+        status === "REVIEWING_ROUTE" ||
+        status === "A_CAMINHO" ||
+        status === "EM_VIAGEM";
+
+      if (!map.getSource("origin-pin-source")) {
+        map.addSource("origin-pin-source", {
+          type: "geojson",
+          data: shouldShowOriginPinInitial
+            ? {
+                type: "Feature",
+                properties: {},
+                geometry: {
+                  type: "Point",
+                  coordinates: origemCoords,
+                },
+              }
+            : {
+                type: "FeatureCollection",
+                features: [],
+              },
+        });
+      }
+
+      if (!map.getLayer("origin-pin-layer")) {
         map.addLayer({
           id: "origin-pin-layer",
           type: "symbol",
@@ -538,7 +500,24 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             "icon-ignore-placement": true,
           },
         });
+      }
 
+      // F. FONTE E CAMADA: PINO DE DESTINO (CHEGADA)
+      if (!map.getSource("destination-pin-source")) {
+        map.addSource("destination-pin-source", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "Point",
+              coordinates: destinoCoords || origemCoords,
+            },
+          },
+        });
+      }
+
+      if (!map.getLayer("destination-pin-layer")) {
         map.addLayer({
           id: "destination-pin-layer",
           type: "symbol",
@@ -560,18 +539,18 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             "icon-ignore-placement": true,
           },
         });
+      }
 
-        // --------------------------------------------------------------------
-        // G. GEOLOCALIZAÇÃO NATIVA EM TEMPO REAL (HARDWARE GPS ENGINE)
-        // --------------------------------------------------------------------
+      // G. GEOLOCALIZAÇÃO NATIVA EM TEMPO REAL
+      if (!geolocateControlRef.current) {
         const geolocate = new mapboxgl.GeolocateControl({
           positionOptions: {
             enableHighAccuracy: true,
           },
           trackUserLocation: true,
           showUserHeading: true,
-          showUserLocation: false, // Gerenciado de forma ultra-precisa e estável pelas camadas WebGL GPU dedicadas do Partiu
-          showAccuracyCircle: false, // Evita duplicação do círculo nativo
+          showUserLocation: false,
+          showAccuracyCircle: false,
         });
 
         geolocate.on("geolocate", (e: any) => {
@@ -587,7 +566,6 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         geolocate.on("error", (err: any) => {
           console.warn("[PartiuRideMap] Erro de geolocalização nativa:", err);
           if (err.code === 1) {
-            // PERMISSION_DENIED
             onLocationPermissionDenied?.();
           }
         });
@@ -595,20 +573,82 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         map.addControl(geolocate, "top-right");
         geolocateControlRef.current = geolocate;
 
-        // Dispara o tracking nativo assim que o mapa estiver pronto
         setTimeout(() => {
           try {
             geolocate.trigger();
-          } catch (err) { silentCatchWarn("PartiuRideMap", err); }
+          } catch (err) {
+            silentCatchWarn("PartiuRideMap", err);
+          }
         }, 350);
+      }
+    },
+    [origemCoords, destinoCoords, driverCoords, modalidade, status, onUserLocationChange, onLocationPermissionDenied]
+  );
+
+  const setupMapLayersRef = useRef(setupMapLayers);
+  setupMapLayersRef.current = setupMapLayers;
+
+  // 1.1 INICIALIZAÇÃO RESILIENTE DO MAPA (SUPORTA MAPBOX VETORIAL & CARTO RETINA)
+  useEffect(() => {
+    if (!mapContainer.current) return;
+
+    try {
+      const hasValidToken = MapboxConfig.hasValidToken();
+      if (hasValidToken && MAPBOX_TOKEN) {
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+      } else {
+        mapboxgl.accessToken = "";
+      }
+
+      const initialStyle = hasValidToken
+        ? mapboxService.getStyleUrl("streets")
+        : mapboxService.getCartoPositronStyle();
+
+      const map = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: initialStyle,
+        center: origemCoords,
+        zoom: 16.5,
+        pitch: status === "A_CAMINHO" || status === "EM_VIAGEM" ? 60 : 35,
+        bearing: 0,
+        attributionControl: false,
+        precompilePrograms: false,
+      } as any);
+
+      map.on("load", async () => {
+        if (hasValidToken) {
+          mapboxService.applyGoogleMapsPalette(map);
+        }
+        await registerAllMapAssets(map);
+        await setupMapLayersRef.current?.(map);
+
+        setMapLoaded(true);
+        mapRef.current = map;
+        map.resize();
       });
+
+      // Flag para impedir loops de erro caso um token seja revogado ou inválido
+      const fallbackAppliedRef = { current: !hasValidToken };
 
       map.on("error", (e: any) => {
         const msg = (e?.error?.message || e?.message || "").toLowerCase();
         const status = e?.error?.status || e?.status;
-        if (status === 401 || status === 403 || msg.includes("unauthorized") || msg.includes("forbidden") || msg.includes("invalid token")) {
+        const isAuthError =
+          status === 401 ||
+          status === 403 ||
+          msg.includes("unauthorized") ||
+          msg.includes("forbidden") ||
+          msg.includes("invalid token");
+
+        if (isAuthError && !fallbackAppliedRef.current && hasValidToken) {
+          fallbackAppliedRef.current = true;
           try {
-            map.setStyle(mapboxService.getOpenStreetMapStyle() as any);
+            console.info("[PartiuRideMap] Fallback zero-downtime ativado: migrando para camada de alta disponibilidade CARTO Positron");
+            map.setStyle(mapboxService.getCartoPositronStyle() as any);
+            map.once("style.load", async () => {
+              await registerAllMapAssets(map);
+              await setupMapLayersRef.current?.(map);
+            });
           } catch {
             setMapError(true);
           }
@@ -1300,115 +1340,27 @@ export const PartiuRideMap = memo(function PartiuRideMap({
     const map = mapRef.current;
     if (!map) return;
 
-    const url =
-      newStyle === "traffic"
-        ? MapboxConfig.STYLES.navigationTraffic
-        : newStyle === "satellite"
-        ? MapboxConfig.STYLES.satelliteStreets
-        : MapboxConfig.STYLES.streets || "mapbox://styles/mapbox/streets-v12";
+    const hasValidToken = MapboxConfig.hasValidToken();
+    const targetStyle = hasValidToken
+      ? (newStyle === "traffic"
+          ? MapboxConfig.STYLES.navigationTraffic
+          : newStyle === "satellite"
+          ? MapboxConfig.STYLES.satelliteStreets
+          : MapboxConfig.STYLES.streets || "mapbox://styles/mapbox/streets-v12")
+      : mapboxService.getFallbackStyle(newStyle);
 
-    map.setStyle(url);
+    map.setStyle(targetStyle as any);
     map.once("style.load", async () => {
-      mapboxService.applyGoogleMapsPalette(map);
+      if (hasValidToken) {
+        mapboxService.applyGoogleMapsPalette(map);
+      }
       await registerAllMapAssets(map);
-
-      if (!map.getSource("route-source")) {
-        map.addSource("route-source", {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            properties: {},
-            geometry: { type: "LineString", coordinates: [] },
-          },
-        });
-        map.addLayer({
-          id: "route-casing",
-          type: "line",
-          source: "route-source",
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: { "line-color": "#FFFFFF", "line-width": 7.5, "line-opacity": 1.0 },
-        });
-        map.addLayer({
-          id: "route-line",
-          type: "line",
-          source: "route-source",
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: { "line-color": "#1A1A1A", "line-width": 4.8, "line-opacity": 1.0 },
-        });
-      }
-
-      if (!map.getSource("user-location-source")) {
-        map.addSource("user-location-source", {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            properties: {},
-            geometry: { type: "Point", coordinates: origemCoords },
-          },
-        });
-        // Camada 1: Halo Concêntrico Azul Claro Suave (w-12 h-12 = 48px -> raio 24px)
-        map.addLayer({
-          id: "user-location-pulse-ring",
-          type: "circle",
-          source: "user-location-source",
-          paint: {
-            "circle-radius": 24,
-            "circle-color": "#3B82F6",
-            "circle-opacity": 0.20,
-          },
-        });
-        // Camada 2: Ponto Central Sólido 99 (w-4 h-4 = 16px -> raio 8px) com borda branca 2.5px
-        map.addLayer({
-          id: "user-location-dot-core",
-          type: "circle",
-          source: "user-location-source",
-          paint: {
-            "circle-radius": 8,
-            "circle-color": "#2563EB",
-            "circle-stroke-color": "#FFFFFF",
-            "circle-stroke-width": 2.5,
-          },
-        });
-      }
-
-      if (!map.getSource("idle-drivers-source")) {
-        map.addSource("idle-drivers-source", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [],
-          },
-        });
-        map.addLayer({
-          id: "idle-drivers-layer",
-          type: "symbol",
-          source: "idle-drivers-source",
-          layout: {
-            "icon-image": ["get", "icon"],
-            "icon-size": [
-              "interpolate",
-              ["linear"],
-              ["zoom"],
-              10, 0.08,
-              12, 0.12,
-              14, 0.16,
-              16, 0.20,
-              18, 0.25,
-            ],
-            "icon-anchor": "center",
-            "icon-rotate": ["coalesce", ["get", "heading"], ["get", "bearing"], 0],
-            "icon-rotation-alignment": "map",
-            "icon-pitch-alignment": "viewport",
-            "icon-allow-overlap": true,
-            "icon-ignore-placement": true,
-          },
-        });
-      }
+      await setupMapLayersRef.current?.(map);
     });
   };
 
   return (
-    <div className={`relative w-full h-full overflow-hidden bg-slate-900 ${className}`}>
+    <div className={`relative w-full h-full overflow-hidden bg-[#f1f3f4] ${className}`}>
       {/* Canvas WebGL do Mapbox */}
       <div ref={mapContainer} className="w-full h-full" />
 

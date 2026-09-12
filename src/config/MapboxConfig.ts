@@ -137,11 +137,19 @@ export class MapboxConfig {
   public static init(): void {
     if (MapboxConfig.initialized) return;
 
-    const token = MapboxConfig.getAccessToken();
+    const isValid = MapboxConfig.hasValidToken();
+    const token = isValid ? MapboxConfig.getAccessToken() : "";
 
     // 1. Inicializa Mapbox GL JS
     if (mapboxgl) {
       mapboxgl.accessToken = token;
+      try {
+        if (!isValid && (mapboxgl as any).config) {
+          (mapboxgl as any).config.EVENTS_URL = null;
+        }
+      } catch {
+        // Silencioso se config de eventos não for acessível
+      }
     }
 
     // 2. Compatibilidade com @rnmapbox/maps caso carregado em runtime nativo

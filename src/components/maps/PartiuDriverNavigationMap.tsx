@@ -99,7 +99,7 @@ export function PartiuDriverNavigationMap({
 
       const initialStyle = hasValidToken
         ? (modoNoturno ? "mapbox://styles/mapbox/dark-v11" : mapboxService.getStyleUrl("streets"))
-        : mapboxService.getOpenStreetMapStyle();
+        : (modoNoturno ? mapboxService.getCartoDarkStyle() : mapboxService.getCartoPositronStyle());
 
       const map = new mapboxgl.Map({
         container: mapContainer.current,
@@ -428,7 +428,7 @@ export function PartiuDriverNavigationMap({
   }
 
   return (
-    <div className={`relative w-full h-full overflow-hidden bg-slate-950 ${className}`}>
+    <div className={`relative w-full h-full overflow-hidden ${modoNoturno ? "bg-slate-950" : "bg-[#f1f3f4]"} ${className}`}>
       <div ref={mapContainer} className="w-full h-full" />
 
       {/* BADGE FLUTUANTE DE DEMANDA HEXAGONAL H3 (MODO IDLE) */}

@@ -46,6 +46,132 @@ export class MapboxService {
     return url || MapboxConfig.STYLES.cleanDay;
   }
 
+  /**
+   * 🗺️ CARTO Positron (@2x Retina HD):
+   * Estilo de mapa base claro, ultra-limpo, que mimetiza fielmente o visual do Google Maps e do app 99.
+   * Não requer chaves de API, tem alta disponibilidade global via CDN e suporte a CORS.
+   */
+  public getCartoPositronStyle(): any {
+    return {
+      version: 8,
+      sources: {
+        "carto-positron": {
+          type: "raster",
+          tiles: [
+            "https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+            "https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+            "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+            "https://d.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png",
+          ],
+          tileSize: 256,
+          attribution: "© OpenStreetMap contributors, © CARTO",
+        },
+      },
+      layers: [
+        {
+          id: "carto-positron-layer",
+          type: "raster",
+          source: "carto-positron",
+          minzoom: 0,
+          maxzoom: 20,
+        },
+      ],
+    };
+  }
+
+  /**
+   * 🚗 CARTO Voyager (@2x Retina HD):
+   * Estilo com vias e tráfego mais visíveis e contrastadas, ideal para visualização de trânsito.
+   */
+  public getCartoVoyagerStyle(): any {
+    return {
+      version: 8,
+      sources: {
+        "carto-voyager": {
+          type: "raster",
+          tiles: [
+            "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+            "https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+            "https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+            "https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png",
+          ],
+          tileSize: 256,
+          attribution: "© OpenStreetMap contributors, © CARTO",
+        },
+      },
+      layers: [
+        {
+          id: "carto-voyager-layer",
+          type: "raster",
+          source: "carto-voyager",
+          minzoom: 0,
+          maxzoom: 20,
+        },
+      ],
+    };
+  }
+
+  /**
+   * 🌙 CARTO Dark (@2x Retina HD):
+   * Estilo noturno elegante de alto contraste para corridas noturnas.
+   */
+  public getCartoDarkStyle(): any {
+    return {
+      version: 8,
+      sources: {
+        "carto-dark": {
+          type: "raster",
+          tiles: [
+            "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+            "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+            "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+            "https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
+          ],
+          tileSize: 256,
+          attribution: "© OpenStreetMap contributors, © CARTO",
+        },
+      },
+      layers: [
+        {
+          id: "carto-dark-layer",
+          type: "raster",
+          source: "carto-dark",
+          minzoom: 0,
+          maxzoom: 20,
+        },
+      ],
+    };
+  }
+
+  /**
+   * 🛰️ Esri World Imagery (Satélite Real HD):
+   * Camada fotográfica orbital global de alta definição, pública e sem necessidade de token.
+   */
+  public getEsriSatelliteStyle(): any {
+    return {
+      version: 8,
+      sources: {
+        "esri-satellite": {
+          type: "raster",
+          tiles: [
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          ],
+          tileSize: 256,
+          attribution: "© Esri, Maxar, Earthstar Geographics",
+        },
+      },
+      layers: [
+        {
+          id: "esri-satellite-layer",
+          type: "raster",
+          source: "esri-satellite",
+          minzoom: 0,
+          maxzoom: 19,
+        },
+      ],
+    };
+  }
+
   public getOpenStreetMapStyle(): any {
     return {
       version: 8,
@@ -69,6 +195,23 @@ export class MapboxService {
         },
       ],
     };
+  }
+
+  /**
+   * Retorna o estilo raster apropriado para cada modo de visualização quando operando sem token Mapbox
+   */
+  public getFallbackStyle(variant: "streets" | "traffic" | "satellite" | "night" = "streets"): any {
+    switch (variant) {
+      case "satellite":
+        return this.getEsriSatelliteStyle();
+      case "traffic":
+        return this.getCartoVoyagerStyle();
+      case "night":
+        return this.getCartoDarkStyle();
+      case "streets":
+      default:
+        return this.getCartoPositronStyle();
+    }
   }
 
   /**

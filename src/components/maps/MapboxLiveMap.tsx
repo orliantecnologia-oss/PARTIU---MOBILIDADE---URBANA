@@ -101,7 +101,7 @@ export function MapboxLiveMap({
 
   const [vanAtiva, setVanAtiva] = useState<VanLive | null>(() => vansParaExibir[0] ?? null);
   const [is3D, setIs3D] = useState(true);
-  const [falhaMapa, setFalhaMapa] = useState(!MAPBOX_TOKEN);
+  const [falhaMapa, setFalhaMapa] = useState(false);
 
   // Sincronizar vanAtiva quando os veículos do banco carregarem
   useEffect(() => {
@@ -128,13 +128,22 @@ export function MapboxLiveMap({
     const hasValidToken = MapboxConfig.hasValidToken();
     if (hasValidToken && MAPBOX_TOKEN) {
       mapboxgl.accessToken = MAPBOX_TOKEN;
+    } else {
+      mapboxgl.accessToken = "";
     }
 
     let mapInstance: mapboxgl.Map;
     try {
+      const fallbackStyle =
+        estiloMapa === "night"
+          ? mapboxService.getCartoDarkStyle()
+          : estiloMapa === "satellite"
+          ? mapboxService.getEsriSatelliteStyle()
+          : mapboxService.getCartoPositronStyle();
+
       mapInstance = new mapboxgl.Map({
         container: mapContainer.current,
-        style: hasValidToken ? mapStyles[estiloMapa] : mapboxService.getOpenStreetMapStyle(),
+        style: hasValidToken ? mapStyles[estiloMapa] : fallbackStyle,
         center: [-35.85, -9.75],
         zoom: 9.6,
         pitch: is3D ? 48 : 0,

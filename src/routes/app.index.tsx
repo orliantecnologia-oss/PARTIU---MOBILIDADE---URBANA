@@ -361,7 +361,7 @@ function PartiuPassengerHomeContent() {
   }, [isSearching, mapStatus, activeSheetHeight]);
 
   return (
-    <div className="relative w-full h-[100dvh] max-h-[100dvh] bg-slate-950 overflow-hidden font-sans select-none flex flex-col">
+    <div className="relative w-full h-[100dvh] max-h-[100dvh] bg-[#f1f3f4] overflow-hidden font-sans select-none flex flex-col">
       {/* BANNER DE RESILIÊNCIA DE REDE & TOAST FLUTUANTE DE RINGING */}
       <NetworkReconnectionBanner />
       <LiveRingingToast />
