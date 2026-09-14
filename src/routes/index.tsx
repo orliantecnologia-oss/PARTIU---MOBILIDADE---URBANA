@@ -22,6 +22,7 @@ import {
 } from "@/lib/auth/supabase-auth-service";
 import { normalizarTelefoneBR } from "@/lib/passenger-cloud-sync";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
+import { silentCatchWarn } from "@/lib/structured-logger";
 
 export const Route = createFileRoute("/")({
   head: () => ({

@@ -639,7 +639,11 @@ export function PartiuDriverCockpit() {
       }
       const check = driverEligibilityEngine.evaluateEligibility(perfilMotorista);
       if (!check.isEligible) {
-        setErroElegibilidade(check.reasons.join(" • "));
+        const mensagensAmigaveis = check.blockers.map((b) => {
+          const msg = b.includes(": ") ? b.split(": ").slice(1).join(": ") : b;
+          return msg;
+        });
+        setErroElegibilidade(mensagensAmigaveis.join(" • "));
         return;
       }
       setErroElegibilidade(null);
@@ -1125,88 +1129,53 @@ export function PartiuDriverCockpit() {
       />
 
       {/* ================================================================= */}
-      {/* 2. TOP HUD FLUTUANTE EM CÁPSULAS BRANCAS VIDRO (PADRÃO PASSAGEIRO) */}
+      {/* 2. TOP HUD FLUTUANTE — LAYOUT 2 LINHAS (MOBILE-OPTIMIZED)       */}
       {/* ================================================================= */}
-      <header className="absolute top-0 inset-x-0 z-30 pt-[max(0.75rem,env(safe-area-inset-top))] px-3 pb-2.5 flex items-center justify-between pointer-events-none bg-gradient-to-b from-black/25 via-black/10 to-transparent">
-        {/* Perfil Condutor com Cápsula Branca Translúcida */}
-        <button
-          type="button"
-          onClick={() => setModalPerfilMotorista(true)}
-          className="pointer-events-auto flex items-center gap-2 p-1.5 pr-2.5 sm:pr-3 bg-white/95 backdrop-blur-md rounded-full shadow-lg border border-slate-200 hover:border-slate-300 active:scale-95 transition text-slate-950"
-        >
-          <div className="relative shrink-0">
-            <div
-              style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
-              className="w-8 h-8 rounded-full font-black flex items-center justify-center text-xs shadow-xs ring-1 ring-black/10"
-            >
-              {perfilMotorista.nome
-                ? perfilMotorista.nome
-                    .split(" ")
-                    .filter(Boolean)
-                    .map((n) => n[0])
-                    .slice(0, 2)
-                    .join("")
-                    .toUpperCase()
-                : "MO"}
+      <header className="absolute top-0 inset-x-0 z-30 pt-[max(0.75rem,env(safe-area-inset-top))] px-3 pb-2 pointer-events-none bg-gradient-to-b from-black/25 via-black/10 to-transparent">
+        {/* LINHA 1: Perfil + Toggle Online/Offline */}
+        <div className="flex items-center justify-between gap-2 mb-1.5">
+          {/* Perfil Condutor */}
+          <button
+            type="button"
+            onClick={() => setModalPerfilMotorista(true)}
+            className="pointer-events-auto flex items-center gap-2 p-1.5 pr-3 bg-white/95 backdrop-blur-md rounded-full shadow-lg border border-slate-200 hover:border-slate-300 active:scale-95 transition text-slate-950 min-w-0"
+          >
+            <div className="relative shrink-0">
+              <div
+                style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                className="w-9 h-9 rounded-full font-black flex items-center justify-center text-xs shadow-xs ring-1 ring-black/10"
+              >
+                {perfilMotorista.nome
+                  ? perfilMotorista.nome
+                      .split(" ")
+                      .filter(Boolean)
+                      .map((n) => n[0])
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase()
+                  : "MO"}
+              </div>
+              <span
+                className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
+                  isOnline ? "bg-emerald-500" : "bg-slate-400"
+                }`}
+              />
             </div>
-            <span
-              className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
-                isOnline ? "bg-emerald-500" : "bg-slate-400"
-              }`}
-            />
-          </div>
-          <div className="text-left">
-            <span className="text-xs font-black text-slate-950 block leading-tight truncate max-w-[85px] min-[360px]:max-w-[105px] sm:max-w-none">
-              {perfilMotorista.nome || "Motorista"}
-            </span>
-            <span className="text-[10px] font-bold flex items-center gap-1 leading-none mt-0.5" style={{ color: corPrimaria }}>
-              <Star className="w-2.5 h-2.5 fill-current" style={{ color: accentColor }} />
-              <span>4.98</span>
-              <span className="text-[9px] font-black px-1 rounded border" style={{ backgroundColor: `${corPrimaria}10`, color: corPrimaria, borderColor: `${corPrimaria}25` }}>
-                {loyaltyProfile.badgeIcon} {loyaltyProfile.tierName}
+            <div className="text-left min-w-0">
+              <span className="text-[13px] font-black text-slate-950 block leading-tight truncate max-w-[140px]">
+                {perfilMotorista.nome || "Motorista"}
               </span>
-            </span>
-          </div>
-        </button>
-
-        {/* Ações Direitas: Som, Ganhos D+0, Online/Offline e Modo Passageiro */}
-        <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Botão de Áudio do Radar */}
-          <button
-            type="button"
-            onClick={toggleSom}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-90 bg-white/95 backdrop-blur-md border border-slate-200 ${
-              somAtivo ? "text-slate-900" : "text-slate-400"
-            }`}
-            style={somAtivo ? { color: corPrimaria } : {}}
-            title={somAtivo ? "Som do radar ativado" : "Som silenciado"}
-          >
-            {somAtivo ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              <span className="text-[10px] font-bold flex items-center gap-1 leading-none mt-0.5" style={{ color: corPrimaria }}>
+                <Star className="w-2.5 h-2.5 fill-current shrink-0" style={{ color: accentColor }} />
+                <span>{perfilMotorista.rating?.toFixed(2) || "4.98"}</span>
+                <span className="text-[9px] font-black px-1 rounded border shrink-0" style={{ backgroundColor: `${corPrimaria}10`, color: corPrimaria, borderColor: `${corPrimaria}25` }}>
+                  {loyaltyProfile.badgeIcon} {loyaltyProfile.tierName}
+                </span>
+              </span>
+            </div>
           </button>
 
-          {/* Badge do Plano do Motorista (Auditoria 2 & 10) */}
-          <button
-            type="button"
-            onClick={() => setModalPlanosAberto(true)}
-            className="px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-[11px] font-black text-slate-800 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
-            title="Ver e Gerenciar Plano de Assinatura"
-          >
-            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
-            <span className="truncate max-w-[70px] sm:max-w-none">{driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%)</span>
-          </button>
-
-          {/* Faturamento D+0 com PIX */}
-          <button
-            type="button"
-            onClick={handleAbrirModalSaquePix}
-            className="px-2.5 sm:px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-xs font-black text-slate-950 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
-            title="Ver saldo e sacar via PIX"
-          >
-            <span className="text-xs" style={{ color: accentColor }}>⚡</span>
-            <span>{ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-          </button>
-
-          {/* Alternar Online/Offline */}
+          {/* Toggle Online/Offline — Sempre visível e proeminente */}
           <button
             type="button"
             onClick={handleToggleOnline}
@@ -1215,22 +1184,60 @@ export function PartiuDriverCockpit() {
                 ? {
                     background: brandGradient,
                     color: corTextoPrimaria,
-                    boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                    boxShadow: "0 4px 14px rgba(0,0,0,0.18)",
                   }
                 : {}
             }
-            className={`px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs font-black flex items-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer ${
+            className={`pointer-events-auto px-4 py-2 rounded-full text-xs font-black flex items-center gap-1.5 transition-all shadow-lg active:scale-95 cursor-pointer shrink-0 ${
               isOnline ? "" : "bg-white/95 text-slate-500 border border-slate-200"
             }`}
           >
-            <Power className="w-3.5 h-3.5 stroke-[2.5]" />
-            <span className="hidden min-[380px]:inline">{isOnline ? "ONLINE" : "OFF"}</span>
+            <Power className="w-4 h-4 stroke-[2.5]" />
+            <span>{isOnline ? "ONLINE" : "OFF"}</span>
+          </button>
+        </div>
+
+        {/* LINHA 2: Ações rápidas — Som, Plano, Ganhos, Modo Passageiro */}
+        <div className="pointer-events-auto flex items-center justify-between gap-1.5">
+          {/* Botão de Áudio do Radar */}
+          <button
+            type="button"
+            onClick={toggleSom}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition shadow-md active:scale-90 bg-white/95 backdrop-blur-md border border-slate-200 shrink-0 ${
+              somAtivo ? "text-slate-900" : "text-slate-400"
+            }`}
+            style={somAtivo ? { color: corPrimaria } : {}}
+            title={somAtivo ? "Som do radar ativado" : "Som silenciado"}
+          >
+            {somAtivo ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+
+          {/* Badge do Plano do Motorista */}
+          <button
+            type="button"
+            onClick={() => setModalPlanosAberto(true)}
+            className="px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-[11px] font-black text-slate-800 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
+            title="Ver e Gerenciar Plano de Assinatura"
+          >
+            <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: accentColor }} />
+            <span className="truncate max-w-[90px]">{driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%)</span>
+          </button>
+
+          {/* Faturamento D+0 com PIX */}
+          <button
+            type="button"
+            onClick={handleAbrirModalSaquePix}
+            className="px-2.5 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-slate-200 text-xs font-black text-slate-950 shadow-md flex items-center gap-1 hover:bg-slate-50 transition active:scale-95"
+            title="Ver saldo e sacar via PIX"
+          >
+            <span className="text-xs" style={{ color: accentColor }}>⚡</span>
+            <span>{ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
           </button>
 
           {/* Atalho Passageiro */}
           <Link
             to="/app"
-            className="w-8 h-8 rounded-full bg-white/95 text-slate-700 hover:text-slate-950 border border-slate-200 flex items-center justify-center transition shadow-md active:scale-95"
+            className="w-8 h-8 rounded-full bg-white/95 text-slate-700 hover:text-slate-950 border border-slate-200 flex items-center justify-center transition shadow-md active:scale-95 shrink-0"
             title="Ir para Modo Passageiro"
           >
             <Car className="w-4 h-4" />
@@ -1240,7 +1247,7 @@ export function PartiuDriverCockpit() {
 
       {/* Alerta de Moderação Documental Pendente / Rejeitada */}
       {driverApprovalStatus === "pendente" && (
-        <div className="absolute top-16 inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-amber-500 text-slate-950 text-xs font-semibold shadow-2xl flex items-start gap-3 border border-amber-400 animate-in slide-in-from-top duration-200">
+        <div className="absolute top-[5.5rem] inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-amber-500 text-slate-950 text-xs font-semibold shadow-2xl flex items-start gap-3 border border-amber-400 animate-in slide-in-from-top duration-200">
           <Clock className="w-5 h-5 text-slate-950 shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="flex items-center justify-between gap-2">
@@ -1259,7 +1266,7 @@ export function PartiuDriverCockpit() {
       )}
 
       {driverApprovalStatus === "rejeitado" && (
-        <div className="absolute top-16 inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-start gap-3 border border-rose-500 animate-in slide-in-from-top duration-200">
+        <div className="absolute top-[5.5rem] inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-start gap-3 border border-rose-500 animate-in slide-in-from-top duration-200">
           <AlertTriangle className="w-5 h-5 text-white shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="flex items-center justify-between gap-2">
@@ -1279,7 +1286,7 @@ export function PartiuDriverCockpit() {
 
       {/* Alerta de Suspensão por Inadimplência (Fase 19) */}
       {(subscription.status === "SUSPENDED" || subscription.status === "REACTIVATION_REQUIRED") && (
-        <div className="absolute top-16 inset-x-3 z-40 max-w-md mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-center justify-between animate-in slide-in-from-top duration-200">
+        <div className="absolute top-[5.5rem] inset-x-3 z-40 max-w-md mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-center justify-between animate-in slide-in-from-top duration-200">
           <div className="flex items-center gap-2">
             <span className="text-base">🚨</span>
             <div>
@@ -1301,7 +1308,7 @@ export function PartiuDriverCockpit() {
 
       {/* Alerta de Elegibilidade do Condutor (Se Bloqueado/Suspenso/CNH Vencida) */}
       {erroElegibilidade && !(subscription.status === "SUSPENDED" || subscription.status === "REACTIVATION_REQUIRED") && (
-        <div className="absolute top-16 inset-x-3 z-40 max-w-md mx-auto p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold shadow-lg flex items-center justify-between animate-in slide-in-from-top duration-200">
+        <div className="absolute top-[5.5rem] inset-x-3 z-40 max-w-md mx-auto p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold shadow-lg flex items-center justify-between animate-in slide-in-from-top duration-200">
           <span>⚠️ {erroElegibilidade}</span>
           <button
             type="button"
