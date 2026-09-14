@@ -1108,6 +1108,9 @@ import "./ride-advanced-pack-3.test.ts";
 // Suíte Oficial V6.5: Recursos Competitivos 2026 (Taxímetro Virtual, TTS, Debt Cutoff & GPS)
 import "./competitor-features-2026.test.ts";
 
+// Suíte Oficial V6.6: H3 Dispatch Benchmark & Dynamic GPS Sampling Profiles
+import "./h3-dispatch-benchmark-and-profile.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");

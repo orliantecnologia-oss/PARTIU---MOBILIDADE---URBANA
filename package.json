@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "npx tsx test/run-all-tests.mjs",
-    "test:load": "npx tsx test/load-test-concurrency.ts"
+    "test:load": "npx tsx test/load-test-concurrency.ts",
+    "bench:dispatch": "npx tsx scripts/simulate-h3-dispatch.ts"
   },
   "overrides": {
     "rolldown": "1.2.1"
