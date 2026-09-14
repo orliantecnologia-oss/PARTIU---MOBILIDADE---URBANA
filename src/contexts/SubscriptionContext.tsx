@@ -170,7 +170,13 @@ export function SubscriptionProvider({
     await refreshAccess();
   }, [driverId, triggerInstantActivation, refreshAccess]);
 
-  const isUnlocked = accessDecision.is_eligible;
+  const isUnlocked =
+    accessDecision.is_eligible ||
+    (typeof window !== "undefined" &&
+      (localStorage.getItem("partiu_demo_user") === "true" ||
+        localStorage.getItem("partiu_driver_demo") === "true" ||
+        localStorage.getItem("partiu_driver_demo_mode") === "true" ||
+        localStorage.getItem(`partiu_demo_driver_${driverId}`) === "true"));
 
   return (
     <SubscriptionContext.Provider

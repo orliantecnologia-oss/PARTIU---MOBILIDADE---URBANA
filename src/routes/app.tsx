@@ -1,7 +1,6 @@
 import { initGlobalFontSize } from "@/lib/font-size-manager";
 import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BottomNav } from "@/components/navigation/BottomNav";
 import { PushNotificationPrompt } from "@/components/notifications/PushNotificationPrompt";
 import { BroadcastNotificationListener } from "@/components/notifications/BroadcastNotificationListener";
 import { registrarServiceWorker } from "@/lib/push-notifications";
@@ -72,7 +71,6 @@ function AppLayout() {
       <div className="w-full flex-1 min-h-0 flex flex-col">
         <Outlet />
       </div>
-      <BottomNav />
       <BroadcastNotificationListener />
       <PushNotificationPrompt />
     </div>

@@ -275,6 +275,16 @@ export function PartiuAppAuthGate({
     }, 400);
   }
 
+  // Login Rápido de Testes e Homologação (1-Clique)
+  function handleQuickLogin(role: "PASSAGEIRO" | "MOTORISTA") {
+    setLoading(true);
+    const res = supabaseAuthService.quickDemoLogin(role);
+    setLoading(false);
+    if (res.success && res.redirectUrl) {
+      void navigate({ to: redirectDestination || res.redirectUrl, replace: true });
+    }
+  }
+
 
   // Recuperação de Senha
   async function handleForgotPassword() {
@@ -821,6 +831,50 @@ export function PartiuAppAuthGate({
             </div>
           </div>
         )}
+
+        {/* ========================================================================= */}
+        {/* AMBIENTE DE TESTES / ACESSO RÁPIDO 1-CLIQUE (HOMOLOGAÇÃO)                 */}
+        {/* ========================================================================= */}
+        <div className="pt-3 mt-3 border-t border-slate-100 text-center">
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+              ⚡ Acesso Rápido de Testes
+            </span>
+            <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold border border-blue-200">
+              1-Clique
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => handleQuickLogin("PASSAGEIRO")}
+              className="py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-300 text-slate-800 hover:text-blue-900 transition-all text-left flex items-center gap-2 cursor-pointer active:scale-95 group shadow-2xs"
+            >
+              <div className="w-6 h-6 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <Car className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[11px] font-black block truncate">Passageiro</span>
+                <span className="text-[9px] text-slate-500 block truncate">Carlos Eduardo</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleQuickLogin("MOTORISTA")}
+              className="py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-slate-800 hover:text-emerald-900 transition-all text-left flex items-center gap-2 cursor-pointer active:scale-95 group shadow-2xs"
+            >
+              <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <Radio className="w-3.5 h-3.5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[11px] font-black block truncate">Motorista</span>
+                <span className="text-[9px] text-slate-500 block truncate">Marcos Oliveira</span>
+              </div>
+            </button>
+          </div>
+        </div>
       </main>
 
       {/* 3. RODAPÉ DISCRETO */}

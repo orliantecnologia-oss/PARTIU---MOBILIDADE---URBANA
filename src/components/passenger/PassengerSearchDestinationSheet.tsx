@@ -87,12 +87,12 @@ const SearchDestinationItemRow = React.memo(function SearchDestinationItemRow({
       onClick={handleClick}
       className="w-full p-3 flex items-center gap-3 text-left hover:bg-slate-50 rounded-2xl transition active:scale-[0.99] cursor-pointer group"
     >
-      <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-amber-100 text-slate-700 group-hover:text-slate-950 flex items-center justify-center shrink-0 transition">
+      <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-blue-100 text-slate-700 group-hover:text-blue-950 flex items-center justify-center shrink-0 transition">
         {getIcon(item.label)}
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight group-hover:text-amber-900 transition">
+        <p className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight group-hover:text-blue-900 transition">
           {item.label}
         </p>
         <p className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">
@@ -132,13 +132,13 @@ const RecentTripItemRow = React.memo(function RecentTripItemRow({
       onClick={handleClick}
       className="w-full p-3 flex items-center gap-3 text-left hover:bg-slate-50 rounded-2xl transition active:scale-[0.99] cursor-pointer group"
     >
-      <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-amber-100 text-slate-500 group-hover:text-slate-950 flex items-center justify-center shrink-0 transition">
+      <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-blue-100 text-slate-500 group-hover:text-blue-950 flex items-center justify-center shrink-0 transition">
         <Clock className="w-4 h-4 stroke-[2.2]" />
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight">
+          <span className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight group-hover:text-blue-900 transition">
             {item.label}
           </span>
           <span className="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
@@ -151,7 +151,7 @@ const RecentTripItemRow = React.memo(function RecentTripItemRow({
       </div>
 
       {distText && (
-        <span className="text-[10px] font-black text-amber-800 bg-primary-50 px-2 py-0.5 rounded-full border border-amber-200/70 shrink-0">
+        <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200/70 shrink-0">
           {distText}
         </span>
       )}
@@ -513,7 +513,7 @@ export const PassengerSearchDestinationSheet = React.memo(function PassengerSear
                         value={nomeOutroPassageiro}
                         onChange={(e) => setNomeOutroPassageiro(e.target.value)}
                         placeholder="Nome do passageiro..."
-                        className="w-full text-xs font-semibold px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-amber-400"
+                        className="w-full text-xs font-semibold px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-blue-500"
                         autoFocus
                       />
                       <button
@@ -551,10 +551,10 @@ export const PassengerSearchDestinationSheet = React.memo(function PassengerSear
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-100" />
               {/* Linha Conectora */}
               <div className="w-0.5 flex-1 bg-slate-300 my-1" />
-              {/* Quadrado Âmbar de Destino */}
+              {/* Quadrado Azul de Destino */}
               <div
-                style={{ backgroundColor: corPrimaria || "#F59E0B" }}
-                className="w-2.5 h-2.5 rounded-[2px] ring-4 ring-amber-100"
+                style={{ backgroundColor: corPrimaria || "#0088FF" }}
+                className="w-2.5 h-2.5 rounded-[2px] ring-4 ring-blue-100"
               />
             </div>
 
@@ -821,12 +821,12 @@ export const PassengerSearchDestinationSheet = React.memo(function PassengerSear
                         onClick={() => handleSelectDestino(lugar.endereco, lugar.coords, lugar.label)}
                         className="w-full p-3 flex items-center gap-3 text-left hover:bg-slate-50 rounded-2xl transition active:scale-[0.99] cursor-pointer group"
                       >
-                        <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-amber-100 text-slate-600 group-hover:text-slate-950 flex items-center justify-center shrink-0 transition">
+                        <div className="w-8 h-8 rounded-xl bg-slate-100 group-hover:bg-blue-100 text-slate-600 group-hover:text-blue-950 flex items-center justify-center shrink-0 transition">
                           {getCategoryIcon(lugar.label)}
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight group-hover:text-amber-900 transition">
+                          <p className="text-xs sm:text-sm font-black text-slate-900 truncate leading-tight group-hover:text-blue-900 transition">
                             {lugar.label}
                           </p>
                           <p className="text-[11px] text-slate-500 truncate mt-0.5 font-medium">

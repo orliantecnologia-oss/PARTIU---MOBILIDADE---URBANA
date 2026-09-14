@@ -136,14 +136,14 @@ export const DriverProfileModal = memo(function DriverProfileModal({
           {/* Grid 2x2 de Estatísticas Reais */}
           <div className="grid grid-cols-2 gap-2.5">
             {/* 1. Nota Média */}
-            <div className="p-3 rounded-2xl bg-primary-50/70 border border-amber-200 text-center">
-              <div className="flex items-center justify-center gap-1 text-primary-600 mb-0.5">
-                <Star className="w-4 h-4 fill-amber-400" />
+            <div className="p-3 rounded-2xl bg-blue-50/70 border border-blue-200 text-center">
+              <div className="flex items-center justify-center gap-1 text-slate-900 mb-0.5">
+                <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
                 <span className="text-lg font-black text-slate-950">
                   {Number(data.rating).toFixed(2)}
                 </span>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-amber-900">
+              <span className="text-[10px] font-black uppercase tracking-wider text-blue-900">
                 Nota Média
               </span>
             </div>

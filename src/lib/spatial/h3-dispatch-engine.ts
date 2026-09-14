@@ -157,7 +157,7 @@ export class H3DispatchEngine {
   }
 
   /**
-   * Filtro de Segurança 99Mulher: Descarta condutores que não pertençam ao gênero feminino
+   * Filtro de Segurança Partiu Mulher: Descarta condutores que não pertençam ao gênero feminino
    */
   public filterFemaleDrivers(
     candidates: CandidateH3Driver[],

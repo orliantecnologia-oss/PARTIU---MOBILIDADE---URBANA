@@ -1407,21 +1407,23 @@ export function PartiuDriverCockpit() {
             <button
               type="button"
               onClick={() => setModalTaximetro(true)}
-              className="w-full py-2.5 px-3.5 rounded-2xl bg-amber-50 hover:bg-amber-100/90 border border-amber-200/80 text-amber-950 text-xs font-bold flex items-center justify-between transition cursor-pointer shadow-xs"
+              className="w-full py-2.5 px-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-900 text-xs font-bold flex items-center justify-between transition cursor-pointer shadow-2xs group"
             >
               <div className="flex items-center gap-2.5">
-                <span className="text-base">⏱️</span>
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-200/60">
+                  <span className="text-sm">⏱️</span>
+                </div>
                 <div className="text-left">
-                  <span className="block font-black text-slate-900">Taxímetro Virtual (Corrida na Rua)</span>
-                  <span className="text-[10.5px] text-amber-900/80 font-medium">Pegar passageiro sem app • PIX instantâneo</span>
+                  <span className="block font-black text-slate-900 group-hover:text-blue-700 transition-colors">Taxímetro Virtual (Corrida na Rua)</span>
+                  <span className="text-[10.5px] text-slate-500 font-medium">Pegar passageiro sem app • PIX instantâneo</span>
                 </div>
               </div>
               <span
                 className="text-[10px] font-black px-2 py-0.5 rounded-full border shadow-2xs"
                 style={{
-                  backgroundColor: `${corPrimaria}20`,
+                  backgroundColor: `${corPrimaria}15`,
                   color: corPrimaria,
-                  borderColor: `${corPrimaria}40`,
+                  borderColor: `${corPrimaria}30`,
                 }}
               >
                 NOVO

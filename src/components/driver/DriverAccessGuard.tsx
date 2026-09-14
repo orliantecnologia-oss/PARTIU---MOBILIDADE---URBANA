@@ -32,7 +32,7 @@ interface DriverAccessGuardProps {
 }
 
 function GuardInternal({ children }: { children: React.ReactNode }) {
-  const { isUnlocked, isLoading, accessDecision } = useSubscription();
+  const { driverId, isUnlocked, isLoading, accessDecision } = useSubscription();
   const { nomeApp, corPrimaria, corSecundaria, branding } = useBrandTheme();
   const accentColor = branding?.accent_color || corSecundaria || "#00C6FF";
 
@@ -66,8 +66,15 @@ function GuardInternal({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // 2. Decisão de Acesso: Bloqueio Estrito se não elegível
-  if (!isUnlocked) {
+  const isDemo =
+    typeof window !== "undefined" &&
+    (localStorage.getItem("partiu_demo_user") === "true" ||
+      localStorage.getItem("partiu_driver_demo") === "true" ||
+      localStorage.getItem("partiu_driver_demo_mode") === "true" ||
+      localStorage.getItem(`partiu_demo_driver_${driverId}`) === "true");
+
+  // 2. Decisão de Acesso: Bloqueio Estrito se não elegível (libera em modo de testes/homologação)
+  if (!isUnlocked && !isDemo) {
     return <DriverSubscriptionScreen />;
   }
 
