@@ -57,10 +57,10 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           radiusLabel: "Raio: 4 km",
           secondsRemaining: progressiveSession?.waveSecondsRemaining ?? 20,
           totalSeconds: progressiveSession?.waveDurationSeconds ?? 20,
-          themeColor: "amber",
-          ringBorder: "border-primary-600",
-          ringBg: "bg-primary-600/10",
-          badgeBg: "bg-primary-600/10 text-amber-900 border-primary-600/30",
+          themeColor: "blue",
+          ringBorder: "border-blue-500",
+          ringBg: "bg-blue-500/15",
+          badgeBg: "bg-blue-50 text-blue-900 border-blue-300",
         };
       case 3:
         return {
@@ -71,10 +71,10 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
             : "Raio: 6 km",
           secondsRemaining: progressiveSession?.waveSecondsRemaining ?? 20,
           totalSeconds: progressiveSession?.waveDurationSeconds ?? 20,
-          themeColor: "blue",
-          ringBorder: "border-sky-400",
-          ringBg: "bg-sky-400/10",
-          badgeBg: "bg-sky-500/10 text-sky-900 border-sky-400/30",
+          themeColor: "indigo",
+          ringBorder: "border-indigo-500",
+          ringBg: "bg-indigo-500/15",
+          badgeBg: "bg-indigo-50 text-indigo-900 border-indigo-300",
         };
       case 1:
       default:
@@ -84,10 +84,10 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           radiusLabel: "Raio: 2 km",
           secondsRemaining: progressiveSession?.waveSecondsRemaining ?? 20,
           totalSeconds: progressiveSession?.waveDurationSeconds ?? 20,
-          themeColor: "emerald",
-          ringBorder: "border-emerald-400",
-          ringBg: "bg-emerald-400/10",
-          badgeBg: "bg-emerald-500/10 text-emerald-900 border-emerald-400/30",
+          themeColor: "cyan",
+          ringBorder: "border-cyan-500",
+          ringBg: "bg-cyan-500/15",
+          badgeBg: "bg-cyan-50 text-cyan-900 border-cyan-300",
         };
     }
   }, [currentWave, progressiveSession]);
@@ -110,7 +110,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
       {/* ========================================================================= */}
       <div
         className="fixed inset-0 pointer-events-none flex items-center justify-center select-none"
-        style={{ zIndex: 1, pointerEvents: "none", transform: "translateY(calc(-21vh - 25px))" }}
+        style={{ zIndex: 10, pointerEvents: "none", transform: "translateY(calc(-21vh - 25px))" }}
       >
         <div className="relative flex items-center justify-center">
           {/* Anel Concêntrico 1 (Pulso Rápido) */}
@@ -143,11 +143,11 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
       >
         {/* ÍCONE FLUTUANTE EM MEIA-LUA NA BORDA SUPERIOR (AVATAR OVERLAY COMPACTO) */}
         <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <div className="relative w-12 h-12 rounded-full bg-slate-950 border-[3px] border-primary-600 shadow-xl flex items-center justify-center text-white">
+          <div className="relative w-12 h-12 rounded-full bg-slate-950 border-[3px] border-blue-500 shadow-xl flex items-center justify-center text-white">
             {categoriaVeiculo === "MOTO" ? (
-              <Bike className="w-6 h-6 text-primary-600" />
+              <Bike className="w-6 h-6 text-blue-400" />
             ) : (
-              <Car className="w-6 h-6 text-primary-600" />
+              <Car className="w-6 h-6 text-blue-400" />
             )}
           </div>
         </div>
@@ -157,8 +157,8 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           {/* Header de Status com Radar e Badge da Onda */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-primary-50 text-amber-800 flex items-center justify-center shrink-0 shadow-inner">
-                <Compass className="w-4 h-4 animate-spin duration-3000" />
+              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 shadow-inner">
+                <Compass className="w-4 h-4 animate-spin duration-3000 text-blue-600" />
               </div>
 
               <div className="min-w-0">
@@ -170,7 +170,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
                     Onda {currentWave}/3
                   </span>
                 </div>
-                <p className="text-xs text-amber-900 font-semibold mt-0.5 truncate transition-all duration-300">
+                <p className="text-xs text-blue-900 font-semibold mt-0.5 truncate transition-all duration-300">
                   {waveDetails.message}
                 </p>
               </div>
@@ -188,7 +188,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           <div className="space-y-1">
             <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-primary-600 via-amber-300 to-primary-800 rounded-full transition-all duration-1000 ease-out"
+                className="h-full bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-700 rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import { Tag, Sparkles, ArrowRight } from "lucide-react";
-import { PromoBannerItem, PROMO_BANNERS_MOCK } from "./home-mock-data";
+import type { PromoBannerItem } from "./home-mock-data";
 
 export interface PromoCarouselProps {
   banners?: PromoBannerItem[];
@@ -9,7 +9,7 @@ export interface PromoCarouselProps {
 }
 
 export const PromoCarousel = memo(function PromoCarousel({
-  banners = PROMO_BANNERS_MOCK,
+  banners = [],
   onBannerClick,
   autoPlayIntervalMs = 3000,
 }: PromoCarouselProps) {

@@ -10,10 +10,8 @@ import {
   PromoCarousel,
   HomeBottomNav,
   AnimatedWaveHeader,
-  RECENT_SEARCH_MOCKS,
-  RecentAddressItem,
-  PROMO_BANNERS_MOCK,
-  PromoBannerItem,
+  type RecentAddressItem,
+  type PromoBannerItem,
 } from "@/components/home";
 import { bannerService } from "@/lib/ecosystem/banner-service";
 import { PassengerSearchDestinationSheet } from "@/components/passenger/PassengerSearchDestinationSheet";
@@ -85,7 +83,14 @@ function PartiuPassengerHomeContent() {
   const [drawerAberto, setDrawerAberto] = useState(false);
   const [modalPushAberto, setModalPushAberto] = useState(false);
   const [pushStatus, setPushStatus] = useState<NotificationPermission>("default");
-  const [userName, setUserName] = useState("Rodrigo");
+  const [userName, setUserName] = useState(() => {
+    if (typeof window === "undefined") return "Passageiro";
+    return (
+      localStorage.getItem("partiu_user_nome") ||
+      localStorage.getItem("univans_user_nome") ||
+      "Passageiro"
+    );
+  });
   const [modalCamadasAberto, setModalCamadasAberto] = useState(false);
   const [estiloMapaAtivo, setEstiloMapaAtivo] = useState<"streets" | "traffic" | "satellite">("streets");
 
@@ -110,7 +115,7 @@ function PartiuPassengerHomeContent() {
     [selectDestination]
   );
 
-  // Histórico de destinos recentes do passageiro
+  // Histórico de destinos recentes do passageiro (100% real)
   const [recentAddresses, setRecentAddresses] = useState<RecentAddressItem[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -132,7 +137,7 @@ function PartiuPassengerHomeContent() {
     return [];
   });
 
-  // Banners Ativos do Ecossistema (Backend/Database)
+  // Banners Ativos do Ecossistema (Zero dados falsos - Consome estritamente o serviço)
   const [activeBanners, setActiveBanners] = useState<PromoBannerItem[]>(() => {
     const fromService = bannerService.getActiveBanners("PASSENGER");
     if (fromService.length > 0) {
@@ -150,7 +155,7 @@ function PartiuPassengerHomeContent() {
         tagCor: idx % 2 === 0 ? "bg-black text-primary-500" : "bg-primary-600 text-slate-950",
       }));
     }
-    return PROMO_BANNERS_MOCK;
+    return [];
   });
 
   // Hook desacoplado de UX Motion para interpolação de scroll (0 a 28px no raio da onda)
@@ -240,6 +245,30 @@ function PartiuPassengerHomeContent() {
         });
         ro.observe(node);
         sheetObserverRef.current = ro;
+      }
+    }
+  }, []);
+
+  // Medição da gaveta inferior no estado IDLE para garantir o Half-Map (~48% superior livre)
+  const [idlePanelHeight, setIdlePanelHeight] = useState<number>(0);
+  const idlePanelObserverRef = useRef<ResizeObserver | null>(null);
+
+  const idlePanelCallbackRef = useCallback((node: HTMLDivElement | null) => {
+    if (idlePanelObserverRef.current) {
+      idlePanelObserverRef.current.disconnect();
+      idlePanelObserverRef.current = null;
+    }
+    if (node) {
+      setIdlePanelHeight(node.offsetHeight);
+      if (typeof ResizeObserver !== "undefined") {
+        const ro = new ResizeObserver((entries) => {
+          for (const entry of entries) {
+            const h = Math.round(entry.contentRect.height);
+            if (h > 0) setIdlePanelHeight(h);
+          }
+        });
+        ro.observe(node);
+        idlePanelObserverRef.current = ro;
       }
     }
   }, []);
@@ -349,16 +378,17 @@ function PartiuPassengerHomeContent() {
     }
 
     if (mapStatus === "IDLE") {
+      const bottomPadding = idlePanelHeight > 0 ? idlePanelHeight + 16 : 240;
       return {
         top: 80,
-        bottom: 220,
+        bottom: bottomPadding,
         left: 32,
         right: 32,
       };
     }
 
     return undefined;
-  }, [isSearching, mapStatus, activeSheetHeight]);
+  }, [isSearching, mapStatus, activeSheetHeight, idlePanelHeight]);
 
   return (
     <div className="relative w-full h-[100dvh] max-h-[100dvh] bg-[#f1f3f4] overflow-hidden font-sans select-none flex flex-col">
@@ -419,9 +449,12 @@ function PartiuPassengerHomeContent() {
           />
 
           {/* ========================================================================= */}
-          {/* PAINEL INFERIOR FLUTUANTE SOBRE O MAPA (SEM FUNDO PRETO / MAPA VISÍVEL)  */}
+          {/* PAINEL INFERIOR FLUTUANTE SOBRE O MAPA (HALF-MAP COMFORT ZONE)           */}
           {/* ========================================================================= */}
-          <div className="absolute inset-x-0 bottom-0 z-20 pointer-events-none flex flex-col justify-end w-full max-w-lg mx-auto pb-[max(0.5rem,env(safe-area-inset-bottom))] space-y-2">
+          <div
+            ref={idlePanelCallbackRef}
+            className="absolute inset-x-0 bottom-0 z-20 pointer-events-none flex flex-col justify-end w-full max-w-lg mx-auto pb-[max(0.5rem,env(safe-area-inset-bottom))] space-y-2"
+          >
             {/* BLOCO 1 (DESTINO): Card flutuante "Para onde vamos?" + Histórico */}
             <div className="w-full px-3.5 pointer-events-auto">
               <DestinationCard

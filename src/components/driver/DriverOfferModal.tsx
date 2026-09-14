@@ -47,11 +47,11 @@ export const DriverOfferModal = memo(function DriverOfferModal({
   oferta,
   onAceitar,
   onRecusar,
-  countdownSeconds = 15,
+  countdownSeconds = 60,
 }: DriverOfferModalProps) {
-  const { corCabecalhoInicio, corCabecalhoFim, corPrimaria, corTextoPrimaria, branding } = useBrandTheme();
-  const accentColor = branding?.accent_color || corPrimaria || "#0088FF";
+  const { corPrimaria, corTextoPrimaria } = useBrandTheme();
   const [secondsRemaining, setSecondsRemaining] = useState(countdownSeconds);
+  const [accepted, setAccepted] = useState(false);
 
   // Alerta sonoro contínuo, vibração e wake lock enquanto o modal estiver aberto
   useEffect(() => {
@@ -82,7 +82,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
   const destinoResumido = oferta.destino.split(",")[0]?.split("-")[0]?.trim() || "Destino";
   const notaFormatada = (oferta.passageiroAvaliacao || 4.9).toFixed(1);
 
-  // FASE 1: Formatação de Pickup ETA e Rentabilidade (Padrão Uber / 99)
+  // Formatação de Pickup ETA e Rentabilidade (Padrão Uber / 99)
   const distanciaEmbarqueKm = oferta.distanciaAteEmbarqueKm ?? 0.85;
   const distanciaEmbarqueTexto =
     distanciaEmbarqueKm < 1
@@ -98,17 +98,27 @@ export const DriverOfferModal = memo(function DriverOfferModal({
     (oferta.distanciaKm > 0 ? oferta.valorLiquido / oferta.distanciaKm : 3.6);
   const ganhoPorKmTexto = `R$ ${ganhoPorKmValor.toFixed(2).replace(".", ",")}/km`;
 
+  const handleSingleTapAccept = () => {
+    if (accepted) return;
+    setAccepted(true);
+    callAlertService.stopAlert();
+    onAceitar();
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.4)] border border-slate-200 overflow-hidden text-slate-900 animate-in slide-in-from-bottom duration-300">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="w-full max-w-md bg-[#0B132B] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.85)] border border-[#1E293B] overflow-hidden text-white animate-in slide-in-from-bottom duration-300 select-none">
         
-        {/* 1. BARRA DE PROGRESSO DO COUNTDOWN DE 10s */}
-        <div className="w-full h-2 bg-slate-100 overflow-hidden relative">
+        {/* 1. BARRA DE PROGRESSO DO COUNTDOWN DE 60s SINCRONIZADO */}
+        <div className="w-full h-2.5 bg-slate-900 overflow-hidden relative">
           <div
             className="h-full transition-all duration-1000 ease-linear"
             style={{
               width: `${progressPercent}%`,
-              backgroundColor: secondsRemaining <= 3 ? "#EF4444" : accentColor,
+              background:
+                secondsRemaining <= 10
+                  ? "linear-gradient(90deg, #EF4444 0%, #DC2626 100%)"
+                  : "linear-gradient(90deg, #00FF88 0%, #00C6FF 100%)",
             }}
           />
         </div>
@@ -116,34 +126,26 @@ export const DriverOfferModal = memo(function DriverOfferModal({
         <div className="p-5 sm:p-6 space-y-3.5">
           {/* Header Superior: Nota do Passageiro, Badge Rentabilidade e Contador */}
           <div className="flex items-center justify-between gap-2">
-            <div
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border"
-              style={{
-                backgroundColor: `${corPrimaria}12`,
-                borderColor: `${corPrimaria}30`,
-                color: corPrimaria,
-              }}
-            >
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-[#1E293B] border border-slate-700 text-amber-400">
               <Star className="w-3.5 h-3.5 fill-current" />
               <span>{notaFormatada}</span>
               <span className="text-slate-400 font-normal ml-0.5">• {oferta.passageiro.split(" ")[0]}</span>
             </div>
 
             {/* BADGE DE RENTABILIDADE R$/km (Decisão Rápida do Condutor) */}
-            <div
-              className="px-2.5 py-1 rounded-full text-[11px] font-black tracking-tight flex items-center gap-1 border"
-              style={{
-                backgroundColor: `${accentColor}15`,
-                borderColor: `${accentColor}35`,
-                color: corPrimaria,
-              }}
-            >
+            <div className="px-2.5 py-1 rounded-full text-[11px] font-black tracking-tight flex items-center gap-1 bg-[#00FF88]/15 border border-[#00FF88]/40 text-[#00FF88]">
               <span>⚡</span>
               <span>{ganhoPorKmTexto}</span>
             </div>
 
             <div className="flex items-center gap-1">
-              <div className="text-xs font-black text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+              <div
+                className={`text-xs font-black px-2.5 py-1 rounded-full border transition-colors ${
+                  secondsRemaining <= 10
+                    ? "bg-rose-500/20 text-rose-400 border-rose-500/50 animate-pulse"
+                    : "bg-[#1E293B] text-slate-200 border-slate-700"
+                }`}
+              >
                 <span>{secondsRemaining}s</span>
               </div>
               <button
@@ -152,7 +154,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
                   callAlertService.stopAlert();
                   onRecusar();
                 }}
-                className="w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition active:scale-90 cursor-pointer"
+                className="w-7 h-7 rounded-full bg-[#1E293B] hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center transition active:scale-90 cursor-pointer"
                 title="Recusar corrida"
               >
                 <X className="w-4 h-4" />
@@ -160,96 +162,82 @@ export const DriverOfferModal = memo(function DriverOfferModal({
             </div>
           </div>
 
-          {/* 2. VALOR LÍQUIDO EM DESTAQUE ABSOLUTO */}
-          <div className="text-center py-2.5 bg-slate-50 rounded-2xl border border-slate-100">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+          {/* 2. VALOR LÍQUIDO EM ALTO CONTRASTE (HERO ELEMENT) */}
+          <div className="text-center py-3 bg-[#0F1C3F] rounded-2xl border border-blue-900/60 shadow-inner">
+            <span className="text-[10.5px] font-black uppercase tracking-wider text-slate-400 block">
               Você recebe líquido
             </span>
-            <div className="text-4xl sm:text-5xl font-black text-slate-950 tracking-tight mt-0.5">
+            <div className="text-4xl sm:text-5xl font-black text-[#00FF88] tracking-tight mt-0.5 drop-shadow-[0_2px_12px_rgba(0,255,136,0.35)]">
               {oferta.valorLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
             </div>
           </div>
 
-          {/* FASE 1: BLOCOS 1 E 2 — ATÉ O PASSAGEIRO E VIAGEM */}
+          {/* 3. BLOCOS LADO A LADO — ATÉ O PASSAGEIRO E VIAGEM */}
           <div className="grid grid-cols-2 gap-2">
             {/* BLOCO 1: ATÉ O PASSAGEIRO */}
-            <div
-              className="p-3 rounded-2xl border"
-              style={{
-                backgroundColor: `${corPrimaria}08`,
-                borderColor: `${corPrimaria}25`,
-              }}
-            >
-              <div
-                className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider"
-                style={{ color: corPrimaria }}
-              >
+            <div className="p-3 rounded-2xl bg-[#112240] border border-blue-800/40 text-left">
+              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#00C6FF]">
                 <Navigation className="w-3 h-3" />
                 <span>Até o Passageiro</span>
               </div>
-              <div className="text-sm font-black text-slate-950 mt-1">
+              <div className="text-sm font-black text-white mt-1">
                 {tempoEmbarqueMin} min • {distanciaEmbarqueTexto}
               </div>
-              <span className="text-[10px] font-semibold truncate block mt-0.5 text-slate-600">
+              <span className="text-[10px] font-semibold truncate block mt-0.5 text-slate-400">
                 {origemResumida}
               </span>
             </div>
 
             {/* BLOCO 2: VIAGEM */}
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
-              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-slate-600">
-                <MapPin className="w-3 h-3 text-slate-500" />
+            <div className="p-3 rounded-2xl bg-[#112240] border border-blue-800/40 text-left">
+              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#38BDF8]">
+                <MapPin className="w-3 h-3" />
                 <span>Viagem</span>
               </div>
-              <div className="text-sm font-black text-slate-950 mt-1">
+              <div className="text-sm font-black text-white mt-1">
                 {tempoViagemMin} min • {distanciaViagemTexto}
               </div>
-              <span className="text-[10px] text-slate-500 font-semibold truncate block mt-0.5">
+              <span className="text-[10px] text-slate-400 font-semibold truncate block mt-0.5">
                 {destinoResumido}
               </span>
             </div>
           </div>
 
-          {/* 3. ORIGEM E DESTINO RESUMIDOS COM TRILHA */}
-          <div className="space-y-1.5 p-3 bg-slate-50/80 rounded-2xl border border-slate-100 text-xs">
+          {/* 4. ORIGEM E DESTINO RESUMIDOS COM TRILHA */}
+          <div className="space-y-1.5 p-3 bg-[#0F1C3F]/80 rounded-2xl border border-blue-900/40 text-xs text-left">
             <div className="flex items-center gap-2">
-              <div
-                className="w-2.5 h-2.5 rounded-full shrink-0"
-                style={{ backgroundColor: accentColor }}
-              />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#00C6FF] shrink-0 shadow-[0_0_8px_#00C6FF]" />
               <div className="min-w-0 flex-1 truncate">
                 <span className="font-bold text-slate-400 mr-1">Embarque:</span>
-                <span className="font-black text-slate-900 truncate">{origemResumida}</span>
+                <span className="font-black text-white truncate">{origemResumida}</span>
               </div>
             </div>
 
-            <div className="w-0.5 h-1.5 bg-slate-300 ml-1" />
+            <div className="w-0.5 h-1.5 bg-slate-600 ml-1" />
 
             <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0 shadow-[0_0_8px_#F43F5E]" />
               <div className="min-w-0 flex-1 truncate">
                 <span className="font-bold text-slate-400 mr-1">Destino:</span>
-                <span className="font-black text-slate-900 truncate">{destinoResumido}</span>
+                <span className="font-black text-white truncate">{destinoResumido}</span>
               </div>
             </div>
           </div>
 
-          {/* 4. BOTÃO PRINCIPAL 100% LARGURA E 64px ALTURA MÍNIMA */}
+          {/* 5. BOTÃO PRINCIPAL 100% LARGURA E 64px ALTURA MÍNIMA (1-TAP INSTANTÂNEO) */}
           <button
             type="button"
-            onClick={() => {
-              callAlertService.stopAlert();
-              onAceitar();
-            }}
+            disabled={accepted}
+            onClick={handleSingleTapAccept}
             style={{
-              background: `linear-gradient(135deg, var(--header-gradient-start, ${corCabecalhoInicio}) 0%, var(--header-gradient-end, ${corCabecalhoFim}) 100%)`,
-              color: corTextoPrimaria,
-              borderRadius: 16,
-              boxShadow: "0 10px 28px -4px rgba(0, 51, 102, 0.4), 0 4px 12px -2px rgba(0, 136, 255, 0.3)",
+              background: "linear-gradient(135deg, #0088FF 0%, #0044AA 100%)",
+              color: "#FFFFFF",
+              borderRadius: 18,
+              boxShadow: "0 10px 30px rgba(0, 136, 255, 0.45), inset 0 1px 1px rgba(255,255,255,0.4)",
             }}
-            className="w-full min-h-[64px] font-bold text-base sm:text-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] hover:brightness-105"
+            className="w-full min-h-[64px] font-black text-base sm:text-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] hover:brightness-110 touch-manipulation disabled:opacity-80"
           >
-            <span>ACEITAR CORRIDA</span>
+            <span>{accepted ? "CORRIDA ACEITA..." : "ACEITAR CORRIDA"}</span>
             <span className="text-xl">✓</span>
           </button>
         </div>

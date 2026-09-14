@@ -61,8 +61,8 @@ export const CurrentSearchStatus = memo(function CurrentSearchStatus() {
     }
   } else if (!isInitializing) {
     // Estado 2: Busca Ativa (status padrão durante as ondas de varredura)
-    icon = <Loader2 className="w-5 h-5 text-primary-700 animate-spin" />;
-    iconBg = "bg-primary-50 text-primary-700 border-amber-200/80";
+    icon = <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />;
+    iconBg = "bg-blue-50 text-blue-600 border-blue-200/80";
     title = "Procurando motoristas próximos";
     subtitle = "Analisando localização e disponibilidade...";
   }

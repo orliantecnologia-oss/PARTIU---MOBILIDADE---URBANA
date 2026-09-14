@@ -1,6 +1,5 @@
-import React from "react";
+import React, { memo } from "react";
 import { Bell } from "lucide-react";
-import { USER_PROFILE_MOCK } from "./home-mock-data";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
 
 export interface HeaderProps {
@@ -31,8 +30,8 @@ export interface HeaderProps {
  * 1. Altura e Proporção Slim-Balanced:
  *    - Fundo com LinearGradient da paleta Azul Tech (#0088FF -> #003366)
  *    - Curvatura inferior sutil: borderBottomLeftRadius: 20, borderBottomRightRadius: 20
- *    - Padding vertical seguro: paddingTop: insets.top + 8, paddingBottom: 12, paddingHorizontal: 16
- *    - Altura útil confortável para total contenção dos elementos sem vazamentos
+ *    - Padding vertical seguro: paddingTop: insets.top + 8, paddingBottom: 10, paddingHorizontal: 16
+ *    - Altura útil controlada e limpa (~68px) para total contenção dos elementos sem vazamentos
  *
  * 2. Seção Esquerda (Perfil Compacto e Alinhado):
  *    - Avatar de 38x38 (borderRadius: 19) com anel branco puro, 100% contido na faixa azul
@@ -49,9 +48,9 @@ export interface HeaderProps {
  * 5. Distribuição:
  *    - Flexbox único: flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'
  */
-export function Header({
+export const Header = memo(function Header({
   userName,
-  avatarUrl = USER_PROFILE_MOCK.avatarUrl,
+  avatarUrl,
   appName,
   onOpenDrawer,
   onOpenNotifications,
@@ -61,15 +60,15 @@ export function Header({
   style,
 }: HeaderProps) {
   const { nomeApp } = useBrandTheme();
-  const nomeExibicao = (userName || USER_PROFILE_MOCK.nome).trim();
-  const primeiroNome = nomeExibicao.split(/\s+/)[0] || "Rodrigo";
+  const nomeExibicao = (userName || "Passageiro").trim();
+  const primeiroNome = nomeExibicao.split(/\s+/)[0] || "Passageiro";
   const iniciais = primeiroNome.substring(0, 2).toUpperCase();
   const dynamicAppName = appName || nomeApp || "PARTIU";
 
   // Padding superior seguro (respeita safe-area-inset-top de dispositivos móveis)
   const safeTopPadding = insets?.top
-    ? `${insets.top + 8}px`
-    : "max(0.75rem, calc(env(safe-area-inset-top, 0px) + 8px))";
+    ? `${insets.top + 6}px`
+    : "max(0.6rem, calc(env(safe-area-inset-top, 0px) + 6px))";
 
   return (
     <header
@@ -79,11 +78,12 @@ export function Header({
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
         paddingTop: safeTopPadding,
-        paddingBottom: 12,
+        paddingBottom: 10,
         paddingLeft: 16,
         paddingRight: 16,
-        minHeight: 74,
-        boxShadow: "0 8px 24px rgba(0, 51, 102, 0.35), 0 2px 8px rgba(0, 0, 0, 0.18)",
+        minHeight: 64,
+        maxHeight: 74,
+        boxShadow: "0 6px 20px rgba(0, 51, 102, 0.30), 0 2px 6px rgba(0, 0, 0, 0.15)",
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
@@ -281,6 +281,6 @@ export function Header({
       </div>
     </header>
   );
-}
+});
 
 export default Header;

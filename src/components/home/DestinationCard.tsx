@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from "react";
-import { Search, Clock, ChevronRight, ArrowRight } from "lucide-react";
-import { RecentAddressItem, RECENT_SEARCH_MOCKS } from "./home-mock-data";
+import { Search, Clock, ChevronRight, ArrowRight, MapPin } from "lucide-react";
+import type { RecentAddressItem } from "./home-mock-data";
 import { hapticFeedback } from "@/lib/haptics/haptic-feedback";
 
 export interface DestinationCardProps {
@@ -32,9 +32,9 @@ const RecentAddressItemRow = memo(function RecentAddressItemRow({
     <button
       type="button"
       onClick={handleClick}
-      className="w-full py-2 px-1.5 flex items-center gap-3 hover:bg-slate-50/90 rounded-xl transition active:scale-[0.99] cursor-pointer group text-left"
+      className="w-full py-2 px-1.5 flex items-center gap-3 hover:bg-blue-50/70 rounded-xl transition active:scale-[0.99] cursor-pointer group text-left"
     >
-      <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 group-hover:bg-amber-100 group-hover:text-slate-900 flex items-center justify-center shrink-0 transition-colors">
+      <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-900 flex items-center justify-center shrink-0 transition-colors">
         <Clock className="w-3.5 h-3.5 stroke-[2.4]" />
       </div>
 
@@ -54,31 +54,40 @@ const RecentAddressItemRow = memo(function RecentAddressItemRow({
 
 export const DestinationCard = memo(function DestinationCard({
   onSearchClick,
+  onAdjustPinOnMap,
   onSelectAddress,
   recentAddresses = [],
 }: DestinationCardProps) {
-  // Exibe estritamente os últimos 2 endereços do histórico (ou os 2 mais frequentes de Itaperuna)
+  // Exibe estritamente o histórico real do usuário (Zero dados fictícios)
   const itensHistorico =
     recentAddresses && recentAddresses.length > 0
       ? recentAddresses.slice(0, 2)
-      : RECENT_SEARCH_MOCKS.slice(0, 2);
+      : [];
 
   const handleSearch = useCallback(() => {
     hapticFeedback.light();
     onSearchClick();
   }, [onSearchClick]);
 
+  const handleAdjustPin = useCallback(() => {
+    hapticFeedback.light();
+    onAdjustPinOnMap?.();
+  }, [onAdjustPinOnMap]);
+
   return (
     <div className="w-full z-20 pointer-events-auto">
       <div className="bg-white/98 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 p-3 sm:p-3.5 space-y-2 text-left">
-        {/* 1. CAMPO DE BUSCA "PARA ONDE VAMOS?" (COMPACTO E PROEMINENTE ESTILO 99) */}
+        {/* 1. CAMPO DE BUSCA "PARA ONDE VAMOS?" (COMPACTO E PROEMINENTE ESTILO 99/UBER) */}
         <button
           type="button"
           onClick={handleSearch}
-          className="group w-full h-12 sm:h-12.5 px-3.5 sm:px-4 rounded-2xl bg-slate-100 hover:bg-slate-200/70 border border-slate-200/80 flex items-center gap-3 transition-all duration-200 active:scale-[0.99] cursor-pointer text-left shadow-2xs"
+          className="group w-full h-12 sm:h-12.5 px-3.5 sm:px-4 rounded-2xl bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200/80 flex items-center gap-3 transition-all duration-200 active:scale-[0.99] cursor-pointer text-left shadow-2xs"
           aria-label="Para onde vamos? Buscar endereços"
         >
-          <div className="w-8 h-8 rounded-xl bg-primary-600 group-hover:bg-primary-700 text-white flex items-center justify-center font-black shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+          <div
+            style={{ background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)" }}
+            className="w-8 h-8 rounded-xl text-white flex items-center justify-center font-black shadow-xs shrink-0 group-hover:scale-105 transition-transform"
+          >
             <Search className="w-4 h-4 stroke-[2.8]" />
           </div>
 
@@ -93,8 +102,8 @@ export const DestinationCard = memo(function DestinationCard({
           </div>
         </button>
 
-        {/* 2. PEQUENO HISTÓRICO DOS ÚLTIMOS DOIS ENDEREÇOS */}
-        {itensHistorico.length > 0 && (
+        {/* 2. HISTÓRICO REAL OU BOTÃO RÁPIDO PARA ESCOLHER NO MAPA */}
+        {itensHistorico.length > 0 ? (
           <div className="divide-y divide-slate-100/90 pt-0.5">
             {itensHistorico.map((item) => (
               <RecentAddressItemRow
@@ -104,10 +113,23 @@ export const DestinationCard = memo(function DestinationCard({
               />
             ))}
           </div>
-        )}
+        ) : onAdjustPinOnMap ? (
+          <button
+            type="button"
+            onClick={handleAdjustPin}
+            className="w-full py-1.5 px-2 flex items-center justify-between text-xs text-slate-500 hover:text-blue-700 hover:bg-blue-50/50 rounded-xl transition cursor-pointer"
+          >
+            <span className="flex items-center gap-1.5 font-semibold text-[11px]">
+              <MapPin className="w-3.5 h-3.5 text-blue-600" />
+              <span>Escolher destino no mapa</span>
+            </span>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          </button>
+        ) : null}
       </div>
     </div>
   );
 });
+
 
 

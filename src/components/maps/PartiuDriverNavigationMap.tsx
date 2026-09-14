@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import mapboxgl from "mapbox-gl";
 import { Navigation, Compass, ExternalLink, MapPin, Gauge, Flame } from "lucide-react";
 import { mapboxService } from "@/services/MapboxService";
@@ -30,7 +30,7 @@ export interface PartiuDriverNavigationMapProps {
   className?: string | undefined;
 }
 
-export function PartiuDriverNavigationMap({
+export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap({
   estado,
   origemEndereco = "Local de Embarque",
   destinoEndereco = "Destino do Passageiro",
@@ -194,6 +194,14 @@ export function PartiuDriverNavigationMap({
     }
 
     return () => {
+      if (driverMarkerRef.current) {
+        driverMarkerRef.current.remove();
+        driverMarkerRef.current = null;
+      }
+      if (targetMarkerRef.current) {
+        targetMarkerRef.current.remove();
+        targetMarkerRef.current = null;
+      }
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
@@ -495,4 +503,4 @@ export function PartiuDriverNavigationMap({
       </div>
     </div>
   );
-}
+});

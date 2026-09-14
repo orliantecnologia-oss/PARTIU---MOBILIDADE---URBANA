@@ -389,7 +389,7 @@ export function PartiuDriverCockpit() {
     return null;
   });
 
-  const [tempoRegressivo, setTempoRegressivo] = useState(15);
+  const [tempoRegressivo, setTempoRegressivo] = useState(60);
   const [pinDigitado, setPinDigitado] = useState("");
   const [erroPin, setErroPin] = useState("");
   const [modoPinOpcional, setModoPinOpcional] = useState(false);
@@ -497,7 +497,7 @@ export function PartiuDriverCockpit() {
       if (c.status === "PROCURANDO" && isOnline) {
         setOfertaAtiva(extrairOfertaDeCorrida(c, nomeApp));
         setEstadoCockpit("OFFER");
-        setTempoRegressivo(15);
+        setTempoRegressivo(60);
         dispararAlertaRadar();
       } else if (c.status === "A_CAMINHO") {
         setOfertaAtiva((prev) => (prev?.id === c.id ? prev : extrairOfertaDeCorrida(c, nomeApp)));
@@ -1411,7 +1411,7 @@ export function PartiuDriverCockpit() {
                   ? Number((ofertaAtiva.valorLiquido / ofertaAtiva.distanciaKm).toFixed(2))
                   : 3.6,
             }}
-            countdownSeconds={15}
+            countdownSeconds={60}
             onAceitar={handleAceitarOferta}
             onRecusar={handleRecusarOferta}
           />

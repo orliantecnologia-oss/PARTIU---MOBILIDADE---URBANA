@@ -245,7 +245,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
       label: "Dinheiro em Espécie",
       sublabel: "Pagar ao motorista no desembarque",
       icon: Banknote,
-      color: "text-amber-700 bg-primary-50 border-amber-200",
+      color: "text-slate-700 bg-slate-100 border-slate-200",
     };
   }
 
@@ -392,7 +392,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               category="CARRO"
               title="Partiu Carro"
               badgeText="Conforto"
-              badgeClass="text-amber-900 bg-primary-50/90"
+              badgeClass="text-blue-900 bg-blue-100/90"
               etaMinutes={pickupMinCarro}
               capacityText="4 lugares"
               price={precoCarro}
@@ -419,7 +419,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   <span className="text-[11px] font-black text-slate-950 truncate">
                     {paymentInfo.label}
                   </span>
-                  <span className="text-[11px] font-bold text-amber-700 transition">
+                  <span className="text-[11px] font-bold text-blue-600 transition">
                     • Trocar
                   </span>
                 </div>
@@ -443,12 +443,12 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 }}
                 className={`min-h-[34px] sm:min-h-[36px] w-full flex items-center justify-between gap-1 font-bold text-[11px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
                   paradas.length > 0
-                    ? "bg-primary-50 text-amber-950 border-primary-500"
+                    ? "bg-blue-50 text-blue-950 border-blue-400 font-black"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
                 }`}
               >
                 <div className="flex items-center gap-1 truncate">
-                  <Plus className="w-3 h-3 text-primary-700 stroke-[2.5] shrink-0" />
+                  <Plus className="w-3 h-3 text-blue-600 stroke-[2.5] shrink-0" />
                   <span className="truncate">
                     {paradas.length === 0
                       ? "+ Parada"
@@ -607,12 +607,12 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 }}
                 className={`w-full p-3 rounded-2xl border-2 text-left flex items-center justify-between transition cursor-pointer ${
                   formaPagamento === "dinheiro" && !pagamentoNaMaquininha
-                    ? "border-primary-600 bg-primary-50/50 shadow-xs"
+                    ? "border-blue-600 bg-blue-50/50 shadow-xs"
                     : "border-slate-200 bg-white hover:border-slate-300"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-primary-50 text-amber-700 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
                     <Banknote className="w-5 h-5 stroke-[2.2]" />
                   </div>
                   <div>
@@ -623,7 +623,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   </div>
                 </div>
                 {formaPagamento === "dinheiro" && !pagamentoNaMaquininha && (
-                  <Check className="w-4 h-4 text-primary-700 stroke-[3]" />
+                  <Check className="w-4 h-4 text-blue-600 stroke-[3]" />
                 )}
               </button>
 
@@ -710,14 +710,14 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
 
               {/* Lista de Paradas Cadastradas */}
               {paradas.map((p, idx) => (
-                <div key={p.id} className="flex items-center justify-between gap-2 text-xs bg-amber-50/70 border border-amber-200/80 p-2.5 rounded-xl animate-in fade-in duration-200">
+                <div key={p.id} className="flex items-center justify-between gap-2 text-xs bg-blue-50/70 border border-blue-200/80 p-2.5 rounded-xl animate-in fade-in duration-200">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="w-5 h-5 rounded-full bg-amber-500 text-white font-black text-[10px] flex items-center justify-center shrink-0 shadow-2xs">
+                    <span className="w-5 h-5 rounded-full bg-blue-600 text-white font-black text-[10px] flex items-center justify-center shrink-0 shadow-2xs">
                       {idx + 1}
                     </span>
                     <div className="min-w-0">
-                      <span className="text-[9px] uppercase font-black text-amber-700 block">Parada {idx + 1}</span>
-                      <span className="font-bold text-amber-950 truncate block text-[11px]">{p.endereco}</span>
+                      <span className="text-[9px] uppercase font-black text-blue-700 block">Parada {idx + 1}</span>
+                      <span className="font-bold text-blue-950 truncate block text-[11px]">{p.endereco}</span>
                     </div>
                   </div>
                   <button
@@ -743,12 +743,12 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                       onChange={(e) => setInputParada(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
-                          e.preventDefault();
+                           e.preventDefault();
                           handleAdicionarParada();
                         }
                       }}
                       placeholder={paradas.length === 0 ? "Endereço da 1ª parada..." : "Endereço da 2ª parada..."}
-                      className="flex-1 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                      className="flex-1 text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       autoFocus
                     />
                     <button
@@ -758,14 +758,14 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                         hapticFeedback.light();
                         handleAdicionarParada();
                       }}
-                      className="px-3 py-2.5 rounded-xl bg-primary-600 disabled:opacity-40 text-white text-xs font-bold shrink-0 cursor-pointer shadow-xs transition active:scale-95"
+                      className="px-3 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-xs font-bold shrink-0 cursor-pointer shadow-xs transition active:scale-95"
                     >
                       + Add
                     </button>
                   </div>
                 </div>
               ) : (
-                <p className="text-[10px] text-amber-700 bg-amber-50 p-2 rounded-xl text-center font-medium border border-amber-100">
+                <p className="text-[10px] text-blue-700 bg-blue-50 p-2 rounded-xl text-center font-medium border border-blue-100">
                   ✓ Limite máximo de 2 paradas intermediárias atingido.
                 </p>
               )}
