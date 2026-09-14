@@ -52,7 +52,7 @@ export const HomeBottomNav = memo(function HomeBottomNav({ activeTab }: HomeBott
                   to={tab.rota as any}
                   className={`flex-1 flex items-center justify-center py-2 px-3 rounded-full transition-all duration-200 active:scale-95 cursor-pointer ${
                     isActive
-                      ? "font-black shadow-xs text-white"
+                      ? "font-semibold shadow-xs text-white"
                       : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
                   }`}
                   style={
@@ -72,7 +72,7 @@ export const HomeBottomNav = memo(function HomeBottomNav({ activeTab }: HomeBott
                   />
                   <span
                     className={`text-xs ml-1.5 tracking-tight ${
-                      isActive ? "text-white font-black" : "text-slate-600 font-semibold"
+                      isActive ? "text-white font-semibold" : "text-slate-600 font-medium"
                     }`}
                   >
                     {tab.rotulo}
@@ -103,7 +103,7 @@ export const HomeBottomNav = memo(function HomeBottomNav({ activeTab }: HomeBott
           to="/app"
           className={`flex-1 flex items-center justify-center py-2 px-4 rounded-full transition-all duration-200 active:scale-95 cursor-pointer ${
             isCorridas
-              ? "font-black shadow-xs text-white"
+              ? "font-semibold shadow-xs text-white"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
           }`}
           style={
@@ -123,7 +123,7 @@ export const HomeBottomNav = memo(function HomeBottomNav({ activeTab }: HomeBott
           />
           <span
             className={`text-xs ml-1.5 tracking-tight ${
-              isCorridas ? "text-white font-black" : "text-slate-600 font-semibold"
+              isCorridas ? "text-white font-semibold" : "text-slate-600 font-medium"
             }`}
           >
             Corridas
@@ -135,7 +135,7 @@ export const HomeBottomNav = memo(function HomeBottomNav({ activeTab }: HomeBott
           to="/app/encomendas"
           className={`flex-1 flex items-center justify-center py-2 px-4 rounded-full transition-all duration-200 active:scale-95 cursor-pointer ${
             isEntregas
-              ? "font-black shadow-xs text-white"
+              ? "font-semibold shadow-xs text-white"
               : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/60"
           }`}
           style={
@@ -155,7 +155,7 @@ export const HomeBottomNav = memo(function HomeBottomNav({ activeTab }: HomeBott
           />
           <span
             className={`text-xs ml-1.5 tracking-tight ${
-              isEntregas ? "text-white font-black" : "text-slate-600 font-semibold"
+              isEntregas ? "text-white font-semibold" : "text-slate-600 font-medium"
             }`}
           >
             Entregas

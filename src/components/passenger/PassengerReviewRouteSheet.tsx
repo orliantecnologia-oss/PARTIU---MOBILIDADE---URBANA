@@ -106,21 +106,20 @@ const VehicleOptionCard = memo(function VehicleOptionCard({
         >
           <IconComp className="w-4 h-4 stroke-[2.4]" />
         </div>
-        <span className={`text-[9.5px] font-black uppercase tracking-wide px-1.5 py-0.5 rounded-md ${badgeClass}`}>
+        <span className={`text-[9.5px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-md ${badgeClass}`}>
           {badgeText}
         </span>
       </div>
 
       <div className="mt-1">
-        <span className="text-xs sm:text-[13px] font-black text-slate-950 block truncate">
+        <span className="text-xs sm:text-[13px] font-semibold text-slate-900 block truncate">
           {title}
         </span>
         <span className="text-[10px] sm:text-[10.5px] text-slate-500 font-medium block truncate">
           ~{etaMinutes} min • {capacityText}
         </span>
         <span
-          style={isSelected ? { color: corSecundaria || "#0F172A" } : undefined}
-          className="text-sm sm:text-base font-black text-slate-950 block mt-0.5 tracking-tight"
+          className="text-sm sm:text-base font-semibold text-[#003366] block mt-0.5 tracking-tight"
         >
           {price}
         </span>
@@ -334,9 +333,9 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   backgroundColor: `${corPrimaria || "#0088FF"}20`,
                   borderColor: `${corPrimaria || "#0088FF"}50`,
                 }}
-                className="text-slate-950 border px-2 py-0.5 rounded-full flex items-center gap-0.5 text-[11px] font-black"
+                className="text-slate-900 border px-2 py-0.5 rounded-full flex items-center gap-0.5 text-[11px] font-medium"
               >
-                <Clock className="w-2.5 h-2.5 text-primary-700 stroke-[2.5]" />
+                <Clock className="w-2.5 h-2.5 text-[#0088FF] stroke-[2.5]" />
                 ~{horarioDesembarquePrevisto || `${duracaoMin || 8} min`}
               </span>
             </div>
@@ -368,15 +367,15 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
           >
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
               <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ring-2 ring-emerald-200" />
-              <span className="font-semibold text-slate-800 truncate max-w-[42%]">
+              <span className="font-medium text-slate-800 truncate max-w-[42%]">
                 {origem || "Local Atual"}
               </span>
-              <span className="text-slate-400 font-black">→</span>
+              <span className="text-slate-400 font-medium">→</span>
               <div
                 style={{ backgroundColor: corPrimaria || "#0088FF" }}
                 className="w-2 h-2 rounded-full shrink-0 ring-2 ring-slate-400/40"
               />
-              <span className="font-bold text-slate-950 truncate max-w-[42%]">
+              <span className="font-semibold text-slate-900 truncate max-w-[42%]">
                 {destino || "Destino"}
               </span>
             </div>
@@ -407,7 +406,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               category="MOTO"
               title="Partiu Moto"
               badgeText="Econômico"
-              badgeClass="text-cyan-950 bg-cyan-100 font-black"
+              badgeClass="text-cyan-950 bg-cyan-100 font-semibold"
               etaMinutes={pickupMinMoto}
               capacityText="1 lug."
               price={precoMoto}
@@ -424,7 +423,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               category="EXECUTIVO"
               title="Partiu Plus"
               badgeText="Conforto"
-              badgeClass="text-amber-950 bg-amber-100 font-black"
+              badgeClass="text-amber-950 bg-amber-100 font-semibold"
               etaMinutes={pickupMinPlus}
               capacityText="Ar / Plus"
               price={precoPlus}
@@ -448,7 +447,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1">
-                  <span className="text-[11px] font-black text-slate-950 truncate">
+                  <span className="text-[11px] font-semibold text-slate-900 truncate">
                     {paymentInfo.label}
                   </span>
                   <span className="text-[11px] font-bold text-blue-600 transition">
@@ -558,20 +557,20 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             SEÇÃO C — FOOTER FIXO (NUNCA ROLA, NUNCA SAI DA TELA)
             Ancorado ao Safe Area inferior com visibilidade permanente e sombra
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="px-3.5 sm:px-4 pt-1.5 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0 border-t border-slate-100/90 bg-white/80 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+        <div className="px-3.5 sm:px-4 pt-2 pb-[max(1.25rem,env(safe-area-inset-bottom))] shrink-0 border-t border-slate-100/90 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
           <button
             type="button"
             onClick={handleConfirm}
             style={{
-              background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+              background: "linear-gradient(180deg, #0088FF 0%, #003366 100%)",
               color: "#FFFFFF",
               borderRadius: 16,
-              boxShadow: "0 8px 24px -4px rgba(0, 51, 102, 0.35), 0 4px 12px -2px rgba(0, 136, 255, 0.25)",
+              boxShadow: "0 4px 14px -2px rgba(0, 51, 102, 0.35)",
             }}
-            className="w-full py-3 px-4 min-h-[50px] font-bold text-sm sm:text-base active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 touch-manipulation"
+            className="w-full py-3 px-4 min-h-[50px] font-semibold text-sm sm:text-base active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 touch-manipulation"
           >
             <span>Confirmar {nomeVeiculoAtivo}</span>
-            <span className="text-sm opacity-90 font-bold">• {precoAtivo}</span>
+            <span className="text-sm opacity-90 font-medium">• {precoAtivo}</span>
           </button>
         </div>
       </div>

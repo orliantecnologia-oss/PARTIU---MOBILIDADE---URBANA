@@ -118,13 +118,13 @@ export const PromoCarousel = memo(function PromoCarousel({
 
             {/* Topo do Banner: Badge Promocional + Cupom */}
             <div className="flex items-center justify-between gap-2 relative z-10">
-              <span className={`text-[9.5px] sm:text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${item.tagCor} shadow-xs tracking-wider flex items-center gap-1`}>
+              <span className={`text-[9.5px] sm:text-[10px] font-semibold uppercase px-2.5 py-0.5 rounded-full ${item.tagCor} shadow-xs tracking-wider flex items-center gap-1`}>
                 <Sparkles className="w-2.5 h-2.5" />
                 {item.badge}
               </span>
 
               {item.cupom && (
-                <div className="flex items-center gap-1 text-[9.5px] sm:text-[10px] font-mono font-bold bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-md text-primary-500 border border-primary-600/30 shadow-xs">
+                <div className="flex items-center gap-1 text-[9.5px] sm:text-[10px] font-mono font-medium bg-black/40 backdrop-blur-md px-2 py-0.5 rounded-md text-primary-500 border border-primary-600/30 shadow-xs">
                   <Tag className="w-2.5 h-2.5 text-primary-600" />
                   <span>{item.cupom}</span>
                 </div>
@@ -133,7 +133,7 @@ export const PromoCarousel = memo(function PromoCarousel({
 
             {/* Conteúdo Central: Título e Subtítulo */}
             <div className="relative z-10 my-auto py-1">
-              <h3 className="text-sm sm:text-[15px] font-black tracking-tight leading-snug drop-shadow-sm line-clamp-1">
+              <h3 className="text-sm sm:text-[15px] font-semibold tracking-tight leading-snug drop-shadow-sm line-clamp-1">
                 {item.titulo}
               </h3>
               <p className="text-[11px] sm:text-xs text-white/95 font-medium leading-snug mt-0.5 drop-shadow-xs line-clamp-2">

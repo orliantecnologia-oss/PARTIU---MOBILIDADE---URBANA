@@ -127,7 +127,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-white rounded-[32px] p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-slate-100 text-slate-900 animate-in slide-in-from-bottom duration-300 select-none">
+      <div className="w-full max-w-md bg-white rounded-[32px] p-5 sm:p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-slate-100 text-slate-900 animate-in slide-in-from-bottom duration-300 select-none">
         {/* Barra tátil de puxar */}
         <div className="w-12 h-1 rounded-full bg-slate-200 mx-auto mb-4" />
 
@@ -158,14 +158,14 @@ export const DriverOfferModal = memo(function DriverOfferModal({
                   className="transition-all duration-1000 ease-linear"
                 />
               </svg>
-              <span className="absolute text-xs font-bold text-[#003366]">
+              <span className="absolute text-xs font-semibold text-[#003366]">
                 {secondsRemaining}s
               </span>
             </div>
 
             {/* Título & Contexto */}
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-[#003366] leading-tight">
+              <h3 className="text-base sm:text-lg font-semibold text-[#003366] leading-tight">
                 Nova corrida disponível!
               </h3>
               <p className="text-xs text-slate-500 font-normal mt-0.5">
@@ -199,7 +199,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
               <span className="text-xs text-slate-500 font-medium block">
                 Seu ganho líquido
               </span>
-              <div className="text-2xl sm:text-3xl font-bold text-[#003366] tracking-tight leading-tight">
+              <div className="text-2xl sm:text-3xl font-semibold text-[#003366] tracking-tight leading-tight">
                 {oferta.valorLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </div>
             </div>
@@ -220,7 +220,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
         <div className="grid grid-cols-3 gap-2 py-3 px-2 bg-slate-50/70 rounded-2xl border border-slate-100/90 text-center divide-x divide-slate-200/60 mb-3.5">
           {/* Coluna 1: Distância */}
           <div className="px-1">
-            <div className="text-sm font-bold text-slate-800 leading-snug">
+            <div className="text-sm font-semibold text-[#003366] leading-snug">
               {distanciaViagemTexto}
             </div>
             <div className="text-[10px] text-slate-500 font-medium mt-0.5">
@@ -230,7 +230,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
 
           {/* Coluna 2: Busca estimada */}
           <div className="px-1">
-            <div className="text-sm font-bold text-slate-800 leading-snug">
+            <div className="text-sm font-semibold text-[#003366] leading-snug">
               {tempoEmbarqueMin} min
             </div>
             <div className="text-[10px] text-slate-500 font-medium mt-0.5">
@@ -240,7 +240,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
 
           {/* Coluna 3: Avaliação do passageiro */}
           <div className="px-1">
-            <div className="text-sm font-bold text-slate-800 leading-snug flex items-center justify-center gap-0.5">
+            <div className="text-sm font-semibold text-[#003366] leading-snug flex items-center justify-center gap-0.5">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
               <span>{notaFormatada}</span>
             </div>
@@ -250,13 +250,13 @@ export const DriverOfferModal = memo(function DriverOfferModal({
           </div>
         </div>
 
-        {/* CHIPS DE ENDEREÇO (EMBARQUE E DESTINO COM FUNDO #F8FAFC) */}
-        <div className="bg-[#F8FAFC] rounded-2xl border border-slate-100 p-3.5 space-y-2 mb-4">
+        {/* CHIPS DE ENDEREÇO (EMBARQUE E DESTINO COM FUNDO #F1F5F9) */}
+        <div className="bg-[#F1F5F9] rounded-2xl border border-slate-100 p-3.5 space-y-2 mb-4">
           {/* Ponto de Embarque */}
           <div className="flex items-center gap-2.5">
             <div className="w-2.5 h-2.5 rounded-full bg-[#22C55E] shrink-0 ring-4 ring-emerald-50" />
             <div className="min-w-0 flex-1 truncate">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block leading-tight">
+              <span className="text-[10px] uppercase font-medium text-slate-400 block leading-tight">
                 Embarque
               </span>
               <span className="text-xs font-semibold text-slate-800 truncate block">
@@ -272,7 +272,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
           <div className="flex items-center gap-2.5">
             <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444] shrink-0 ring-4 ring-rose-50" />
             <div className="min-w-0 flex-1 truncate">
-              <span className="text-[10px] uppercase font-bold text-slate-400 block leading-tight">
+              <span className="text-[10px] uppercase font-medium text-slate-400 block leading-tight">
                 Destino
               </span>
               <span className="text-xs font-semibold text-slate-800 truncate block">
@@ -290,7 +290,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
           onMouseUp={handleTouchEnd}
           onTouchEnd={handleTouchEnd}
           style={{
-            background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+            background: "linear-gradient(180deg, #0088FF 0%, #003366 100%)",
           }}
           className="relative w-full h-[60px] rounded-2xl p-1.5 flex items-center justify-center shadow-[0_10px_25px_rgba(0,136,255,0.3)] select-none cursor-pointer overflow-hidden transition active:scale-[0.99]"
           onClick={handleAccept}

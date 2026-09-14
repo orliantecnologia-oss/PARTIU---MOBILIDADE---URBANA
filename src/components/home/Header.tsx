@@ -72,18 +72,14 @@ export const Header = memo(function Header({
 
   return (
     <header
-      className={`absolute top-0 left-0 right-0 z-30 w-full select-none pointer-events-auto ${className}`}
+      className={`absolute top-0 left-0 right-0 z-30 w-full select-none pointer-events-auto bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs ${className}`}
       style={{
-        background: "linear-gradient(180deg, var(--header-gradient-start, #0088FF) 0%, var(--header-gradient-end, #003366) 100%)",
-        borderBottomLeftRadius: 20,
-        borderBottomRightRadius: 20,
         paddingTop: safeTopPadding,
-        paddingBottom: 10,
+        paddingBottom: 8,
         paddingLeft: 16,
         paddingRight: 16,
-        minHeight: 64,
-        maxHeight: 74,
-        boxShadow: "0 6px 20px rgba(0, 51, 102, 0.30), 0 2px 6px rgba(0, 0, 0, 0.15)",
+        minHeight: 56,
+        maxHeight: 68,
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
@@ -93,7 +89,7 @@ export const Header = memo(function Header({
       aria-label="Cabeçalho Principal"
     >
       {/* ===================================================================== */}
-      {/* 2. SEÇÃO ESQUERDA: PERFIL COMPACTO E ALINHADO                         */}
+      {/* 2. SEÇÃO ESQUERDA: PERFIL COMPACTO E ALINHADO (38x38px)               */}
       {/* ===================================================================== */}
       <div
         style={{
@@ -112,9 +108,8 @@ export const Header = memo(function Header({
             width: 38,
             height: 38,
             borderRadius: 19,
-            border: "2px solid rgba(255, 255, 255, 0.85)",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.20)",
-            backgroundColor: "rgba(255, 255, 255, 0.20)",
+            border: "1.5px solid #E2E8F0",
+            backgroundColor: "#F1F5F9",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -123,7 +118,7 @@ export const Header = memo(function Header({
             cursor: "pointer",
             padding: 0,
           }}
-          className="active:scale-95 transition-transform"
+          className="active:scale-95 transition-transform shadow-2xs hover:border-[#0088FF]/50"
           aria-label="Abrir Menu Lateral e Perfil"
           title="Abrir Menu"
         >
@@ -143,10 +138,10 @@ export const Header = memo(function Header({
           ) : (
             <span
               style={{
-                color: "#FFFFFF",
-                fontSize: 11,
-                fontWeight: 900,
-                letterSpacing: "0.05em",
+                color: "#003366",
+                fontSize: 12,
+                fontWeight: 600,
+                letterSpacing: "0.02em",
               }}
             >
               {iniciais}
@@ -166,10 +161,9 @@ export const Header = memo(function Header({
           <span
             style={{
               fontSize: 10,
-              color: "rgba(255, 255, 255, 0.75)",
+              color: "#64748B",
               lineHeight: 1.15,
               fontWeight: 500,
-              letterSpacing: "0.02em",
             }}
           >
             Olá,
@@ -177,8 +171,8 @@ export const Header = memo(function Header({
           <h1
             style={{
               fontSize: 13,
-              fontWeight: 700,
-              color: "#FFFFFF",
+              fontWeight: 600,
+              color: "#0F172A",
               lineHeight: 1.2,
               margin: 0,
               padding: 0,
@@ -206,11 +200,10 @@ export const Header = memo(function Header({
         <span
           style={{
             fontSize: 15,
-            fontWeight: 700,
-            color: "#FFFFFF",
-            letterSpacing: "0.04em",
+            fontWeight: 600,
+            color: "#003366",
+            letterSpacing: "0.02em",
             lineHeight: 1.2,
-            textShadow: "0 1px 3px rgba(0, 0, 0, 0.25)",
           }}
           className="truncate"
         >
@@ -236,42 +229,40 @@ export const Header = memo(function Header({
             width: 38,
             height: 38,
             borderRadius: 19,
-            backgroundColor: "rgba(255, 255, 255, 0.15)",
-            border: "1px solid rgba(255, 255, 255, 0.25)",
+            backgroundColor: "#F8FAFC",
+            border: "1px solid #E2E8F0",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             position: "relative",
             flexShrink: 0,
             cursor: "pointer",
-            color: "#FFFFFF",
+            color: "#334155",
           }}
-          className="hover:bg-white/25 active:scale-95 transition-all shadow-xs"
+          className="hover:bg-slate-100 hover:text-[#0088FF] active:scale-95 transition-all shadow-2xs"
           aria-label="Notificações"
           title="Notificações"
         >
           <Bell
             style={{
-              width: 18,
-              height: 18,
+              width: 17,
+              height: 17,
               strokeWidth: 2.2,
-              color: "#FFFFFF",
             }}
           />
 
-          {/* Badge de alerta vermelho com margem segura de respiro */}
+          {/* Badge de alerta vermelho com margem segura de respiro (zero overflow) */}
           {hasUnreadNotifications && (
             <span
               style={{
                 position: "absolute",
-                top: 5,
-                right: 5,
-                width: 8,
-                height: 8,
-                borderRadius: 4,
+                top: 4,
+                right: 4,
+                width: 7,
+                height: 7,
+                borderRadius: 3.5,
                 backgroundColor: "#EF4444",
                 border: "1.5px solid #FFFFFF",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.35)",
               }}
               className="animate-pulse"
               aria-hidden="true"

@@ -246,7 +246,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             <AlertTriangle className="w-7 h-7" />
           </div>
           <div>
-            <h3 className="text-base font-black text-slate-900">
+            <h3 className="text-base font-semibold text-[#003366]">
               O motorista precisou cancelar
             </h3>
             <p className="text-xs text-slate-600 mt-1">
@@ -301,16 +301,16 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-black text-[#003366] truncate">{driverName}</span>
-                <span className="text-[11px] font-bold text-amber-500 flex items-center gap-0.5 shrink-0">
+                <span className="text-xs font-semibold text-[#003366] truncate">{driverName}</span>
+                <span className="text-[11px] font-medium text-amber-500 flex items-center gap-0.5 shrink-0">
                   <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                   {Number(rating).toFixed(2)} ★
                 </span>
               </div>
-              <p className="text-[11px] font-bold text-slate-700 truncate mt-0.5">
+              <p className="text-[11px] font-medium text-[#334155] truncate mt-0.5">
                 {vehicleModel} {vehicleColor} • {licensePlate}
               </p>
-              <p className="text-[10.5px] font-semibold text-[#0088FF] truncate">
+              <p className="text-[10.5px] font-medium text-[#0088FF] truncate">
                 {firstName} está a {distanciaKmText} ({etaLabel}) do seu local
               </p>
             </div>
@@ -376,14 +376,14 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
               </span>
               <div className="min-w-0">
-                <h3 className="text-xs font-black text-slate-900 truncate">
+                <h3 className="text-xs font-semibold text-[#003366] truncate">
                   {statusTitle}
                 </h3>
-                <p className="text-[13px] font-black text-emerald-600 flex items-center gap-1">
+                <p className="text-[13px] font-semibold text-emerald-600 flex items-center gap-1">
                   <span>⚡</span>
                   <span>Chega em {etaLabel}</span>
                   <span className="text-slate-400 font-normal">•</span>
-                  <span className="text-slate-500 font-bold">{distanciaKmText}</span>
+                  <span className="text-slate-500 font-medium">{distanciaKmText}</span>
                 </p>
               </div>
             </div>
@@ -404,17 +404,17 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             {/* Bloco de Identificação do Veículo */}
             <div className="min-w-0 flex-1 space-y-1">
               {/* Badge Categoria */}
-              <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-slate-200 text-slate-900 text-xs font-black uppercase tracking-wider">
+              <div className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-slate-200 text-[#334155] text-xs font-semibold uppercase tracking-wider">
                 {isMoto ? "Moto" : "Carro"}
               </div>
 
               {/* Placa em Grande Destaque */}
-              <div className="font-mono font-black text-2xl sm:text-3xl text-slate-950 tracking-wider leading-none">
+              <div className="font-mono font-semibold text-2xl sm:text-3xl text-[#003366] tracking-wider leading-none">
                 {licensePlate}
               </div>
 
               {/* Modelo e Cor do Veículo */}
-              <p className="text-xs font-bold text-slate-700 truncate">
+              <p className="text-xs font-medium text-[#334155] truncate">
                 {vehicleModel} • {vehicleColor}
               </p>
             </div>
@@ -425,6 +425,28 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 category={isMoto ? "MOTO" : "CARRO"}
                 className="w-24 h-16 object-contain drop-shadow-sm"
               />
+            </div>
+          </div>
+
+          {/* BLOCO DE CÓDIGO DE SEGURANÇA (PIN DE 4 DÍGITOS) */}
+          <div className="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-2.5 sm:p-3 flex items-center justify-between gap-3 shadow-2xs">
+            <div className="min-w-0">
+              <span className="text-[10.5px] font-semibold uppercase tracking-wider text-[#64748B] block">
+                PIN de Embarque
+              </span>
+              <span className="text-xs font-medium text-[#334155] truncate block">
+                Informe ao motorista
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {(String(activeRide?.pin || (activeRide as any)?.codigoConfirmacao || "4892").slice(0, 4).split("")).map((digit, idx) => (
+                <div
+                  key={idx}
+                  className="w-10 h-11 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-center text-lg font-mono font-semibold text-[#003366] shadow-xs"
+                >
+                  {digit}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -441,7 +463,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               <span className="truncate">{cancellationNotice}</span>
             </div>
             {cancellationPolicy.isGracePeriodActive && (
-              <span className="shrink-0 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-black uppercase">
+              <span className="shrink-0 px-2 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-semibold uppercase">
                 Grátis
               </span>
             )}
@@ -451,7 +473,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
           {activeRide?.paradas && activeRide.paradas.length > 0 && (
             <div className="px-3 py-1.5 rounded-xl bg-blue-50/80 border border-blue-200/80 text-[11px] text-blue-950 flex items-center justify-between gap-1">
               <div className="flex items-center gap-1.5 truncate">
-                <span className="w-4 h-4 rounded-full bg-blue-600 text-white font-black text-[9px] flex items-center justify-center shrink-0">
+                <span className="w-4 h-4 rounded-full bg-blue-600 text-white font-semibold text-[9px] flex items-center justify-center shrink-0">
                   {activeRide.paradas.length}
                 </span>
                 <span className="font-bold truncate">
@@ -491,18 +513,18 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             {/* Nome, Rating e Corridas */}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <h4 className="text-xs font-black text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                <h4 className="text-xs font-semibold text-[#003366] truncate group-hover:text-blue-600 transition-colors">
                   {driverName}
                 </h4>
-                <span className="text-xs font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0 border border-slate-200/60">
+                <span className="text-xs font-medium text-[#334155] bg-slate-100 px-1.5 py-0.5 rounded flex items-center gap-0.5 shrink-0 border border-slate-200/60">
                   <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
                   {Number(rating).toFixed(2)}
                 </span>
               </div>
-              <p className="text-xs text-slate-600 font-semibold truncate mt-0.5 flex items-center gap-1">
+              <p className="text-xs text-[#64748B] font-medium truncate mt-0.5 flex items-center gap-1">
                 <span>{totalRides}+ viagens</span>
                 <span>•</span>
-                <span className="text-blue-600 font-bold">Ver perfil e avaliações</span>
+                <span className="text-blue-600 font-medium">Ver perfil e avaliações</span>
               </p>
             </div>
 
@@ -514,11 +536,11 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="font-semibold text-slate-600">Forma de Pagamento:</span>
-              <span className="font-black text-slate-900 uppercase">
+              <span className="font-semibold text-[#003366] uppercase">
                 {formaPagamento === "pix" ? "PIX D+0" : "Dinheiro"}
               </span>
             </div>
-            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+            <span className="text-[11px] font-medium text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
               Confirmado
             </span>
           </div>
@@ -533,11 +555,11 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 setIsSafetyCenterOpen(true);
               }}
               aria-label="Abrir Central de Segurança e SOS PARTIU"
-              className="w-12 h-12 rounded-2xl bg-rose-50 hover:bg-rose-100 text-[#EF4444] flex flex-col items-center justify-center border-2 border-[#EF4444] active:scale-95 transition-all touch-manipulation cursor-pointer shrink-0 shadow-xs"
+              className="w-12 h-12 rounded-2xl bg-white hover:bg-rose-50 text-[#EF4444] flex flex-col items-center justify-center border-2 border-[#EF4444] active:scale-95 transition-all touch-manipulation cursor-pointer shrink-0 shadow-xs"
               title="Central de Segurança e SOS 190"
             >
               <Shield className="w-4 h-4 text-[#EF4444]" />
-              <span className="text-[8px] font-black leading-none text-[#EF4444] mt-0.5">SOS</span>
+              <span className="text-[8px] font-semibold leading-none text-[#EF4444] mt-0.5">SOS</span>
             </button>
 
             {/* Botão Ligar */}
@@ -545,7 +567,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               href={`tel:${phone.replace(/\D/g, "")}`}
               onClick={() => hapticFeedback.light()}
               aria-label="Ligar para o motorista parceiro"
-              className="flex-1 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-bold text-xs flex items-center justify-center gap-1.5 border border-slate-200 active:scale-95 transition-all touch-manipulation"
+              className="flex-1 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 font-medium text-xs flex items-center justify-center gap-1.5 border border-slate-200 active:scale-95 transition-all touch-manipulation"
             >
               <Phone className="w-4 h-4 text-slate-700" />
               <span>Ligar</span>
@@ -560,15 +582,15 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               }}
               aria-label={`Abrir chat com o motorista${unreadCount > 0 ? ` (${unreadCount} mensagens não lidas)` : ""}`}
               style={{
-                background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+                background: "linear-gradient(180deg, #0088FF 0%, #003366 100%)",
                 color: "#FFFFFF",
               }}
-              className="relative flex-1 h-12 rounded-2xl text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all touch-manipulation cursor-pointer"
+              className="relative flex-1 h-12 rounded-2xl text-white font-semibold text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all touch-manipulation cursor-pointer"
             >
               <MessageCircle className="w-4 h-4 text-white" />
               <span>Mensagem</span>
               {unreadCount > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-rose-600 text-white font-black text-[10px] shadow-xs animate-pulse">
+                <span className="px-1.5 py-0.2 rounded-full bg-rose-600 text-white font-semibold text-[10px] shadow-xs animate-pulse">
                   {unreadCount}
                 </span>
               )}
@@ -606,23 +628,22 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                   requestCancel();
                 }}
                 aria-label="Cancelar corrida"
-                className="w-12 h-12 shrink-0 rounded-2xl bg-rose-50 hover:bg-rose-100 text-[#EF4444] flex items-center justify-center border border-rose-200 active:scale-95 transition-all touch-manipulation cursor-pointer"
+                className="w-12 h-12 shrink-0 rounded-2xl bg-white hover:bg-rose-50 text-[#EF4444] flex items-center justify-center border border-[#EF4444] active:scale-95 transition-all touch-manipulation cursor-pointer shadow-2xs"
                 title="Cancelar corrida"
               >
                 <X className="w-5 h-5" />
               </button>
             )}
 
-            {/* Botão Nova Corrida (Se concluída) */}
             {isConcluida && (
               <button
                 type="button"
                 onClick={resetToIdle}
                 style={{
-                  background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+                  background: "linear-gradient(180deg, #0088FF 0%, #003366 100%)",
                   color: "#FFFFFF",
                 }}
-                className="flex-1 h-12 rounded-2xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer hover:brightness-105"
+                className="flex-1 h-12 rounded-2xl font-semibold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer hover:brightness-105"
               >
                 <RotateCcw className="w-4 h-4 text-white" />
                 <span>Nova Corrida</span>

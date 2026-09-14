@@ -1217,7 +1217,7 @@ export function PartiuDriverCockpit() {
 
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xs sm:text-sm font-bold text-slate-800 truncate max-w-[120px] sm:max-w-[150px]">
+                  <span className="text-xs sm:text-sm font-semibold text-[#003366] truncate max-w-[120px] sm:max-w-[150px]">
                     {perfilMotorista.nome || "Carlos Silva"}
                   </span>
                   <span className="text-[10px] font-semibold bg-[#0088FF] text-white px-1.5 py-0.2 rounded-full">
@@ -1225,7 +1225,7 @@ export function PartiuDriverCockpit() {
                   </span>
                 </div>
                 <div className="text-[11px] font-medium flex items-center gap-1 text-slate-500 mt-0.5">
-                  <span className="flex items-center text-amber-500 font-bold">
+                  <span className="flex items-center text-amber-500 font-semibold">
                     <Star className="w-3 h-3 fill-current shrink-0 mr-0.5" />
                     <span>{perfilMotorista.rating?.toFixed(2) || "4.98"}</span>
                   </span>
@@ -1275,10 +1275,10 @@ export function PartiuDriverCockpit() {
                 <Wallet className="w-3 h-3 text-[#0088FF] shrink-0" />
                 <span>Ganhos Hoje</span>
               </div>
-              <div className="text-xs sm:text-sm font-bold text-[#003366] leading-snug">
+              <div className="text-xs sm:text-sm font-semibold text-[#003366] leading-snug">
                 {ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </div>
-              <span className="inline-block text-[9px] font-semibold text-[#0088FF] bg-blue-50 border border-blue-200/60 px-1 py-0.2 rounded leading-tight">
+              <span className="inline-block text-[9px] font-medium text-[#0088FF] bg-blue-50 border border-blue-200/60 px-1 py-0.2 rounded leading-tight">
                 D+0 PIX
               </span>
             </button>
@@ -1289,7 +1289,7 @@ export function PartiuDriverCockpit() {
                 <Car className="w-3 h-3 text-[#0088FF] shrink-0" />
                 <span>Corridas</span>
               </div>
-              <div className="text-xs sm:text-sm font-bold text-slate-800 leading-snug">
+              <div className="text-xs sm:text-sm font-semibold text-[#003366] leading-snug">
                 {corridasFeitas}
               </div>
               <span className="text-[9px] text-slate-400 font-medium">hoje</span>
@@ -1301,7 +1301,7 @@ export function PartiuDriverCockpit() {
                 <Clock className="w-3 h-3 text-[#0088FF] shrink-0" />
                 <span>Online</span>
               </div>
-              <div className="text-xs sm:text-sm font-bold text-slate-800 leading-snug">
+              <div className="text-xs sm:text-sm font-semibold text-[#003366] leading-snug">
                 {horasOnline}
               </div>
               <span className="text-[9px] text-slate-400 font-medium">tempo ativo</span>
@@ -1313,7 +1313,7 @@ export function PartiuDriverCockpit() {
         <div className="pointer-events-auto flex items-center justify-center">
           <div className="bg-white/95 backdrop-blur-md rounded-full px-3 py-1 text-[11px] border border-slate-200 shadow-xs flex items-center gap-1.5 font-medium text-slate-600">
             <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-            <span>GPS Deadband Ativo • 90% Otimizado</span>
+            <span>📡 Telemetria Deadband Ativa (30m / 5s)</span>
           </div>
         </div>
       </header>
@@ -1338,10 +1338,10 @@ export function PartiuDriverCockpit() {
           <Clock className="w-5 h-5 text-slate-950 shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="flex items-center justify-between gap-2">
-              <span className="font-black text-xs uppercase tracking-tight block">
+              <span className="font-semibold text-xs uppercase tracking-tight block">
                 Cadastro em Análise pela Moderação
               </span>
-              <span className="text-[10px] bg-slate-950 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase shrink-0">
+              <span className="text-[10px] bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full font-semibold uppercase shrink-0">
                 Pendente
               </span>
             </div>
@@ -2937,7 +2937,7 @@ export function PartiuDriverCockpit() {
       {/* MODAL: CONFIRMAÇÃO DE PASSAGEIRO NÃO COMPARECEU / NO-SHOW (FASE 3)        */}
       {/* ========================================================================= */}
       {modalNoShowConfirmAberto && ofertaAtiva && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 select-none">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200 select-none">
           <div className="w-full max-w-md bg-white border border-slate-200 rounded-t-3xl sm:rounded-3xl shadow-2xl p-5 space-y-4 animate-in slide-in-from-bottom duration-300 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-slate-900">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
@@ -2945,8 +2945,8 @@ export function PartiuDriverCockpit() {
                   <UserX className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-slate-950">Passageiro Não Compareceu</h3>
-                  <p className="text-xs text-slate-500">Cobrança de taxa de carência</p>
+                  <h3 className="text-base font-semibold text-[#003366]">Passageiro Não Compareceu</h3>
+                  <p className="text-xs text-[#64748B] font-medium">Cobrança de taxa de carência</p>
                 </div>
               </div>
               <button
@@ -3040,33 +3040,33 @@ export function PartiuDriverCockpit() {
           type="button"
           onClick={() => setModalSosAberto(true)}
           aria-label="Botão de Emergência e SOS Policial 190"
-          className="w-13 h-13 rounded-full bg-[#EF4444] hover:bg-red-600 active:scale-95 text-white flex flex-col items-center justify-center shadow-[0_4px_25px_rgba(239,68,68,0.55)] border-2 border-white transition-all cursor-pointer animate-pulse"
+          className="w-13 h-13 rounded-full bg-white hover:bg-rose-50 active:scale-95 text-[#EF4444] flex flex-col items-center justify-center shadow-lg border-2 border-[#EF4444] transition-all cursor-pointer animate-pulse"
           title="Central de Emergência SOS 190"
         >
-          <Shield className="w-5 h-5 fill-white text-white" />
-          <span className="text-[9px] font-black tracking-wider leading-none mt-0.5">SOS</span>
+          <Shield className="w-5 h-5 text-[#EF4444]" />
+          <span className="text-[9px] font-semibold tracking-wider leading-none mt-0.5 text-[#EF4444]">SOS</span>
         </button>
       </div>
 
       {/* MODAL DE CONFIRMAÇÃO SOS 190 */}
       {modalSosAberto && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-[#0A2342] border-2 border-[#EF4444] rounded-3xl p-5 sm:p-6 max-w-sm w-full text-white shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-white border-2 border-[#EF4444] rounded-3xl p-5 sm:p-6 max-w-sm w-full text-slate-900 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-[#EF4444] flex items-center justify-center border border-[#EF4444]/40 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-[#EF4444] flex items-center justify-center border border-[#EF4444]/30 shrink-0">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-black text-white">Emergência &amp; SOS 190</h3>
-                <p className="text-xs text-slate-300 font-medium">Acionamento Policial PARTIU</p>
+                <h3 className="text-base font-semibold text-[#003366]">Emergência &amp; SOS 190</h3>
+                <p className="text-xs text-[#64748B] font-medium">Acionamento Policial PARTIU</p>
               </div>
             </div>
 
-            <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-700/80 text-xs space-y-2 text-slate-200">
+            <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-xs space-y-2 text-slate-700">
               <p className="leading-relaxed">
                 Você está prestes a acionar a <strong>Central de Emergência 190</strong>.
               </p>
-              <div className="p-2 rounded-xl bg-red-950/40 border border-red-800/40 text-[11px] text-red-300 font-semibold flex items-center gap-2">
+              <div className="p-2 rounded-xl bg-rose-50 border border-rose-200 text-[11px] text-rose-700 font-medium flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#EF4444] animate-ping shrink-0" />
                 <span>Telemetria GPS enviada aos canais de apoio</span>
               </div>
@@ -3075,7 +3075,7 @@ export function PartiuDriverCockpit() {
             <div className="space-y-2 pt-1">
               <a
                 href="tel:190"
-                className="w-full h-12 rounded-2xl bg-[#EF4444] hover:bg-red-600 text-white font-black text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer"
+                className="w-full h-12 rounded-2xl bg-[#EF4444] hover:bg-red-600 text-white font-semibold text-xs shadow-md shadow-red-600/20 flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer"
               >
                 <Phone className="w-4 h-4" />
                 <span>LIGAR PARA POLÍCIA MILITAR (190)</span>
@@ -3083,7 +3083,7 @@ export function PartiuDriverCockpit() {
               <button
                 type="button"
                 onClick={() => setModalSosAberto(false)}
-                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition cursor-pointer"
               >
                 Cancelar
               </button>

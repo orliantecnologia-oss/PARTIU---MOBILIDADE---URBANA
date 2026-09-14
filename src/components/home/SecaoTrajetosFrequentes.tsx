@@ -159,12 +159,12 @@ export function SecaoTrajetosFrequentes({
         <div>
           <div className="flex items-center gap-1.5 mb-0.5">
             {temHistoricoReal ? (
-              <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-primary-700 bg-primary-50 px-2 py-0.5 rounded-md border border-amber-200/80">
+              <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-primary-700 bg-primary-50 px-2 py-0.5 rounded-md border border-amber-200/80">
                 <Star className="h-3 w-3 fill-amber-500 text-primary-600" />
                 Personalizado
               </span>
             ) : (
-              <span className="flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
+              <span className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">
                 <Flame className="h-3 w-3 text-emerald-600" />
                 Alta Demanda
               </span>
@@ -172,7 +172,7 @@ export function SecaoTrajetosFrequentes({
           </div>
           <h2
             id="titulo-secao-trajetos"
-            className="text-base sm:text-lg font-black text-slate-900 tracking-tight"
+            className="text-base sm:text-lg font-semibold text-[#003366] tracking-tight"
           >
             {temHistoricoReal ? "Seus trajetos frequentes" : "Rotas populares"}
           </h2>
@@ -183,7 +183,7 @@ export function SecaoTrajetosFrequentes({
 
         <Link
           to="/app"
-          className="text-xs font-black text-[#0d5930] hover:text-emerald-700 flex items-center gap-0.5 shrink-0 transition-colors cursor-pointer py-1"
+          className="text-xs font-semibold text-[#0088FF] hover:text-blue-700 flex items-center gap-0.5 shrink-0 transition-colors cursor-pointer py-1"
         >
           <span>Ver todas</span>
           <ChevronRight className="h-3.5 w-3.5" />
@@ -212,17 +212,17 @@ export function SecaoTrajetosFrequentes({
               {/* Badge de Destaque Superior */}
               <div className="flex items-center justify-between gap-1 mb-2.5">
                 {rota.isSuaRota ? (
-                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-900 bg-primary-50/90 border border-primary-500/80 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-900 bg-primary-50/90 border border-primary-500/80 px-2 py-0.5 rounded-full flex items-center gap-1">
                     <Star className="h-2.5 w-2.5 fill-amber-500 text-primary-600" />
                     Sua Rota
                   </span>
                 ) : (
-                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full">
                     Expresso Diário
                   </span>
                 )}
 
-                <span className="text-[11px] font-bold text-slate-400">{rota.duracaoTexto}</span>
+                <span className="text-[11px] font-medium text-slate-400">{rota.duracaoTexto}</span>
               </div>
 
               {/* Trajeto Visual Conector */}
@@ -234,10 +234,10 @@ export function SecaoTrajetosFrequentes({
                     <span className="w-0.5 h-4.5 bg-slate-200 my-0.5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block leading-tight">
+                    <span className="text-[9px] font-medium uppercase tracking-wider text-slate-400 block leading-tight">
                       Origem
                     </span>
-                    <strong className="text-sm font-black text-slate-900 truncate block group-hover:text-[#0d5930] transition-colors">
+                    <strong className="text-sm font-semibold text-[#003366] truncate block group-hover:text-[#0088FF] transition-colors">
                       {rota.origemTexto}
                     </strong>
                   </div>
@@ -249,10 +249,10 @@ export function SecaoTrajetosFrequentes({
                     <span className="h-2.5 w-2.5 rounded-xs bg-primary-600 ring-2 ring-amber-100 shrink-0" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block leading-tight">
+                    <span className="text-[9px] font-medium uppercase tracking-wider text-slate-400 block leading-tight">
                       Destino
                     </span>
-                    <strong className="text-sm font-black text-slate-900 truncate block group-hover:text-amber-700 transition-colors">
+                    <strong className="text-sm font-semibold text-[#003366] truncate block group-hover:text-amber-700 transition-colors">
                       {rota.destinoTexto}
                     </strong>
                   </div>
@@ -262,20 +262,20 @@ export function SecaoTrajetosFrequentes({
               {/* Informações Decisivas: Próxima Saída & Preço */}
               <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                  <span className="text-[9px] font-medium uppercase tracking-wider text-slate-400 block">
                     Próxima saída
                   </span>
-                  <div className="flex items-center gap-1 text-slate-800 font-black text-xs mt-0.5">
+                  <div className="flex items-center gap-1 text-slate-800 font-semibold text-xs mt-0.5">
                     <Clock className="h-3 w-3 text-emerald-600 shrink-0" />
                     <span>{rota.proximaSaida}</span>
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400 block">
+                  <span className="text-[9px] font-medium uppercase tracking-wider text-slate-400 block">
                     A partir de
                   </span>
-                  <strong className="text-sm sm:text-base font-black text-[#0d5930] block">
+                  <strong className="text-sm sm:text-base font-semibold text-[#003366] block">
                     R$ {rota.tarifa.toFixed(2).replace(".", ",")}
                   </strong>
                 </div>
@@ -288,7 +288,7 @@ export function SecaoTrajetosFrequentes({
                   e.stopPropagation();
                   onConsultarHorarios(rota.origemTexto, rota.destinoTexto);
                 }}
-                className="w-full mt-3 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100/90 hover:bg-[#0d5930] hover:text-white text-slate-700 text-xs font-black transition-all cursor-pointer group-hover:bg-[#0d5930] group-hover:text-white"
+                className="w-full mt-3 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100/90 hover:bg-[#003366] hover:text-white text-slate-700 text-xs font-semibold transition-all cursor-pointer group-hover:bg-[#003366] group-hover:text-white"
                 aria-label={`Consultar horários de ${rota.origemTexto} para ${rota.destinoTexto}`}
               >
                 <span>Consultar horários</span>
@@ -305,7 +305,7 @@ export function SecaoTrajetosFrequentes({
       <div className="pt-2">
         <div className="flex items-center justify-between px-1 mb-2">
           <div>
-            <h3 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+            <h3 className="text-xs sm:text-sm font-semibold text-[#003366] tracking-tight">
               Destinos populares • Polos de compras & turismo
             </h3>
             <p className="text-[11px] text-slate-500 font-medium">
@@ -336,10 +336,10 @@ export function SecaoTrajetosFrequentes({
                   <Icone className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 block truncate">
+                  <span className="text-[9px] font-medium uppercase tracking-wider text-emerald-800 block truncate">
                     {dest.tag}
                   </span>
-                  <strong className="text-xs font-black text-slate-900 block truncate leading-snug">
+                  <strong className="text-xs font-semibold text-[#003366] block truncate leading-snug">
                     {dest.nome}
                   </strong>
                   <span className="text-[10px] text-slate-500 font-medium block truncate">
@@ -357,7 +357,7 @@ export function SecaoTrajetosFrequentes({
       {/* ======================================================== */}
       <div className="pt-2">
         <div className="px-1 mb-2">
-          <h3 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+          <h3 className="text-xs sm:text-sm font-semibold text-[#003366] tracking-tight">
             Mais serviços & benefícios
           </h3>
           <p className="text-[11px] text-slate-500 font-medium">
@@ -375,7 +375,7 @@ export function SecaoTrajetosFrequentes({
               <Building2 className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <strong className="text-xs font-black text-[#0d5930] block truncate">
+              <strong className="text-xs font-semibold text-[#003366] block truncate">
                 Passe Livre Social
               </strong>
               <span className="text-[10px] text-emerald-800 font-medium block truncate">
@@ -394,7 +394,7 @@ export function SecaoTrajetosFrequentes({
               <GraduationCap className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <strong className="text-xs font-black text-amber-950 block truncate">
+              <strong className="text-xs font-semibold text-[#003366] block truncate">
                 Passe Estudantil
               </strong>
               <span className="text-[10px] text-amber-800 font-medium block truncate">
@@ -413,7 +413,7 @@ export function SecaoTrajetosFrequentes({
               <Package className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <strong className="text-xs font-black text-slate-900 block truncate">
+              <strong className="text-xs font-semibold text-[#003366] block truncate">
                 Encomendas Express
               </strong>
               <span className="text-[10px] text-slate-500 font-medium block truncate">

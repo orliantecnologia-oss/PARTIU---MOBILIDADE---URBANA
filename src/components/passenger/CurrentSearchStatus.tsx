@@ -54,7 +54,7 @@ export const CurrentSearchStatus = memo(function CurrentSearchStatus() {
 
     if (progressiveSession?.cascadeSecondsRemaining !== undefined) {
       badgeRight = (
-        <span className="shrink-0 px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[11px] font-black border border-sky-200 shadow-2xs">
+        <span className="shrink-0 px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 text-[11px] font-semibold border border-sky-200 shadow-2xs">
           {progressiveSession.cascadeSecondsRemaining}s
         </span>
       );
@@ -79,10 +79,10 @@ export const CurrentSearchStatus = memo(function CurrentSearchStatus() {
 
         {/* Título e Subtítulo */}
         <div className="min-w-0 flex-1">
-          <h4 className="text-xs font-black text-slate-900 leading-tight truncate">
+          <h4 className="text-xs font-semibold text-[#003366] leading-tight truncate">
             {title}
           </h4>
-          <p className="text-[11px] text-slate-600 font-medium leading-tight truncate mt-0.5">
+          <p className="text-[11px] text-[#64748B] font-medium leading-tight truncate mt-0.5">
             {subtitle}
           </p>
         </div>

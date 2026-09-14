@@ -32,22 +32,22 @@ const RecentAddressItemRow = memo(function RecentAddressItemRow({
     <button
       type="button"
       onClick={handleClick}
-      className="w-full py-2 px-1.5 flex items-center gap-3 hover:bg-blue-50/70 rounded-xl transition active:scale-[0.99] cursor-pointer group text-left"
+      className="w-full py-2 px-1.5 flex items-center gap-3 hover:bg-slate-50 rounded-xl transition active:scale-[0.99] cursor-pointer group text-left"
     >
-      <div className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-900 flex items-center justify-center shrink-0 transition-colors">
-        <Clock className="w-3.5 h-3.5 stroke-[2.4]" />
+      <div className="w-7 h-7 rounded-full bg-slate-100 text-[#64748B] group-hover:bg-blue-50 group-hover:text-[#0088FF] flex items-center justify-center shrink-0 transition-colors">
+        <Clock className="w-3.5 h-3.5 stroke-[2.2]" />
       </div>
 
       <div className="flex-1 min-w-0">
-        <span className="text-xs sm:text-[13px] font-bold text-slate-900 block truncate leading-tight">
+        <span className="text-xs sm:text-[13px] font-medium text-slate-900 block truncate leading-tight">
           {item.titulo}
         </span>
-        <span className="text-[10.5px] sm:text-[11px] text-slate-400 group-hover:text-slate-600 block truncate mt-0.5 transition-colors">
+        <span className="text-[10.5px] sm:text-[11px] font-normal text-[#64748B] group-hover:text-slate-600 block truncate mt-0.5 transition-colors">
           {item.endereco}
         </span>
       </div>
 
-      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-600 shrink-0 transition-colors" />
+      <ChevronRight className="w-4 h-4 text-[#64748B] group-hover:text-slate-800 shrink-0 transition-colors" />
     </button>
   );
 });
@@ -76,7 +76,7 @@ export const DestinationCard = memo(function DestinationCard({
 
   return (
     <div className="w-full z-20 pointer-events-auto">
-      <div className="bg-white/98 backdrop-blur-md rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-100 p-3 sm:p-3.5 space-y-2 text-left">
+      <div className="bg-white rounded-3xl shadow-[0_4px_20px_-2px_rgba(15,23,42,0.08)] border border-slate-100 p-3 sm:p-3.5 space-y-2 text-left">
         {/* 1. CAMPO DE BUSCA "PARA ONDE VAMOS?" (COMPACTO E PROEMINENTE ESTILO 99/UBER) */}
         <button
           type="button"
@@ -85,14 +85,13 @@ export const DestinationCard = memo(function DestinationCard({
           aria-label="Para onde vamos? Buscar endereços"
         >
           <div
-            style={{ background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)" }}
-            className="w-8 h-8 rounded-xl text-white flex items-center justify-center font-black shadow-xs shrink-0 group-hover:scale-105 transition-transform"
+            className="w-8 h-8 rounded-xl bg-[#0088FF] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform"
           >
-            <Search className="w-4 h-4 stroke-[2.8]" />
+            <Search className="w-4 h-4 stroke-[2.5]" />
           </div>
 
           <div className="flex-1 min-w-0">
-            <span className="text-sm sm:text-[15px] font-black text-slate-900 block truncate">
+            <span className="text-sm sm:text-[15px] font-semibold text-slate-900 block truncate">
               Para onde vamos?
             </span>
           </div>
