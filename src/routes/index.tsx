@@ -318,31 +318,28 @@ export function PartiuAppAuthGate({
       className="min-h-[100dvh] w-full max-w-full overflow-x-hidden flex flex-col justify-between items-center px-3 sm:px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] font-sans selection:bg-amber-300 selection:text-slate-950 transition-colors duration-200"
       style={{ backgroundColor: corFundoApp || "#F8FAFC" }}
     >
-      {/* 1. HEADER LIMPO: LOGOTIPO E IDENTIDADE */}
-      <header className="w-full max-w-[380px] flex flex-col items-center text-center pt-1 pb-3">
+      {/* 1. HEADER LIMPO: LOGOTIPO E IDENTIDADE AZUL TECH */}
+      <header className="w-full max-w-[380px] flex flex-col items-center text-center pt-2 pb-4">
         <div
-          className="h-11 w-11 rounded-xl flex items-center justify-center shadow-sm mb-2 transition-transform hover:scale-105"
-          style={{ backgroundColor: corPrimaria }}
+          className="h-12 w-12 rounded-2xl flex items-center justify-center shadow-md mb-2 transition-transform hover:scale-105"
+          style={{ background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)" }}
         >
-          <Zap className="h-5 w-5 stroke-[2.5]" style={{ color: corTextoPrimaria, fill: corTextoPrimaria }} />
+          <Zap className="h-6 w-6 stroke-[2.5] text-white fill-white" />
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="text-[19px] font-bold tracking-tight text-slate-900">{nomeApp}</span>
-          <span
-            className="text-[8.5px] font-bold uppercase px-1.5 py-0.5 rounded tracking-wider"
-            style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
-          >
+          <span className="text-2xl font-black tracking-tight text-[#003366]">{nomeApp || "PARTIU"}</span>
+          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full tracking-wider bg-[#003366] text-white">
             BRASIL
           </span>
         </div>
-        <p className="text-[10px] font-normal text-slate-500 mt-0.5">{sloganApp}</p>
+        <p className="text-[11px] font-medium text-slate-500 mt-1">{sloganApp || "Mobilidade urbana sob demanda"}</p>
       </header>
 
-      {/* 2. CARD PRINCIPAL CLARO MOBILE-FIRST */}
-      <main className="w-full max-w-[380px] bg-white rounded-2xl border border-slate-200/80 shadow-[0_4px_24px_-4px_rgba(15,23,42,0.06)] p-4 sm:p-5 space-y-3.5">
+      {/* 2. CARD CENTRAL COM SUPERFÍCIE BRANCA E ELEVAÇÃO SUAVE */}
+      <main className="w-full max-w-[380px] bg-white rounded-2xl border border-[#E2E8F0] shadow-md p-5 space-y-4">
         
-        {/* SELETOR DE PERFIL: PASSAGEIRO | MOTORISTA (SEM ADMIN) */}
-        <div className="bg-slate-100/90 p-1 rounded-xl flex items-center gap-1">
+        {/* SELETOR DE PAPÉIS SEGMENTADO (PILLS) */}
+        <div className="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200/60">
           <button
             type="button"
             onClick={() => {
@@ -350,18 +347,13 @@ export function PartiuAppAuthGate({
               setErrorMessage(null);
               setSuccessMessage(null);
             }}
-            className={`flex-1 py-1.5 rounded-lg text-[10.5px] transition flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5 ${
               activeRole === "PASSAGEIRO"
-                ? "shadow-sm font-bold"
-                : "text-slate-600 hover:text-slate-900 font-medium"
+                ? "bg-white text-[#003366] font-black shadow-sm border border-slate-200/50"
+                : "text-slate-500 hover:text-slate-900 font-semibold"
             }`}
-            style={
-              activeRole === "PASSAGEIRO"
-                ? { backgroundColor: corPrimaria, color: corTextoPrimaria }
-                : {}
-            }
           >
-            <Car className="h-3.5 w-3.5" />
+            <Car className={`h-3.5 w-3.5 ${activeRole === "PASSAGEIRO" ? "text-[#0088FF]" : "text-slate-400"}`} />
             <span>Passageiro</span>
           </button>
 
@@ -372,18 +364,13 @@ export function PartiuAppAuthGate({
               setErrorMessage(null);
               setSuccessMessage(null);
             }}
-            className={`flex-1 py-1.5 rounded-lg text-[10.5px] transition flex items-center justify-center gap-1.5 ${
+            className={`flex-1 py-2 rounded-lg text-xs transition-all flex items-center justify-center gap-1.5 ${
               activeRole === "MOTORISTA"
-                ? "shadow-sm font-bold"
-                : "text-slate-600 hover:text-slate-900 font-medium"
+                ? "bg-white text-[#003366] font-black shadow-sm border border-slate-200/50"
+                : "text-slate-500 hover:text-slate-900 font-semibold"
             }`}
-            style={
-              activeRole === "MOTORISTA"
-                ? { backgroundColor: corPrimaria, color: corTextoPrimaria }
-                : {}
-            }
           >
-            <Radio className="h-3.5 w-3.5" />
+            <Radio className={`h-3.5 w-3.5 ${activeRole === "MOTORISTA" ? "text-[#0088FF]" : "text-slate-400"}`} />
             <span>Motorista</span>
           </button>
         </div>
@@ -519,15 +506,15 @@ export function PartiuAppAuthGate({
                         <button
                           type="submit"
                           disabled={loading}
-                          className="w-full h-10 rounded-xl font-bold text-[12px] flex items-center justify-center gap-1.5 shadow-sm transition active:scale-[0.99] disabled:opacity-50"
-                          style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                          className="w-full h-11 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-md hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50 text-white"
+                          style={{ background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)" }}
                         >
                           {loading ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
                             <>
-                              <span>Continuar</span>
-                              <ArrowRight className="h-3.5 w-3.5" />
+                              <span>Entrar na Conta</span>
+                              <ArrowRight className="h-4 w-4" />
                             </>
                           )}
                         </button>
@@ -544,7 +531,7 @@ export function PartiuAppAuthGate({
                             value={otpCode}
                             onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ""))}
                             placeholder="0000"
-                            className="w-full bg-slate-50/70 border border-slate-200/90 rounded-lg px-3 py-2 text-center tracking-widest text-[15px] font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-slate-400 focus:bg-white transition"
+                            className="w-full bg-slate-50/70 border border-[#E2E8F0] rounded-xl px-3 py-2 text-center tracking-widest text-[15px] font-bold text-slate-900 placeholder:text-slate-300 focus:outline-none focus:border-[#0088FF] focus:ring-2 focus:ring-[#0088FF]/20 focus:bg-white transition"
                             autoFocus
                             required
                           />
@@ -553,15 +540,15 @@ export function PartiuAppAuthGate({
                         <button
                           type="submit"
                           disabled={loading}
-                          className="w-full h-10 rounded-xl font-bold text-[12px] flex items-center justify-center gap-1.5 shadow-sm transition active:scale-[0.99] disabled:opacity-50"
-                          style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                          className="w-full h-11 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-md hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50 text-white"
+                          style={{ background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)" }}
                         >
                           {loading ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                           ) : (
                             <>
-                              <UserCheck className="h-3.5 w-3.5" />
-                              <span>Confirmar e Entrar</span>
+                              <UserCheck className="h-4 w-4" />
+                              <span>Confirmar e Entrar na Conta</span>
                             </>
                           )}
                         </button>
@@ -636,15 +623,15 @@ export function PartiuAppAuthGate({
                     <button
                       type="submit"
                       disabled={loading}
-                      className="w-full h-10 rounded-xl font-bold text-[12px] flex items-center justify-center gap-1.5 shadow-sm transition active:scale-[0.99] disabled:opacity-50 mt-1"
-                      style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                      className="w-full h-11 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-md hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50 mt-1 text-white"
+                      style={{ background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)" }}
                     >
                       {loading ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <>
-                          <span>Entrar no {nomeApp}</span>
-                          <ArrowRight className="h-3.5 w-3.5" />
+                          <span>Entrar na Conta</span>
+                          <ArrowRight className="h-4 w-4" />
                         </>
                       )}
                     </button>
@@ -806,15 +793,15 @@ export function PartiuAppAuthGate({
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full h-10 rounded-xl font-bold text-[12px] flex items-center justify-center gap-1.5 shadow-sm transition active:scale-[0.99] disabled:opacity-50 mt-1"
-                style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
+                className="w-full h-11 rounded-xl font-black text-xs flex items-center justify-center gap-2 shadow-md hover:brightness-105 active:scale-[0.98] transition-all disabled:opacity-50 mt-1 text-white"
+                style={{ background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)" }}
               >
                 {loading ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <>
-                    <span>Acessar Cockpit do Motorista</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <span>Entrar na Conta • Motorista</span>
+                    <ArrowRight className="h-4 w-4" />
                   </>
                 )}
               </button>

@@ -270,7 +270,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           source: "route-source",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#1A1A1A",
+            "line-color": "#1E293B",
             "line-width": 4.8,
             "line-opacity": 1.0,
           },

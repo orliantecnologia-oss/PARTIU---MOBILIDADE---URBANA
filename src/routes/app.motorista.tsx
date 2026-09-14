@@ -10,6 +10,7 @@ import {
   Volume2,
   VolumeX,
   Star,
+  Shield,
   ShieldCheck,
   Award,
   ChevronRight,
@@ -344,6 +345,7 @@ export function PartiuDriverCockpit() {
   const [ganhosHoje, setGanhosHoje] = useState(() => getGanhosHojeMotorista());
   const [corridasFeitas, setCorridasFeitas] = useState(9);
   const [horasOnline] = useState("5h 20m");
+  const [modalSosAberto, setModalSosAberto] = useState(false);
 
   // Estado da Corrida no Cockpit: IDLE -> OFFER -> HEADING_TO_PICKUP -> WAITING_PIN -> IN_PROGRESS
   const [estadoCockpit, setEstadoCockpit] = useState<
@@ -1139,19 +1141,22 @@ export function PartiuDriverCockpit() {
       {/* ================================================================= */}
       {/* 2. TOP HUD FLUTUANTE — LAYOUT 2 LINHAS (ENTERPRISE UBER/99 GRADE) */}
       {/* ================================================================= */}
-      <header className="absolute top-0 inset-x-0 z-30 pt-[max(0.75rem,env(safe-area-inset-top))] px-3 pb-2 pointer-events-none bg-gradient-to-b from-black/35 via-black/15 to-transparent space-y-2">
-        {/* LINHA 1: Perfil do Motorista + Toggle Online/Offline */}
+      {/* ================================================================= */}
+      {/* 2. TOP HUD FLUTUANTE — LAYOUT 2 LINHAS (ENTERPRISE UBER/99 GRADE) */}
+      {/* ================================================================= */}
+      <header className="absolute top-0 inset-x-0 z-30 pt-[max(0.75rem,env(safe-area-inset-top))] px-3 pb-2 pointer-events-none bg-gradient-to-b from-black/50 via-black/25 to-transparent space-y-2">
+        {/* LINHA 1: Perfil do Motorista + Telemetria + Toggle Online/Offline */}
         <div className="flex items-center justify-between gap-2">
-          {/* Perfil Condutor */}
+          {/* Perfil Condutor com Dark Navy Cockpit (#0A2342) */}
           <button
             type="button"
             onClick={() => setModalPerfilMotorista(true)}
-            className="pointer-events-auto flex items-center gap-2 p-1.5 pr-3.5 bg-white/98 backdrop-blur-md rounded-full shadow-lg border border-slate-200/90 hover:border-slate-300 active:scale-95 transition text-slate-950 min-w-0"
+            className="pointer-events-auto flex items-center gap-2 p-1.5 pr-3.5 bg-[#0A2342] text-white rounded-full shadow-xl border border-slate-700/80 hover:border-slate-600 active:scale-95 transition min-w-0 cursor-pointer"
           >
             <div className="relative shrink-0">
               <div
-                style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
-                className="w-9 h-9 rounded-full font-black flex items-center justify-center text-xs shadow-xs ring-1 ring-black/10"
+                style={{ backgroundColor: "#0088FF", color: "#FFFFFF" }}
+                className="w-9 h-9 rounded-full font-black flex items-center justify-center text-xs shadow-xs ring-1 ring-white/20"
               >
                 {perfilMotorista.nome
                   ? perfilMotorista.nome
@@ -1164,26 +1169,37 @@ export function PartiuDriverCockpit() {
                   : "MO"}
               </div>
               <span
-                className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white shadow-xs ${
-                  isOnline ? "bg-emerald-500" : "bg-slate-400"
+                className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#0A2342] shadow-xs ${
+                  isOnline ? "bg-[#22C55E] animate-pulse" : "bg-slate-500"
                 }`}
               />
             </div>
             <div className="text-left min-w-0">
-              <span className="text-[13px] font-black text-slate-950 block leading-tight truncate max-w-[150px]">
-                {perfilMotorista.nome || "Motorista"}
-              </span>
-              <span className="text-[10.5px] font-bold flex items-center gap-1.5 leading-none mt-0.5 text-slate-600">
-                <span className="flex items-center gap-0.5 text-amber-500 font-black">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13px] font-black text-white block leading-tight truncate max-w-[140px]">
+                  {perfilMotorista.nome || "Motorista"}
+                </span>
+                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded bg-blue-500/20 text-[#00C6FF] border border-blue-400/30">
+                  Profissional
+                </span>
+              </div>
+              <span className="text-[10.5px] font-bold flex items-center gap-1.5 leading-none mt-0.5 text-slate-300">
+                <span className="flex items-center gap-0.5 text-amber-400 font-black">
                   <Star className="w-3 h-3 fill-current shrink-0" />
                   <span>{perfilMotorista.rating?.toFixed(2) || "4.98"}</span>
                 </span>
-                <span className="text-[9.5px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/60 shrink-0">
+                <span className="text-[9.5px] font-bold text-slate-300 bg-slate-800/80 px-1.5 py-0.5 rounded border border-slate-700 shrink-0">
                   {loyaltyProfile.tierName}
                 </span>
               </span>
             </div>
           </button>
+
+          {/* Telemetria GPS Badge (Desktop/Tablet) */}
+          <div className="hidden md:flex pointer-events-auto items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0A2342] border border-slate-700/80 text-white shadow-md">
+            <span className="w-2 h-2 rounded-full bg-[#00C6FF] animate-pulse" />
+            <span className="text-[11px] font-bold text-sky-200">Telemetria GPS Ativa (Deadband)</span>
+          </div>
 
           {/* Ações da Direita: Mute Radar + Toggle Online/Offline Principal */}
           <div className="pointer-events-auto flex items-center gap-1.5 shrink-0">
@@ -1191,8 +1207,8 @@ export function PartiuDriverCockpit() {
             <button
               type="button"
               onClick={toggleSom}
-              className={`w-9 h-9 rounded-full flex items-center justify-center transition shadow-md active:scale-90 bg-white/98 backdrop-blur-md border border-slate-200/90 shrink-0 cursor-pointer ${
-                somAtivo ? "text-blue-600" : "text-slate-400"
+              className={`w-9 h-9 rounded-full flex items-center justify-center transition shadow-md active:scale-90 bg-[#0A2342] border border-slate-700/80 shrink-0 cursor-pointer ${
+                somAtivo ? "text-[#00C6FF]" : "text-slate-400"
               }`}
               title={somAtivo ? "Som do radar ativado" : "Som silenciado"}
               aria-label={somAtivo ? "Silenciar radar" : "Ativar som do radar"}
@@ -1200,24 +1216,24 @@ export function PartiuDriverCockpit() {
               {somAtivo ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
 
-            {/* Toggle Online/Offline — Sempre visível, alto contraste e feedback tátil */}
+            {/* Toggle Online/Offline — Destaque com pulso verde (#22C55E) quando ONLINE */}
             <button
               type="button"
               onClick={handleToggleOnline}
               className={`px-4 py-2 rounded-full text-xs font-black flex items-center gap-2 transition-all shadow-lg active:scale-95 cursor-pointer shrink-0 ${
                 isOnline
-                  ? "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30"
-                  : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/30 border border-slate-800"
+                  ? "bg-[#22C55E] hover:bg-emerald-600 text-white shadow-[0_0_15px_rgba(34,197,94,0.45)] ring-2 ring-[#22C55E]/40"
+                  : "bg-slate-900 hover:bg-slate-800 text-white shadow-slate-900/30 border border-slate-700"
               }`}
             >
-              <Power className="w-3.5 h-3.5 stroke-[2.5]" />
+              <Power className={`w-3.5 h-3.5 stroke-[2.5] ${isOnline ? "animate-pulse" : ""}`} />
               <span>{isOnline ? "ONLINE" : "FICAR ONLINE"}</span>
             </button>
           </div>
         </div>
 
-        {/* LINHA 2: HUD DE DESEMPENHO EM TEMPO REAL (Métricas que nunca são cortadas) */}
-        <div className="pointer-events-auto flex items-center justify-between gap-2 p-2 px-3 bg-white/98 backdrop-blur-md rounded-2xl shadow-lg border border-slate-200/90 text-slate-950">
+        {/* LINHA 2: HUD DE DESEMPENHO EM TEMPO REAL (Dark Navy #0A2342) */}
+        <div className="pointer-events-auto flex items-center justify-between gap-2 p-2 px-3.5 bg-[#0A2342] text-white rounded-2xl shadow-xl border border-slate-700/80">
           {/* Faturamento e Contadores do Dia (D+0) */}
           <button
             type="button"
@@ -1225,22 +1241,23 @@ export function PartiuDriverCockpit() {
             className="flex items-center gap-2.5 text-left active:scale-95 transition min-w-0 cursor-pointer"
             title="Ver detalhes de faturamento e solicitar saque PIX"
           >
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm font-black shrink-0 border border-emerald-200/80">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-[#22C55E] flex items-center justify-center text-sm font-black shrink-0 border border-emerald-500/30">
               ⚡
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 leading-tight">
-                <span className="text-xs sm:text-sm font-black text-slate-950">
-                  {ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                <span className="text-xs sm:text-sm font-black text-white">
+                  Ganhos Hoje: {ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
                 </span>
-                <span className="text-[10px] font-black text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded">
-                  D+0
+                <span className="text-[10px] font-black text-[#22C55E] bg-emerald-500/20 px-1.5 py-0.5 rounded border border-emerald-500/30">
+                  D+0 PIX
                 </span>
               </div>
-              <div className="text-[10.5px] font-semibold text-slate-500 flex items-center gap-1.5 leading-none mt-0.5">
+              <div className="text-[10.5px] font-semibold text-slate-300 flex items-center gap-1.5 leading-none mt-0.5">
                 <span>{corridasFeitas} corridas</span>
                 <span>•</span>
                 <span>{horasOnline} online</span>
+                <span className="md:hidden text-sky-400">• Telemetria Ativa</span>
               </div>
             </div>
           </button>
@@ -1250,16 +1267,16 @@ export function PartiuDriverCockpit() {
             <button
               type="button"
               onClick={() => setModalPlanosAberto(true)}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-[11px] font-black text-slate-800 transition active:scale-95 flex items-center gap-1.5 border border-slate-200/80 cursor-pointer"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] font-black text-white transition active:scale-95 flex items-center gap-1.5 border border-slate-700 cursor-pointer"
               title="Ver e Gerenciar Plano de Repasse"
             >
-              <span className="w-2 h-2 rounded-full shrink-0 bg-blue-600" />
+              <span className="w-2 h-2 rounded-full shrink-0 bg-[#0088FF]" />
               <span className="whitespace-nowrap">{driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%)</span>
             </button>
 
             <Link
               to="/app"
-              className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-950 border border-slate-200/80 flex items-center justify-center transition active:scale-95 shrink-0"
+              className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 flex items-center justify-center transition active:scale-95 shrink-0"
               title="Alternar para Modo Passageiro"
             >
               <Car className="w-4 h-4" />
@@ -2966,6 +2983,66 @@ export function PartiuDriverCockpit() {
               : "PROCURANDO"
           }
         />
+      )}
+
+      {/* ========================================================================= */}
+      {/* BOTÃO FLUTUANTE SOS (SOCORRO IMEDIATO POLÍCIA 190)                        */}
+      {/* ========================================================================= */}
+      <div className="fixed bottom-24 right-4 z-40 pointer-events-auto">
+        <button
+          type="button"
+          onClick={() => setModalSosAberto(true)}
+          aria-label="Botão de Emergência e SOS Policial 190"
+          className="w-13 h-13 rounded-full bg-[#EF4444] hover:bg-red-600 active:scale-95 text-white flex flex-col items-center justify-center shadow-[0_4px_25px_rgba(239,68,68,0.55)] border-2 border-white transition-all cursor-pointer animate-pulse"
+          title="Central de Emergência SOS 190"
+        >
+          <Shield className="w-5 h-5 fill-white text-white" />
+          <span className="text-[9px] font-black tracking-wider leading-none mt-0.5">SOS</span>
+        </button>
+      </div>
+
+      {/* MODAL DE CONFIRMAÇÃO SOS 190 */}
+      {modalSosAberto && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-[#0A2342] border-2 border-[#EF4444] rounded-3xl p-5 sm:p-6 max-w-sm w-full text-white shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/20 text-[#EF4444] flex items-center justify-center border border-[#EF4444]/40 shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-white">Emergência &amp; SOS 190</h3>
+                <p className="text-xs text-slate-300 font-medium">Acionamento Policial PARTIU</p>
+              </div>
+            </div>
+
+            <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-700/80 text-xs space-y-2 text-slate-200">
+              <p className="leading-relaxed">
+                Você está prestes a acionar a <strong>Central de Emergência 190</strong>.
+              </p>
+              <div className="p-2 rounded-xl bg-red-950/40 border border-red-800/40 text-[11px] text-red-300 font-semibold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#EF4444] animate-ping shrink-0" />
+                <span>Telemetria GPS enviada aos canais de apoio</span>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              <a
+                href="tel:190"
+                className="w-full h-12 rounded-2xl bg-[#EF4444] hover:bg-red-600 text-white font-black text-xs shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer"
+              >
+                <Phone className="w-4 h-4" />
+                <span>LIGAR PARA POLÍCIA MILITAR (190)</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setModalSosAberto(false)}
+                className="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition cursor-pointer"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

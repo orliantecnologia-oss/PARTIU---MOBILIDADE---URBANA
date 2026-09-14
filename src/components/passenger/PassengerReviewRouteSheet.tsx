@@ -15,8 +15,10 @@ import {
   Pencil,
   Check,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { usePassengerRide } from "@/contexts/PassengerRideContext";
+import type { PassengerVehicleCategory } from "@/lib/passenger/passenger-ride-machine";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
 import { useBottomSheetGesture } from "@/hooks/useBottomSheetGesture";
 import { hapticFeedback } from "@/lib/haptics/haptic-feedback";
@@ -27,7 +29,7 @@ import { CategoryQuoteSkeleton } from "@/components/ui/skeleton";
  * ==============================================================================
  * Refatorado com arquitetura "Above the Fold":
  * 1. Altura compacta travada em ~46% a 50% da tela (sem rolagem/scroll).
- * 2. Seleção de Veículos lado a lado em Grid 2 colunas (Partiu Moto vs Partiu Carro).
+ * 2. Seleção de Veículos: Partiu Pop, Partiu Moto e Partiu Plus lado a lado.
  * 3. Seção de Pagamento compacta em linha única (célula com ChevronRight + modal secundário).
  * 4. Botão de Confirmação principal sempre visível e ancorado no rodapé.
  * 5. Mapa livre e respirando no fundo com máxima visibilidade do trajeto.
@@ -35,7 +37,7 @@ import { CategoryQuoteSkeleton } from "@/components/ui/skeleton";
  */
 interface VehicleOptionCardProps {
   isSelected: boolean;
-  category: "MOTO" | "CARRO";
+  category: PassengerVehicleCategory;
   title: string;
   badgeText: string;
   badgeClass: string;
@@ -43,7 +45,8 @@ interface VehicleOptionCardProps {
   capacityText: string;
   price: string;
   icon: React.ComponentType<{ className?: string }>;
-  onSelect: (cat: "MOTO" | "CARRO") => void;
+  onSelect: (cat: PassengerVehicleCategory) => void;
+  accentBorder?: string;
   corPrimaria?: string;
   corSecundaria?: string;
 }
@@ -60,6 +63,7 @@ const VehicleOptionCard = memo(function VehicleOptionCard({
   price,
   icon: IconComp,
   onSelect,
+  accentBorder,
   corPrimaria,
   corSecundaria,
 }: VehicleOptionCardProps) {
@@ -175,7 +179,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
     initialSnapKey: "HALF",
   });
 
-  const handleSelectCategory = useCallback((cat: "MOTO" | "CARRO") => {
+  const handleSelectCategory = useCallback((cat: PassengerVehicleCategory) => {
     hapticFeedback.medium();
     selectVehicle(cat);
   }, [selectVehicle]);
@@ -200,10 +204,14 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
     resetToIdle();
   }, [resetToIdle]);
 
-  // Cotações e métricas oficiais das duas categorias homologadas
+  // Cotações e métricas oficiais das categorias homologadas (Pop, Moto e Plus)
   const isMoto = categoriaVeiculo === "MOTO";
+  const isPlus = categoriaVeiculo === "EXECUTIVO";
+  const isPop = !isMoto && !isPlus;
+
   const quoteMoto = multiCategoryQuotes?.["PARTIU_MOTO"];
-  const quoteCarro = multiCategoryQuotes?.["PARTIU_CARRO"];
+  const quotePop = multiCategoryQuotes?.["PARTIU_CARRO"];
+  const quotePlus = multiCategoryQuotes?.["PARTIU_EXECUTIVO"];
 
   const precoMoto =
     quoteMoto?.formattedPrice ||
@@ -211,17 +219,24 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
       ? `R$ ${cotacoes.moto.precoBrl.toFixed(2).replace(".", ",")}`
       : "R$ 7,50");
 
-  const precoCarro =
-    quoteCarro?.formattedPrice ||
+  const precoPop =
+    quotePop?.formattedPrice ||
     (cotacoes?.carro?.precoBrl
       ? `R$ ${cotacoes.carro.precoBrl.toFixed(2).replace(".", ",")}`
       : "R$ 11,50");
 
-  const pickupMinMoto = quoteMoto?.driverPickupMinutes ?? 3;
-  const pickupMinCarro = quoteCarro?.driverPickupMinutes ?? 4;
+  const precoPlus =
+    quotePlus?.formattedPrice ||
+    (cotacoes?.carro?.precoBrl
+      ? `R$ ${(cotacoes.carro.precoBrl * 1.35).toFixed(2).replace(".", ",")}`
+      : "R$ 15,50");
 
-  const precoAtivo = isMoto ? precoMoto : precoCarro;
-  const nomeVeiculoAtivo = isMoto ? "Partiu Moto" : "Partiu Carro";
+  const pickupMinMoto = quoteMoto?.driverPickupMinutes ?? 3;
+  const pickupMinPop = quotePop?.driverPickupMinutes ?? 4;
+  const pickupMinPlus = quotePlus?.driverPickupMinutes ?? 5;
+
+  const precoAtivo = isMoto ? precoMoto : isPlus ? precoPlus : precoPop;
+  const nomeVeiculoAtivo = isMoto ? "Partiu Moto" : isPlus ? "Partiu Plus" : "Partiu Pop";
 
   // Metadados visuais do pagamento atual
   function getPaymentInfo() {
@@ -368,35 +383,52 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             <Pencil className="w-3.5 h-3.5 text-slate-500 shrink-0" />
           </div>
 
-          {/* 2. SELEÇÃO DE VEÍCULOS (LADO A LADO - GRID DE 2 COLUNAS ESTILO 99 - MEMORIZADO) */}
-          <div className="grid grid-cols-2 gap-2 shrink-0">
-            {/* CARD 1: PARTIU MOTO */}
+          {/* 2. SELEÇÃO DE VEÍCULOS (LADO A LADO - 3 CATEGORIAS: POP, MOTO, PLUS) */}
+          <div className="grid grid-cols-3 gap-1.5 shrink-0">
+            {/* CARD 1: PARTIU POP */}
             <VehicleOptionCard
-              isSelected={isMoto}
-              category="MOTO"
-              title="Partiu Moto"
-              badgeText="Econômico"
-              badgeClass="text-emerald-800 bg-emerald-100/90"
-              etaMinutes={pickupMinMoto}
-              capacityText="1 pessoa"
-              price={precoMoto}
-              icon={Bike}
+              isSelected={isPop}
+              category="CARRO"
+              title="Partiu Pop"
+              badgeText="Popular"
+              badgeClass="text-blue-950 bg-blue-100 font-bold"
+              etaMinutes={pickupMinPop}
+              capacityText="4 lug."
+              price={precoPop}
+              icon={Car}
               onSelect={handleSelectCategory}
               corPrimaria={corPrimaria}
               corSecundaria={corSecundaria}
             />
 
-            {/* CARD 2: PARTIU CARRO */}
+            {/* CARD 2: PARTIU MOTO (DESTAQUE ACENTO CIANO/AMARELO) */}
             <VehicleOptionCard
-              isSelected={!isMoto}
-              category="CARRO"
-              title="Partiu Carro"
+              isSelected={isMoto}
+              category="MOTO"
+              title="Partiu Moto"
+              badgeText="Econômico"
+              badgeClass="text-cyan-950 bg-cyan-100 font-black"
+              etaMinutes={pickupMinMoto}
+              capacityText="1 lug."
+              price={precoMoto}
+              icon={Bike}
+              onSelect={handleSelectCategory}
+              accentBorder="#00C6FF"
+              corPrimaria={corPrimaria}
+              corSecundaria={corSecundaria}
+            />
+
+            {/* CARD 3: PARTIU PLUS (ÍCONE DE CONFORTO) */}
+            <VehicleOptionCard
+              isSelected={isPlus}
+              category="EXECUTIVO"
+              title="Partiu Plus"
               badgeText="Conforto"
-              badgeClass="text-blue-900 bg-blue-100/90"
-              etaMinutes={pickupMinCarro}
-              capacityText="4 lugares"
-              price={precoCarro}
-              icon={Car}
+              badgeClass="text-amber-950 bg-amber-100 font-black"
+              etaMinutes={pickupMinPlus}
+              capacityText="Ar / Plus"
+              price={precoPlus}
+              icon={Sparkles}
               onSelect={handleSelectCategory}
               corPrimaria={corPrimaria}
               corSecundaria={corSecundaria}
@@ -526,7 +558,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             SEÇÃO C — FOOTER FIXO (NUNCA ROLA, NUNCA SAI DA TELA)
             Ancorado ao Safe Area inferior com visibilidade permanente e sombra
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="px-3.5 sm:px-4 pt-1.5 pb-[max(0.75rem,calc(env(safe-area-inset-bottom)+0.5rem))] shrink-0 border-t border-slate-100/90 bg-white/80 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+        <div className="px-3.5 sm:px-4 pt-1.5 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0 border-t border-slate-100/90 bg-white/80 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
           <button
             type="button"
             onClick={handleConfirm}

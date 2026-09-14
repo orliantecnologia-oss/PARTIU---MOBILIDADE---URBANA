@@ -64,7 +64,7 @@ export const DEFAULT_WHITELABEL_CONFIG: WhiteLabelFullConfig = {
       corPrincipalHover: "#002244",
       corSecundaria: "#0088FF",
       corSecundariaHover: "#006ACC",
-      corTerciaria: "#0A2342",
+      corTerciaria: "#00C6FF",
       corTextoPrincipal: "#0A2342",
       corFundoApp: "#F8FAFC",
       corSuperficieCard: "#FFFFFF",
@@ -899,6 +899,7 @@ export class WhiteLabelEngine {
     root.style.setProperty("--brand-primary", prim.corPrincipal);
     root.style.setProperty("--brand-primary-hover", prim.corPrincipalHover);
     root.style.setProperty("--brand-secondary", prim.corSecundaria);
+    root.style.setProperty("--brand-accent", prim.corTerciaria || "#00C6FF");
     root.style.setProperty("--brand-text", prim.corTextoPrincipal);
     root.style.setProperty("--brand-tertiary", prim.corTerciaria);
 

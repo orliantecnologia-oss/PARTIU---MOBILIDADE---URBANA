@@ -64,6 +64,10 @@
   --color-brand-foreground: var(--brand-foreground);
   --color-brand-soft: var(--brand-soft);
   --color-surface: var(--surface);
+  --color-primary-deep: var(--primary-deep);
+  --color-primary-vibrant: var(--primary-vibrant);
+  --color-primary-accent: var(--primary-accent);
+  --color-dark-navy: var(--dark-navy);
   --color-primary-50: var(--primary-50);
   --color-primary-100: var(--primary-100);
   --color-primary-400: var(--primary-400);
@@ -130,6 +134,11 @@
   --popover: #ffffff;
   --popover-foreground: #090d16;
 
+  --primary-deep: #003366;
+  --primary-vibrant: #0088FF;
+  --primary-accent: #00C6FF;
+  --dark-navy: #0A2342;
+
   --primary: #003366;
   --primary-foreground: #ffffff;
   --brand: #003366;
@@ -147,15 +156,15 @@
   --text-secondary: #64748b;
   --text-tertiary: #94a3b8;
 
-  --accent: #0088FF; /* Vibrant Blue / Cyan */
+  --accent: #0088FF; /* Vibrant Blue */
   --accent-foreground: #ffffff;
   --accent-soft: #e0f2fe;
 
-  --success: #10b981; /* PIX D+0 Emerald */
+  --success: #22C55E; /* Status Green Oficial */
   --success-soft: #ecfdf5;
   --warning: #f59e0b;
   --warning-soft: #fffbeb;
-  --danger: #ef4444;
+  --danger: #ef4444; /* Danger Red Oficial */
   --danger-soft: #fef2f2;
   --info: #0088ff;
   --info-soft: #eff6ff;
@@ -332,16 +341,36 @@ select {
    ========================================================================== */
 
 :root {
-  /* Escala de Sombras Naturais Multi-camadas (Stripe & Linear Elevation) */
+  /* Escala de Sombras Naturais Multi-camadas (Azul Tech Elevation) */
   --shadow-subtle: 0 1px 2px 0 rgba(0, 0, 0, 0.03), 0 1px 3px 1px rgba(0, 0, 0, 0.02);
-  --shadow-card: 0 2px 8px -2px rgba(13, 89, 48, 0.04), 0 6px 16px -4px rgba(0, 0, 0, 0.04);
-  --shadow-card-hover: 0 4px 12px -2px rgba(13, 89, 48, 0.08), 0 12px 24px -4px rgba(0, 0, 0, 0.06);
-  --shadow-float: 0 16px 32px -8px rgba(13, 89, 48, 0.12), 0 8px 16px -4px rgba(0, 0, 0, 0.04);
-  --shadow-primary-button: 0 4px 14px 0 rgba(13, 89, 48, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 2px 8px -2px rgba(0, 51, 102, 0.06), 0 6px 16px -4px rgba(0, 51, 102, 0.04);
+  --shadow-card-hover: 0 4px 12px -2px rgba(0, 51, 102, 0.10), 0 12px 24px -4px rgba(0, 51, 102, 0.08);
+  --shadow-float: 0 16px 32px -8px rgba(0, 51, 102, 0.16), 0 8px 16px -4px rgba(0, 51, 102, 0.06);
+  --shadow-primary-button: 0 4px 14px 0 rgba(0, 136, 255, 0.35), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
   /* Padronização de Bordas Sutis & Não Agressivas */
   --border-subtle: rgba(226, 232, 240, 0.8);
-  --border-brand-subtle: rgba(13, 89, 48, 0.15);
+  --border-brand-subtle: rgba(0, 136, 255, 0.20);
+}
+
+/* Gradiente Padrão CTAs Oficial: LinearGradient de #0088FF para #003366 */
+.bg-gradient-cta {
+  background: linear-gradient(135deg, #0088FF 0%, #003366 100%) !important;
+  color: #FFFFFF !important;
+}
+
+.btn-gradient-cta {
+  background: linear-gradient(135deg, #0088FF 0%, #003366 100%);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px 0 rgba(0, 136, 255, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-gradient-cta:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 18px 0 rgba(0, 136, 255, 0.45);
+}
+.btn-gradient-cta:active {
+  transform: scale(0.98);
 }
 
 /* Utilitários de Superfície e Elevação Padronizados */

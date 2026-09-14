@@ -67,8 +67,8 @@ export const Header = memo(function Header({
 
   // Padding superior seguro (respeita safe-area-inset-top de dispositivos móveis)
   const safeTopPadding = insets?.top
-    ? `${insets.top + 6}px`
-    : "max(0.6rem, calc(env(safe-area-inset-top, 0px) + 6px))";
+    ? `${insets.top + 8}px`
+    : "max(0.75rem, calc(env(safe-area-inset-top, 0px) + 8px))";
 
   return (
     <header

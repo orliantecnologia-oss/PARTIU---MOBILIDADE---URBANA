@@ -306,7 +306,7 @@ export function QuadroMotoristasAdminPage() {
       <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-primary-500 border border-yellow-500/25 mb-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-sky-400 border border-blue-500/30 mb-2">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
               <span>Restrição Estrita: CARRO e MOTO Exclusivamente</span>
             </div>
@@ -323,7 +323,7 @@ export function QuadroMotoristasAdminPage() {
               type="button"
               onClick={handleExecutarEsteiraOCR}
               disabled={processandoOcr}
-              className="flex h-11 items-center gap-2 rounded-2xl bg-primary-600 hover:bg-amber-400 text-slate-950 px-4 text-xs font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
+              className="flex h-11 items-center gap-2 rounded-2xl bg-[#0088FF] hover:bg-[#003366] text-white px-4 text-xs font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
             >
               <Sparkles className="h-4 w-4" />
               <span>{processandoOcr ? "Analisando OCR..." : "Esteira OCR Automática"}</span>
@@ -377,15 +377,15 @@ export function QuadroMotoristasAdminPage() {
 
         {/* Pendentes */}
         <div className={`p-3.5 sm:p-5 rounded-3xl border shadow-xs flex flex-col justify-between transition-all ${
-          totalPendentes > 0 ? "bg-primary-50 border-primary-500" : "bg-white border-slate-200"
+          totalPendentes > 0 ? "bg-blue-50 border-blue-400" : "bg-white border-slate-200"
         }`}>
           <div className="flex items-center justify-between">
             <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Aprovação Pendente</span>
-            {totalPendentes > 0 && <span className="h-2 w-2 rounded-full bg-primary-600 animate-pulse" />}
+            {totalPendentes > 0 && <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />}
           </div>
           <div className="pt-2 sm:pt-3 flex items-baseline justify-between">
-            <p className="text-xl sm:text-2xl font-black text-primary-700">{totalPendentes}</p>
-            <span className="text-[10px] sm:text-[11px] font-bold text-amber-700">Aguardando OCR</span>
+            <p className="text-xl sm:text-2xl font-black text-blue-900">{totalPendentes}</p>
+            <span className="text-[10px] sm:text-[11px] font-bold text-blue-700">Aguardando OCR</span>
           </div>
         </div>
 
@@ -503,7 +503,7 @@ export function QuadroMotoristasAdminPage() {
                           setMotoristaSelecionado(m);
                           setModalRejeitarAberto(true);
                         }}
-                        className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-700 font-bold text-xs border border-slate-200 transition-all cursor-pointer"
+                        className="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-[#EF4444] font-bold text-xs border border-rose-200 transition-all cursor-pointer flex items-center justify-center gap-1"
                       >
                         <UserX className="h-3.5 w-3.5" />
                         <span>Rejeitar</span>
@@ -635,7 +635,7 @@ export function QuadroMotoristasAdminPage() {
                                 setMotoristaSelecionado(m);
                                 setModalRejeitarAberto(true);
                               }}
-                              className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-700 font-bold text-xs border border-slate-200 transition-all cursor-pointer"
+                              className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-[#EF4444] font-bold text-xs border border-rose-200 transition-all cursor-pointer flex items-center gap-1"
                               title="Rejeitar com Motivo"
                             >
                               <UserX className="h-3.5 w-3.5" />

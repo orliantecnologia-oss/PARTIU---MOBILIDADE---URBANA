@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Car,
   Bike,
+  Share2,
 } from "lucide-react";
 import { usePassengerRide } from "@/contexts/PassengerRideContext";
 import { ChatBottomSheet } from "@/components/chat";
@@ -56,6 +57,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
     destino,
     distanciaKm,
     etaCalculado,
+    formaPagamento,
     requestCancel,
     isCancelModalOpen,
     confirmCancel,
@@ -282,6 +284,41 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
   return (
     <>
       {/* ========================================================================= */}
+      {/* TOP CARD FLUTUANTE DO MOTORISTA (PADRÃO UBER/99)                           */}
+      {/* ========================================================================= */}
+      <div className="fixed top-16 inset-x-3 z-30 max-w-md mx-auto pointer-events-auto animate-in slide-in-from-top duration-300">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-xl border border-slate-200/90 text-left flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="relative shrink-0">
+              <img
+                src={avatarUrl}
+                alt={driverName}
+                className="w-11 h-11 rounded-xl object-cover border-2 border-white shadow-sm ring-1 ring-slate-200"
+              />
+              <span className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-0.5 rounded-full border border-white">
+                <ShieldCheck className="w-2.5 h-2.5" />
+              </span>
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-black text-[#003366] truncate">{driverName}</span>
+                <span className="text-[11px] font-bold text-amber-500 flex items-center gap-0.5 shrink-0">
+                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                  {Number(rating).toFixed(2)} ★
+                </span>
+              </div>
+              <p className="text-[11px] font-bold text-slate-700 truncate mt-0.5">
+                {vehicleModel} {vehicleColor} • {licensePlate}
+              </p>
+              <p className="text-[10.5px] font-semibold text-[#0088FF] truncate">
+                {firstName} está a {distanciaKmText} ({etaLabel}) do seu local
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
       {/* 1. BOTTOM SHEET DO MOTORISTA A CAMINHO (~320px / SNAP POINTS 30% - 45%)   */}
       {/* ========================================================================= */}
       <div
@@ -472,20 +509,35 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-700 transition-colors shrink-0" />
           </button>
 
+          {/* BARRA DE FORMA DE PAGAMENTO */}
+          <div className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-semibold text-slate-600">Forma de Pagamento:</span>
+              <span className="font-black text-slate-900 uppercase">
+                {formaPagamento === "pix" ? "PIX D+0" : "Dinheiro"}
+              </span>
+            </div>
+            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/70 px-2 py-0.5 rounded-md">
+              Confirmado
+            </span>
+          </div>
+
           {/* BOTÕES DE AÇÃO RÁPIDA (TOUCH TARGETS MÍNIMOS DE 48PX - WCAG AA) */}
           <div className="flex items-center justify-between gap-2 pt-1">
-            {/* Botão Central de Segurança */}
+            {/* Botão Central de Segurança / SOS 190 */}
             <button
               type="button"
               onClick={() => {
-                hapticFeedback.light();
+                hapticFeedback.warning();
                 setIsSafetyCenterOpen(true);
               }}
-              aria-label="Abrir Central de Segurança PARTIU"
-              className="w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center border border-slate-200 active:scale-95 transition-all touch-manipulation cursor-pointer shrink-0"
-              title="Central de Segurança"
+              aria-label="Abrir Central de Segurança e SOS PARTIU"
+              className="w-12 h-12 rounded-2xl bg-rose-50 hover:bg-rose-100 text-[#EF4444] flex flex-col items-center justify-center border-2 border-[#EF4444] active:scale-95 transition-all touch-manipulation cursor-pointer shrink-0 shadow-xs"
+              title="Central de Segurança e SOS 190"
             >
-              <Shield className="w-5 h-5 text-emerald-600" />
+              <Shield className="w-4 h-4 text-[#EF4444]" />
+              <span className="text-[8px] font-black leading-none text-[#EF4444] mt-0.5">SOS</span>
             </button>
 
             {/* Botão Ligar */}
@@ -507,7 +559,11 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 setIsChatOpen(true);
               }}
               aria-label={`Abrir chat com o motorista${unreadCount > 0 ? ` (${unreadCount} mensagens não lidas)` : ""}`}
-              className="relative flex-1 h-12 rounded-2xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all touch-manipulation cursor-pointer"
+              style={{
+                background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+                color: "#FFFFFF",
+              }}
+              className="relative flex-1 h-12 rounded-2xl text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition-all touch-manipulation cursor-pointer"
             >
               <MessageCircle className="w-4 h-4 text-white" />
               <span>Mensagem</span>
@@ -516,6 +572,29 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                   {unreadCount}
                 </span>
               )}
+            </button>
+
+            {/* Botão Compartilhar Rota */}
+            <button
+              type="button"
+              onClick={() => {
+                hapticFeedback.light();
+                const shareText = `Estou a caminho no PARTIU com ${driverName} (${licensePlate}).`;
+                if (typeof navigator !== "undefined" && navigator.share) {
+                  navigator.share({
+                    title: "Acompanhe minha rota PARTIU",
+                    text: shareText,
+                    url: window.location.href,
+                  }).catch(() => {});
+                } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+                  navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
+                }
+              }}
+              aria-label="Compartilhar rota em tempo real"
+              className="w-12 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center border border-slate-200 active:scale-95 transition-all touch-manipulation cursor-pointer shrink-0"
+              title="Compartilhar Rota"
+            >
+              <Share2 className="w-4 h-4 text-slate-700" />
             </button>
 
             {/* Botão Cancelar (Com validação de taxa e tolerância) */}
@@ -527,7 +606,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                   requestCancel();
                 }}
                 aria-label="Cancelar corrida"
-                className="w-12 h-12 shrink-0 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 flex items-center justify-center border border-rose-200 active:scale-95 transition-all touch-manipulation cursor-pointer"
+                className="w-12 h-12 shrink-0 rounded-2xl bg-rose-50 hover:bg-rose-100 text-[#EF4444] flex items-center justify-center border border-rose-200 active:scale-95 transition-all touch-manipulation cursor-pointer"
                 title="Cancelar corrida"
               >
                 <X className="w-5 h-5" />

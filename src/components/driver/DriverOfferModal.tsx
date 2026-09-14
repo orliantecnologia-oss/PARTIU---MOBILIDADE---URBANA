@@ -107,7 +107,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-[#0B132B] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.85)] border border-[#1E293B] overflow-hidden text-white animate-in slide-in-from-bottom duration-300 select-none">
+      <div className="w-full max-w-md bg-[#0A2342] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.85)] border border-blue-900/60 overflow-hidden text-white animate-in slide-in-from-bottom duration-300 select-none">
         
         {/* 1. BARRA DE PROGRESSO DO COUNTDOWN DE 60s SINCRONIZADO */}
         <div className="w-full h-2.5 bg-slate-900 overflow-hidden relative">
@@ -230,7 +230,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
             disabled={accepted}
             onClick={handleSingleTapAccept}
             style={{
-              background: "linear-gradient(135deg, #0088FF 0%, #0044AA 100%)",
+              background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
               color: "#FFFFFF",
               borderRadius: 18,
               boxShadow: "0 10px 30px rgba(0, 136, 255, 0.45), inset 0 1px 1px rgba(255,255,255,0.4)",

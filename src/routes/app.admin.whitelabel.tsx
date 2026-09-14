@@ -920,6 +920,49 @@ function WhiteLabelStudioContent() {
                     </div>
                   </div>
 
+                  {/* Cor Accent / Destaque (--brand-accent) */}
+                  <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl space-y-2">
+                    <label className="text-xs font-bold text-slate-300 block">
+                      Cor Accent / Destaque (--brand-accent)
+                    </label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={designSystem?.paletaPrimaria?.corTerciaria || "#00C6FF"}
+                        onChange={(e) => {
+                          updateConfig({
+                            designSystem: {
+                              ...designSystem,
+                              paletaPrimaria: {
+                                ...designSystem.paletaPrimaria,
+                                corTerciaria: e.target.value,
+                              },
+                            },
+                          });
+                          triggerSaveFeedback();
+                        }}
+                        className="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent"
+                      />
+                      <input
+                        type="text"
+                        value={designSystem?.paletaPrimaria?.corTerciaria || "#00C6FF"}
+                        onChange={(e) => {
+                          updateConfig({
+                            designSystem: {
+                              ...designSystem,
+                              paletaPrimaria: {
+                                ...designSystem.paletaPrimaria,
+                                corTerciaria: e.target.value,
+                              },
+                            },
+                          });
+                          triggerSaveFeedback();
+                        }}
+                        className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono"
+                      />
+                    </div>
+                  </div>
+
                   {/* Cor de Texto Principal */}
                   <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl space-y-2">
                     <label className="text-xs font-bold text-slate-300 block">
