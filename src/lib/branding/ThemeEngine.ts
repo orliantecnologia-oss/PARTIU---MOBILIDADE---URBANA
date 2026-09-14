@@ -64,6 +64,17 @@ export class ThemeEngine {
       root.style.setProperty("--brand-secondary", branding.secondary_color);
       root.style.setProperty("--brand-text", branding.text_primary);
 
+      // 3.1. Paleta Corporativa Oficial "Azul Tech"
+      root.style.setProperty("--brand-primary-deep", branding.primary_color || "#003366");
+      root.style.setProperty("--brand-primary-vibrant", branding.secondary_color || "#0088FF");
+      root.style.setProperty("--brand-primary-accent", branding.accent_color || "#00C6FF");
+      root.style.setProperty("--brand-bg-neutral", branding.background_color || "#F8FAFC");
+      root.style.setProperty("--brand-surface-card", branding.surface_color || "#FFFFFF");
+      root.style.setProperty("--brand-status-green", "#22C55E");
+      root.style.setProperty("--brand-danger-red", "#EF4444");
+      root.style.setProperty("--brand-border-subtle", "#E2E8F0");
+      root.style.setProperty("--brand-pill-bg", "#F1F5F9");
+
       // 4. Raio de Bordas
       root.style.setProperty("--radius", branding.border_radius);
 

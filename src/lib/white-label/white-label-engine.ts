@@ -903,6 +903,17 @@ export class WhiteLabelEngine {
     root.style.setProperty("--brand-text", prim.corTextoPrincipal);
     root.style.setProperty("--brand-tertiary", prim.corTerciaria);
 
+    // 1.1. Paleta Corporativa Oficial "Azul Tech"
+    root.style.setProperty("--brand-primary-deep", prim.corPrincipal || "#003366");
+    root.style.setProperty("--brand-primary-vibrant", prim.corSecundaria || "#0088FF");
+    root.style.setProperty("--brand-primary-accent", prim.corTerciaria || "#00C6FF");
+    root.style.setProperty("--brand-bg-neutral", prim.corFundoApp || "#F8FAFC");
+    root.style.setProperty("--brand-surface-card", prim.corSuperficieCard || "#FFFFFF");
+    root.style.setProperty("--brand-status-green", sem.sucesso || "#22C55E");
+    root.style.setProperty("--brand-danger-red", sem.erro || "#EF4444");
+    root.style.setProperty("--brand-border-subtle", "#E2E8F0");
+    root.style.setProperty("--brand-pill-bg", "#F1F5F9");
+
     // 2. Cores do Tailwind Theme Inline
     root.style.setProperty("--color-primary", prim.corPrincipal);
     root.style.setProperty("--color-primary-foreground", prim.corTextoPrincipal);

@@ -68,6 +68,15 @@
   --color-primary-vibrant: var(--primary-vibrant);
   --color-primary-accent: var(--primary-accent);
   --color-dark-navy: var(--dark-navy);
+  --color-brand-primary-deep: var(--brand-primary-deep);
+  --color-brand-primary-vibrant: var(--brand-primary-vibrant);
+  --color-brand-primary-accent: var(--brand-primary-accent);
+  --color-brand-bg-neutral: var(--brand-bg-neutral);
+  --color-brand-surface-card: var(--brand-surface-card);
+  --color-brand-status-green: var(--brand-status-green);
+  --color-brand-danger-red: var(--brand-danger-red);
+  --color-brand-border-subtle: var(--brand-border-subtle);
+  --color-brand-pill-bg: var(--brand-pill-bg);
   --color-primary-50: var(--primary-50);
   --color-primary-100: var(--primary-100);
   --color-primary-400: var(--primary-400);
@@ -115,6 +124,17 @@
 
 :root {
   --radius: 0.75rem; /* 12px - Acabamento aerodinâmico e moderno */
+
+  /* Paleta Corporativa Oficial "Azul Tech" */
+  --brand-primary-deep: #003366;     /* Títulos, valores em destaque, bordas estruturais */
+  --brand-primary-vibrant: #0088FF;  /* Ícones ativos, barras de progresso, gradiente início */
+  --brand-primary-accent: #00C6FF;   /* Anéis de radar, badges de inovação, halos */
+  --brand-bg-neutral: #F8FAFC;       /* Fundo global de telas (Slate-50 anti-fadiga) */
+  --brand-surface-card: #FFFFFF;     /* Superfície branca pura de cards e sheets */
+  --brand-status-green: #22C55E;     /* Indicadores de ONLINE, confirmação de embarque */
+  --brand-danger-red: #EF4444;       /* Central de Emergência / SOS 190, recusa e cancelamento */
+  --brand-border-subtle: #E2E8F0;    /* Bordas finas de cartões e inputs (slate-200) */
+  --brand-pill-bg: #F1F5F9;          /* Fundo de chips e metadados secundários (slate-100) */
 
   /* Primary scale — PALETA OFICIAL "Azul Tech Premium" */
   --primary-900: #003366;

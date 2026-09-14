@@ -1,0 +1,14 @@
+@import "./styles.css";
+
+:root {
+  /* Paleta Corporativa Oficial "Azul Tech" */
+  --brand-primary-deep: #003366;     /* Títulos, valores em destaque, bordas estruturais */
+  --brand-primary-vibrant: #0088FF;  /* Ícones ativos, barras de progresso, gradiente início */
+  --brand-primary-accent: #00C6FF;   /* Anéis de radar, badges de inovação, halos */
+  --brand-bg-neutral: #F8FAFC;       /* Fundo global de telas (Slate-50 anti-fadiga) */
+  --brand-surface-card: #FFFFFF;     /* Superfície branca pura de cards e sheets */
+  --brand-status-green: #22C55E;     /* Indicadores de ONLINE, confirmação de embarque */
+  --brand-danger-red: #EF4444;       /* Central de Emergência / SOS 190, recusa e cancelamento */
+  --brand-border-subtle: #E2E8F0;    /* Bordas finas de cartões e inputs (slate-200) */
+  --brand-pill-bg: #F1F5F9;          /* Fundo de chips e metadados secundários (slate-100) */
+}

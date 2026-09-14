@@ -4,13 +4,14 @@
  * Bridges design tokens to styling layers across web and mobile.
  */
 
-import { colors } from "./colors";
+import { colors, brandTokens } from "./colors";
 import { gradients, shadows, radii, spacing, typography, components } from "./design-tokens";
 
-export { colors, gradients, shadows, radii, spacing, typography, components };
+export { colors, brandTokens, gradients, shadows, radii, spacing, typography, components };
 
 export const theme = {
   colors,
+  brandTokens,
   gradients,
   shadows,
   radii,
