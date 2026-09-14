@@ -107,10 +107,14 @@ export function BroadcastNotificationListener() {
     }
   }, [detectarCategoriaAtual]);
 
-  // No fluxo principal de corridas e encomendas, notificações são acessadas pelo sino do cabeçalho
-  // Nunca sobrepor modais intrusivos durante a definição de rota e solicitação de corrida
-  const isPassengerFlow = pathname === "/app" || pathname === "/app/" || pathname.startsWith("/app/encomendas");
-  if (isPassengerFlow) return null;
+  // No fluxo principal de corridas, encomendas e cockpit do motorista,
+  // notificações são gerenciadas nos componentes contextuais para nunca obstruir o HUD ou controles do mapa.
+  const isOperationalFlow =
+    pathname === "/app" ||
+    pathname === "/app/" ||
+    pathname.startsWith("/app/encomendas") ||
+    pathname.startsWith("/app/motorista");
+  if (isOperationalFlow) return null;
 
   if (!notificacaoAtiva) return null;
 

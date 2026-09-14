@@ -24,10 +24,13 @@ export function PushNotificationPrompt() {
   const [permissao, setPermissao] = useState<NotificationPermission>("default");
   const [visivel, setVisivel] = useState(false);
 
-  // Na Home de corridas e de encomendas, o botão de notificações já está no topo (clean, sem cobrir o mapa).
-  // Nunca interromper o passageiro com popups no caminho crítico de solicitação (Auditoria 6)
-  const isPassengerFlow = pathname === "/app" || pathname === "/app/" || pathname.startsWith("/app/encomendas");
-  if (isPassengerFlow) return null;
+  // No cockpit de corridas, encomendas e motorista, o mapa e os controles operacionais nunca devem ser obstruídos por popups flutuantes.
+  const isOperationalFlow =
+    pathname === "/app" ||
+    pathname === "/app/" ||
+    pathname.startsWith("/app/encomendas") ||
+    pathname.startsWith("/app/motorista");
+  if (isOperationalFlow) return null;
   const [testado, setTestado] = useState(false);
   const [mostrarInstrucaoInApp, setMostrarInstrucaoInApp] = useState(false);
   const [linkCopiado, setLinkCopiado] = useState(false);
