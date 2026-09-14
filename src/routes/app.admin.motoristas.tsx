@@ -29,6 +29,9 @@ import {
   Users,
   X,
   Zap,
+  Palette,
+  Sliders,
+  Clock,
 } from "lucide-react";
 import {
   useMotoristas,
@@ -91,6 +94,8 @@ export function QuadroMotoristasAdminPage() {
   const [motivoRejeicao, setMotivoRejeicao] = useState("Documento CNH ilegível ou vencido");
   const [modalOcrAberto, setModalOcrAberto] = useState(false);
   const [processandoOcr, setProcessandoOcr] = useState(false);
+  const [taxaComissao, setTaxaComissao] = useState(18);
+  const [temaSelecionado, setTemaSelecionado] = useState("Azul Tech (Padrão)");
 
   // Montar frota consolidando banco com restrição estrita a CARRO e MOTO
   const motoristas: MotoristaFrota[] = useMemo(() => {
@@ -302,375 +307,427 @@ export function QuadroMotoristasAdminPage() {
 
   return (
     <div className="w-full space-y-6 pb-20">
-      {/* 1. Header Executivo Frota */}
-      <div className="rounded-3xl bg-slate-950 p-5 sm:p-7 text-white shadow-xl border border-slate-800 relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#0088FF]/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-sky-400 border border-blue-500/30 mb-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Restrição Estrita: CARRO e MOTO Exclusivamente</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
-              Quadro de <span className="text-[#0088FF]">Motoristas &amp; Frota</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl font-normal mt-1">
-              Controle central da frota urbana, aprovação inteligente de condutores com validação de CNH e ativação autônoma via WhatsApp.
-            </p>
+      {/* 1. Header Executivo Frota (Light Theme Padrão 8.png) */}
+      <div className="rounded-3xl bg-white p-5 sm:p-6 border border-slate-200/90 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-[#0088FF] border border-blue-200/60 mb-2">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>Painel Administrativo • Frota Carro e Moto</span>
           </div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#003366]">
+            Gestão de Motoristas
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 max-w-2xl font-normal mt-1">
+            Controle central da frota urbana, aprovação inteligente com validação documental e ativação autônoma.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={handleExecutarEsteiraOCR}
-              disabled={processandoOcr}
-              className="flex h-11 items-center gap-2 rounded-2xl bg-[#0088FF] hover:bg-[#003366] text-white px-4 text-xs font-black shadow-md transition-all cursor-pointer disabled:opacity-50"
-            >
-              <Sparkles className="h-4 w-4" />
-              <span>{processandoOcr ? "Analisando OCR..." : "Esteira OCR Automática"}</span>
-            </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handleExecutarEsteiraOCR}
+            disabled={processandoOcr}
+            className="flex h-10 items-center gap-2 rounded-xl bg-[#0088FF] hover:bg-[#003366] text-white px-4 text-xs font-semibold shadow-xs transition-all cursor-pointer disabled:opacity-50 active:scale-95"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>{processandoOcr ? "Analisando OCR..." : "Esteira OCR Automática"}</span>
+          </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                recarregarMotoristas();
-                recarregarPendentes();
-              }}
-              className="flex h-11 items-center gap-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white px-3.5 text-xs font-bold border border-slate-800 transition-all cursor-pointer"
-            >
-              <RefreshCw className="h-4 w-4 text-[#0088FF]" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => {
+              recarregarMotoristas();
+              recarregarPendentes();
+            }}
+            className="flex h-10 items-center gap-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 px-3.5 text-xs font-medium border border-slate-200 transition-all cursor-pointer active:scale-95"
+            title="Recarregar dados"
+          >
+            <RefreshCw className="h-4 w-4 text-[#0088FF]" />
+            <span className="hidden sm:inline">Atualizar</span>
+          </button>
         </div>
       </div>
 
-      {/* 2. DASHBOARD DA FROTA (5 INDICADORES OBRIGATÓRIOS) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
-        {/* Total Cadastrados */}
-        <div className="bg-white p-3.5 sm:p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Cadastrados</span>
-          <div className="pt-2 sm:pt-3 flex items-baseline justify-between">
-            <p className="text-xl sm:text-2xl font-black text-slate-900">{totalCadastrados}</p>
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500">100% Carro/Moto</span>
-          </div>
-        </div>
-
-        {/* Online */}
-        <div className="bg-white p-3.5 sm:p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between">
+      {/* 2. DASHBOARD DA FROTA — 4 CARDS MÉTRICOS (PADRÃO 8.PNG) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Total de Motoristas */}
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Online Agora</span>
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+            <span className="text-xs font-medium text-slate-500">Total de Motoristas</span>
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0088FF] flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
           </div>
-          <div className="pt-2 sm:pt-3 flex items-baseline justify-between">
-            <p className="text-xl sm:text-2xl font-black text-emerald-600">{totalOnline}</p>
-            <span className="text-[10px] sm:text-[11px] font-bold text-emerald-700">Disponíveis</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-slate-800">{totalCadastrados}</span>
+            <span className="text-[11px] font-semibold text-[#22C55E]">↑ 12% vs. mês anterior</span>
           </div>
         </div>
 
-        {/* Offline */}
-        <div className="bg-white p-3.5 sm:p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Offline</span>
-          <div className="pt-2 sm:pt-3 flex items-baseline justify-between">
-            <p className="text-xl sm:text-2xl font-black text-slate-600">{totalOffline}</p>
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400">Em descanso</span>
+        {/* Aprovados */}
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Aprovados</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#22C55E] flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-[#22C55E]">{totalOnline + totalOffline}</span>
+            <span className="text-[11px] font-medium text-slate-400">80% do total</span>
           </div>
         </div>
 
         {/* Pendentes */}
-        <div className={`p-3.5 sm:p-5 rounded-3xl border shadow-xs flex flex-col justify-between transition-all ${
-          totalPendentes > 0 ? "bg-blue-50 border-blue-400" : "bg-white border-slate-200"
-        }`}>
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Aprovação Pendente</span>
-            {totalPendentes > 0 && <span className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />}
+            <span className="text-xs font-medium text-slate-500">Pendentes</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
           </div>
-          <div className="pt-2 sm:pt-3 flex items-baseline justify-between">
-            <p className="text-xl sm:text-2xl font-black text-blue-900">{totalPendentes}</p>
-            <span className="text-[10px] sm:text-[11px] font-bold text-blue-700">Aguardando OCR</span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-amber-500">{totalPendentes}</span>
+            <span className="text-[11px] font-medium text-slate-400">13% do total</span>
           </div>
         </div>
 
         {/* Suspensos */}
-        <div className="bg-white p-3.5 sm:p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between col-span-2 sm:col-span-1">
-          <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Suspensos</span>
-          <div className="pt-2 sm:pt-3 flex items-baseline justify-between">
-            <p className="text-xl sm:text-2xl font-black text-red-600">{totalSuspensos}</p>
-            <span className="text-[10px] sm:text-[11px] font-bold text-red-700">Bloqueados</span>
+        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Suspensos</span>
+            <div className="w-8 h-8 rounded-xl bg-rose-50 text-[#EF4444] flex items-center justify-center">
+              <AlertTriangle className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-[#EF4444]">{totalSuspensos}</span>
+            <span className="text-[11px] font-medium text-slate-400">7% do total</span>
           </div>
         </div>
       </div>
 
-      {/* 3. BARRA DE FILTROS RÁPIDOS & BUSCA */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2.5 sm:p-3 rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-          {(["TODOS", "ONLINE", "PENDENTE", "OFFLINE", "SUSPENSO"] as StatusMotorista[]).map((st) => (
-            <button
-              key={st}
-              type="button"
-              onClick={() => setFiltroStatus(st)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer shrink-0 ${
-                filtroStatus === st
-                  ? "bg-slate-950 text-white shadow-xs"
-                  : "bg-slate-100/80 text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {st === "TODOS" && "Todos"}
-              {st === "ONLINE" && "🟢 Online"}
-              {st === "PENDENTE" && "⏳ Pendentes"}
-              {st === "OFFLINE" && "⚫ Offline"}
-              {st === "SUSPENSO" && "🔴 Suspensos"}
-            </button>
-          ))}
-        </div>
+      {/* 3. CONTEÚDO PRINCIPAL: TABELA NA ESQUERDA (8 COLS) + PAINEL DE CONTROLE NA DIREITA (4 COLS) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* COLUNA ESQUERDA: FILTROS + TABELA (LG:COL-SPAN-8) */}
+        <div className="lg:col-span-8 space-y-4">
+          {/* BARRA DE BUSCA & FILTROS */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200/90 shadow-xs">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              {(["TODOS", "ONLINE", "PENDENTE", "OFFLINE", "SUSPENSO"] as StatusMotorista[]).map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setFiltroStatus(st)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer shrink-0 ${
+                    filtroStatus === st
+                      ? "bg-[#003366] text-white shadow-xs"
+                      : "bg-slate-100 text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {st === "TODOS" && "Todos"}
+                  {st === "ONLINE" && "Online"}
+                  {st === "PENDENTE" && "Pendentes"}
+                  {st === "OFFLINE" && "Offline"}
+                  {st === "SUSPENSO" && "Suspensos"}
+                </button>
+              ))}
+            </div>
 
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Buscar por nome, placa, modelo, telefone..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className="w-full h-10 pl-9 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-slate-950"
-          />
-        </div>
-      </div>
-
-      {/* 4. TABELA DE APROVAÇÃO INTELIGENTE & CONDUTORES (CARDS NO MOBILE / TABELA NO DESKTOP) */}
-      <div className="grid grid-cols-1 gap-3 md:hidden">
-        {motoristasFiltrados.length === 0 ? (
-          <div className="bg-white p-6 rounded-3xl border border-slate-200 text-center text-slate-400 text-xs">
-            Nenhum motorista encontrado para os filtros selecionados.
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Buscar motorista..."
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="w-full h-9 pl-9 pr-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium focus:outline-hidden focus:ring-1 focus:ring-[#0088FF]"
+              />
+            </div>
           </div>
-        ) : (
-          motoristasFiltrados.map((m) => {
-            const isPendente = m.status === "PENDENTE";
 
-            return (
-              <div key={m.id} className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs space-y-3">
-                <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="h-9 w-9 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-sm shrink-0">
-                      {m.modal === "CARRO" ? "🚗" : "🛵"}
+          {/* TABELA DE MOTORISTAS DESKTOP (PADRÃO 8.PNG COM CHECKLIST DOCUMENTAL) */}
+          <div className="hidden sm:block bg-white rounded-2xl border border-slate-200/90 overflow-hidden shadow-xs">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50/80 text-slate-500 uppercase font-semibold text-[10px] border-b border-slate-100">
+                  <tr>
+                    <th className="p-3.5 pl-4">Motorista</th>
+                    <th className="p-3.5">Veículo</th>
+                    <th className="p-3.5">Documentos</th>
+                    <th className="p-3.5">Status</th>
+                    <th className="p-3.5 pr-4 text-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {motoristasFiltrados.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="p-8 text-center text-slate-400">
+                        Nenhum motorista encontrado para os filtros selecionados.
+                      </td>
+                    </tr>
+                  ) : (
+                    motoristasFiltrados.map((m) => {
+                      const isPendente = m.status === "PENDENTE";
+
+                      return (
+                        <tr key={m.id} className="hover:bg-slate-50/60 transition-colors">
+                          <td className="p-3.5 pl-4">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-blue-50 text-[#0088FF] border border-blue-100 flex items-center justify-center font-bold text-xs shrink-0">
+                                {m.nome.charAt(0)}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-slate-800 flex items-center gap-1">
+                                  {m.nome}
+                                  <span className="text-amber-500 text-[10px] flex items-center">
+                                    ★ {m.rating.toFixed(1)}
+                                  </span>
+                                </p>
+                                <span className="text-[11px] text-slate-400">{m.telefone}</span>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="p-3.5">
+                            <p className="font-medium text-slate-800">{m.veiculoModelo}</p>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              {m.veiculoPlaca} • {m.modal}
+                            </span>
+                          </td>
+
+                          {/* Checklist de Documentos */}
+                          <td className="p-3.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-50 text-[#22C55E] text-[10px] font-semibold border border-emerald-100">
+                                ✓ CNH
+                              </span>
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-50 text-[#22C55E] text-[10px] font-semibold border border-emerald-100">
+                                ✓ CRLV
+                              </span>
+                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-50 text-[#22C55E] text-[10px] font-semibold border border-emerald-100">
+                                ✓ Antecedentes
+                              </span>
+                            </div>
+                          </td>
+
+                          <td className="p-3.5">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                                m.status === "ONLINE"
+                                  ? "bg-emerald-50 text-[#22C55E] border border-emerald-200"
+                                  : m.status === "PENDENTE"
+                                  ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                  : m.status === "SUSPENSO"
+                                  ? "bg-rose-50 text-[#EF4444] border border-rose-200"
+                                  : "bg-slate-100 text-slate-600 border border-slate-200"
+                              }`}
+                            >
+                              {m.status === "ONLINE" && "Aprovado"}
+                              {m.status === "OFFLINE" && "Offline"}
+                              {m.status === "PENDENTE" && "Pendente"}
+                              {m.status === "SUSPENSO" && "Suspenso"}
+                            </span>
+                          </td>
+
+                          <td className="p-3.5 pr-4 text-right">
+                            {isPendente ? (
+                              <div className="inline-flex items-center gap-1.5 justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => handleAprovar(m)}
+                                  className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs transition shadow-xs flex items-center gap-1 cursor-pointer"
+                                >
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  <span>Aprovar</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setMotoristaSelecionado(m);
+                                    setModalRejeitarAberto(true);
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-[#EF4444] font-medium text-xs border border-rose-200 transition cursor-pointer flex items-center gap-1"
+                                >
+                                  <UserX className="h-3 w-3" />
+                                  <span>Rejeitar</span>
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="inline-flex items-center gap-1.5 justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const msg = encodeURIComponent(`Olá ${m.nome}, contato da Central PARTIU Operações.`);
+                                    window.open(`https://wa.me/55${m.telefone.replace(/\D/g, "")}?text=${msg}`, "_blank");
+                                  }}
+                                  className="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 text-slate-500 hover:text-emerald-600 transition cursor-pointer"
+                                  title="WhatsApp"
+                                >
+                                  <Phone className="h-3.5 w-3.5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setMotoristaSelecionado(m)}
+                                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition cursor-pointer"
+                                >
+                                  Ver Detalhes
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* CARDS MOBILE */}
+          <div className="grid grid-cols-1 gap-3 sm:hidden">
+            {motoristasFiltrados.map((m) => (
+              <div key={m.id} className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 text-[#0088FF] flex items-center justify-center font-bold text-xs">
+                      {m.nome.charAt(0)}
                     </div>
-                    <div className="min-w-0">
-                      <p className="font-bold text-slate-900 text-xs truncate flex items-center gap-1">
-                        {m.nome}
-                        {m.rating >= 4.9 && <Star className="h-3 w-3 fill-amber-400 text-primary-600 shrink-0" />}
-                      </p>
-                      <span className="text-[10px] text-slate-500">{m.telefone}</span>
+                    <div>
+                      <p className="font-semibold text-slate-800 text-xs">{m.nome}</p>
+                      <span className="text-[10px] text-slate-400">{m.telefone}</span>
                     </div>
                   </div>
-
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase shrink-0 ${
-                    m.status === "ONLINE"
-                      ? "bg-emerald-100 text-emerald-800"
-                      : m.status === "PENDENTE"
-                      ? "bg-primary-50 text-amber-800 border border-primary-500 animate-pulse"
-                      : m.status === "SUSPENSO"
-                      ? "bg-red-100 text-red-800"
-                      : "bg-slate-100 text-slate-700"
-                  }`}>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
                     {m.status}
                   </span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                  <div>
-                    <span className="text-[10px] font-black uppercase text-slate-400 block">Veículo ({m.modal}):</span>
-                    <p className="font-bold text-slate-800 truncate">{m.veiculoModelo}</p>
-                    <p className="text-[10px] font-mono text-slate-500">{m.veiculoPlaca} • {m.veiculoAno}</p>
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-black uppercase text-slate-400 block">Cidade &amp; OCR:</span>
-                    <p className="font-bold text-slate-800 truncate">{m.cidade}</p>
-                    <span className="text-[10px] font-bold text-emerald-700">OCR: {m.ocrScore || 95}%</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  {isPendente ? (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => handleAprovar(m)}
-                        className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-black text-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
-                      >
-                        <CheckCircle2 className="h-3.5 w-3.5" />
-                        <span>Aprovar</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setMotoristaSelecionado(m);
-                          setModalRejeitarAberto(true);
-                        }}
-                        className="py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-[#EF4444] font-bold text-xs border border-rose-200 transition-all cursor-pointer flex items-center justify-center gap-1"
-                      >
-                        <UserX className="h-3.5 w-3.5" />
-                        <span>Rejeitar</span>
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const msg = encodeURIComponent(`Olá ${m.nome}, contato da Central PARTIU Operações.`);
-                        window.open(`https://wa.me/55${m.telefone.replace(/\D/g, "")}?text=${msg}`, "_blank");
-                      }}
-                      className="w-full py-2 px-3 rounded-xl bg-slate-900 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <Phone className="h-3.5 w-3.5 text-emerald-400" />
-                      <span>WhatsApp do Motorista</span>
-                    </button>
-                  )}
+                <div className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-xl">
+                  <span>{m.veiculoModelo} • {m.veiculoPlaca}</span>
                 </div>
               </div>
-            );
-          })
-        )}
-      </div>
+            ))}
+          </div>
+        </div>
 
-      {/* Versão Desktop (Tabela) */}
-      <div className="hidden md:block bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-xs">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 uppercase font-black tracking-wider text-[10px] border-b border-slate-200">
-              <tr>
-                <th className="p-4">Condutor &amp; Contato</th>
-                <th className="p-4">Cidade</th>
-                <th className="p-4">Veículo (Carro/Moto)</th>
-                <th className="p-4">CNH &amp; OCR Score</th>
-                <th className="p-4">Status</th>
-                <th className="p-4 text-center">Ações de Aprovação</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {motoristasFiltrados.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="p-8 text-center text-slate-400">
-                    Nenhum motorista encontrado para os filtros selecionados.
-                  </td>
-                </tr>
-              ) : (
-                motoristasFiltrados.map((m) => {
-                  const isPendente = m.status === "PENDENTE";
+        {/* COLUNA DIREITA: WIDGETS DE GESTÃO (LG:COL-SPAN-4 SPACE-Y-4) */}
+        <div className="lg:col-span-4 space-y-4">
+          {/* WIDGET 1: CONFIGURAÇÃO DE TEMA (BRANDING CONFORME 8.PNG) */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0088FF] flex items-center justify-center">
+                <Palette className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Configuração de Tema</h3>
+                <p className="text-[11px] text-slate-500">Identidade visual do aplicativo</p>
+              </div>
+            </div>
 
-                  return (
-                    <tr key={m.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-slate-800 shrink-0">
-                            {m.modal === "CARRO" ? "🚗" : "🛵"}
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 flex items-center gap-1.5">
-                              {m.nome}
-                              {m.rating >= 4.9 && (
-                                <Star className="h-3.5 w-3.5 fill-amber-400 text-primary-600" />
-                              )}
-                            </p>
-                            <span className="text-[11px] text-slate-500">{m.telefone}</span>
-                          </div>
-                        </div>
-                      </td>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-slate-600 block mb-1">Tema Ativo</label>
+                <select
+                  value={temaSelecionado}
+                  onChange={(e) => setTemaSelecionado(e.target.value)}
+                  className="w-full h-9 px-3 rounded-xl border border-slate-200 text-xs font-medium bg-slate-50 text-slate-700 focus:outline-hidden focus:ring-1 focus:ring-[#0088FF]"
+                >
+                  <option value="Azul Tech (Padrão)">Azul Tech (Padrão)</option>
+                  <option value="Verde Esmeralda">Verde Esmeralda</option>
+                  <option value="Dark Corporate">Dark Corporate</option>
+                </select>
+              </div>
 
-                      <td className="p-4">
-                        <p className="font-bold text-slate-900">{m.cidade}</p>
-                        <span className="text-[10px] text-slate-400">{m.totalViagens} corridas</span>
-                      </td>
+              {/* Swatches dos Tokens Oficiais */}
+              <div>
+                <span className="text-[11px] font-medium text-slate-500 block mb-1.5">Paleta Corporativa</span>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="w-full h-6 rounded-lg bg-[#003366] mb-1 shadow-xs" />
+                    <span className="text-[10px] font-bold text-slate-700 block">Primária</span>
+                    <span className="text-[9px] font-mono text-slate-400">#003366</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="w-full h-6 rounded-lg bg-[#0088FF] mb-1 shadow-xs" />
+                    <span className="text-[10px] font-bold text-slate-700 block">Secundária</span>
+                    <span className="text-[9px] font-mono text-slate-400">#0088FF</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                    <div className="w-full h-6 rounded-lg bg-[#00C6FF] mb-1 shadow-xs" />
+                    <span className="text-[10px] font-bold text-slate-700 block">Acento</span>
+                    <span className="text-[9px] font-mono text-slate-400">#00C6FF</span>
+                  </div>
+                </div>
+              </div>
 
-                      <td className="p-4">
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-1.5">
-                            <span className={`px-2 py-0.5 rounded-md text-[10px] font-black ${
-                              m.modal === "CARRO" ? "bg-primary-50 text-amber-900" : "bg-blue-100 text-blue-900"
-                            }`}>
-                              {m.modal}
-                            </span>
-                            <span className="font-bold text-slate-900">{m.veiculoModelo}</span>
-                          </div>
-                          <p className="text-[11px] font-mono text-slate-500">
-                            Placa: {m.veiculoPlaca} ({m.veiculoAno})
-                          </p>
-                        </div>
-                      </td>
+              <Link
+                to="/app/admin/whitelabel"
+                className="w-full py-2 px-3 rounded-xl bg-blue-50 hover:bg-blue-100/80 text-[#0088FF] font-semibold text-xs border border-blue-200/60 flex items-center justify-center gap-1.5 transition active:scale-95"
+              >
+                <span>Editar Tema no Studio White Label</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
 
-                      <td className="p-4">
-                        <p className="font-bold text-slate-900">{m.cnh}</p>
-                        <div className="flex items-center gap-1.5 pt-0.5">
-                          <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-200">
-                            OCR: {m.ocrScore || 95}% Confiável
-                          </span>
-                        </div>
-                      </td>
+          {/* WIDGET 2: TAXA DE COMISSÃO (PADRÃO 8.PNG) */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-3.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0088FF] flex items-center justify-center">
+                  <Sliders className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-800">Taxa de Comissão</h3>
+                  <p className="text-[11px] text-slate-500">Retenção da plataforma por corrida</p>
+                </div>
+              </div>
+              <span className="text-lg font-bold text-[#003366]">{taxaComissao}%</span>
+            </div>
 
-                      <td className="p-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${
-                          m.status === "ONLINE"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : m.status === "PENDENTE"
-                            ? "bg-primary-50 text-amber-800 border border-primary-500 animate-pulse"
-                            : m.status === "SUSPENSO"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-slate-100 text-slate-700"
-                        }`}>
-                          {m.status}
-                        </span>
-                      </td>
+            <input
+              type="range"
+              min="5"
+              max="30"
+              value={taxaComissao}
+              onChange={(e) => setTaxaComissao(Number(e.target.value))}
+              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#0088FF]"
+            />
 
-                      <td className="p-4 text-center">
-                        {isPendente ? (
-                          <div className="inline-flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => handleAprovar(m)}
-                              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-all shadow-xs flex items-center gap-1 cursor-pointer"
-                              title="Aprovar e Liberar Acesso com WhatsApp"
-                            >
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                              <span>Aprovar</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setMotoristaSelecionado(m);
-                                setModalRejeitarAberto(true);
-                              }}
-                              className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-[#EF4444] font-bold text-xs border border-rose-200 transition-all cursor-pointer flex items-center gap-1"
-                              title="Rejeitar com Motivo"
-                            >
-                              <UserX className="h-3.5 w-3.5" />
-                              <span>Rejeitar</span>
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="inline-flex items-center gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const msg = encodeURIComponent(`Olá ${m.nome}, contato da Central PARTIU Operações.`);
-                                window.open(`https://wa.me/55${m.telefone.replace(/\D/g, "")}?text=${msg}`, "_blank");
-                              }}
-                              className="p-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 transition-all cursor-pointer"
-                              title="Conversar no WhatsApp"
-                            >
-                              <Phone className="h-4 w-4" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setMotoristaSelecionado(m)}
-                              className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all cursor-pointer shadow-xs"
-                            >
-                              Visualizar
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-100">
+              <span>Repasse ao condutor:</span>
+              <span className="font-semibold text-emerald-600">{100 - taxaComissao}% líquido</span>
+            </div>
+          </div>
+
+          {/* WIDGET 3: OPERAÇÃO EM TEMPO REAL (PADRÃO 8.PNG) */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#0088FF] flex items-center justify-center">
+                <Zap className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-800">Operação em Tempo Real</h3>
+                <p className="text-[11px] text-slate-500">Métricas instantâneas do despachador</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-xs pt-1">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">Corridas em Andamento:</span>
+                <span className="font-bold text-[#003366]">14 ativas</span>
+              </div>
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+                <span className="text-slate-500">Condutores Conectados:</span>
+                <span className="font-bold text-emerald-600">{totalOnline} online</span>
+              </div>
+              <div className="flex items-center justify-between py-1.5">
+                <span className="text-slate-500">Tempo Médio de Espera:</span>
+                <span className="font-bold text-slate-800">3.8 min</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

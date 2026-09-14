@@ -1,23 +1,20 @@
 /**
  * ==============================================================================
- * 🚖 PARTIU DRIVER OFFER EXPERIENCE (v4.0) — ULTRA-MINIMALIST ACCEPTANCE MODAL
+ * 🚖 PARTIU DRIVER OFFER EXPERIENCE (v4.0) — LIGHT THEME ACCEPTANCE MODAL
  * ==============================================================================
- * Redesenhado segundo a auditoria rigorosa de simplificação cognitiva.
+ * Redesenhado segundo o padrão visual corporativo Azul Tech Premium (7.png).
  *
- * EXIBE ESTRITAMENTE:
- * 1. VALOR LÍQUIDO do motorista em destaque (ex: R$ 18,50)
- * 2. Distância e Tempo (ex: 4,2 km • 11 min)
- * 3. Nota do passageiro (ex: ★ 4.9)
- * 4. Origem e Destino resumidos (ex: Origem: Centro / Destino: Aeroporto)
- * 5. Barra de progresso suave de 10 segundos com countdown
- * 6. Botão Principal "ACEITAR CORRIDA" 100% largura e 64px de altura
- *
- * ZERO POLUIÇÃO: Sem comparativos, sem comissões detalhadas, sem fundos de proteção.
+ * 1. Card container branco puro rounded-[32px] com borda sutil e sombra suave
+ * 2. Temporizador circular SVG de 60 segundos com traço azul (#0088FF)
+ * 3. Card "Seu ganho líquido" em azul suave (bg-blue-50/70) com valor em #003366
+ * 4. 3 colunas de métricas equilibradas (Distância, Busca estimada, Avaliação)
+ * 5. Chips de endereço com fundo neutro (#F8FAFC), pino verde e pino vermelho
+ * 6. Botão de aceitação em degradê corporativo (#0088FF -> #003366)
  * ==============================================================================
  */
 
-import React, { useEffect, useState, memo } from "react";
-import { Star, MapPin, Navigation, X } from "lucide-react";
+import React, { useEffect, useState, memo, useRef } from "react";
+import { Star, MapPin, Navigation, X, Wallet, Clock, ArrowRight, ShieldCheck } from "lucide-react";
 import { callAlertService } from "@/services/CallAlertService";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
 
@@ -49,9 +46,12 @@ export const DriverOfferModal = memo(function DriverOfferModal({
   onRecusar,
   countdownSeconds = 60,
 }: DriverOfferModalProps) {
-  const { corPrimaria, corTextoPrimaria } = useBrandTheme();
+  const { corPrimaria } = useBrandTheme();
   const [secondsRemaining, setSecondsRemaining] = useState(countdownSeconds);
   const [accepted, setAccepted] = useState(false);
+  const [sliderPosition, setSliderPosition] = useState(0);
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
 
   // Alerta sonoro contínuo, vibração e wake lock enquanto o modal estiver aberto
   useEffect(() => {
@@ -75,170 +75,260 @@ export const DriverOfferModal = memo(function DriverOfferModal({
     };
   }, [onRecusar]);
 
-  const progressPercent = Math.max(0, (secondsRemaining / countdownSeconds) * 100);
+  // Cálculo do progresso circular (Raio = 18, Perímetro ≈ 113.1)
+  const circleRadius = 18;
+  const circumference = 2 * Math.PI * circleRadius;
+  const strokeDashoffset = circumference - (secondsRemaining / countdownSeconds) * circumference;
 
-  // Formatação resumida dos bairros/locais (Remove números de casa e CEPs extensos)
+  // Formatação resumida dos bairros/locais
   const origemResumida = oferta.origem.split(",")[0]?.split("-")[0]?.trim() || "Local de Embarque";
   const destinoResumido = oferta.destino.split(",")[0]?.split("-")[0]?.trim() || "Destino";
-  const notaFormatada = (oferta.passageiroAvaliacao || 4.9).toFixed(1);
+  const notaFormatada = (oferta.passageiroAvaliacao || 4.95).toFixed(2);
 
-  // Formatação de Pickup ETA e Rentabilidade (Padrão Uber / 99)
+  // Formatação de Pickup ETA e Distância
   const distanciaEmbarqueKm = oferta.distanciaAteEmbarqueKm ?? 0.85;
-  const distanciaEmbarqueTexto =
-    distanciaEmbarqueKm < 1
-      ? `${Math.round(distanciaEmbarqueKm * 1000)} m`
-      : `${distanciaEmbarqueKm.toFixed(1).replace(".", ",")} km`;
-  const tempoEmbarqueMin = oferta.tempoAteEmbarqueMin ?? 3;
-
+  const tempoEmbarqueMin = oferta.tempoAteEmbarqueMin ?? 8;
   const distanciaViagemTexto = `${oferta.distanciaKm.toFixed(1).replace(".", ",")} km`;
-  const tempoViagemMin = oferta.duracaoMin || 11;
 
   const ganhoPorKmValor =
     oferta.ganhoPorKm ??
     (oferta.distanciaKm > 0 ? oferta.valorLiquido / oferta.distanciaKm : 3.6);
   const ganhoPorKmTexto = `R$ ${ganhoPorKmValor.toFixed(2).replace(".", ",")}/km`;
 
-  const handleSingleTapAccept = () => {
+  const handleAccept = () => {
     if (accepted) return;
     setAccepted(true);
     callAlertService.stopAlert();
     onAceitar();
   };
 
+  // Suporte a deslizamento interativo (Slide to Accept)
+  const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging.current || !sliderRef.current) return;
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const rect = sliderRef.current.getBoundingClientRect();
+    const maxSlide = rect.width - 56;
+    const currentOffset = Math.max(0, Math.min(clientX - rect.left - 24, maxSlide));
+    setSliderPosition(currentOffset);
+
+    if (currentOffset >= maxSlide * 0.85) {
+      isDragging.current = false;
+      setSliderPosition(maxSlide);
+      handleAccept();
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!accepted && sliderPosition < 100) {
+      setSliderPosition(0);
+    }
+    isDragging.current = false;
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-[#0A2342] rounded-3xl shadow-[0_25px_70px_rgba(0,0,0,0.85)] border border-blue-900/60 overflow-hidden text-white animate-in slide-in-from-bottom duration-300 select-none">
-        
-        {/* 1. BARRA DE PROGRESSO DO COUNTDOWN DE 60s SINCRONIZADO */}
-        <div className="w-full h-2.5 bg-slate-900 overflow-hidden relative">
-          <div
-            className="h-full transition-all duration-1000 ease-linear"
-            style={{
-              width: `${progressPercent}%`,
-              background:
-                secondsRemaining <= 10
-                  ? "linear-gradient(90deg, #EF4444 0%, #DC2626 100%)"
-                  : "linear-gradient(90deg, #00FF88 0%, #00C6FF 100%)",
-            }}
-          />
-        </div>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="w-full max-w-md bg-white rounded-[32px] p-5 sm:p-6 shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-slate-100 text-slate-900 animate-in slide-in-from-bottom duration-300 select-none">
+        {/* Barra tátil de puxar */}
+        <div className="w-12 h-1 rounded-full bg-slate-200 mx-auto mb-4" />
 
-        <div className="p-5 sm:p-6 space-y-3.5">
-          {/* Header Superior: Nota do Passageiro, Badge Rentabilidade e Contador */}
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-[#1E293B] border border-slate-700 text-amber-400">
-              <Star className="w-3.5 h-3.5 fill-current" />
-              <span>{notaFormatada}</span>
-              <span className="text-slate-400 font-normal ml-0.5">• {oferta.passageiro.split(" ")[0]}</span>
-            </div>
-
-            {/* BADGE DE RENTABILIDADE R$/km (Decisão Rápida do Condutor) */}
-            <div className="px-2.5 py-1 rounded-full text-[11px] font-black tracking-tight flex items-center gap-1 bg-[#00FF88]/15 border border-[#00FF88]/40 text-[#00FF88]">
-              <span>⚡</span>
-              <span>{ganhoPorKmTexto}</span>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <div
-                className={`text-xs font-black px-2.5 py-1 rounded-full border transition-colors ${
-                  secondsRemaining <= 10
-                    ? "bg-rose-500/20 text-rose-400 border-rose-500/50 animate-pulse"
-                    : "bg-[#1E293B] text-slate-200 border-slate-700"
-                }`}
-              >
-                <span>{secondsRemaining}s</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  callAlertService.stopAlert();
-                  onRecusar();
-                }}
-                className="w-7 h-7 rounded-full bg-[#1E293B] hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 flex items-center justify-center transition active:scale-90 cursor-pointer"
-                title="Recusar corrida"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* 2. VALOR LÍQUIDO EM ALTO CONTRASTE (HERO ELEMENT) */}
-          <div className="text-center py-3 bg-[#0F1C3F] rounded-2xl border border-blue-900/60 shadow-inner">
-            <span className="text-[10.5px] font-black uppercase tracking-wider text-slate-400 block">
-              Você recebe líquido
-            </span>
-            <div className="text-4xl sm:text-5xl font-black text-[#00FF88] tracking-tight mt-0.5 drop-shadow-[0_2px_12px_rgba(0,255,136,0.35)]">
-              {oferta.valorLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-            </div>
-          </div>
-
-          {/* 3. BLOCOS LADO A LADO — ATÉ O PASSAGEIRO E VIAGEM */}
-          <div className="grid grid-cols-2 gap-2">
-            {/* BLOCO 1: ATÉ O PASSAGEIRO */}
-            <div className="p-3 rounded-2xl bg-[#112240] border border-blue-800/40 text-left">
-              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#00C6FF]">
-                <Navigation className="w-3 h-3" />
-                <span>Até o Passageiro</span>
-              </div>
-              <div className="text-sm font-black text-white mt-1">
-                {tempoEmbarqueMin} min • {distanciaEmbarqueTexto}
-              </div>
-              <span className="text-[10px] font-semibold truncate block mt-0.5 text-slate-400">
-                {origemResumida}
+        {/* CABEÇALHO COM TEMPORIZADOR CIRCULAR SVG (PADRÃO 7.PNG) */}
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3">
+            {/* Temporizador circular regressivo */}
+            <div className="relative w-12 h-12 shrink-0 flex items-center justify-center">
+              <svg className="w-12 h-12 transform -rotate-90" viewBox="0 0 44 44">
+                <circle
+                  cx="22"
+                  cy="22"
+                  r={circleRadius}
+                  className="stroke-slate-100"
+                  strokeWidth="3.5"
+                  fill="transparent"
+                />
+                <circle
+                  cx="22"
+                  cy="22"
+                  r={circleRadius}
+                  stroke="#0088FF"
+                  strokeWidth="3.5"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  strokeLinecap="round"
+                  fill="transparent"
+                  className="transition-all duration-1000 ease-linear"
+                />
+              </svg>
+              <span className="absolute text-xs font-bold text-[#003366]">
+                {secondsRemaining}s
               </span>
             </div>
 
-            {/* BLOCO 2: VIAGEM */}
-            <div className="p-3 rounded-2xl bg-[#112240] border border-blue-800/40 text-left">
-              <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-[#38BDF8]">
-                <MapPin className="w-3 h-3" />
-                <span>Viagem</span>
+            {/* Título & Contexto */}
+            <div>
+              <h3 className="text-base sm:text-lg font-bold text-[#003366] leading-tight">
+                Nova corrida disponível!
+              </h3>
+              <p className="text-xs text-slate-500 font-normal mt-0.5">
+                O passageiro está aguardando confirmação.
+              </p>
+            </div>
+          </div>
+
+          {/* Botão Fechar/Recusar Rápido */}
+          <button
+            type="button"
+            onClick={() => {
+              callAlertService.stopAlert();
+              onRecusar();
+            }}
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition active:scale-90 cursor-pointer shrink-0"
+            title="Recusar corrida"
+            aria-label="Recusar corrida"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* CARD "SEU GANHO LÍQUIDO" (AZUL SUAVE COM VALOR EM #003366) */}
+        <div className="bg-blue-50/70 border border-blue-100/80 rounded-2xl p-4 flex items-center justify-between mb-3.5">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-full bg-blue-100 text-[#0088FF] flex items-center justify-center shrink-0 shadow-xs">
+              <Wallet className="w-5 h-5" />
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 font-medium block">
+                Seu ganho líquido
+              </span>
+              <div className="text-2xl sm:text-3xl font-bold text-[#003366] tracking-tight leading-tight">
+                {oferta.valorLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </div>
-              <div className="text-sm font-black text-white mt-1">
-                {tempoViagemMin} min • {distanciaViagemTexto}
-              </div>
-              <span className="text-[10px] text-slate-400 font-semibold truncate block mt-0.5">
+            </div>
+          </div>
+
+          <div className="text-right">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white border border-blue-100 text-[#0088FF] shadow-xs">
+              <span>⚡</span>
+              <span>{ganhoPorKmTexto}</span>
+            </span>
+            <span className="block text-[10px] text-slate-400 font-medium mt-1">
+              D+0 PIX Automático
+            </span>
+          </div>
+        </div>
+
+        {/* 3 COLUNAS DE MÉTRICAS EQUILIBRADAS (DISTÂNCIA, BUSCA, AVALIAÇÃO) */}
+        <div className="grid grid-cols-3 gap-2 py-3 px-2 bg-slate-50/70 rounded-2xl border border-slate-100/90 text-center divide-x divide-slate-200/60 mb-3.5">
+          {/* Coluna 1: Distância */}
+          <div className="px-1">
+            <div className="text-sm font-bold text-slate-800 leading-snug">
+              {distanciaViagemTexto}
+            </div>
+            <div className="text-[10px] text-slate-500 font-medium mt-0.5">
+              Distância
+            </div>
+          </div>
+
+          {/* Coluna 2: Busca estimada */}
+          <div className="px-1">
+            <div className="text-sm font-bold text-slate-800 leading-snug">
+              {tempoEmbarqueMin} min
+            </div>
+            <div className="text-[10px] text-slate-500 font-medium mt-0.5">
+              Busca estimada
+            </div>
+          </div>
+
+          {/* Coluna 3: Avaliação do passageiro */}
+          <div className="px-1">
+            <div className="text-sm font-bold text-slate-800 leading-snug flex items-center justify-center gap-0.5">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>{notaFormatada}</span>
+            </div>
+            <div className="text-[10px] text-slate-500 font-medium mt-0.5 truncate">
+              {oferta.passageiro.split(" ")[0]}
+            </div>
+          </div>
+        </div>
+
+        {/* CHIPS DE ENDEREÇO (EMBARQUE E DESTINO COM FUNDO #F8FAFC) */}
+        <div className="bg-[#F8FAFC] rounded-2xl border border-slate-100 p-3.5 space-y-2 mb-4">
+          {/* Ponto de Embarque */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#22C55E] shrink-0 ring-4 ring-emerald-50" />
+            <div className="min-w-0 flex-1 truncate">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block leading-tight">
+                Embarque
+              </span>
+              <span className="text-xs font-semibold text-slate-800 truncate block">
+                {origemResumida}
+              </span>
+            </div>
+          </div>
+
+          {/* Linha conectora pontilhada */}
+          <div className="w-0.5 h-2.5 border-l-2 border-dotted border-slate-300 ml-1" />
+
+          {/* Ponto de Destino */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444] shrink-0 ring-4 ring-rose-50" />
+            <div className="min-w-0 flex-1 truncate">
+              <span className="text-[10px] uppercase font-bold text-slate-400 block leading-tight">
+                Destino
+              </span>
+              <span className="text-xs font-semibold text-slate-800 truncate block">
                 {destinoResumido}
               </span>
             </div>
           </div>
+        </div>
 
-          {/* 4. ORIGEM E DESTINO RESUMIDOS COM TRILHA */}
-          <div className="space-y-1.5 p-3 bg-[#0F1C3F]/80 rounded-2xl border border-blue-900/40 text-xs text-left">
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#00C6FF] shrink-0 shadow-[0_0_8px_#00C6FF]" />
-              <div className="min-w-0 flex-1 truncate">
-                <span className="font-bold text-slate-400 mr-1">Embarque:</span>
-                <span className="font-black text-white truncate">{origemResumida}</span>
-              </div>
-            </div>
+        {/* BOTÃO SLIDER DE CONFIRMAÇÃO (DESLIZAR PARA ACEITAR / 1-TAP) */}
+        <div
+          ref={sliderRef}
+          onMouseMove={handleTouchMove}
+          onTouchMove={handleTouchMove}
+          onMouseUp={handleTouchEnd}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
+          }}
+          className="relative w-full h-[60px] rounded-2xl p-1.5 flex items-center justify-center shadow-[0_10px_25px_rgba(0,136,255,0.3)] select-none cursor-pointer overflow-hidden transition active:scale-[0.99]"
+          onClick={handleAccept}
+        >
+          {/* Rótulo Central */}
+          <span className="font-semibold text-sm sm:text-base text-white tracking-wide pl-8">
+            {accepted ? "Corrida Aceita!" : "Deslizar para Aceitar Corrida"}
+          </span>
 
-            <div className="w-0.5 h-1.5 bg-slate-600 ml-1" />
-
-            <div className="flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0 shadow-[0_0_8px_#F43F5E]" />
-              <div className="min-w-0 flex-1 truncate">
-                <span className="font-bold text-slate-400 mr-1">Destino:</span>
-                <span className="font-black text-white truncate">{destinoResumido}</span>
-              </div>
-            </div>
+          {/* Botão Deslizante Branco com Seta Azul */}
+          <div
+            onMouseDown={() => {
+              isDragging.current = true;
+            }}
+            onTouchStart={() => {
+              isDragging.current = true;
+            }}
+            style={{
+              transform: `translateX(${sliderPosition}px)`,
+              transition: isDragging.current ? "none" : "transform 0.2s ease-out",
+            }}
+            className="absolute left-1.5 top-1.5 bottom-1.5 w-12 rounded-xl bg-white text-[#0088FF] flex items-center justify-center shadow-md active:scale-95 transition"
+          >
+            <ArrowRight className="w-5 h-5 stroke-[2.5]" />
           </div>
+        </div>
 
-          {/* 5. BOTÃO PRINCIPAL 100% LARGURA E 64px ALTURA MÍNIMA (1-TAP INSTANTÂNEO) */}
+        {/* Ação de Recusa Suave */}
+        <div className="text-center mt-3">
           <button
             type="button"
-            disabled={accepted}
-            onClick={handleSingleTapAccept}
-            style={{
-              background: "linear-gradient(135deg, #0088FF 0%, #003366 100%)",
-              color: "#FFFFFF",
-              borderRadius: 18,
-              boxShadow: "0 10px 30px rgba(0, 136, 255, 0.45), inset 0 1px 1px rgba(255,255,255,0.4)",
+            onClick={() => {
+              callAlertService.stopAlert();
+              onRecusar();
             }}
-            className="w-full min-h-[64px] font-black text-base sm:text-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] hover:brightness-110 touch-manipulation disabled:opacity-80"
+            className="text-xs font-medium text-slate-400 hover:text-slate-600 transition py-1"
           >
-            <span>{accepted ? "CORRIDA ACEITA..." : "ACEITAR CORRIDA"}</span>
-            <span className="text-xl">✓</span>
+            Recusar esta corrida
           </button>
         </div>
       </div>
