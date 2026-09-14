@@ -83,16 +83,24 @@ export function PartiuAppAuthGate({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Verificação inicial de sessão ativa
+  // Verificação inicial de sessão ativa e hidratação com Supabase
   useEffect(() => {
     async function initGate() {
-      const activeSession = supabaseAuthService.getStoredSession();
-      if (activeSession) {
-        const dest =
-          redirectDestination ||
-          (activeSession.role === "MOTORISTA" ? "/app/motorista" : "/app");
-        void navigate({ to: dest, replace: true });
-        return;
+      try {
+        const activeSession = await supabaseAuthService.checkAndHydrateSession();
+        if (activeSession) {
+          const dest =
+            redirectDestination ||
+            (activeSession.role === "MOTORISTA"
+              ? "/app/motorista"
+              : activeSession.role === "ADMIN"
+              ? "/app/admin"
+              : "/app");
+          void navigate({ to: dest, replace: true });
+          return;
+        }
+      } catch (err) {
+        silentCatchWarn("index:initGate", err);
       }
       setCheckingSession(false);
     }
@@ -266,16 +274,6 @@ export function PartiuAppAuthGate({
     }, 400);
   }
 
-  // Login de Demonstração Rápida (1-Clique)
-  function handleQuickDemo(role: UserRole) {
-    setLoading(true);
-    setErrorMessage(null);
-    const res = supabaseAuthService.quickDemoLogin(role);
-    setSuccessMessage(`Entrando como ${role} de demonstração...`);
-    setTimeout(() => {
-      void navigate({ to: redirectDestination || res.redirectUrl || "/app", replace: true });
-    }, 300);
-  }
 
   // Recuperação de Senha
   async function handleForgotPassword() {
@@ -734,18 +732,6 @@ export function PartiuAppAuthGate({
                 </button>
               </form>
             )}
-
-            {/* BOTÃO TESTE RÁPIDO */}
-            <div className="pt-1.5 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => handleQuickDemo("PASSAGEIRO")}
-                className="w-full py-2 rounded-lg bg-slate-100/80 hover:bg-slate-100 text-slate-700 font-semibold text-[10px] flex items-center justify-center gap-1.5 transition"
-              >
-                <Sparkles className="h-3 w-3 text-primary-600" />
-                <span>Entrar como Passageiro Demo</span>
-              </button>
-            </div>
           </div>
         )}
 
@@ -823,16 +809,7 @@ export function PartiuAppAuthGate({
               </button>
             </form>
 
-            <div className="pt-1.5 border-t border-slate-100 space-y-1.5">
-              <button
-                type="button"
-                onClick={() => handleQuickDemo("MOTORISTA")}
-                className="w-full py-2 rounded-lg bg-slate-100/80 hover:bg-slate-100 text-slate-700 font-semibold text-[10px] flex items-center justify-center gap-1.5 transition"
-              >
-                <Sparkles className="h-3 w-3 text-primary-600" />
-                <span>Entrar como Motorista Demo</span>
-              </button>
-
+            <div className="pt-1.5 border-t border-slate-100">
               <Link
                 to="/cadastro-motorista"
                 className="w-full py-2 rounded-lg border border-slate-200 hover:border-slate-300 text-slate-600 hover:text-slate-900 font-semibold text-[10px] flex items-center justify-center gap-1.5 transition"

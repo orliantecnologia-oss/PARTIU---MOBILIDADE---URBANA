@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Bike,
@@ -10,6 +11,7 @@ import {
   FileCheck2,
   FileText,
   Filter,
+  Loader2,
   Phone,
   Search,
   ShieldAlert,
@@ -19,6 +21,13 @@ import {
   XCircle,
   Zap,
 } from "lucide-react";
+import {
+  usePartiuTodasSolicitacoesMotoristas,
+  useAprovarPartiuMotorista,
+  useRejeitarPartiuMotorista,
+} from "@/lib/univans-db";
+import { driverFleetService } from "@/lib/ecosystem/driver-fleet-service";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app/admin/aprovacoes")({
   head: () => ({
@@ -61,129 +70,18 @@ export interface SolicitacaoCondutor {
   };
 }
 
-const SOLICITACOES_MOCK: SolicitacaoCondutor[] = [
-  {
-    id: "sol-101",
-    nomeCompleto: "Marcos Aurélio Silveira",
-    cpf: "123.456.789-00",
-    whatsapp: "+55 82 99123-4567",
-    email: "marcos.silveira@gmail.com",
-    cidade: "Maceió / AL",
-    modalidade: "pop_carro",
-    cnhNumero: "04987654321",
-    cnhCategoria: "B (EAR)",
-    possuiEAR: true,
-    veiculoMarcaModelo: "Chevrolet Onix 1.0 LT",
-    veiculoAno: "2024",
-    veiculoPlaca: "BRA-4E29",
-    veiculoCor: "Prata",
-    crlvAnoExercicio: "2026",
-    chavePix: "123.456.789-00 (CPF)",
-    dataSolicitacao: "Hoje às 10:14",
-    status: "pendente",
-    documentos: {
-      cnhUrl: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
-      crlvUrl: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&auto=format&fit=crop&q=80",
-      fotoPerfilUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
-    },
-  },
-  {
-    id: "sol-102",
-    nomeCompleto: "Renata Duarte Vasconcelos",
-    cpf: "345.678.901-22",
-    whatsapp: "+55 82 99345-6789",
-    email: "renata.duarte@hotmail.com",
-    cidade: "Arapiraca / AL",
-    modalidade: "pop_carro",
-    cnhNumero: "07891234560",
-    cnhCategoria: "B (EAR)",
-    possuiEAR: true,
-    veiculoMarcaModelo: "Hyundai HB20 Comfort",
-    veiculoAno: "2023",
-    veiculoPlaca: "RKL-9A33",
-    veiculoCor: "Branco",
-    crlvAnoExercicio: "2026",
-    chavePix: "renata.duarte@hotmail.com (Email)",
-    dataSolicitacao: "Hoje às 09:30",
-    status: "pendente",
-    documentos: {
-      cnhUrl: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
-      crlvUrl: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&auto=format&fit=crop&q=80",
-      fotoPerfilUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80",
-    },
-  },
-  {
-    id: "sol-103",
-    nomeCompleto: "Thiago Oliveira Brandão",
-    cpf: "567.890.123-44",
-    whatsapp: "+55 82 99567-8901",
-    email: "thiago.flash@gmail.com",
-    cidade: "Maceió / AL",
-    modalidade: "moto_flash",
-    cnhNumero: "09123456780",
-    cnhCategoria: "A (EAR)",
-    possuiEAR: true,
-    veiculoMarcaModelo: "Honda CG 160 Fan",
-    veiculoAno: "2024",
-    veiculoPlaca: "SND-4B21",
-    veiculoCor: "Vermelha",
-    crlvAnoExercicio: "2026",
-    chavePix: "+5582995678901 (Celular)",
-    dataSolicitacao: "Ontem às 18:22",
-    status: "aprovado",
-    documentos: {
-      cnhUrl: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
-      crlvUrl: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&auto=format&fit=crop&q=80",
-      fotoPerfilUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80",
-    },
-  },
-  {
-    id: "sol-104",
-    nomeCompleto: "Luciano Bezerra Ramos",
-    cpf: "789.012.345-66",
-    whatsapp: "+55 82 99789-0123",
-    email: "luciano.ramos@yahoo.com",
-    cidade: "Palmeira dos Índios / AL",
-    modalidade: "pop_carro",
-    cnhNumero: "01234567890",
-    cnhCategoria: "B (EAR)",
-    possuiEAR: false,
-    veiculoMarcaModelo: "Fiat Uno Mille",
-    veiculoAno: "2008",
-    veiculoPlaca: "KLP-7M50",
-    veiculoCor: "Azul",
-    crlvAnoExercicio: "2024",
-    chavePix: "78901234566 (CPF)",
-    dataSolicitacao: "04/09/2026",
-    status: "rejeitado",
-    motivoRejeicao: "Veículo ano 2008 fora da exigência de fabricação mínima (2013) e CNH sem averbação EAR.",
-    documentos: {
-      cnhUrl: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
-      crlvUrl: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&auto=format&fit=crop&q=80",
-      fotoPerfilUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format&fit=crop&q=80",
-    },
-  },
-];
-
-import { useMemo, useEffect } from "react";
-import {
-  usePartiuMotoristasPendentes,
-  useAprovarPartiuMotorista,
-  useRejeitarPartiuMotorista,
-} from "@/lib/univans-db";
-import { driverFleetService } from "@/lib/ecosystem/driver-fleet-service";
-
 export function AdminAprovacoesPage() {
-  const { data: pendentesReais = [] } = usePartiuMotoristasPendentes();
+  const qc = useQueryClient();
+  const { data: todasReais = [], isLoading } = usePartiuTodasSolicitacoesMotoristas();
   const aprovarMutation = useAprovarPartiuMotorista();
   const rejeitarMutation = useRejeitarPartiuMotorista();
 
-  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoCondutor[]>(SOLICITACOES_MOCK);
+  const [solicitacoes, setSolicitacoes] = useState<SolicitacaoCondutor[]>([]);
 
   // Sincroniza dados reais com o estado local
   useEffect(() => {
-    if (pendentesReais.length > 0) {
-      const convertidas: SolicitacaoCondutor[] = pendentesReais.map((p) => ({
+    if (todasReais && todasReais.length > 0) {
+      const convertidas: SolicitacaoCondutor[] = todasReais.map((p) => ({
         id: p.id,
         nomeCompleto: p.nome,
         cpf: p.cpf,
@@ -200,22 +98,46 @@ export function AdminAprovacoesPage() {
         veiculoCor: p.veiculo_cor,
         crlvAnoExercicio: "2026",
         chavePix: p.chave_pix || "Não cadastrada",
-        dataSolicitacao: "Hoje (Recente)",
+        dataSolicitacao: p.created_at ? new Date(p.created_at).toLocaleDateString("pt-BR") : "Recente",
         status: (p.status_aprovacao as any) || "pendente",
+        motivoRejeicao: (p as any).motivo_rejeicao,
         documentos: {
           cnhUrl: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
           crlvUrl: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&auto=format&fit=crop&q=80",
-          fotoPerfilUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+          fotoPerfilUrl: (p as any).foto_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
         },
       }));
-
-      setSolicitacoes((prev) => {
-        const idsReais = new Set(convertidas.map((c) => c.id));
-        const outros = prev.filter((s) => !idsReais.has(s.id));
-        return [...convertidas, ...outros];
-      });
+      setSolicitacoes(convertidas);
+    } else {
+      setSolicitacoes([]);
     }
-  }, [pendentesReais]);
+  }, [todasReais]);
+
+  // Sincronização em tempo real via Supabase Realtime
+  useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
+    const channel = supabase
+      .channel("admin_motoristas_realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "partiu_motoristas",
+        },
+        () => {
+          void qc.invalidateQueries({ queryKey: ["admin", "solicitacoes_motoristas"] });
+          void qc.invalidateQueries({ queryKey: ["admin", "motoristas_pendentes"] });
+          void qc.invalidateQueries({ queryKey: ["admin", "motoristas"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [qc]);
 
   const [filtro, setFiltro] = useState<"todas" | "pendente" | "aprovado" | "rejeitado">("todas");
   const [busca, setBusca] = useState("");
@@ -460,6 +382,29 @@ export function AdminAprovacoesPage() {
             </div>
           );
         })}
+
+        {isLoading && (
+          <div className="col-span-full rounded-3xl bg-white p-12 text-center border border-slate-200 flex flex-col items-center justify-center space-y-3">
+            <Loader2 className="w-8 h-8 animate-spin text-[#0088FF]" />
+            <p className="text-xs font-bold text-slate-600">Sincronizando cadastros com a base de dados...</p>
+          </div>
+        )}
+
+        {!isLoading && listaFiltrada.length === 0 && (
+          <div className="col-span-full rounded-3xl bg-white p-12 text-center border border-slate-200 space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+              <FileCheck2 className="w-7 h-7" />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-black text-slate-900">
+                Nenhuma solicitação encontrada
+              </h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto">
+                Não há condutores cadastrados com o filtro &quot;{filtro}&quot;. Quando novos parceiros se cadastrarem pelo app, eles aparecerão aqui em tempo real.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* MODAL DE AUDITORIA DE DOCUMENTOS */}

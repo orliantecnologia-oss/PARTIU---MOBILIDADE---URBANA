@@ -24,6 +24,7 @@ import {
   Box,
   AlertTriangle,
   Camera,
+  Clock,
   RotateCcw,
   Bell,
   UserX,
@@ -107,6 +108,7 @@ import {
 import { openExternalNavigation } from "@/utils/navigation-launcher";
 import { driverConsecutiveRidesEngine } from "@/lib/driver/driver-consecutive-rides-engine";
 import { supabaseAuthService } from "@/lib/auth/supabase-auth-service";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
 export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PARTIU") {
   const isEntrega = c.isEntrega || c.modalidade.startsWith("ENTREGA");
@@ -238,8 +240,52 @@ export function PartiuDriverCockpit() {
   const activeUser = typeof window !== "undefined" ? (supabaseAuthService?.getCurrentUser?.() || supabaseAuthService?.getStoredSession?.() || null) : null;
   const effectiveDriverId = activeUser?.role === "MOTORISTA" ? activeUser.id : MOTORISTA_CONTA_PADRAO.id;
 
+  // Status de Moderação Documental (Supabase Profiles & Realtime)
+  const [driverApprovalStatus, setDriverApprovalStatus] = useState<string>(() => {
+    if (activeUser?.role === "MOTORISTA") {
+      return activeUser.driverApprovalStatus || "pendente";
+    }
+    return "aprovado";
+  });
+
+  // Supabase Realtime: Desbloqueia automaticamente quando aprovado pelo Admin
+  useEffect(() => {
+    if (!effectiveDriverId || !isSupabaseConfigured()) return;
+
+    const channel = supabase
+      .channel(`driver_approval_live_${effectiveDriverId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "profiles",
+          filter: `id=eq.${effectiveDriverId}`,
+        },
+        (payload) => {
+          const newStatus = (payload.new as any)?.approval_status;
+          if (newStatus) {
+            setDriverApprovalStatus(newStatus);
+            const current = supabaseAuthService.getStoredSession();
+            if (current && current.id === effectiveDriverId) {
+              current.driverApprovalStatus = newStatus as any;
+              supabaseAuthService.saveStoredSession(current);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [effectiveDriverId]);
+
   // Status de Disponibilidade & Trava de Diária Inteligente (SaaS Model)
   const [isOnline, setIsOnline] = useState(() => {
+    if (activeUser?.role === "MOTORISTA" && activeUser.driverApprovalStatus === "pendente") {
+      return false;
+    }
     const isUnlocked = driverSubscriptionService.isDriverUnlocked(effectiveDriverId) ||
       driverSubscriptionService.isDriverUnlocked(MOTORISTA_CONTA_PADRAO.id);
     const isDemo = typeof window !== "undefined" && (
@@ -559,6 +605,16 @@ export function PartiuDriverCockpit() {
   // Alternar Online/Offline com validação determinística de elegibilidade e Trava de Diária
   function handleToggleOnline() {
     if (!isOnline) {
+      // 0. Bloqueio por Moderação Operacional
+      if (driverApprovalStatus === "pendente") {
+        setErroElegibilidade("Seu cadastro está em análise pela moderação operacional. Aguarde a aprovação dos documentos para ficar ONLINE.");
+        return;
+      }
+      if (driverApprovalStatus === "rejeitado") {
+        setErroElegibilidade("Seu cadastro foi reprovado pela moderação. Acesse o suporte para regularizar seus documentos.");
+        return;
+      }
+
       // 1. Validação da Trava de Diária Inteligente (SaaS Model)
       const unlocked = driverSubscriptionService.isDriverUnlocked(perfilMotorista.id);
       if (!unlocked) {
@@ -1083,7 +1139,15 @@ export function PartiuDriverCockpit() {
               style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
               className="w-8 h-8 rounded-full font-black flex items-center justify-center text-xs shadow-xs ring-1 ring-black/10"
             >
-              CS
+              {perfilMotorista.nome
+                ? perfilMotorista.nome
+                    .split(" ")
+                    .filter(Boolean)
+                    .map((n) => n[0])
+                    .slice(0, 2)
+                    .join("")
+                    .toUpperCase()
+                : "MO"}
             </div>
             <span
               className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white ${
@@ -1093,7 +1157,7 @@ export function PartiuDriverCockpit() {
           </div>
           <div className="text-left">
             <span className="text-xs font-black text-slate-950 block leading-tight truncate max-w-[85px] min-[360px]:max-w-[105px] sm:max-w-none">
-              Carlos E.
+              {perfilMotorista.nome || "Motorista"}
             </span>
             <span className="text-[10px] font-bold flex items-center gap-1 leading-none mt-0.5" style={{ color: corPrimaria }}>
               <Star className="w-2.5 h-2.5 fill-current" style={{ color: accentColor }} />
@@ -1173,6 +1237,45 @@ export function PartiuDriverCockpit() {
           </Link>
         </div>
       </header>
+
+      {/* Alerta de Moderação Documental Pendente / Rejeitada */}
+      {driverApprovalStatus === "pendente" && (
+        <div className="absolute top-16 inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-amber-500 text-slate-950 text-xs font-semibold shadow-2xl flex items-start gap-3 border border-amber-400 animate-in slide-in-from-top duration-200">
+          <Clock className="w-5 h-5 text-slate-950 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-black text-xs uppercase tracking-tight block">
+                Cadastro em Análise pela Moderação
+              </span>
+              <span className="text-[10px] bg-slate-950 text-amber-300 px-2 py-0.5 rounded-full font-bold uppercase shrink-0">
+                Pendente
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-900 mt-1 leading-snug font-medium">
+              Sua documentação (CNH com EAR e CRLV) está sob auditoria da equipe operacional. O botão <strong>ONLINE</strong> será liberado instantaneamente assim que for aprovado.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {driverApprovalStatus === "rejeitado" && (
+        <div className="absolute top-16 inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-start gap-3 border border-rose-500 animate-in slide-in-from-top duration-200">
+          <AlertTriangle className="w-5 h-5 text-white shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-black text-xs uppercase tracking-tight block">
+                Cadastro Reprovado na Auditoria
+              </span>
+              <span className="text-[10px] bg-white text-rose-700 px-2 py-0.5 rounded-full font-bold uppercase shrink-0">
+                Reprovado
+              </span>
+            </div>
+            <p className="text-[11px] text-rose-100 mt-1 leading-snug font-medium">
+              Houve inconsistências na sua documentação. Por favor, contate o suporte operacional para regularização.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Alerta de Suspensão por Inadimplência (Fase 19) */}
       {(subscription.status === "SUSPENDED" || subscription.status === "REACTIVATION_REQUIRED") && (

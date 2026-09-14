@@ -1144,11 +1144,22 @@ export function getHistoricoViagens(): CorridaPartiu[] {
   }
 }
 
-// 9. Ganhos do motorista no dia
+// 9. Ganhos do motorista no dia (Auditável e com cálculo real de corridas concluídas)
 export function getGanhosHojeMotorista(): number {
-  if (typeof window === "undefined") return 284.5;
+  if (typeof window === "undefined") return 0;
   const raw = localStorage.getItem(STORAGE_KEY_GANHOS_MOTORISTA);
-  return raw ? parseFloat(raw) : 284.5;
+  if (raw) return parseFloat(raw) || 0;
+
+  try {
+    const historico = getHistoricoViagens();
+    const hoje = new Date().toDateString();
+    const ganhosHoje = historico
+      .filter((c) => c.status === "CONCLUIDA" && new Date(c.criadoEm).toDateString() === hoje)
+      .reduce((acc, c) => acc + (c.valor || 0), 0);
+    return ganhosHoje;
+  } catch {
+    return 0;
+  }
 }
 
 // 10. Avaliação 5 Estrelas pelo Passageiro (Persistência no Histórico & Motorista)

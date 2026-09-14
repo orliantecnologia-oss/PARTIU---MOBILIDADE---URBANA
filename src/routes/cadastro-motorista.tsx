@@ -6,10 +6,13 @@ import {
   Bike,
   Car,
   CheckCircle2,
+  Clock,
   CreditCard,
   FileCheck2,
+  Loader2,
   MapPin,
   Phone,
+  ShieldAlert,
   ShieldCheck,
   User,
   Zap,
@@ -17,6 +20,7 @@ import {
 import { TopNav } from "@/components/navigation/TopNav";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { driverFleetService } from "@/lib/ecosystem/driver-fleet-service";
+import { supabaseAuthService } from "@/lib/auth/supabase-auth-service";
 import { silentCatchWarn } from "@/lib/structured-logger";
 
 
@@ -37,12 +41,15 @@ export const Route = createFileRoute("/cadastro-motorista")({
 export function CadastroMotoristaPage() {
   const [etapa, setEtapa] = useState<1 | 2 | 3 | 4>(1);
   const [sucesso, setSucesso] = useState(false);
+  const [carregando, setCarregando] = useState(false);
+  const [erroCadastro, setErroCadastro] = useState<string | null>(null);
 
   // Etapa 1: Dados Pessoais
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
 
   // Etapa 2: Modalidade & Veículo
   const [tipoVeiculo, setTipoVeiculo] = useState<"carro" | "moto">("carro");
@@ -61,11 +68,37 @@ export function CadastroMotoristaPage() {
   const [chavePix, setChavePix] = useState("");
   const [tipoChave, setTipoChave] = useState<"cpf" | "celular" | "email" | "aleatoria">("celular");
 
-  function handleFinalizarCadastro(e: FormEvent) {
+  async function handleFinalizarCadastro(e: FormEvent) {
     e.preventDefault();
+    setCarregando(true);
+    setErroCadastro(null);
+
+    const res = await supabaseAuthService.signUpDriver({
+      name: nome,
+      email,
+      phone: whatsapp,
+      cpf,
+      password: senha || "partiu2026",
+      vehicleType: tipoVeiculo,
+      vehicleModel: veiculoModelo,
+      vehiclePlate: veiculoPlaca.toUpperCase(),
+      vehicleYear: veiculoAno,
+      vehicleColor: veiculoCor,
+      cnh,
+      cnhCategory: categoriaCNH,
+      hasEar: possuiEAR,
+      pixKey: chavePix,
+      pixKeyType: tipoChave,
+    });
+
+    setCarregando(false);
+    if (!res.success) {
+      setErroCadastro(res.error || "Não foi possível concluir o cadastro.");
+      return;
+    }
 
     const motoristaNovo = {
-      id: "mot_" + Date.now(),
+      id: res.user?.id || "mot_" + Date.now(),
       nome,
       cpf,
       whatsapp,
@@ -106,30 +139,6 @@ export function CadastroMotoristaPage() {
       cnh_number: cnh || "00000000000",
       pix_key: chavePix || undefined,
     });
-
-    if (isSupabaseConfigured()) {
-      void (supabase as any).from("partiu_motoristas").insert({
-        nome,
-        cpf: cpf.replace(/\D/g, "") || cpf || "00000000000",
-        telefone: whatsapp,
-        email: email || null,
-        cnh_numero: cnh || "00000000000",
-        cnh_categoria: categoriaCNH,
-        cnh_validade: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-        possui_ear: possuiEAR,
-        veiculo_marca_modelo: veiculoModelo,
-        veiculo_placa: veiculoPlaca.toUpperCase() || "SEM-PLACA",
-        veiculo_ano: parseInt(veiculoAno, 10) || 2023,
-        veiculo_cor: veiculoCor,
-        categoria_veiculo: tipoVeiculo === "moto" ? "MOTO" : "CARRO",
-        chave_pix: chavePix || null,
-        tipo_chave_pix: tipoChave || null,
-        status_aprovacao: "pendente",
-        is_online: false,
-      }).then(({ error }: any) => {
-        if (error) console.warn("[CadastroMotorista] Falha ao sincronizar com Supabase:", error.message);
-      });
-    }
 
     setSucesso(true);
   }
@@ -227,11 +236,29 @@ export function CadastroMotoristaPage() {
                   />
                 </div>
 
+                <div className="space-y-1">
+                  <label className="block text-xs font-black uppercase text-slate-300">
+                    Criar Senha de Acesso
+                  </label>
+                  <input
+                    required
+                    type="password"
+                    value={senha}
+                    onChange={(e) => setSenha(e.target.value)}
+                    placeholder="Mínimo 6 dígitos para entrar no App"
+                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
+                  />
+                </div>
+
                 <button
                   type="button"
                   onClick={() => {
-                    if (!nome || !whatsapp) {
-                      alert("Por favor, preencha pelo menos Nome e WhatsApp.");
+                    if (!nome || !whatsapp || !email) {
+                      alert("Por favor, preencha Nome, WhatsApp e E-mail.");
+                      return;
+                    }
+                    if (senha && senha.length < 6) {
+                      alert("A senha de acesso deve ter no mínimo 6 caracteres.");
                       return;
                     }
                     setEtapa(2);
@@ -556,44 +583,69 @@ export function CadastroMotoristaPage() {
                   </p>
                 </div>
 
+                {erroCadastro && (
+                  <div className="rounded-2xl bg-red-950/60 border border-red-500/40 p-3.5 text-xs text-red-200 flex items-center gap-2 mt-3 animate-in fade-in">
+                    <ShieldAlert className="h-4 w-4 text-red-400 shrink-0" />
+                    <span>{erroCadastro}</span>
+                  </div>
+                )}
+
                 <div className="flex gap-2 mt-4">
                   <button
                     type="button"
+                    disabled={carregando}
                     onClick={() => setEtapa(3)}
-                    className="w-1/3 h-12 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all cursor-pointer"
+                    className="w-1/3 h-12 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-700 transition-all cursor-pointer disabled:opacity-50"
                   >
                     Voltar
                   </button>
                   <button
                     type="submit"
-                    className="w-2/3 h-12 rounded-xl bg-[#0088FF] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer"
+                    disabled={carregando}
+                    className="w-2/3 h-12 rounded-xl bg-[#0088FF] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer disabled:opacity-60"
                   >
-                    <CheckCircle2 className="h-5 w-5" />
-                    <span>Concluir Cadastro</span>
+                    {carregando ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <>
+                        <CheckCircle2 className="h-5 w-5" />
+                        <span>Concluir Cadastro</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
             )}
           </div>
         ) : (
-          <div className="rounded-3xl bg-slate-900 p-8 text-center shadow-2xl border border-slate-800 space-y-4 animate-in zoom-in-95">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0088FF] text-slate-950 shadow-lg shadow-[#0088FF]/20">
-              <CheckCircle2 className="h-9 w-9 stroke-[2.5]" />
+          <div className="rounded-3xl bg-slate-900 p-6 sm:p-8 text-center shadow-2xl border border-slate-800 space-y-4 animate-in zoom-in-95">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 shadow-lg">
+              <Clock className="h-9 w-9 stroke-[2.5]" />
             </div>
 
-            <h2 className="text-2xl font-black text-white">Cadastro Realizado com Sucesso!</h2>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              Parabéns, <strong className="text-white">{nome}</strong>! Seu veículo{" "}
-              <strong className="text-[#0088FF]">{veiculoModelo} ({veiculoPlaca.toUpperCase()})</strong>{" "}
-              foi cadastrado na rede PARTIU com repasse PIX configurado.
-            </p>
+            <h2 className="text-2xl font-black text-white">Cadastro em Análise pela Moderação!</h2>
+            
+            <div className="rounded-2xl bg-amber-950/40 border border-amber-500/30 p-4 text-left space-y-2">
+              <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
+                <ShieldAlert className="h-4 w-4" />
+                <span>Status: Pendente de Aprovação Operacional</span>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Parabéns, <strong className="text-white">{nome}</strong>! Seu veículo{" "}
+                <strong className="text-[#0088FF]">{veiculoModelo} ({veiculoPlaca.toUpperCase()})</strong>{" "}
+                foi registrado na rede PARTIU com repasse PIX configurado.
+              </p>
+              <p className="text-[11px] text-amber-200/90 font-medium">
+                ⚡ Seu cadastro está em análise pela moderação. Assim que a aprovação for confirmada no Painel Administrativo, o botão <strong>"Ficar Online"</strong> será liberado instantaneamente em tempo real no seu cockpit!
+              </p>
+            </div>
 
-            <div className="pt-4 space-y-2.5">
+            <div className="pt-3 space-y-2.5">
               <Link
                 to="/app/motorista"
                 className="flex h-12 w-full items-center justify-center rounded-xl bg-[#0088FF] text-xs font-black text-slate-950 shadow-md shadow-[#0088FF]/20 hover:bg-[#00A3FF] transition-all cursor-pointer"
               >
-                Abrir Cockpit do Motorista e Ficar Online
+                Acessar Cockpit do Motorista (Aguardando Aprovação)
               </Link>
               <Link
                 to="/app"

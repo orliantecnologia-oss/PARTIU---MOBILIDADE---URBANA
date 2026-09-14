@@ -4,7 +4,7 @@
  * Elimina o isolamento de localStorage e permite matching atômico entre aparelhos distintos.
  */
 
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import type { CorridaPartiu, MotoristaInfo, ModalidadePartiu } from "./partiu-engine";
 import { silentCatchWarn } from "@/lib/structured-logger";
 
@@ -169,6 +169,40 @@ export async function criarCorridaDistribuida(params: {
     }
   } catch (err) { silentCatchWarn("partiu-realtime-service", err); }
 
+  // Persistência direta em public.rides no Supabase
+  if (isSupabaseConfigured()) {
+    try {
+      const origLat = (params as any).origemCoords?.lat || -21.205;
+      const origLng = (params as any).origemCoords?.lng || -41.888;
+      const destLat = (params as any).destinoCoords?.lat || -21.209;
+      const destLng = (params as any).destinoCoords?.lng || -41.892;
+
+      void (supabase as any).from("rides").insert({
+        id,
+        passenger_id: (params as any).passengerId || `pax-${id}`,
+        passenger_name: params.passageiroNome || "Passageiro Partiu",
+        passenger_phone: params.passageiroTelefone || null,
+        pickup_address: params.origem,
+        pickup_lat: origLat,
+        pickup_lng: origLng,
+        dropoff_address: params.destino,
+        dropoff_lat: destLat,
+        dropoff_lng: destLng,
+        status: "REQUESTED",
+        vehicle_category: params.modalidade === "MOTO" ? "MOTO" : "CARRO",
+        price_estimated_brl: params.valor,
+        distance_km: params.distanciaKm,
+        duration_minutes: params.duracaoMin,
+        payment_method: params.formaPagamento,
+        pin,
+      }).then(({ error }: any) => {
+        if (error) silentCatchWarn("criarCorridaDistribuida:insert_rides", error);
+      });
+    } catch (dbErr) {
+      silentCatchWarn("criarCorridaDistribuida:insert_rides", dbErr);
+    }
+  }
+
   // Objeto de corrida padrão com sincronização distribuída
   const corrida: CorridaPartiu = {
     id,
@@ -207,6 +241,23 @@ export async function aceitarCorridaDistribuida(
   const claimResult = await atomicMatchingEngine.claimRideAtomic(corridaAtual, motorista);
 
   if (claimResult.success && claimResult.corrida) {
+    if (isSupabaseConfigured()) {
+      try {
+        void (supabase as any)
+          .from("rides")
+          .update({
+            status: "ACCEPTED",
+            driver_id: motorista.id,
+            driver_name: motorista.nome,
+            driver_phone: motorista.telefone,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", corridaAtual.id);
+      } catch (err) {
+        silentCatchWarn("aceitarCorridaDistribuida:update_rides", err);
+      }
+    }
+
     // Broadcast imediato para que todos os aparelhos vejam a atribuição vencedora
     await broadcastEventoCorrida("TRIP_ACCEPTED", claimResult.corrida);
     return { sucesso: true, corrida: claimResult.corrida };
@@ -242,6 +293,28 @@ export async function atualizarStatusCorridaDistribuida(
     status: novoStatus,
   };
 
+  const statusMapDb: Record<string, string> = {
+    CHEGOU: "DRIVER_ARRIVED",
+    EM_VIAGEM: "IN_PROGRESS",
+    A_CAMINHO: "DRIVER_EN_ROUTE",
+    CONCLUIDA: "COMPLETED",
+    CANCELADA: "CANCELLED",
+  };
+
+  if (isSupabaseConfigured()) {
+    try {
+      void (supabase as any)
+        .from("rides")
+        .update({
+          status: statusMapDb[novoStatus] || "IN_PROGRESS",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", corridaAtual.id);
+    } catch (err) {
+      silentCatchWarn("atualizarStatusCorridaDistribuida:update_rides", err);
+    }
+  }
+
   const eventoTipo =
     novoStatus === "CHEGOU"
       ? "DRIVER_ARRIVED"
@@ -264,6 +337,21 @@ export async function finalizarCorridaDistribuida(
     status: "CONCLUIDA",
   };
 
+  if (isSupabaseConfigured()) {
+    try {
+      void (supabase as any)
+        .from("rides")
+        .update({
+          status: "COMPLETED",
+          price_final_brl: corridaAtual.valor,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", corridaAtual.id);
+    } catch (err) {
+      silentCatchWarn("finalizarCorridaDistribuida:update_rides", err);
+    }
+  }
+
   await broadcastEventoCorrida("TRIP_COMPLETED", null);
   return finalizada;
 }
@@ -271,6 +359,19 @@ export async function finalizarCorridaDistribuida(
 /**
  * 7. CANCELAR CORRIDA
  */
-export async function cancelarCorridaDistribuida(): Promise<void> {
+export async function cancelarCorridaDistribuida(corridaId?: string): Promise<void> {
+  if (isSupabaseConfigured() && corridaId) {
+    try {
+      void (supabase as any)
+        .from("rides")
+        .update({
+          status: "CANCELLED",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", corridaId);
+    } catch (err) {
+      silentCatchWarn("cancelarCorridaDistribuida:update_rides", err);
+    }
+  }
   await broadcastEventoCorrida("TRIP_CANCELLED", null);
 }

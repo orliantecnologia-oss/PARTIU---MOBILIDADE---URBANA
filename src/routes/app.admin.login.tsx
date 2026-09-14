@@ -4,13 +4,9 @@ import {
   ArrowRight,
   Car,
   CheckCircle2,
-  Crown,
   Lock,
   Mail,
-  Radio,
   ShieldAlert,
-  Truck,
-  User,
 } from "lucide-react";
 import { loginAdmin } from "@/lib/admin-rbac";
 
@@ -60,16 +56,6 @@ function AdminLoginPage() {
     }
   }
 
-  function preencherCredencialRapida(tipo: "dono" | "admin") {
-    if (tipo === "dono") {
-      setEmail("dono@partiu.app");
-      setSenha("123456");
-    } else {
-      setEmail("admin@partiu.app");
-      setSenha("123456");
-    }
-    setErro(null);
-  }
 
   return (
     <div className="min-h-screen w-full bg-slate-950 flex flex-col justify-center items-center p-4 sm:p-6 text-white relative overflow-hidden">
@@ -173,46 +159,7 @@ function AdminLoginPage() {
             </button>
           </form>
 
-          {/* Atalhos Rápidos com Credenciais Padrão Pré-Configuradas */}
-          <div className="pt-4 border-t border-slate-800 space-y-3">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block text-center">
-              Acesso Rápido com Contas Padrão (1-Clique)
-            </span>
 
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => preencherCredencialRapida("dono")}
-                className="p-3 rounded-2xl bg-slate-950 hover:bg-amber-950/40 border border-slate-800 hover:border-amber-500/40 text-left transition-all group"
-              >
-                <div className="flex items-center gap-1.5 text-primary-600 mb-1">
-                  <Crown className="h-4 w-4" />
-                  <span className="text-xs font-black">👑 Dono (Owner)</span>
-                </div>
-                <p className="text-[10px] text-slate-400 font-mono">dono@partiu.app</p>
-                <p className="text-[9px] text-emerald-400 font-mono">Acesso Total D+0</p>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => preencherCredencialRapida("admin")}
-                className="p-3 rounded-2xl bg-slate-950 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/40 text-left transition-all group"
-              >
-                <div className="flex items-center gap-1.5 text-blue-400 mb-1">
-                  <User className="h-4 w-4" />
-                  <span className="text-xs font-black">👤 Operações</span>
-                </div>
-                <p className="text-[10px] text-slate-400 font-mono">admin@partiu.app</p>
-                <p className="text-[9px] text-emerald-400 font-mono">Despacho &amp; Frota</p>
-              </button>
-            </div>
-
-            <div className="text-center pt-1">
-              <span className="text-[10px] text-slate-400 bg-slate-950/70 border border-slate-800 px-3 py-1 rounded-full inline-block">
-                🔑 Senha padrão: <span className="font-mono text-emerald-400 font-bold">123456</span> ou <span className="font-mono text-emerald-400 font-bold">partiu2026</span>
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Link para voltar ao app do passageiro */}

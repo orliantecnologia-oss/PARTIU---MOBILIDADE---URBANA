@@ -706,15 +706,74 @@ export function usePartiuMotoristasPendentes(): UseQueryResult<PartiuMotoristaPe
   });
 }
 
+export function usePartiuTodasSolicitacoesMotoristas(): UseQueryResult<PartiuMotoristaPendente[]> {
+  return useQuery({
+    queryKey: ["admin", "solicitacoes_motoristas"],
+    queryFn: async () => {
+      try {
+        const { data, error } = await (supabase as any)
+          .from("partiu_motoristas")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          return data as PartiuMotoristaPendente[];
+        }
+      } catch (err) { silentCatchWarn("univans-db", err); }
+
+      // Fallback local se offline
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("partiu_motoristas_store");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            return parsed.map((m: any) => ({
+              id: m.id,
+              nome: m.nome,
+              cpf: m.cpf,
+              telefone: m.whatsapp,
+              email: m.email || null,
+              cnh_numero: m.cnh,
+              cnh_categoria: m.categoriaCNH || "B",
+              cnh_validade: "Em dia",
+              possui_ear: m.possuiEAR ?? true,
+              veiculo_marca_modelo: m.modelo,
+              veiculo_placa: m.placa,
+              veiculo_ano: parseInt(m.ano, 10) || 2023,
+              veiculo_cor: m.cor,
+              categoria_veiculo: m.tipoVeiculo === "moto" ? "MOTO" : "CARRO",
+              chave_pix: m.chavePix || null,
+              tipo_chave_pix: m.tipoChave || null,
+              status_aprovacao: m.status || "pendente",
+              created_at: m.cadastradoEm || new Date().toISOString(),
+            }));
+          }
+        } catch {
+          return [];
+        }
+      }
+      return [];
+    },
+  });
+}
+
 export function useAprovarPartiuMotorista() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
       try {
-        await (supabase as any)
+        const { data } = await (supabase as any)
           .from("partiu_motoristas")
           .update({ status_aprovacao: "aprovado" })
-          .eq("id", id);
+          .eq("id", id)
+          .select("user_id")
+          .maybeSingle();
+
+        const targetUserId = data?.user_id || id;
+        await (supabase as any)
+          .from("profiles")
+          .update({ approval_status: "aprovado" })
+          .eq("id", targetUserId);
       } catch (err) { silentCatchWarn("univans-db", err); }
 
       if (typeof window !== "undefined") {
@@ -734,6 +793,7 @@ export function useAprovarPartiuMotorista() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin", "motoristas_pendentes"] });
       void qc.invalidateQueries({ queryKey: ["admin", "motoristas"] });
+      void qc.invalidateQueries({ queryKey: ["admin", "solicitacoes_motoristas"] });
     },
   });
 }
@@ -743,10 +803,18 @@ export function useRejeitarPartiuMotorista() {
   return useMutation({
     mutationFn: async ({ id, motivo }: { id: string; motivo: string }) => {
       try {
-        await (supabase as any)
+        const { data } = await (supabase as any)
           .from("partiu_motoristas")
           .update({ status_aprovacao: "rejeitado", motivo_rejeicao: motivo })
-          .eq("id", id);
+          .eq("id", id)
+          .select("user_id")
+          .maybeSingle();
+
+        const targetUserId = data?.user_id || id;
+        await (supabase as any)
+          .from("profiles")
+          .update({ approval_status: "rejeitado", rejection_reason: motivo })
+          .eq("id", targetUserId);
       } catch (err) { silentCatchWarn("univans-db", err); }
 
       if (typeof window !== "undefined") {
@@ -767,6 +835,7 @@ export function useRejeitarPartiuMotorista() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ["admin", "motoristas_pendentes"] });
       void qc.invalidateQueries({ queryKey: ["admin", "motoristas"] });
+      void qc.invalidateQueries({ queryKey: ["admin", "solicitacoes_motoristas"] });
     },
   });
 }
