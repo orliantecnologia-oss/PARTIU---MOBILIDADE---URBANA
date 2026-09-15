@@ -14,8 +14,9 @@ import { useDriverSearchRealtime } from "@/hooks/useDriverSearchRealtime";
  * ==============================================================================
  */
 export const LiveRingingToast = memo(function LiveRingingToast() {
-  // A notificação de motorista analisando foi migrada diretamente para a gaveta
-  // inferior de busca (PassengerFindingDriverRadar.tsx), liberando 100% da visualização do mapa.
+  // A notificação de motorista analisando é renderizada flutuando diretamente
+  // dentro do mapa na parte inferior (PassengerFindingDriverRadar.tsx), com
+  // efeito glassmorphism e acima da barra de progresso da busca.
   return null;
 });
 
