@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
-import { Check } from "lucide-react";
+import { Check, MapPin } from "lucide-react";
 import {
   PassengerRideProvider,
   usePassengerRide,
@@ -13,6 +13,7 @@ import {
   type RecentAddressItem,
   type PromoBannerItem,
 } from "@/components/home";
+import { hapticFeedback } from "@/lib/haptics/haptic-feedback";
 import { bannerService } from "@/lib/ecosystem/banner-service";
 import { PassengerSearchDestinationSheet } from "@/components/passenger/PassengerSearchDestinationSheet";
 import { PassengerReviewRouteSheet } from "@/components/passenger/PassengerReviewRouteSheet";
@@ -73,6 +74,7 @@ function PartiuPassengerHomeContent() {
     startEditingPickup,
     proceedToConfirmPickup,
     selectDestination,
+    selectDestinationOnMap,
     smartPickups,
     selectStrategicPickup,
     updatePickupLocationFromMap,
@@ -483,6 +485,29 @@ function PartiuPassengerHomeContent() {
           />
 
           {/* ========================================================================= */}
+          {/* BOTÃO ESTRATÉGICO FLUTUANTE: ESCOLHER DESTINO NO MAPA                      */}
+          {/* Posicionado dentro do mapa, abaixo do cabeçalho centralizado na logo       */}
+          {/* ========================================================================= */}
+          <div className="absolute top-[calc(max(0.75rem,calc(env(safe-area-inset-top,0px)+8px))+64px)] left-1/2 -translate-x-1/2 z-20 pointer-events-auto animate-in fade-in slide-in-from-top-3 duration-200">
+            <button
+              type="button"
+              onClick={() => {
+                hapticFeedback.light();
+                selectDestinationOnMap();
+              }}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/95 hover:bg-white active:scale-95 text-slate-800 text-xs font-bold shadow-lg shadow-black/10 border border-slate-200/90 backdrop-blur-md transition-all cursor-pointer group hover:border-brand-primary-vibrant/60 hover:text-brand-primary-vibrant hover:shadow-xl"
+              aria-label="Escolher destino no mapa"
+            >
+              <div className="w-5 h-5 rounded-full bg-blue-50 text-brand-primary-vibrant flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                <MapPin className="w-3.5 h-3.5 text-brand-primary-vibrant stroke-[2.5]" />
+              </div>
+              <span className="tracking-tight text-slate-900 group-hover:text-brand-primary-vibrant transition-colors">
+                Escolher destino no mapa
+              </span>
+            </button>
+          </div>
+
+          {/* ========================================================================= */}
           {/* PAINEL INFERIOR FLUTUANTE SOBRE O MAPA (HALF-MAP COMFORT ZONE)           */}
           {/* ========================================================================= */}
           <div
@@ -494,7 +519,6 @@ function PartiuPassengerHomeContent() {
               <DestinationCard
                 onSearchClick={startSearch}
                 onEditPickupClick={startEditingPickup}
-                onAdjustPinOnMap={proceedToConfirmPickup}
                 onSelectAddress={handleSelectAddressItem}
                 currentAddress={origem}
                 userAccuracyMeters={userAccuracyMeters}

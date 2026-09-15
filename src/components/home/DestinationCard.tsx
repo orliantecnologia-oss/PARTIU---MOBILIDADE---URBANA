@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import { Search, Clock, ChevronRight, MapPin } from "lucide-react";
+import { Search, Clock, ChevronRight } from "lucide-react";
 import type { RecentAddressItem } from "./home-mock-data";
 import { RECENT_SEARCH_MOCKS } from "./home-mock-data";
 import { hapticFeedback } from "@/lib/haptics/haptic-feedback";
@@ -39,14 +39,11 @@ const RecentAddressItemRow = memo(function RecentAddressItemRow({
         <div className="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 shrink-0 group-hover:text-brand-primary-vibrant transition-colors">
           <Clock className="w-5 h-5 stroke-[2]" />
         </div>
-
         <div className="min-w-0 flex-1">
-          <span className="text-sm font-semibold text-slate-900 block truncate leading-tight">
+          <p className="text-sm font-semibold text-slate-800 group-hover:text-brand-primary-vibrant truncate transition-colors">
             {item.titulo}
-          </span>
-          <span className="text-xs font-normal text-slate-500 block truncate mt-0.5">
-            {item.endereco}
-          </span>
+          </p>
+          <p className="text-xs text-slate-400 truncate mt-0.5">{item.endereco}</p>
         </div>
       </div>
 
@@ -68,7 +65,6 @@ const RecentAddressItemRow = memo(function RecentAddressItemRow({
  */
 export const DestinationCard = memo(function DestinationCard({
   onSearchClick,
-  onAdjustPinOnMap,
   onSelectAddress,
   recentAddresses = [],
 }: DestinationCardProps) {
@@ -82,11 +78,6 @@ export const DestinationCard = memo(function DestinationCard({
     hapticFeedback.light();
     onSearchClick();
   }, [onSearchClick]);
-
-  const handleAdjustPin = useCallback(() => {
-    hapticFeedback.light();
-    onAdjustPinOnMap?.();
-  }, [onAdjustPinOnMap]);
 
   return (
     <div className="w-full z-20 pointer-events-auto select-none">
@@ -143,21 +134,6 @@ export const DestinationCard = memo(function DestinationCard({
               />
             ))}
           </div>
-
-          {/* Opção de escolher no mapa se aplicável */}
-          {onAdjustPinOnMap && (
-            <button
-              type="button"
-              onClick={handleAdjustPin}
-              className="w-full mt-2 py-2 px-1 flex items-center justify-between text-xs text-slate-500 hover:text-brand-primary-vibrant hover:bg-blue-50/50 rounded-xl transition cursor-pointer"
-            >
-              <span className="flex items-center gap-2 font-medium">
-                <MapPin className="w-4 h-4 text-brand-primary-vibrant" />
-                <span>Escolher destino no mapa</span>
-              </span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            </button>
-          )}
         </div>
       </div>
     </div>

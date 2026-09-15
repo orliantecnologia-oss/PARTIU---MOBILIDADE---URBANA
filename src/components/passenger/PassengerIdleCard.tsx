@@ -148,22 +148,6 @@ export function PassengerIdleCard({ userName = "Passageiro" }: PassengerIdleCard
             </button>
           ))}
         </div>
-
-        {/* 4. Atalho Discreto: Escolher Destino no Mapa */}
-        <div className="pt-1 flex items-center justify-start text-xs px-0.5">
-          <button
-            type="button"
-            onClick={() => {
-              hapticFeedback.light();
-              selectDestinationOnMap();
-            }}
-            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 font-semibold transition py-1 px-1 rounded-lg hover:bg-slate-100 cursor-pointer"
-          >
-            <MapPin className="w-3.5 h-3.5 text-primary-600 stroke-[2.2]" />
-            <span>Escolher destino no mapa</span>
-          </button>
-        </div>
-
       </div>
     </div>
   );
