@@ -12,6 +12,23 @@
 
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { silentCatchWarn } from "@/lib/structured-logger";
+import { isInAppBrowser } from "@/lib/push-notifications";
+
+export type PushPermissionReason =
+  | "granted"
+  | "denied"
+  | "ios_needs_pwa"
+  | "in_app_browser"
+  | "not_supported"
+  | "error";
+
+export interface PushPermissionResult {
+  granted: boolean;
+  token?: string | undefined;
+  reason: PushPermissionReason;
+  message?: string | undefined;
+  error?: string | undefined;
+}
 
 export type NotificationCategory =
   | "conta"
@@ -100,22 +117,82 @@ export class PushNotificationService {
   public async requestPermission(
     userId?: string,
     userRole?: "DRIVER" | "PASSENGER" | "ADMIN"
-  ): Promise<{
-    granted: boolean;
-    token?: string | undefined;
-    error?: string | undefined;
-  }> {
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      return { granted: false, error: "Navegador não suporta notificações nativas." };
+  ): Promise<PushPermissionResult> {
+    if (typeof window === "undefined") {
+      return {
+        granted: false,
+        reason: "not_supported",
+        error: "Ambiente sem suporte a navegador.",
+      };
+    }
+
+    // 1. Diagnóstico de In-App Browser (WhatsApp, Instagram, Facebook, TikTok)
+    if (isInAppBrowser()) {
+      return {
+        granted: false,
+        reason: "in_app_browser",
+        message:
+          "O navegador interno do WhatsApp/Instagram não suporta notificações. Abra no Google Chrome ou Safari.",
+        error: "In-app browser detected",
+      };
+    }
+
+    // 2. Diagnóstico de iOS (iPhone/iPad) sem PWA adicionado à tela inicial
+    const isIOSDevice =
+      typeof navigator !== "undefined" &&
+      /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+      !(window as any).MSStream;
+    const isStandalone =
+      (typeof window !== "undefined" &&
+        window.matchMedia?.("(display-mode: standalone)")?.matches) ||
+      (typeof navigator !== "undefined" && (navigator as any).standalone === true);
+
+    if (isIOSDevice && !isStandalone && !("Notification" in window)) {
+      return {
+        granted: false,
+        reason: "ios_needs_pwa",
+        message:
+          "No iPhone, adicione o app à Tela de Início para ativar as notificações push.",
+        error: "iOS requires Home Screen PWA",
+      };
+    }
+
+    // 3. Diagnóstico de Suporte da API Notification
+    if (!("Notification" in window)) {
+      return {
+        granted: false,
+        reason: "not_supported",
+        message:
+          "Este navegador não suporta notificações em segundo plano. Abra no Google Chrome.",
+        error: "Navegador não suporta notificações nativas.",
+      };
+    }
+
+    // 4. Se a permissão já estiver expressamente negada
+    if (Notification.permission === "denied") {
+      return {
+        granted: false,
+        reason: "denied",
+        message:
+          "As notificações estão bloqueadas nas configurações do seu navegador.",
+        error: "Permissão de notificação negada pelo usuário.",
+      };
     }
 
     try {
+      // 5. Solicita permissão ao navegador
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
-        return { granted: false, error: "Permissão de notificação negada pelo usuário." };
+        return {
+          granted: false,
+          reason: "denied",
+          message:
+            "A permissão não foi concedida. Desbloqueie nas configurações do navegador.",
+          error: "Permissão de notificação negada pelo usuário.",
+        };
       }
 
-      // Registra Service Worker se suportado
+      // 6. Registra Service Worker se suportado
       let token = `push_web_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       if ("serviceWorker" in navigator) {
         try {
@@ -131,17 +208,34 @@ export class PushNotificationService {
         }
       }
 
-      // Persiste em cache local
-      localStorage.setItem(STORAGE_PUSH_TOKEN_KEY, token);
+      // Persiste em memória e cache local
+      this.memoryPushToken = token;
+      if (typeof localStorage !== "undefined") {
+        try {
+          localStorage.setItem(STORAGE_PUSH_TOKEN_KEY, token);
+        } catch {
+          // ignore
+        }
+      }
 
       // Persiste no Supabase se usuário fornecido
       if (userId) {
         await this.savePushTokenToSupabase(userId, token);
       }
 
-      return { granted: true, token };
+      return {
+        granted: true,
+        token,
+        reason: "granted",
+        message: "Notificações ativadas com sucesso!",
+      };
     } catch (err: any) {
-      return { granted: false, error: err?.message || "Erro ao solicitar permissão de push." };
+      return {
+        granted: false,
+        reason: "error",
+        error: err?.message || "Erro ao solicitar permissão de push.",
+        message: "Erro ao ativar notificações. Tente novamente.",
+      };
     }
   }
 

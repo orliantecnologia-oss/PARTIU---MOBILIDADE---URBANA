@@ -81,12 +81,40 @@ export async function solicitarPermissaoPush(): Promise<ResultadoSolicitacaoPush
     };
   }
 
+  // Detectar iOS sem PWA instalado
+  const isIOSDevice =
+    typeof navigator !== "undefined" &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    !(window as any).MSStream;
+  const isStandalone =
+    (typeof window !== "undefined" &&
+      window.matchMedia?.("(display-mode: standalone)")?.matches) ||
+    (typeof navigator !== "undefined" && (navigator as any).standalone === true);
+
+  if (isIOSDevice && !isStandalone && !("Notification" in window)) {
+    return {
+      sucesso: false,
+      motivo: "nao_suportado",
+      mensagem:
+        "No iPhone, toque no botão de Compartilhar do Safari e selecione 'Adicionar à Tela de Início' para ativar notificações push.",
+    };
+  }
+
   if (!("Notification" in window)) {
     return {
       sucesso: false,
       motivo: "nao_suportado",
       mensagem:
         "Este navegador não suporta notificações push do sistema. Abra no Google Chrome ou adicione o app à tela inicial.",
+    };
+  }
+
+  if (Notification.permission === "denied") {
+    return {
+      sucesso: false,
+      motivo: "negado",
+      mensagem:
+        "As notificações estão bloqueadas no navegador. Toque no ícone de configurações/cadeado na barra de endereço para permitir.",
     };
   }
 
@@ -99,7 +127,7 @@ export async function solicitarPermissaoPush(): Promise<ResultadoSolicitacaoPush
     return {
       sucesso: false,
       motivo: "negado",
-      mensagem: "Permissão de notificações não foi concedida.",
+      mensagem: "Permissão de notificações não foi concedida pelo usuário.",
     };
   } catch (err) {
     console.warn("[Push Engine] Falha ao solicitar permissão de push:", err);
