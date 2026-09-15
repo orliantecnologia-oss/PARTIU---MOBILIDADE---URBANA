@@ -62,9 +62,26 @@ serve(async (req) => {
     const cleanKey = pixKey.trim();
     const keyLen = cleanKey.length.toString().padStart(2, "0");
 
-    const copiaECola =
+    function calculateCRC16(payload: string): string {
+      let crc = 0xFFFF;
+      for (let i = 0; i < payload.length; i++) {
+        crc ^= payload.charCodeAt(i) << 8;
+        for (let j = 0; j < 8; j++) {
+          if ((crc & 0x8000) !== 0) {
+            crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
+          } else {
+            crc = (crc << 1) & 0xFFFF;
+          }
+        }
+      }
+      return crc.toString(16).toUpperCase().padStart(4, "0");
+    }
+
+    const rawPayloadSemCrc =
       `00020126580014BR.GOV.BCB.PIX01${keyLen}${cleanKey}520400005303986540${amountStr}5802BR` +
-      `5918PARTIU TECNOLOGIA6005MACAE62070503${billingId.slice(-3)}6304ABCD`;
+      `5918PARTIU TECNOLOGIA6005MACAE62070503${billingId.slice(-3)}6304`;
+    const crc = calculateCRC16(rawPayloadSemCrc);
+    const copiaECola = `${rawPayloadSemCrc}${crc}`;
 
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(copiaECola)}`;
 

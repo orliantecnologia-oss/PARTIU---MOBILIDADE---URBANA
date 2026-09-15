@@ -97,6 +97,10 @@ export class DriverLocationService {
     return this.profile;
   }
 
+  public getCurrentPosition(): { lat: number; lng: number; heading: number; speedKmh: number; accuracy: number } | null {
+    return this.currentRawPosition;
+  }
+
   public getState(): DriverOperationalState {
     return this.state;
   }

@@ -715,16 +715,25 @@ export class ProgressiveDispatchEngine {
           (payload: any) => {
             const updated = payload.new;
             if (updated) {
-              if (updated.status === "DRIVER_ASSIGNED" && updated.driver_id) {
+              const isAccepted =
+                updated.status === "ACCEPTED" ||
+                updated.status === "DRIVER_ASSIGNED" ||
+                updated.status === "A_CAMINHO" ||
+                updated.status === "CHEGOU";
+
+              if (isAccepted && updated.driver_id) {
+                const driverName = updated.driver_name || "Motorista Parceiro";
+                const driverPhone = updated.driver_phone || "(22) 99876-5432";
                 this.acceptRide(session.rideId, {
                   driverId: updated.driver_id,
-                  name: "Motorista Parceiro",
-                  category: updated.category,
+                  name: driverName,
+                  phone: driverPhone,
+                  category: updated.category || updated.vehicle_category || session.category,
                   status: "ON_TRIP",
                   subscriptionPlan: "OURO",
                   lat: session.pickupCoords[1] + 0.002,
                   lng: session.pickupCoords[0] + 0.002,
-                  rating: 4.97,
+                  rating: Number(updated.driver_rating) || 4.97,
                   acceptanceRate: 99,
                   cancellationRate: 1.0,
                   distanceMeters: 500,

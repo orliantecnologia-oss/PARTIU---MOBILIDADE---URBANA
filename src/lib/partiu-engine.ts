@@ -952,7 +952,8 @@ export function cancelarCorrida(params?: {
     }
   }
   cancelDeliverySession("Cancelado pelo usuário");
-  void cancelarCorridaDistribuida();
+  const rideIdToCancel = atual?.id || (params as any)?.rideId;
+  void cancelarCorridaDistribuida(rideIdToCancel);
   notificarMudanca(null);
   return feeSettlement;
 }
@@ -1008,7 +1009,7 @@ export function cancelarCorridaPeloMotorista(params: DriverCancellationParams): 
   } catch (err) { silentCatchWarn("partiu-engine", err); }
 
   cancelDeliverySession(`Cancelado pelo condutor: ${params.reasonLabel}`);
-  void cancelarCorridaDistribuida();
+  void cancelarCorridaDistribuida(params.rideId);
   notificarMudanca(null);
 
   return {
@@ -1078,7 +1079,7 @@ export function cancelarCorridaPorNoShow(params: {
   } catch (err) { silentCatchWarn("partiu-engine", err); }
 
   cancelDeliverySession("Passageiro ausente no local de embarque");
-  void cancelarCorridaDistribuida();
+  void cancelarCorridaDistribuida(params.rideId);
   notificarMudanca(null);
 
   return {

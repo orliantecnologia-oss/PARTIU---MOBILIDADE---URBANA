@@ -15,6 +15,7 @@ import {
 import { useBrandTheme } from "@/hooks/useBrandTheme";
 import { getCorridaAtiva } from "@/lib/partiu-engine";
 import { rideLiveTrackingService } from "@/lib/tracking/ride-live-tracking-service";
+import { registrarETransmitirAlertaSOS } from "@/lib/partiu-realtime-service";
 
 interface SecurityCenterModalProps {
   open: boolean;
@@ -31,6 +32,7 @@ export function SecurityCenterModal({
 }: SecurityCenterModalProps) {
   const { nomeApp, corPrimaria, corTextoPrimaria } = useBrandTheme();
   const [confirmando190, setConfirmando190] = useState(false);
+  const [chamando190, setChamando190] = useState(false);
   const [linkCopiado, setLinkCopiado] = useState(false);
   const [usuarioBloqueado, setUsuarioBloqueado] = useState(false);
   const [bloqueando, setBloqueando] = useState(false);
@@ -44,9 +46,38 @@ export function SecurityCenterModal({
   const vehiclePlate = corridaAtiva?.motorista?.placa || "PARTIU";
   const trackingToken = corridaAtiva?.trackingToken;
 
-  function handleLigar190() {
-    window.location.href = "tel:190";
-    setConfirmando190(false);
+  async function handleLigar190() {
+    setChamando190(true);
+    try {
+      let coords = "";
+      if (typeof navigator !== "undefined" && navigator.geolocation) {
+        coords = await new Promise<string>((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(`${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`),
+            () => resolve(""),
+            { timeout: 1200, maximumAge: 10000 }
+          );
+        });
+      }
+
+      await registrarETransmitirAlertaSOS({
+        tipo: "seguranca",
+        solicitanteNome: "Passageiro / Usuário PARTIU",
+        solicitanteTelefone: "+5582999999999",
+        motoristaNome: driverName,
+        veiculoPlaca: vehiclePlate,
+        rodovia: corridaAtiva?.destino?.endereco || "Perímetro Urbano",
+        coordenadas: coords || undefined,
+        descricao: `Emergência SOS 190 acionada no trajeto. Motorista: ${driverName}, Veículo: ${vehicleModel} (${vehiclePlate})`,
+        corridaId: corridaAtiva?.id,
+      });
+    } catch (e) {
+      console.error("Erro ao registrar telemetria SOS:", e);
+    } finally {
+      window.location.href = "tel:190";
+      setChamando190(false);
+      setConfirmando190(false);
+    }
   }
 
   async function handleCompartilharTrajeto() {
@@ -166,10 +197,11 @@ export function SecurityCenterModal({
                 <button
                   type="button"
                   onClick={handleLigar190}
-                  className="flex-1 py-2.5 text-xs font-black bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-1.5"
+                  disabled={chamando190}
+                  className="flex-1 py-2.5 text-xs font-black bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   <PhoneCall className="h-4 w-4" />
-                  Ligar 190
+                  {chamando190 ? "Transmitindo..." : "Ligar 190"}
                 </button>
               </div>
             </div>

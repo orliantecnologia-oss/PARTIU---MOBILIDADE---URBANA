@@ -14,8 +14,8 @@ let dispatchChannel: any = null;
 let activeSubscription: any = null;
 
 export interface RealtimeDispatchMessage {
-  type: "TRIP_OFFERED" | "TRIP_ACCEPTED" | "DRIVER_ARRIVED" | "TRIP_STARTED" | "TRIP_COMPLETED" | "TRIP_CANCELLED";
-  corrida: CorridaPartiu;
+  type: "TRIP_OFFERED" | "TRIP_ACCEPTED" | "DRIVER_ARRIVED" | "TRIP_STARTED" | "TRIP_COMPLETED" | "TRIP_CANCELLED" | "SOS_ALERT";
+  corrida: CorridaPartiu | null;
   timestamp: number;
 }
 
@@ -360,18 +360,84 @@ export async function finalizarCorridaDistribuida(
  * 7. CANCELAR CORRIDA
  */
 export async function cancelarCorridaDistribuida(corridaId?: string): Promise<void> {
-  if (isSupabaseConfigured() && corridaId) {
+  let targetId = corridaId;
+  if (!targetId && typeof window !== "undefined") {
     try {
-      void (supabase as any)
+      const raw = localStorage.getItem("partiu_corrida_ativa_v3");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        targetId = parsed?.id;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  if (isSupabaseConfigured() && targetId) {
+    try {
+      await (supabase as any)
         .from("rides")
         .update({
           status: "CANCELLED",
           updated_at: new Date().toISOString(),
         })
-        .eq("id", corridaId);
+        .eq("id", targetId);
     } catch (err) {
       silentCatchWarn("cancelarCorridaDistribuida:update_rides", err);
     }
   }
   await broadcastEventoCorrida("TRIP_CANCELLED", null);
+}
+
+export interface AlertaSOSTelemetria {
+  tipo?: string;
+  solicitanteNome?: string;
+  solicitanteTelefone?: string;
+  motoristaNome?: string;
+  veiculoPlaca?: string;
+  rodovia?: string;
+  coordenadas?: string;
+  descricao?: string;
+  corridaId?: string;
+  usuarioId?: string;
+}
+
+/**
+ * 8. REGISTRO E TRANSMISSÃO DE ALERTA DE EMERGÊNCIA SOS 190
+ * Grava na tabela public.alertas_sos e transmite via broadcast aos condutores e centrais de apoio.
+ */
+export async function registrarETransmitirAlertaSOS(telemetria: AlertaSOSTelemetria): Promise<void> {
+  console.warn("🚨 [SOS 190] Disparando alerta de emergência e telemetria:", telemetria);
+
+  if (isSupabaseConfigured()) {
+    try {
+      const payload: any = {
+        tipo: telemetria.tipo || "seguranca",
+        solicitante_nome: telemetria.solicitanteNome || "Usuário PARTIU",
+        solicitante_telefone: telemetria.solicitanteTelefone || "+5582999999999",
+        motorista_nome: telemetria.motoristaNome || null,
+        van_placa: telemetria.veiculoPlaca || null,
+        rodovia: telemetria.rodovia || "Perímetro Urbano",
+        coordenadas: telemetria.coordenadas || null,
+        status: "ativo",
+        descricao: telemetria.descricao || `SOS 190 acionado. Corrida: ${telemetria.corridaId || "N/A"}`,
+      };
+      if (telemetria.usuarioId) {
+        payload.usuario_id = telemetria.usuarioId;
+      }
+      await (supabase as any).from("alertas_sos").insert(payload);
+    } catch (err) {
+      silentCatchWarn("registrarETransmitirAlertaSOS:insert_alertas_sos", err);
+    }
+  }
+
+  try {
+    await broadcastEventoCorrida("SOS_ALERT", null);
+  } catch (err) {
+    silentCatchWarn("registrarETransmitirAlertaSOS:broadcast", err);
+  }
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("partiu:admin_sos_alert", { detail: telemetria }));
+  }
 }

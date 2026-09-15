@@ -10,6 +10,7 @@ import {
   MapPin,
   Lock,
 } from "lucide-react";
+import { registrarETransmitirAlertaSOS } from "@/lib/partiu-realtime-service";
 
 export interface SafetyCenterModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ export const SafetyCenterModal = memo(function SafetyCenterModal({
 }: SafetyCenterModalProps) {
   const [copied, setCopied] = useState(false);
   const [showPoliceConfirm, setShowPoliceConfirm] = useState(false);
+  const [callingPolice, setCallingPolice] = useState(false);
 
   if (!isOpen) return null;
 
@@ -58,8 +60,38 @@ export const SafetyCenterModal = memo(function SafetyCenterModal({
     }
   };
 
-  const handleCallPolice = () => {
-    window.location.href = "tel:190";
+  const handleCallPolice = async () => {
+    setCallingPolice(true);
+    try {
+      let coords = "";
+      if (typeof navigator !== "undefined" && navigator.geolocation) {
+        coords = await new Promise<string>((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(`${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`),
+            () => resolve(""),
+            { timeout: 1200, maximumAge: 10000 }
+          );
+        });
+      }
+
+      await registrarETransmitirAlertaSOS({
+        tipo: "seguranca",
+        solicitanteNome: "Passageiro PARTIU",
+        solicitanteTelefone: "+5582999999999",
+        motoristaNome: driverName,
+        veiculoPlaca: driverPlate,
+        rodovia: destination || "Perímetro Urbano",
+        coordenadas: coords || undefined,
+        descricao: `Emergência 190 acionada pelo passageiro na corrida ${rideId}. Origem: ${origin} -> Destino: ${destination}`,
+        corridaId: rideId,
+      });
+    } catch (e) {
+      console.error("Erro ao registrar telemetria SOS passageiro:", e);
+    } finally {
+      window.location.href = "tel:190";
+      setCallingPolice(false);
+      setShowPoliceConfirm(false);
+    }
   };
 
   return (
@@ -176,10 +208,11 @@ export const SafetyCenterModal = memo(function SafetyCenterModal({
                 <button
                   type="button"
                   onClick={handleCallPolice}
-                  className="flex-1 h-10 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md active:scale-95 transition touch-manipulation cursor-pointer flex items-center justify-center gap-1"
+                  disabled={callingPolice}
+                  className="flex-1 h-10 rounded-xl bg-rose-600 text-white font-black text-xs shadow-md active:scale-95 transition touch-manipulation cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
                 >
                   <PhoneCall className="w-3.5 h-3.5" />
-                  <span>LIGAR 190</span>
+                  <span>{callingPolice ? "TRANSMITINDO..." : "LIGAR 190"}</span>
                 </button>
               </div>
             </div>

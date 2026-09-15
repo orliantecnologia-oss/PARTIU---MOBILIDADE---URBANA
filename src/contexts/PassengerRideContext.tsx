@@ -51,6 +51,7 @@ import {
   progressiveDispatchEngine,
   type ProgressiveDispatchSession,
 } from "@/services/ProgressiveDispatchEngine";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
 export interface PassengerPreferences {
   arCondicionado: boolean;
@@ -630,6 +631,127 @@ export function PassengerRideProvider({ children }: { children: ReactNode }) {
       } else if (corridaSalva.status === "EM_VIAGEM") {
         setState("ON_TRIP");
       }
+    }
+
+    // Reconciliação remota do Supabase para resiliência a App Kill pelo OS
+    if (isSupabaseConfigured()) {
+      void (async () => {
+        try {
+          const { data: sessionData } = await supabase.auth.getSession();
+          const userId = sessionData?.session?.user?.id;
+
+          let query = (supabase as any)
+            .from("rides")
+            .select("*")
+            .in("status", [
+              "REQUESTED",
+              "SEARCHING_R1",
+              "SEARCHING_R2",
+              "SEARCHING_R3",
+              "PROCURANDO",
+              "ACCEPTED",
+              "DRIVER_ASSIGNED",
+              "A_CAMINHO",
+              "CHEGOU",
+              "DRIVER_ARRIVED",
+              "ON_TRIP",
+              "IN_PROGRESS",
+              "EM_VIAGEM",
+            ])
+            .order("created_at", { ascending: false })
+            .limit(1);
+
+          if (userId) {
+            query = query.eq("passenger_id", userId);
+          } else if (corridaSalva?.id) {
+            query = query.eq("id", corridaSalva.id);
+          } else {
+            return;
+          }
+
+          const { data, error } = await query;
+          if (!error && data && data.length > 0) {
+            const remoteRide = data[0];
+            const motoristaInfo = remoteRide.driver_id
+              ? {
+                  id: remoteRide.driver_id,
+                  nome: remoteRide.driver_name || "Motorista Parceiro",
+                  foto:
+                    remoteRide.driver_avatar ||
+                    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+                  avaliacao: 4.95,
+                  totalViagens: 150,
+                  veiculo:
+                    remoteRide.vehicle_model ||
+                    (remoteRide.vehicle_category === "MOTO"
+                      ? "Honda CG 160"
+                      : "Chevrolet Onix"),
+                  placa: remoteRide.vehicle_plate || "BRA-4X99",
+                  telefone: remoteRide.driver_phone || "(22) 99876-5432",
+                }
+              : undefined;
+
+            const reconciledStatus =
+              remoteRide.status === "REQUESTED" ||
+              String(remoteRide.status).startsWith("SEARCHING")
+                ? "PROCURANDO"
+                : remoteRide.status === "ACCEPTED" ||
+                  remoteRide.status === "A_CAMINHO" ||
+                  remoteRide.status === "DRIVER_ASSIGNED"
+                ? "A_CAMINHO"
+                : remoteRide.status === "CHEGOU" ||
+                  remoteRide.status === "DRIVER_ARRIVED"
+                ? "CHEGOU"
+                : remoteRide.status === "ON_TRIP" ||
+                  remoteRide.status === "IN_PROGRESS" ||
+                  remoteRide.status === "EM_VIAGEM"
+                ? "EM_VIAGEM"
+                : "PROCURANDO";
+
+            const reconciled: CorridaPartiu = {
+              id: remoteRide.id,
+              modalidade: remoteRide.vehicle_category === "MOTO" ? "MOTO" : "POP",
+              origem: remoteRide.pickup_address || "Origem",
+              destino: remoteRide.dropoff_address || "Destino",
+              passageiroNome: remoteRide.passenger_name || "Passageiro",
+              passageiroTelefone: remoteRide.passenger_phone || "",
+              valor: Number(
+                remoteRide.price_estimated_brl || remoteRide.price_final_brl || 0
+              ),
+              distanciaKm: Number(remoteRide.distance_km || 0),
+              duracaoMin: Number(remoteRide.duration_minutes || 0),
+              formaPagamento: (remoteRide.payment_method || "pix").toLowerCase() as any,
+              pin: remoteRide.pin || "0000",
+              status: reconciledStatus as any,
+              criadoEm: remoteRide.created_at
+                ? new Date(remoteRide.created_at).getTime()
+                : Date.now(),
+              motorista: motoristaInfo,
+            };
+
+            setActiveRide(reconciled);
+            if (typeof window !== "undefined") {
+              localStorage.setItem(
+                "partiu_corrida_ativa_v3",
+                JSON.stringify(reconciled)
+              );
+            }
+
+            if (reconciledStatus === "PROCURANDO") {
+              setState("FINDING_DRIVER");
+            } else if (
+              reconciledStatus === "A_CAMINHO" ||
+              reconciledStatus === "CHEGOU"
+            ) {
+              setState("DRIVER_ASSIGNED");
+            } else if (reconciledStatus === "EM_VIAGEM") {
+              setState("ON_TRIP");
+            }
+          }
+        } catch (err) {
+          silentCatchWarn("PassengerRideContext:remoteReconcile", err);
+        }
+      })();
     }
 
     const handleMudanca = (e: any) => {

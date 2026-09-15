@@ -120,6 +120,7 @@ import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { DriverProfileSettings } from "@/components/driver/DriverProfileSettings";
 import { NotificationCenterModal } from "@/components/notifications/NotificationCenterModal";
 import { pushNotificationService } from "@/services/PushNotificationService";
+import { registrarETransmitirAlertaSOS } from "@/lib/partiu-realtime-service";
 
 function SirenIcon({ className = "w-5 h-5 text-brand-danger-red" }: { className?: string }) {
   return (
@@ -425,7 +426,8 @@ export function PartiuDriverCockpit() {
   });
 
   // Corrida ativa sincronizada
-  const [, setCorridaSincronizada] = useState<CorridaPartiu | null>(() => getCorridaAtiva());
+  const [corridaSincronizada, setCorridaSincronizada] = useState<CorridaPartiu | null>(() => getCorridaAtiva());
+  const [acionandoSos, setAcionandoSos] = useState(false);
 
   // Inicia ou pausa transmissão inteligente de localização conforme disponibilidade
   useEffect(() => {
@@ -2164,13 +2166,49 @@ export function PartiuDriverCockpit() {
             </div>
 
             <div className="space-y-2 pt-1">
-              <a
-                href="tel:190"
-                className="w-full h-12 rounded-2xl bg-brand-danger-red hover:bg-red-600 text-white font-semibold text-xs shadow-md shadow-red-600/20 flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer"
+              <button
+                type="button"
+                onClick={async () => {
+                  setAcionandoSos(true);
+                  try {
+                    const pos = driverLocationService.getCurrentPosition();
+                    let coords = pos ? `${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)}` : "";
+                    if (!coords && typeof navigator !== "undefined" && navigator.geolocation) {
+                      coords = await new Promise<string>((resolve) => {
+                        navigator.geolocation.getCurrentPosition(
+                          (p) => resolve(`${p.coords.latitude.toFixed(6)}, ${p.coords.longitude.toFixed(6)}`),
+                          () => resolve(""),
+                          { timeout: 1200, maximumAge: 10000 }
+                        );
+                      });
+                    }
+
+                    await registrarETransmitirAlertaSOS({
+                      tipo: "seguranca",
+                      solicitanteNome: perfilMotorista?.nome || "Motorista Parceiro PARTIU",
+                      solicitanteTelefone: perfilMotorista?.telefone || "+5582999999999",
+                      motoristaNome: perfilMotorista?.nome || "Motorista Parceiro",
+                      veiculoPlaca: (perfilMotorista as any)?.placa || "PARTIU",
+                      rodovia: corridaSincronizada?.destino?.endereco || "Perímetro Urbano",
+                      coordenadas: coords || undefined,
+                      descricao: `Emergência SOS 190 acionada pelo motorista em rota. Corrida: ${corridaSincronizada?.id || "N/A"}`,
+                      corridaId: corridaSincronizada?.id,
+                      usuarioId: perfilMotorista?.id,
+                    });
+                  } catch (e) {
+                    console.error("Erro ao registrar telemetria SOS motorista:", e);
+                  } finally {
+                    window.location.href = "tel:190";
+                    setAcionandoSos(false);
+                    setModalSosAberto(false);
+                  }
+                }}
+                disabled={acionandoSos}
+                className="w-full h-12 rounded-2xl bg-brand-danger-red hover:bg-red-600 text-white font-semibold text-xs shadow-md shadow-red-600/20 flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer disabled:opacity-50"
               >
                 <Phone className="w-4 h-4" />
-                <span>LIGAR PARA POLÍCIA MILITAR (190)</span>
-              </a>
+                <span>{acionandoSos ? "TRANSMITINDO TELEMETRIA..." : "LIGAR PARA POLÍCIA MILITAR (190)"}</span>
+              </button>
               <button
                 type="button"
                 onClick={() => setModalSosAberto(false)}
