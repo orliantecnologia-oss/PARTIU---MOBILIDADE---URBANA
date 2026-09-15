@@ -1488,7 +1488,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
       {/* Botão Flutuante: Alternar Modelo de Mapa (Ruas / Trânsito / Satélite) */}
       <div
         style={layersMenuStyle}
-        className={`absolute right-4 z-20 flex flex-col items-end gap-2 ${
+        className={`absolute right-4 z-20 flex flex-col items-end gap-2 transition-all duration-300 ease-out ${
           !layersMenuStyle ? "bottom-20" : ""
         }`}
       >
@@ -1606,7 +1606,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           type="button"
           onClick={handleRecenter}
           style={recenterBottomStyle}
-          className={`absolute right-4 z-20 w-11 h-11 rounded-full bg-white/95 backdrop-blur-md text-slate-800 shadow-xl border border-slate-200/80 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all cursor-pointer ring-2 ring-black/5 ${
+          className={`absolute right-4 z-20 w-11 h-11 rounded-full bg-white/95 backdrop-blur-md text-slate-800 shadow-xl border border-slate-200/80 flex items-center justify-center hover:bg-white hover:scale-105 active:scale-95 transition-all duration-300 ease-out cursor-pointer ring-2 ring-black/5 ${
             !recenterBottomStyle ? "bottom-6" : ""
           }`}
           title="Centralizar no meu local exato"

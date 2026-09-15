@@ -1,6 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from "react";
-import { Check, MapPin } from "lucide-react";
+import { Check, MapPin, ShieldAlert } from "lucide-react";
+import { PartiuLogo } from "@/components/common/PartiuLogo";
 import {
   PassengerRideProvider,
   usePassengerRide,
@@ -544,6 +545,29 @@ function PartiuPassengerHomeContent() {
         </>
       ) : (
         <>
+          {/* ========================================================================= */}
+          {/* BARRA SUPERIOR CONTEXTUAL COM SOS SEMPRE ACESSÍVEL (ETAPA 12)             */}
+          {/* ========================================================================= */}
+          <div className="absolute top-0 inset-x-0 z-30 pointer-events-auto flex items-center justify-between px-4 pt-[max(0.75rem,calc(env(safe-area-inset-top,0px)+8px))] pb-2 select-none">
+            <div className="flex items-center gap-2">
+              <div className="px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-md border border-slate-200/80 flex items-center gap-2">
+                <PartiuLogo variant="icon" size="sm" />
+                <span className="text-xs font-bold text-slate-800">PARTIU</span>
+              </div>
+            </div>
+
+            {/* BOTÃO SOS 24H PERMANENTE (WCAG 2.2: TOUCH TARGET ≥ 44PX) */}
+            <Link
+              to="/app/sos"
+              className="min-h-[44px] px-3.5 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 active:scale-95 text-white text-xs font-bold shadow-lg shadow-rose-600/30 flex items-center gap-1.5 transition-all cursor-pointer ring-2 ring-white"
+              aria-label="Emergência e Botão SOS 24h"
+              title="Central de Emergência SOS"
+            >
+              <ShieldAlert className="w-4 h-4 stroke-[2.5]" />
+              <span>SOS 24h</span>
+            </Link>
+          </div>
+
           {/* PAINÉIS FLUTUANTES DA MÁQUINA DE ESTADOS DA CORRIDA QUANDO NÃO IDLE */}
           <main
             data-hide-bottom-nav="true"

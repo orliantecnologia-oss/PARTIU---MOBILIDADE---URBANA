@@ -627,35 +627,38 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
             )}
 
             {/* ETAPA 2: MAPA DE ASSENTOS DA VAN 2D */}
+            {/* ETAPA 2: MAPA DE ASSENTOS DA VAN 2D (PADRÃO ENTERPRISE) */}
             {passo === "assentos" && (
               <div className="space-y-4 animate-in fade-in">
-                {/* Legenda dos Assentos */}
-                <div className="flex items-center justify-center gap-4 text-[10px] font-bold text-slate-600 bg-slate-50 p-2.5 rounded-2xl border border-slate-200">
+                {/* Legenda dos Assentos (WCAG AA Compliant) */}
+                <div className="flex items-center justify-center gap-4 text-xs font-bold text-slate-700 bg-slate-50 p-3 rounded-2xl border border-slate-200">
                   <div className="flex items-center gap-1.5">
-                    <div className="h-3.5 w-3.5 rounded-md bg-white border-2 border-slate-300" />
+                    <div className="h-4 w-4 rounded-md bg-slate-100 border-2 border-slate-300" />
                     <span>Livre</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="h-3.5 w-3.5 rounded-md bg-[#0d5930] text-white flex items-center justify-center text-[8px]">
+                    <div className="h-4 w-4 rounded-md bg-[#0088FF] text-white flex items-center justify-center text-[10px] shadow-xs font-bold">
                       ✓
                     </div>
                     <span>Sua Escolha</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="h-3.5 w-3.5 rounded-md bg-slate-300 opacity-60" />
+                    <div className="h-4 w-4 rounded-md bg-slate-200 border border-slate-300 flex items-center justify-center text-slate-400">
+                      <Lock className="h-2.5 w-2.5" />
+                    </div>
                     <span>Ocupado</span>
                   </div>
                 </div>
 
                 {/* DIAGRAMA 2D DA VAN */}
-                <div className="w-full max-w-[320px] mx-auto bg-slate-100 rounded-3xl p-4 border-2 border-slate-200 shadow-inner space-y-3">
+                <div className="w-full max-w-[320px] mx-auto bg-slate-100/80 rounded-3xl p-4 border-2 border-slate-200 shadow-inner space-y-3">
                   {/* Painel Dianteiro / Motorista */}
                   <div className="flex items-center justify-between pb-3 border-b-2 border-dashed border-slate-300 text-slate-500">
-                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-slate-400">
-                      <Disc className="h-4 w-4 animate-spin text-[#0d5930]" />
+                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase text-slate-500">
+                      <Disc className="h-4 w-4 text-[#0088FF]" />
                       <span>Motorista / Painel</span>
                     </div>
-                    <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-md">
                       Porta Entrada ➔
                     </span>
                   </div>
@@ -678,9 +681,9 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                     return (
                       <div key={fil} className="space-y-1">
                         {fil === 1 && (
-                          <div className="flex items-center justify-between text-[9px] font-black text-[#0d5930] bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
-                            <span>♿ 👴 🎓 Assentos 01 e 02: Gratuidade da Lei</span>
-                            <span className="font-bold text-slate-500">2 Vagas</span>
+                          <div className="flex items-center justify-between text-[11px] font-bold text-blue-900 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+                            <span>♿ Assentos 01 e 02: Gratuidade da Lei</span>
+                            <span className="font-semibold text-slate-500">2 Vagas</span>
                           </div>
                         )}
 
@@ -690,24 +693,31 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                             type="button"
                             disabled={assentoEsq.ocupado}
                             onClick={() => toggleAssento(assentoEsq.id, assentoEsq.ocupado)}
-                            className={`h-11 w-11 rounded-xl flex flex-col items-center justify-center font-black text-xs transition-all shadow-xs active:scale-95 relative ${
+                            aria-label={`Assento ${assentoEsq.label} ${assentoEsq.ocupado ? "Ocupado" : "Livre"}`}
+                            className={`min-h-[44px] min-w-[44px] h-12 w-12 rounded-xl flex flex-col items-center justify-center font-bold text-xs transition-all shadow-xs active:scale-95 relative cursor-pointer ${
                               assentoEsq.ocupado
-                                ? "bg-slate-300 text-slate-400 cursor-not-allowed opacity-50"
+                                ? "bg-slate-200 border-2 border-slate-300 text-slate-400 cursor-not-allowed opacity-60"
                                 : assentosSelecionados.includes(assentoEsq.id)
-                                  ? "bg-[#0d5930] text-white ring-2 ring-amber-300 shadow-md scale-105"
-                                  : isGratuidadeEsq
-                                    ? "bg-emerald-50 text-emerald-900 border-2 border-emerald-400 hover:bg-emerald-100"
-                                    : "bg-white text-slate-800 border border-slate-200 hover:border-emerald-400"
+                                ? "bg-[#0088FF] border-2 border-[#0088FF] text-white ring-2 ring-blue-300 shadow-md scale-105"
+                                : isGratuidadeEsq
+                                ? "bg-emerald-50 text-emerald-900 border-2 border-emerald-400 hover:bg-emerald-100"
+                                : "bg-slate-100 text-slate-700 border-2 border-slate-300 hover:border-blue-400 hover:bg-white"
                             }`}
                           >
-                            <span className="text-[11px]">{assentoEsq.label}</span>
-                            <span className="text-[7px] font-bold opacity-80">
-                              {isGratuidadeEsq ? "♿ Priorit." : "Janela"}
+                            {assentoEsq.ocupado ? (
+                              <Lock className="w-3.5 h-3.5 text-slate-400" />
+                            ) : assentosSelecionados.includes(assentoEsq.id) ? (
+                              <Check className="w-4 h-4 text-white stroke-[3]" />
+                            ) : (
+                              <span className="text-xs font-black">{assentoEsq.label}</span>
+                            )}
+                            <span className="text-[9px] font-bold opacity-80 leading-none mt-0.5">
+                              {assentoEsq.ocupado ? "Ocupado" : isGratuidadeEsq ? "Priorit." : "Janela"}
                             </span>
                           </button>
 
                           {/* Corredor Central */}
-                          <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">
+                          <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
                             •
                           </span>
 
@@ -717,19 +727,26 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                               type="button"
                               disabled={assentoMeio.ocupado}
                               onClick={() => toggleAssento(assentoMeio.id, assentoMeio.ocupado)}
-                              className={`h-11 w-11 rounded-xl flex flex-col items-center justify-center font-black text-xs transition-all shadow-xs active:scale-95 relative ${
+                              aria-label={`Assento ${assentoMeio.label} ${assentoMeio.ocupado ? "Ocupado" : "Livre"}`}
+                              className={`min-h-[44px] min-w-[44px] h-12 w-12 rounded-xl flex flex-col items-center justify-center font-bold text-xs transition-all shadow-xs active:scale-95 relative cursor-pointer ${
                                 assentoMeio.ocupado
-                                  ? "bg-slate-300 text-slate-400 cursor-not-allowed opacity-50"
+                                  ? "bg-slate-200 border-2 border-slate-300 text-slate-400 cursor-not-allowed opacity-60"
                                   : assentosSelecionados.includes(assentoMeio.id)
-                                    ? "bg-[#0d5930] text-white ring-2 ring-amber-300 shadow-md scale-105"
-                                    : isGratuidadeMeio
-                                      ? "bg-emerald-50 text-emerald-900 border-2 border-emerald-400 hover:bg-emerald-100"
-                                      : "bg-white text-slate-800 border border-slate-200 hover:border-emerald-400"
+                                  ? "bg-[#0088FF] border-2 border-[#0088FF] text-white ring-2 ring-blue-300 shadow-md scale-105"
+                                  : isGratuidadeMeio
+                                  ? "bg-emerald-50 text-emerald-900 border-2 border-emerald-400 hover:bg-emerald-100"
+                                  : "bg-slate-100 text-slate-700 border-2 border-slate-300 hover:border-blue-400 hover:bg-white"
                               }`}
                             >
-                              <span className="text-[11px]">{assentoMeio.label}</span>
-                              <span className="text-[7px] font-bold opacity-80">
-                                {isGratuidadeMeio ? "♿ Priorit." : "Corredor"}
+                              {assentoMeio.ocupado ? (
+                                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                              ) : assentosSelecionados.includes(assentoMeio.id) ? (
+                                <Check className="w-4 h-4 text-white stroke-[3]" />
+                              ) : (
+                                <span className="text-xs font-black">{assentoMeio.label}</span>
+                              )}
+                              <span className="text-[9px] font-bold opacity-80 leading-none mt-0.5">
+                                {assentoMeio.ocupado ? "Ocupado" : isGratuidadeMeio ? "Priorit." : "Corredor"}
                               </span>
                             </button>
 
@@ -737,16 +754,25 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                               type="button"
                               disabled={assentoDir.ocupado}
                               onClick={() => toggleAssento(assentoDir.id, assentoDir.ocupado)}
-                              className={`h-11 w-11 rounded-xl flex flex-col items-center justify-center font-black text-xs transition-all shadow-xs active:scale-95 ${
+                              aria-label={`Assento ${assentoDir.label} ${assentoDir.ocupado ? "Ocupado" : "Livre"}`}
+                              className={`min-h-[44px] min-w-[44px] h-12 w-12 rounded-xl flex flex-col items-center justify-center font-bold text-xs transition-all shadow-xs active:scale-95 cursor-pointer ${
                                 assentoDir.ocupado
-                                  ? "bg-slate-300 text-slate-400 cursor-not-allowed opacity-50"
+                                  ? "bg-slate-200 border-2 border-slate-300 text-slate-400 cursor-not-allowed opacity-60"
                                   : assentosSelecionados.includes(assentoDir.id)
-                                    ? "bg-[#0d5930] text-white ring-2 ring-amber-300 shadow-md scale-105"
-                                    : "bg-white text-slate-800 border border-slate-200 hover:border-emerald-400"
+                                  ? "bg-[#0088FF] border-2 border-[#0088FF] text-white ring-2 ring-blue-300 shadow-md scale-105"
+                                  : "bg-slate-100 text-slate-700 border-2 border-slate-300 hover:border-blue-400 hover:bg-white"
                               }`}
                             >
-                              <span className="text-[11px]">{assentoDir.label}</span>
-                              <span className="text-[8px] font-normal opacity-75">Janela</span>
+                              {assentoDir.ocupado ? (
+                                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                              ) : assentosSelecionados.includes(assentoDir.id) ? (
+                                <Check className="w-4 h-4 text-white stroke-[3]" />
+                              ) : (
+                                <span className="text-xs font-black">{assentoDir.label}</span>
+                              )}
+                              <span className="text-[9px] font-bold opacity-80 leading-none mt-0.5">
+                                {assentoDir.ocupado ? "Ocupado" : "Janela"}
+                              </span>
                             </button>
                           </div>
                         </div>
@@ -764,16 +790,25 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                           type="button"
                           disabled={assento.ocupado}
                           onClick={() => toggleAssento(assento.id, assento.ocupado)}
-                          className={`flex-1 h-11 rounded-xl flex flex-col items-center justify-center font-black text-xs transition-all shadow-xs active:scale-95 ${
+                          aria-label={`Assento ${assento.label} ${assento.ocupado ? "Ocupado" : "Livre"}`}
+                          className={`flex-1 min-h-[44px] h-12 rounded-xl flex flex-col items-center justify-center font-bold text-xs transition-all shadow-xs active:scale-95 cursor-pointer ${
                             assento.ocupado
-                              ? "bg-slate-300 text-slate-400 cursor-not-allowed opacity-50"
+                              ? "bg-slate-200 border-2 border-slate-300 text-slate-400 cursor-not-allowed opacity-60"
                               : assentosSelecionados.includes(assento.id)
-                                ? "bg-[#0d5930] text-white ring-2 ring-amber-300 shadow-md scale-105"
-                                : "bg-white text-slate-800 border border-slate-200 hover:border-emerald-400"
+                              ? "bg-[#0088FF] border-2 border-[#0088FF] text-white ring-2 ring-blue-300 shadow-md scale-105"
+                              : "bg-slate-100 text-slate-700 border-2 border-slate-300 hover:border-blue-400 hover:bg-white"
                           }`}
                         >
-                          <span className="text-[11px]">{assento.label}</span>
-                          <span className="text-[8px] font-normal opacity-75">Fundo</span>
+                          {assento.ocupado ? (
+                            <Lock className="w-3.5 h-3.5 text-slate-400" />
+                          ) : assentosSelecionados.includes(assento.id) ? (
+                            <Check className="w-4 h-4 text-white stroke-[3]" />
+                          ) : (
+                            <span className="text-xs font-black">{assento.label}</span>
+                          )}
+                          <span className="text-[9px] font-bold opacity-80 leading-none mt-0.5">
+                            {assento.ocupado ? "Ocupado" : "Fundo"}
+                          </span>
                         </button>
                       );
                     })}
@@ -783,7 +818,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                 <div className="text-center">
                   <span className="text-xs font-bold text-slate-600">
                     Poltronas Selecionadas:{" "}
-                    <strong className="text-[#0d5930] font-black">
+                    <strong className="text-[#0088FF] font-black">
                       {assentosSelecionados.join(", ")}
                     </strong>{" "}
                     ({assentosSelecionados.length} lugar
@@ -995,13 +1030,13 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
             )}
           </div>
 
-          {/* 4. BARRA FIXA INFERIOR FLUTUANTE (STICKY ACTION BAR) */}
-          <div className="p-3 sm:p-4 bg-white/95 backdrop-blur-md border-t border-slate-200 shrink-0 flex items-center justify-between gap-3 shadow-lg">
+          {/* 4. BARRA FIXA INFERIOR FLUTUANTE (STICKY ACTION BAR GARANTIDA - ETAPA 11) */}
+          <div className="p-3 sm:p-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-white/95 backdrop-blur-md border-t border-slate-200 shrink-0 flex items-center justify-between gap-3 shadow-lg w-full sticky bottom-0 z-30">
             <div>
               <span className="text-xs font-bold text-slate-500 block uppercase">
                 {passo === "sucesso" ? "Status" : "Total em Reais"}
               </span>
-              <strong className="text-lg sm:text-xl font-black text-[#0d5930]">
+              <strong className="text-lg sm:text-xl font-extrabold text-[#003366]">
                 {passo === "sucesso"
                   ? "PAGO & ATIVO"
                   : `R$ ${valorTotal.toFixed(2).replace(".", ",")}`}
@@ -1012,10 +1047,10 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
               <button
                 type="button"
                 onClick={() => setPasso("assentos")}
-                className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-xs sm:text-sm font-black shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#003366] to-[#0088FF] text-white text-xs sm:text-sm font-bold shadow-sm active:scale-[0.98] transition-all cursor-pointer"
               >
                 <span>Escolher Poltronas</span>
-                <ArrowRight className="h-4.5 w-4.5 text-primary-500" />
+                <ArrowRight className="h-4.5 w-4.5 text-white" />
               </button>
             )}
 
@@ -1033,7 +1068,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                     type="button"
                     disabled={processandoPagamento}
                     onClick={handleFinalizarCompra}
-                    className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-xs sm:text-sm font-black shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
+                    className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#003366] to-[#0088FF] text-white text-xs sm:text-sm font-bold shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
                   >
                     {processandoPagamento ? (
                       <>
@@ -1042,7 +1077,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                       </>
                     ) : (
                       <>
-                        <ShieldCheck className="h-4.5 w-4.5 text-primary-500" />
+                        <ShieldCheck className="h-4.5 w-4.5 text-white" />
                         <span>Emitir Passagem Gratuita</span>
                       </>
                     )}
@@ -1051,10 +1086,10 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                   <button
                     type="button"
                     onClick={() => setPasso("pagamento")}
-                    className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-xs sm:text-sm font-black shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                    className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#003366] to-[#0088FF] text-white text-xs sm:text-sm font-bold shadow-sm active:scale-[0.98] transition-all cursor-pointer"
                   >
                     <span>Ir para Pagamento</span>
-                    <ArrowRight className="h-4.5 w-4.5 text-primary-500" />
+                    <ArrowRight className="h-4.5 w-4.5 text-white" />
                   </button>
                 )}
               </div>
@@ -1073,7 +1108,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                   type="button"
                   disabled={processandoPagamento}
                   onClick={handleFinalizarCompra}
-                  className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#0d5930] to-[#147a44] text-white text-xs sm:text-sm font-black shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
+                  className="flex items-center gap-2 min-h-[48px] h-12 px-6 py-2 rounded-xl bg-gradient-to-r from-[#003366] to-[#0088FF] text-white text-xs sm:text-sm font-bold shadow-sm active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {processandoPagamento ? (
                     <>
@@ -1082,7 +1117,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
                     </>
                   ) : (
                     <>
-                      <Check className="h-4.5 w-4.5 text-primary-500" />
+                      <Check className="h-4.5 w-4.5 text-white" />
                       <span>Confirmar Pagamento</span>
                     </>
                   )}
@@ -1094,7 +1129,7 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
               <button
                 type="button"
                 onClick={onFechar}
-                className="min-h-[48px] h-12 px-6 py-2 rounded-xl bg-[#0d5930] text-white text-sm font-black shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                className="min-h-[48px] h-12 px-6 py-2 rounded-xl bg-[#003366] hover:bg-[#002244] text-white text-sm font-bold shadow-sm active:scale-[0.98] transition-all cursor-pointer"
               >
                 Concluir & Fechar
               </button>
