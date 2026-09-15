@@ -6,6 +6,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { silentCatchWarn } from "@/lib/structured-logger";
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 
 export interface PixChargeRequest {
@@ -77,7 +78,8 @@ export class PartiuPixPaymentProvider implements PaymentProvider {
     const valorReais = (request.valorCents / 100).toFixed(2);
     
     // Payload Pix Oficial (EMV QRCPS-MPM padrão Bacen)
-    const qrCodeCopiaECola = `00020126580014br.gov.bcb.pix0136${txId}520400005303986540${valorReais.length}${valorReais}5802BR5915PARTIU BRASIL6009ITAPERUNA62070503***6304`;
+    const rawEmv = `00020126580014br.gov.bcb.pix0136${txId}520400005303986540${valorReais.length}${valorReais}5802BR5915PARTIU BRASIL6009ITAPERUNA62070503***6304`;
+    const qrCodeCopiaECola = `${rawEmv}${computePixCrc16(rawEmv)}`;
     const qrCodeImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrCodeCopiaECola)}`;
 
     try {

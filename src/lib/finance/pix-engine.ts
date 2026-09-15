@@ -10,6 +10,7 @@
  */
 
 import { partiuWalletEngine } from './partiu-wallet';
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 export type PixKeyType = 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'EVP';
 
@@ -73,8 +74,9 @@ export class PixEngine {
     const orderId = `PIX-IN-${timestamp}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
     const endToEndId = `E${timestamp}PARTIU${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 
-    // Payload simulado compatível com o padrão EMVco PIX do BACEN
-    const payloadEMV = `00020126580014BR.GOV.BCB.PIX0136${endToEndId}5204000053039865405${params.amountBrl.toFixed(2)}5802BR5915PARTIU MOBILIDADE6009ITAPERUNA62070503***6304`;
+    // Payload compatível com o padrão EMVco PIX do BACEN
+    const rawEmv = `00020126580014BR.GOV.BCB.PIX0136${endToEndId}5204000053039865405${params.amountBrl.toFixed(2)}5802BR5915PARTIU MOBILIDADE6009ITAPERUNA62070503***6304`;
+    const payloadEMV = `${rawEmv}${computePixCrc16(rawEmv)}`;
 
     const order: PixCashInOrder = {
       orderId,

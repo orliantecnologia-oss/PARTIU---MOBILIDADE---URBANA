@@ -15,6 +15,7 @@
 
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { appSettingsService } from "./app-settings-service";
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 export type SubscriptionStatus = "ACTIVE" | "EXPIRED" | "PENDING" | "CANCELLED";
 
@@ -167,7 +168,8 @@ class DriverSubscriptionService {
 
     // Monta payload PIX Copia e Cola padronizado do Banco Central (EMV)
     const formattedAmount = amount.toFixed(2);
-    const copiaECola = `00020126580014BR.GOV.BCB.PIX0136${settings.pix_key}520400005303986540${formattedAmount.length.toString().padStart(2, "0")}${formattedAmount}5802BR5925${settings.pix_receiver_name.slice(0, 25)}6009${settings.pix_receiver_city.slice(0, 9)}62070503***6304ABCD`;
+    const rawEmv = `00020126580014BR.GOV.BCB.PIX0136${settings.pix_key}520400005303986540${formattedAmount.length.toString().padStart(2, "0")}${formattedAmount}5802BR5925${settings.pix_receiver_name.slice(0, 25)}6009${settings.pix_receiver_city.slice(0, 9)}62070503***6304`;
+    const copiaECola = `${rawEmv}${computePixCrc16(rawEmv)}`;
 
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
       copiaECola

@@ -338,9 +338,10 @@ export async function finalizarCorridaDistribuida(
     status: "CONCLUIDA",
   };
 
-  if (isSupabaseConfigured()) {
+  if (isSupabaseConfigured() && supabase) {
     try {
-      void (supabase as any)
+      // 1. Atualiza status na tabela canônica public.rides
+      await (supabase as any)
         .from("rides")
         .update({
           status: "COMPLETED",
@@ -348,6 +349,15 @@ export async function finalizarCorridaDistribuida(
           updated_at: new Date().toISOString(),
         })
         .eq("id", corridaAtual.id);
+
+      // 2. Invoca liquidação financeira atômica D+0 e registro no ledger (public.partiu_wallets)
+      const { error: splitError } = await (supabase as any).rpc("partiu_concluir_corrida_split", {
+        p_corrida_id: corridaAtual.id,
+      });
+
+      if (splitError) {
+        silentCatchWarn("finalizarCorridaDistribuida:rpc_split", splitError);
+      }
     } catch (err) {
       silentCatchWarn("finalizarCorridaDistribuida:update_rides", err);
     }

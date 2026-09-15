@@ -4,6 +4,7 @@
  * Plano de Contas Oficial, Journal Equilibrado (Total Débitos = Total Créditos)
  * ==============================================================================
  */
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 export type StatusPagamentoPix = "created" | "pending" | "paid" | "expired" | "failed" | "refunded";
 
@@ -143,7 +144,8 @@ export function criarTransacaoPixComIdempotencia(
 
   const split = calcularSplitFinanceiro(valor, taxaPercent);
 
-  const pixCopiaECola = `00020126580014BR.GOV.BCB.PIX0136partiu-pix-recebimento@partiu.app520400005303986540${valor.toFixed(2)}5802BR5925PARTIU MOBILIDADE BR6006MACEIO62070503***6304${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+  const rawEmv = `00020126580014BR.GOV.BCB.PIX0136partiu-pix-recebimento@partiu.app520400005303986540${valor.toFixed(2)}5802BR5925PARTIU MOBILIDADE BR6006MACEIO62070503***6304`;
+  const pixCopiaECola = `${rawEmv}${computePixCrc16(rawEmv)}`;
 
   const transacao: TransacaoPixDetalhada = {
     id: "tx_" + Math.random().toString(36).substring(2, 11),

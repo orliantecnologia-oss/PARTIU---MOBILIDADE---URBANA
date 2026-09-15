@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables, TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import type { TelemetriaVeiculo } from "@/lib/superadmin-config";
 import { silentCatchWarn } from "@/lib/structured-logger";
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 
 export type Linha = Tables<"linhas">;
@@ -950,17 +951,18 @@ export function useTelemetriaFrota(): UseQueryResult<TelemetriaVeiculo[]> {
 /* ======================= BILHETES PIX (PASSAGEIRO) ======================= */
 
 function digitosPix(valor: number, txid: string) {
-  // Payload PIX simplificado (BR Code estático de demonstração).
+  // Payload PIX oficial em conformidade com o padrão BACEN BR Code (EMV)
   const chave = "pix@partiu.app";
   const valorStr = valor.toFixed(2);
-  return [
+  const rawEmv = [
     "00020126",
     `0014BR.GOV.BCB.PIX01${String(chave.length).padStart(2, "0")}${chave}`,
     "52040000530398654",
     `04${valorStr}5802BR5906PARTIU6009SAO PAULO62`,
     `${String(txid.length + 4).padStart(2, "0")}05${String(txid.length).padStart(2, "0")}${txid}`,
-    "6304ABCD",
+    "6304",
   ].join("");
+  return `${rawEmv}${computePixCrc16(rawEmv)}`;
 }
 
 export type DadosEmissaoBilhete = {

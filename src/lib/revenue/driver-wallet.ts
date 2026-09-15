@@ -14,6 +14,7 @@ import { type RideCommissionSettlement } from "./commission-engine";
 import { subscriptionEngine } from "./subscription-engine";
 import { billingEngine } from "./billing-engine";
 import { silentCatchWarn } from "@/lib/structured-logger";
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 
 export interface DriverWalletTransaction {
@@ -350,7 +351,8 @@ export class DriverWalletEngine {
       !isBlocked &&
       debtCents >= DriverWalletEngine.MAX_ALLOWED_DEBT_CENTS * DriverWalletEngine.DEBT_WARNING_THRESHOLD_PERCENT;
 
-    const pixPayload = `00020126580014br.gov.bcb.pix0136RECARGA-${driverId}-${Date.now()}520400005303986540${debtBrl.toFixed(2)}5802BR5913PARTIU CENTRAL6008SAO PAULO62070503***6304`;
+    const rawEmv = `00020126580014br.gov.bcb.pix0136RECARGA-${driverId}-${Date.now()}520400005303986540${debtBrl.toFixed(2)}5802BR5913PARTIU CENTRAL6008SAO PAULO62070503***6304`;
+    const pixPayload = `${rawEmv}${computePixCrc16(rawEmv)}`;
 
     let message = "Status financeiro regular.";
     if (isBlocked) {

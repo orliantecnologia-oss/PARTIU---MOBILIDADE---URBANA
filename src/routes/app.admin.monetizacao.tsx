@@ -43,6 +43,7 @@ import {
   driverSubscriptionService,
   type DriverSubscriptionRecord,
 } from "@/lib/ecosystem/driver-subscription-service";
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 export const Route = createFileRoute("/app/admin/monetizacao")({
   head: () => ({
@@ -233,7 +234,8 @@ export function AdminMonetizacaoPage() {
   // Gerador de PIX Avulso
   function handleGerarPixAvulso(e: React.FormEvent) {
     e.preventDefault();
-    const payload = `00020126580014br.gov.bcb.pix0136partiu-recuperacao-finops-001520400005303986540${pixValorBrl.replace(".", "")}5802BR5915PARTIU BRASIL6009SAO PAULO62070503***6304ABCD`;
+    const rawEmv = `00020126580014br.gov.bcb.pix0136partiu-recuperacao-finops-001520400005303986540${pixValorBrl.replace(".", "")}5802BR5915PARTIU BRASIL6009SAO PAULO62070503***6304`;
+    const payload = `${rawEmv}${computePixCrc16(rawEmv)}`;
     setPixGeradoPayload(payload);
     mostrarToast("QR Code PIX gerado para regularização.");
   }

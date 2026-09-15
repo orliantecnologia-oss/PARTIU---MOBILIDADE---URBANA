@@ -1,6 +1,7 @@
 import { RealQrCodePix } from "@/components/passagens/RealQrCodePix";
 import { Link } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 import {
   X,
   CheckCircle2,
@@ -186,7 +187,8 @@ export function ModalCompraPassagem({ aberto, onFechar, viagem, onCompraConcluid
 
   const chavePixCopiaECola = useMemo(() => {
     const randomHex = Math.random().toString(36).substring(2, 10).toUpperCase();
-    return `00020126580014br.gov.bcb.pix0136partiu-${randomHex}-pix-pagamento520400005303986540${valorTotal.toFixed(2)}5802BR5925PARTIU MOBILIDADE BR6009MACEIO62070503***6304`;
+    const rawEmv = `00020126580014br.gov.bcb.pix0136partiu-${randomHex}-pix-pagamento520400005303986540${valorTotal.toFixed(2)}5802BR5925PARTIU MOBILIDADE BR6009MACEIO62070503***6304`;
+    return `${rawEmv}${computePixCrc16(rawEmv)}`;
   }, [valorTotal]);
 
   const criarPassagemMutation = useCriarPassagem();

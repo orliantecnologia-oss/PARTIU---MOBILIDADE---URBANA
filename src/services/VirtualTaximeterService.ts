@@ -9,6 +9,7 @@
  * contábil no livro-razão (FinOps Double-Entry Ledger).
  * ==============================================================================
  */
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 export interface TaximeterConfig {
   baseFareBrl: number; // Bandeirada (ex: R$ 6.00)
@@ -225,7 +226,8 @@ export class VirtualTaximeterService {
     const netDriverBrl = Math.round((state.currentFareBrl - platformFeeBrl) * 100) / 100;
 
     const receiptId = `TX-${Date.now()}`;
-    const pixCopiaECola = `00020126580014br.gov.bcb.pix0136${receiptId}520400005303986540${state.currentFareBrl.toFixed(2)}5802BR5913PARTIU DRIVER6008SAO PAULO62070503***6304`;
+    const rawEmv = `00020126580014br.gov.bcb.pix0136${receiptId}520400005303986540${state.currentFareBrl.toFixed(2)}5802BR5913PARTIU DRIVER6008SAO PAULO62070503***6304`;
+    const pixCopiaECola = `${rawEmv}${computePixCrc16(rawEmv)}`;
 
     const receipt: TaximeterReceipt = {
       id: receiptId,

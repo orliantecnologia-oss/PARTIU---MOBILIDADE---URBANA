@@ -33,7 +33,7 @@ export interface WithdrawalReceipt {
   pixKey: string;
   pixKeyType: PixKeyType;
   newBalanceBrl: number;
-  status: "COMPLETED" | "FAILED" | "PENDING";
+  status: "COMPLETED" | "FAILED" | "PENDING" | "PROCESSING";
   createdAt: string;
   message: string;
 }
@@ -234,6 +234,53 @@ export class DriverWithdrawalService {
       };
     }
 
+    // 2.1 Verificação de saque em processamento (Prevenção de Double-Spending e Race Conditions)
+    const hasPendingLocal = Array.from(this.localWithdrawals.values()).some(
+      (w) => w.driverId === input.driverId && (w.status === "PENDING" || w.status === "PROCESSING")
+    );
+    if (hasPendingLocal) {
+      return {
+        success: false,
+        transferId,
+        driverId: input.driverId,
+        amountBrl: input.amountBrl,
+        pixKey: input.pixKey,
+        pixKeyType: input.pixKeyType,
+        newBalanceBrl: 0,
+        status: "FAILED",
+        createdAt: now,
+        message: "Já existe uma solicitação de saque em processamento para este motorista.",
+      };
+    }
+
+    if (isSupabaseConfigured() && supabase) {
+      try {
+        const { data: pendingDb } = await (supabase as any)
+          .from("driver_pix_withdrawals")
+          .select("id, status")
+          .eq("driver_id", input.driverId)
+          .in("status", ["PENDING", "PROCESSING"])
+          .limit(1);
+
+        if (pendingDb && pendingDb.length > 0) {
+          return {
+            success: false,
+            transferId,
+            driverId: input.driverId,
+            amountBrl: input.amountBrl,
+            pixKey: input.pixKey,
+            pixKeyType: input.pixKeyType,
+            newBalanceBrl: 0,
+            status: "FAILED",
+            createdAt: now,
+            message: "Já existe uma solicitação de saque em processamento. Aguarde a liquidação antes de solicitar um novo saque.",
+          };
+        }
+      } catch (err) {
+        silentCatchWarn("DriverWithdrawalService.checkPendingWithdrawal", err);
+      }
+    }
+
     // 3. Auditoria de Saldo no Ledger Contábil
     const summary = driverLedgerEngine.getEarningsSummary(input.driverId);
     const availableBrl = summary.availableBalanceCents / 100;
@@ -276,7 +323,7 @@ export class DriverWithdrawalService {
       };
     }
 
-    // 5. Sucesso — Monta Comprovante
+    // 5. Sucesso — Monta Comprovante de Solicitação em Fila de Liquidação
     const receipt: WithdrawalReceipt = {
       success: true,
       transferId,
@@ -285,31 +332,40 @@ export class DriverWithdrawalService {
       pixKey: input.pixKey,
       pixKeyType: input.pixKeyType,
       newBalanceBrl: withdrawalRes.newBalanceBrl,
-      status: "COMPLETED",
+      status: "PROCESSING",
       createdAt: now,
-      message: `Saque instantâneo de R$ ${input.amountBrl.toFixed(2)} enviado via PIX com sucesso!`,
+      message: `Solicitação de saque de R$ ${input.amountBrl.toFixed(2)} enviada para a fila de liquidação PIX D+0.`,
     };
 
     // Armazena no cache resiliente local
     this.localWithdrawals.set(transferId, receipt);
 
-    // Persiste no Supabase se configurado
+    // Persiste no Supabase com proteção de RPC atômico
     if (isSupabaseConfigured() && supabase) {
       try {
-        const { error } = await (supabase as any).from("driver_pix_withdrawals").insert({
-          driver_id: input.driverId,
-          amount_cents: Math.round(input.amountBrl * 100),
-          pix_key: input.pixKey,
-          pix_key_type: input.pixKeyType,
-          status: "COMPLETED",
-          transfer_id: transferId,
-          tenant_id: input.tenantId || "default",
-          created_at: now,
-          completed_at: now,
+        const { data: rpcRes, error: rpcError } = await (supabase as any).rpc("partiu_solicitar_saque_pix", {
+          p_driver_id: input.driverId,
+          p_amount_cents: Math.round(input.amountBrl * 100),
+          p_pix_key: input.pixKey,
+          p_pix_key_type: input.pixKeyType,
+          p_transfer_id: transferId,
         });
 
-        if (error) {
-          silentCatchWarn("DriverWithdrawalService.requestPixWithdrawal", error);
+        if (rpcError) {
+          // Fallback para inserção direta caso a migration não tenha sido aplicada no banco ainda
+          const { error: insertErr } = await (supabase as any).from("driver_pix_withdrawals").insert({
+            driver_id: input.driverId,
+            amount_cents: Math.round(input.amountBrl * 100),
+            pix_key: input.pixKey,
+            pix_key_type: input.pixKeyType,
+            status: "PROCESSING",
+            transfer_id: transferId,
+            tenant_id: input.tenantId || "default",
+            created_at: now,
+          });
+          if (insertErr) {
+            silentCatchWarn("DriverWithdrawalService.requestPixWithdrawal:fallback", insertErr);
+          }
         }
       } catch (err) {
         silentCatchWarn("DriverWithdrawalService.requestPixWithdrawal", err);

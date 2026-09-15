@@ -142,9 +142,13 @@ export const DriverPixWithdrawalModal: React.FC<DriverPixWithdrawalModalProps> =
               <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
                 <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
               </div>
-              <h3 className="text-base font-black text-slate-950">Saque Concluído com Sucesso!</h3>
+              <h3 className="text-base font-black text-slate-950">
+                {receipt.status === "PROCESSING" ? "Saque em Processamento!" : "Saque Concluído com Sucesso!"}
+              </h3>
               <p className="text-xs text-slate-500">
-                O valor já foi transferido para a sua chave PIX.
+                {receipt.status === "PROCESSING"
+                  ? "Solicitação enviada para a fila de liquidação PIX D+0. Em instantes o valor cairá na sua conta."
+                  : "O valor já foi transferido para a sua chave PIX."}
               </p>
             </div>
 

@@ -17,6 +17,7 @@
 import { subscriptionEngine, type DriverSubscription } from "./subscription-engine";
 import { revenueNotifications } from "./revenue-notifications";
 import { silentCatchWarn } from "@/lib/structured-logger";
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 
 
 export interface GovernanceBillingSettings {
@@ -157,7 +158,10 @@ export class BillingEngine {
       dueDate: now + this.settings.gracePeriodDays * 86400000,
       status: "PENDING",
       description: `Mensalidade do Plano ${planName} • PARTIU Driver OS`,
-      pixCopiaECola: `00020126580014br.gov.bcb.pix0136partiu-pagamentos-${driverId}5204000053039865405${monthlyFeeBrl.toFixed(2)}5802BR5922PARTIU MOBILIDADE SA6009ITAPERUNA62070503***6304ABCD`,
+      pixCopiaECola: (() => {
+        const rawEmv = `00020126580014br.gov.bcb.pix0136partiu-pagamentos-${driverId}5204000053039865405${monthlyFeeBrl.toFixed(2)}5802BR5922PARTIU MOBILIDADE SA6009ITAPERUNA62070503***6304`;
+        return `${rawEmv}${computePixCrc16(rawEmv)}`;
+      })(),
       createdAt: now,
     };
 

@@ -108,6 +108,7 @@ import { VirtualTaximeterModal } from "@/components/driver/VirtualTaximeterModal
 import { DriverWelcomeGate } from "@/components/driver/DriverWelcomeGate";
 import { driverDestinationModeService, type DriverDestination } from "@/services/DriverDestinationModeService";
 import { h3DispatchEngine, geofenceArrivalService } from "@/lib/spatial";
+import { computePixCrc16 } from "@/services/payment/PaymentProviderAdapter";
 import { chatRealtimeService } from "@/services/ChatRealtimeService";
 import {
   DriverCancelBottomSheet,
@@ -1954,9 +1955,8 @@ export function PartiuDriverCockpit() {
                 <button
                   type="button"
                   onClick={() => {
-                    void navigator.clipboard.writeText(
-                      `00020126580014BR.GOV.BCB.PIX0136partiu-financeiro-recuperacao-502@pix.partiu.app520400005303986540${(subscription.accumulatedDebtBrl || 49.9).toFixed(2)}5802BR5925PARTIU MOBILIDADE BRASIL6009SAO PAULO62070503***6304`
-                    );
+                    const rawEmv = `00020126580014BR.GOV.BCB.PIX0136partiu-financeiro-recuperacao-502@pix.partiu.app520400005303986540${(subscription.accumulatedDebtBrl || 49.9).toFixed(2)}5802BR5925PARTIU MOBILIDADE BRASIL6009SAO PAULO62070503***6304`;
+                    void navigator.clipboard.writeText(`${rawEmv}${computePixCrc16(rawEmv)}`);
                     alert("Chave Copia e Cola do PIX copiada!");
                   }}
                   style={{ color: corPrimaria }}
