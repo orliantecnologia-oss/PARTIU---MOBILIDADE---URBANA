@@ -16,6 +16,8 @@ export interface HeaderProps {
   onOpenNotifications?: () => void;
   /** Se há notificações não lidas para o badge de alerta */
   hasUnreadNotifications?: boolean;
+  /** Quantidade exata de notificações não lidas para badge numérico */
+  unreadCount?: number;
   /** Insets para safe area customizada (opcional) */
   insets?: { top?: number; bottom?: number; left?: number; right?: number };
   /** Classes CSS adicionais */
@@ -29,7 +31,7 @@ export interface HeaderProps {
  * Alinhado com 100% de fidelidade com Lealt Recomendado/2.png:
  * 1. Esquerda: Avatar circular (40x40) com borda e sombra sutil.
  * 2. Centro: Logotipo vetorial oficial PartiuLogo com símbolo aerodinâmico e wordmark.
- * 3. Direita: Sino de notificações com ponto azul vibrante (#0088FF).
+ * 3. Direita: Sino de notificações com badge numérico em tempo real.
  */
 export const Header = memo(function Header({
   userName,
@@ -37,7 +39,8 @@ export const Header = memo(function Header({
   appName,
   onOpenDrawer,
   onOpenNotifications,
-  hasUnreadNotifications = true,
+  hasUnreadNotifications = false,
+  unreadCount = 0,
   insets,
   className = "",
   style,
@@ -51,6 +54,8 @@ export const Header = memo(function Header({
   const safeTopPadding = insets?.top
     ? `${insets.top + 8}px`
     : "max(0.75rem, calc(env(safe-area-inset-top, 0px) + 8px))";
+
+  const hasUnread = unreadCount > 0 || hasUnreadNotifications;
 
   return (
     <header
@@ -112,7 +117,7 @@ export const Header = memo(function Header({
       </div>
 
       {/* ===================================================================== */}
-      {/* 3. SEÇÃO DIREITA: ÍCONE DE NOTIFICAÇÃO COM BADGE AZUL (#0088FF)       */}
+      {/* 3. SEÇÃO DIREITA: ÍCONE DE NOTIFICAÇÃO COM BADGE NUMÉRICO VERMELHO     */}
       {/* ===================================================================== */}
       <div className="flex items-center">
         <button
@@ -124,12 +129,14 @@ export const Header = memo(function Header({
         >
           <Bell className="w-4.5 h-4.5 stroke-[2.2]" />
 
-          {/* Badge azul vibrante #0088FF oficial (Lealt Recomendado/2.png) */}
-          {hasUnreadNotifications && (
+          {/* Badge Vermelho com quantidade não lida */}
+          {hasUnread && (
             <span
-              className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-brand-primary-vibrant ring-2 ring-white animate-pulse"
+              className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white animate-pulse"
               aria-hidden="true"
-            />
+            >
+              {unreadCount > 0 ? (unreadCount > 99 ? "99+" : unreadCount) : ""}
+            </span>
           )}
         </button>
       </div>

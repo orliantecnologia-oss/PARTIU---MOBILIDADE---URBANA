@@ -28,13 +28,13 @@ import { GpsPermissionModal } from "@/components/passenger/GpsPermissionModal";
 import { PartiuRideMap } from "@/components/maps/PartiuRideMap";
 import { getStatusPermissaoPush } from "@/lib/push-notifications";
 import { useScrollInterpolation } from "@/hooks/useScrollInterpolation";
+import { NotificationCenterModal } from "@/components/notifications/NotificationCenterModal";
+import { pushNotificationService } from "@/services/PushNotificationService";
+import { supabaseAuthService } from "@/lib/auth/supabase-auth-service";
 
 // Lazy loading sob demanda para componentes pesados secundários (TTI acelerado)
 const AppDrawer = lazy(() =>
   import("@/components/navigation/AppDrawer").then((m) => ({ default: m.AppDrawer }))
-);
-const NotificacoesPushModal = lazy(() =>
-  import("@/components/modals/NotificacoesPushModal").then((m) => ({ default: m.NotificacoesPushModal }))
 );
 
 export const Route = createFileRoute("/app/")({
@@ -93,6 +93,37 @@ function PartiuPassengerHomeContent() {
   });
   const [modalCamadasAberto, setModalCamadasAberto] = useState(false);
   const [estiloMapaAtivo, setEstiloMapaAtivo] = useState<"streets" | "traffic" | "satellite">("streets");
+
+  // Identificação do passageiro para notificações em tempo real
+  const activeUser = typeof window !== "undefined"
+    ? (supabaseAuthService?.getCurrentUser?.() || supabaseAuthService?.getStoredSession?.() || null)
+    : null;
+  const passengerId = activeUser?.id || (typeof window !== "undefined" ? localStorage.getItem("partiu_user_id") || "passageiro_default" : "passageiro_default");
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Escuta em tempo real a tabela notifications para o passageiro
+  useEffect(() => {
+    if (!passengerId) return;
+    const unsub = pushNotificationService.subscribeToUserNotifications(
+      passengerId,
+      (list) => {
+        const unread = list.filter((n) => !n.isRead).length;
+        setUnreadCount(unread);
+      }
+    );
+
+    if (
+      typeof window !== "undefined" &&
+      "Notification" in window &&
+      Notification.permission === "granted"
+    ) {
+      void pushNotificationService.requestPermission(passengerId, "PASSENGER");
+    }
+
+    return () => {
+      unsub();
+    };
+  }, [passengerId]);
 
   // Callbacks memorizados para garantir Pure Rendering e zero re-renders nas camadas filhas
   const handleOpenDrawer = useCallback(() => setDrawerAberto(true), []);
@@ -443,7 +474,8 @@ function PartiuPassengerHomeContent() {
             userName={userName}
             onOpenDrawer={handleOpenDrawer}
             onOpenNotifications={handleOpenNotifications}
-            hasUnreadNotifications={!pushAtivo}
+            hasUnreadNotifications={unreadCount > 0}
+            unreadCount={unreadCount}
             waveRadius={waveRadius}
             isScrolled={isScrolled}
           />
@@ -531,14 +563,14 @@ function PartiuPassengerHomeContent() {
         </>
       )}
 
-      {/* MODAL DE NOTIFICAÇÕES PUSH NATIVAS (LAZY LOADED SOB DEMANDA) */}
+      {/* CENTRAL DE NOTIFICAÇÕES (TEMPO REAL + PUSH + BADGE) */}
       {modalPushAberto && (
-        <Suspense fallback={null}>
-          <NotificacoesPushModal
-            aberto={modalPushAberto}
-            onFechar={handleCloseNotifications}
-          />
-        </Suspense>
+        <NotificationCenterModal
+          isOpen={modalPushAberto}
+          onClose={handleCloseNotifications}
+          userId={passengerId}
+          userRole="PASSENGER"
+        />
       )}
 
       {/* GAVETA LATERAL DE NAVEGAÇÃO (LAZY LOADED SOB DEMANDA) */}

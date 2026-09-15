@@ -117,6 +117,9 @@ import { openExternalNavigation } from "@/utils/navigation-launcher";
 import { driverConsecutiveRidesEngine } from "@/lib/driver/driver-consecutive-rides-engine";
 import { supabaseAuthService } from "@/lib/auth/supabase-auth-service";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+import { DriverProfileSettings } from "@/components/driver/DriverProfileSettings";
+import { NotificationCenterModal } from "@/components/notifications/NotificationCenterModal";
+import { pushNotificationService } from "@/services/PushNotificationService";
 
 function SirenIcon({ className = "w-5 h-5 text-brand-danger-red" }: { className?: string }) {
   return (
@@ -333,7 +336,7 @@ export function PartiuDriverCockpit() {
   });
 
   // Perfil Operacional e Elegibilidade (Padrão 99/Uber)
-  const [perfilMotorista] = useState<DriverProfileRecord>(() => {
+  const [perfilMotorista, setPerfilMotorista] = useState<DriverProfileRecord>(() => {
     if (activeUser?.role === "MOTORISTA") {
       const cpfEfetivo = activeUser.cpf || (activeUser as any).pixKey || MOTORISTA_CONTA_PADRAO.cpf;
       return {
@@ -349,6 +352,35 @@ export function PartiuDriverCockpit() {
     }
     return MOTORISTA_CONTA_PADRAO;
   });
+  const [modalPerfilMotorista, setModalPerfilMotorista] = useState(false);
+  const [modalNotificacoesAberto, setModalNotificacoesAberto] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
+
+  // Escuta em tempo real a tabela notifications do Supabase para o sino funcional
+  useEffect(() => {
+    if (!perfilMotorista.id) return;
+    const unsub = pushNotificationService.subscribeToUserNotifications(
+      perfilMotorista.id,
+      (list) => {
+        const unread = list.filter((n) => !n.isRead).length;
+        setUnreadNotificationsCount(unread);
+      }
+    );
+
+    // Tenta registrar push notification se o usuário já tiver concedido permissão
+    if (
+      typeof window !== "undefined" &&
+      "Notification" in window &&
+      Notification.permission === "granted"
+    ) {
+      void pushNotificationService.requestPermission(perfilMotorista.id, "DRIVER");
+    }
+
+    return () => {
+      unsub();
+    };
+  }, [perfilMotorista.id]);
+
   const [loyaltyProfile] = useState(() => driverLoyaltyEngine.getProfile(perfilMotorista.id));
   const [erroElegibilidade, setErroElegibilidade] = useState<string | null>(null);
   const [waitingTimerStatus, setWaitingTimerStatus] = useState<WaitingTimerStatus | null>(null);
@@ -483,7 +515,6 @@ export function PartiuDriverCockpit() {
   const [saqueConcluido, setSaqueConcluido] = useState(false);
   const [mensagemSaque, setMensagemSaque] = useState("");
   const [saquesRealizadosSemana, setSaquesRealizadosSemana] = useState(0);
-  const [modalPerfilMotorista, setModalPerfilMotorista] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [driverUnreadCount, setDriverUnreadCount] = useState(0);
 
@@ -1178,8 +1209,11 @@ export function PartiuDriverCockpit() {
         somAtivo={somAtivo}
         onToggleSom={toggleSom}
         onOpenMenu={() => setModalPerfilMotorista(true)}
-        onOpenNotifications={() => alert("Central de notificações operacionais")}
-        unreadNotifications={false}
+        onOpenProfile={() => setModalPerfilMotorista(true)}
+        driverAvatarUrl={perfilMotorista.fotoUrl}
+        driverName={perfilMotorista.nome}
+        onOpenNotifications={() => setModalNotificacoesAberto(true)}
+        unreadCount={unreadNotificationsCount}
       />
 
       {/* Alerta de Moderação Documental Pendente / Rejeitada */}
@@ -2147,6 +2181,32 @@ export function PartiuDriverCockpit() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: GESTÃO DE PERFIL E VEÍCULO DO MOTORISTA                            */}
+      {/* ========================================================================= */}
+      {modalPerfilMotorista && (
+        <DriverProfileSettings
+          isOpen={modalPerfilMotorista}
+          onClose={() => setModalPerfilMotorista(false)}
+          driverProfile={perfilMotorista}
+          onSave={(updated) => {
+            setPerfilMotorista(updated);
+          }}
+        />
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: CENTRAL DE NOTIFICAÇÕES OPERACIONAIS                               */}
+      {/* ========================================================================= */}
+      {modalNotificacoesAberto && (
+        <NotificationCenterModal
+          isOpen={modalNotificacoesAberto}
+          onClose={() => setModalNotificacoesAberto(false)}
+          userId={perfilMotorista.id}
+          userRole="DRIVER"
+        />
       )}
     </div>
   );

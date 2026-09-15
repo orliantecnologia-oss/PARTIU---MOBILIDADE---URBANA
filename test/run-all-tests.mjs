@@ -1111,6 +1111,9 @@ import "./competitor-features-2026.test.ts";
 // Suíte Oficial V6.6: H3 Dispatch Benchmark & Dynamic GPS Sampling Profiles
 import "./h3-dispatch-benchmark-and-profile.test.ts";
 
+// Suíte Oficial V7: Gestão de Perfil do Motorista & Motor de Push Notifications Reais
+import "./driver-profile-and-push.test.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");
