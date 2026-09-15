@@ -1114,6 +1114,9 @@ import "./h3-dispatch-benchmark-and-profile.test.ts";
 // Suíte Oficial V7: Gestão de Perfil do Motorista & Motor de Push Notifications Reais
 import "./driver-profile-and-push.test.ts";
 
+// Suíte Oficial V8: Tecnologias Geoespaciais Avançadas (Osiris)
+import "./osiris-ported-technologies.harness.ts";
+
 await waitForAllTests();
 const summary = getSummary();
 console.log("\n================================================================================");

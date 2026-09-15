@@ -188,15 +188,73 @@ export class DirectionsService {
         }
       }
     } catch (error) {
-      console.warn("[DirectionsService] Erro/Timeout ao consultar Mapbox driving-traffic, ativando fallback calibrado:", error);
+      console.warn("[DirectionsService] Erro/Timeout ao consultar Mapbox driving-traffic, tentando fallback OSRM:", error);
     } finally {
       clearTimeout(timeoutId);
+    }
+
+    // 2.5 Fallback de Rede Aberta Real (OSRM / OpenStreetMap)
+    try {
+      const osrmResult = await this.fetchOsrmFallback(origin, destination, options.waypoints);
+      if (osrmResult) {
+        this.routeCache.set(cacheKey, { result: osrmResult, timestamp: Date.now() });
+        return osrmResult;
+      }
+    } catch (e) {
+      console.warn("[DirectionsService] OSRM indisponível, ativando fallback calibrado municipal:", e);
     }
 
     // 3. Fallback Determinístico de Rede Urbana (Calibrated Urban Network)
     const fallbackResult = this.calculateUrbanNetworkFallback(origin, destination, options.waypoints);
     this.routeCache.set(cacheKey, { result: fallbackResult, timestamp: Date.now() });
     return fallbackResult;
+  }
+
+  /**
+   * Fallback de vias reais públicas via OSRM OpenStreetMap
+   */
+  private async fetchOsrmFallback(
+    origin: [number, number],
+    destination: [number, number],
+    waypoints: [number, number][] = []
+  ): Promise<RouteResult | null> {
+    const allPoints = [origin, ...waypoints, destination];
+    const coordsStr = allPoints.map((p) => `${p[0]},${p[1]}`).join(";");
+    const url = `https://router.project-osrm.org/route/v1/driving/${coordsStr}?overview=full&geometries=geojson&steps=true`;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+    try {
+      const res = await fetch(url, { signal: controller.signal });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (!data.routes || !data.routes[0]) return null;
+
+      const route = data.routes[0];
+      const distanceMeters = Math.round(route.distance);
+      const durationSeconds = Math.round(route.duration);
+      const coordinates: [number, number][] = route.geometry?.coordinates || [origin, destination];
+
+      return {
+        distanceMeters,
+        distanceKm: Number((distanceMeters / 1000).toFixed(2)),
+        durationSeconds,
+        durationMinutes: Math.max(1, Math.round(durationSeconds / 60)),
+        geometry: JSON.stringify(route.geometry),
+        encodedPolyline: encodePolyline(coordinates),
+        coordinates,
+        legs: route.legs,
+        weight: route.weight,
+        trafficCongestion: "low",
+        source: "calibrated_urban_network",
+        isFallback: true,
+      };
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeoutId);
+    }
   }
 
   /**

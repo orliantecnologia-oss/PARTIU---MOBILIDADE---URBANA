@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, memo } from "react";
 import mapboxgl from "mapbox-gl";
-import { Navigation, Compass, ExternalLink, MapPin, Gauge } from "lucide-react";
+import { Navigation, Compass, ExternalLink, MapPin, Gauge, LocateFixed } from "lucide-react";
 import { mapboxService } from "@/services/MapboxService";
 import { directionsService } from "@/services/DirectionsService";
 import { calculateBearing } from "@/utils/gis-interpolation";
@@ -8,6 +8,7 @@ import { silentCatchWarn } from "@/lib/structured-logger";
 import { DriverLocationService } from "@/services/DriverLocationService";
 import { MapboxConfig } from "@/config/MapboxConfig";
 import { h3DemandHeatmapEngine } from "@/lib/spatial";
+import { snapToRoute } from "@/services/NavigationEngine";
 
 const MAPBOX_TOKEN = MapboxConfig.getAccessToken();
 
@@ -53,6 +54,11 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
   const [currentHeading, setCurrentHeading] = useState<number>(0);
   const [currentSpeed, setCurrentSpeed] = useState<number>(0);
 
+  // Controle de câmera e proteção de tela
+  const [isCameraFollowing, setIsCameraFollowing] = useState(true);
+  const wakeLockSentinelRef = useRef<any>(null);
+  const offRouteSinceRef = useRef<number | null>(null);
+
   // Rota ativa calculada pela Mapbox Directions API
   const [activeRouteCoords, setActiveRouteCoords] = useState<[number, number][]>([]);
 
@@ -81,6 +87,63 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
       unsubscribe();
     };
   }, []);
+
+  // 1.1 SCREEN WAKELOCK: Mantém a tela do smartphone ativa durante a navegação/corrida
+  useEffect(() => {
+    const isNavigating =
+      estado === "HEADING_TO_PICKUP" ||
+      estado === "ACCEPTED" ||
+      estado === "WAITING_PIN" ||
+      estado === "IN_PROGRESS" ||
+      estado === "IN_TRANSIT";
+
+    const nav = typeof navigator !== "undefined" ? (navigator as any) : null;
+    if (!isNavigating || !nav?.wakeLock?.request) return;
+
+    let cancelled = false;
+    nav.wakeLock
+      .request("screen")
+      .then((sentinel: any) => {
+        if (cancelled) {
+          sentinel.release().catch(() => {});
+          return;
+        }
+        wakeLockSentinelRef.current = sentinel;
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+      if (wakeLockSentinelRef.current) {
+        wakeLockSentinelRef.current.release().catch(() => {});
+        wakeLockSentinelRef.current = null;
+      }
+    };
+  }, [estado]);
+
+  // 1.2 CAMERA HANDOVER: Libera a câmera se o motorista manipular o mapa manualmente
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded) return;
+
+    const onUserGesture = (e: any) => {
+      if (e?.originalEvent) {
+        setIsCameraFollowing(false);
+      }
+    };
+
+    map.on("dragstart", onUserGesture);
+    map.on("zoomstart", onUserGesture);
+    map.on("rotatestart", onUserGesture);
+    map.on("pitchstart", onUserGesture);
+
+    return () => {
+      map.off("dragstart", onUserGesture);
+      map.off("zoomstart", onUserGesture);
+      map.off("rotatestart", onUserGesture);
+      map.off("pitchstart", onUserGesture);
+    };
+  }, [mapLoaded]);
 
   // 2. INICIALIZAR MAPBOX VEICULAR 3D
   useEffect(() => {
@@ -209,12 +272,35 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
     };
   }, []);
 
-  // 3. MARCADOR VEICULAR 3D DO MOTORISTA (ATUALIZADO POR SATÉLITE REAL)
+  // Projeção suave do veículo na via (snapToRoute) se estiver em rota ativa
+  const effectiveDisplayPos: [number, number] = (() => {
+    const isNavigating =
+      estado === "HEADING_TO_PICKUP" ||
+      estado === "ACCEPTED" ||
+      estado === "WAITING_PIN" ||
+      estado === "IN_PROGRESS" ||
+      estado === "IN_TRANSIT";
+
+    if (
+      isNavigating &&
+      activeRouteCoords.length >= 2 &&
+      currentDriverPos[0] !== 0 &&
+      currentDriverPos[1] !== 0
+    ) {
+      const snapped = snapToRoute(activeRouteCoords, currentDriverPos[1], currentDriverPos[0]);
+      if (snapped.deviation <= 45) {
+        return snapped.point;
+      }
+    }
+    return currentDriverPos;
+  })();
+
+  // 3. MARCADOR VEICULAR 3D DO MOTORISTA (ATUALIZADO POR SATÉLITE REAL COM SNAP SUAVE)
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
 
-    if (currentDriverPos[0] === 0 && currentDriverPos[1] === 0) return;
+    if (effectiveDisplayPos[0] === 0 && effectiveDisplayPos[1] === 0) return;
 
     if (!driverMarkerRef.current) {
       const el = document.createElement("div");
@@ -231,12 +317,12 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
       `;
 
       driverMarkerRef.current = new mapboxgl.Marker({ element: el })
-        .setLngLat(currentDriverPos)
+        .setLngLat(effectiveDisplayPos)
         .addTo(map);
     } else {
-      driverMarkerRef.current.setLngLat(currentDriverPos);
+      driverMarkerRef.current.setLngLat(effectiveDisplayPos);
     }
-  }, [mapLoaded, currentDriverPos]);
+  }, [mapLoaded, effectiveDisplayPos]);
 
   // 4. OBTENÇÃO DA ROTA REAL MAPBOX (driving-traffic) SEM DADOS SINTÉTICOS
   useEffect(() => {
@@ -245,6 +331,27 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
     const isInTrip = estado === "IN_PROGRESS" || estado === "IN_TRANSIT";
 
     const validDriverCoords = currentDriverPos[0] !== 0 && currentDriverPos[1] !== 0 ? currentDriverPos : undefined;
+
+    // Se já temos uma rota ativa, avalia se o motorista continua sobre a via ou se desviou
+    if (activeRouteCoords.length >= 2 && validDriverCoords) {
+      const snap = snapToRoute(activeRouteCoords, validDriverCoords[1], validDriverCoords[0]);
+      if (snap.deviation <= 45) {
+        // Alinhado à rota: dispensa recálculo
+        offRouteSinceRef.current = null;
+        return;
+      }
+
+      // Fora de rota: aplica o deadband de 6 segundos para absorver ruído de GPS
+      if (offRouteSinceRef.current === null) {
+        offRouteSinceRef.current = Date.now();
+        return;
+      } else if (Date.now() - offRouteSinceRef.current < 6000) {
+        return;
+      }
+
+      // Permaneceu fora de rota por mais de 6 segundos: reseta e recalcula
+      offRouteSinceRef.current = null;
+    }
 
     if (isHeading && validDriverCoords && pickupCoords) {
       directionsService
@@ -314,9 +421,9 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
         }
       }
 
-      if (currentDriverPos[0] !== 0 && currentDriverPos[1] !== 0) {
+      if (isCameraFollowing && effectiveDisplayPos[0] !== 0 && effectiveDisplayPos[1] !== 0) {
         map.easeTo({
-          center: currentDriverPos,
+          center: effectiveDisplayPos,
           zoom: 16.5,
           pitch: 55,
           bearing: currentHeading,
@@ -351,9 +458,9 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
         }
       }
 
-      if (currentDriverPos[0] !== 0 && currentDriverPos[1] !== 0) {
+      if (isCameraFollowing && effectiveDisplayPos[0] !== 0 && effectiveDisplayPos[1] !== 0) {
         map.easeTo({
-          center: currentDriverPos,
+          center: effectiveDisplayPos,
           zoom: 16.5,
           pitch: 55,
           bearing: currentHeading,
@@ -489,6 +596,33 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
           </div>
         </div>
       </div>
+
+      {/* BOTÃO FLUTUANTE DE RECENTRALIZAÇÃO (CAMERA HANDOVER) */}
+      {!isCameraFollowing && (
+        <div className="absolute right-4 bottom-24 sm:bottom-28 z-30 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <button
+            type="button"
+            onClick={() => {
+              setIsCameraFollowing(true);
+              const map = mapRef.current;
+              if (map && effectiveDisplayPos[0] !== 0 && effectiveDisplayPos[1] !== 0) {
+                map.easeTo({
+                  center: effectiveDisplayPos,
+                  zoom: 16.5,
+                  pitch: estado === "HEADING_TO_PICKUP" || estado === "IN_PROGRESS" ? 55 : 0,
+                  bearing: currentHeading || 0,
+                  duration: 700,
+                });
+              }
+            }}
+            className="px-3.5 py-2.5 rounded-2xl bg-white text-slate-900 border border-slate-200/90 shadow-xl flex items-center gap-2 font-bold text-xs active:scale-95 transition-all hover:bg-slate-50"
+            title="Recentralizar no veículo"
+          >
+            <LocateFixed className="w-4 h-4 text-[#0088FF] animate-pulse" />
+            <span>Recentralizar</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 });
