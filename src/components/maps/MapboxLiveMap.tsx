@@ -77,7 +77,7 @@ export function MapboxLiveMap({
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const [estiloMapa, setEstiloMapa] = useState<"night" | "satellite" | "light">("night");
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const markersMapRef = useRef<Map<string, mapboxgl.Marker>>(new Map());
 
   // Mapear veículos reais vindos do Supabase com useMemo
   const vansParaExibir: VanLive[] = useMemo(() => {
@@ -223,11 +223,31 @@ export function MapboxLiveMap({
         new mapboxgl.Marker(el).setLngLat([ponto.lng, ponto.lat]).addTo(mapInstance);
       });
 
-      // Limpar marcadores anteriores
-      markersRef.current.forEach((m) => m.remove());
-      markersRef.current = [];
+    });
 
-      vansParaExibir.forEach((van) => {
+    return () => {
+      markersMapRef.current.forEach((m) => m.remove());
+      markersMapRef.current.clear();
+      mapInstance.remove();
+      map.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estiloMapa, is3D]);
+
+  // Atualização diferencial de marcadores sem recriar o mapa
+  useEffect(() => {
+    const mapInstance = map.current;
+    if (!mapInstance) return;
+
+    const currentIds = new Set<string>();
+
+    vansParaExibir.forEach((van) => {
+      currentIds.add(van.id);
+      const existingMarker = markersMapRef.current.get(van.id);
+
+      if (existingMarker) {
+        existingMarker.setLngLat(van.coords);
+      } else {
         const el = document.createElement("div");
         el.className = "van-live-marker cursor-pointer relative group";
         el.innerHTML = `
@@ -257,17 +277,18 @@ export function MapboxLiveMap({
         });
 
         const marker = new mapboxgl.Marker(el).setLngLat(van.coords).addTo(mapInstance);
-        markersRef.current.push(marker);
-      });
+        markersMapRef.current.set(van.id, marker);
+      }
     });
 
-    return () => {
-      markersRef.current.forEach((m) => m.remove());
-      markersRef.current = [];
-      mapInstance.remove();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [estiloMapa, is3D, veiculos]);
+    // Remove veículos que saíram de circulação
+    for (const [id, marker] of markersMapRef.current.entries()) {
+      if (!currentIds.has(id)) {
+        marker.remove();
+        markersMapRef.current.delete(id);
+      }
+    }
+  }, [vansParaExibir, onSelecionarVan]);
 
   useEffect(() => {
     if (!map.current || !pontoSelecionadoId) return;

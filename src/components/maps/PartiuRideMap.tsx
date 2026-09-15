@@ -12,6 +12,9 @@ import { MapboxConfig } from "@/config/MapboxConfig";
 import { mapboxService } from "@/services/MapboxService";
 import { registerAllMapAssets } from "@/map/MapAssets";
 import { silentCatchWarn } from "@/lib/structured-logger";
+import { getBoundingBoxFromMap, filterPointsInViewport, type BoundingBox } from "@/lib/geo/spatial-viewport";
+import { snapToRoute } from "@/services/NavigationEngine";
+import { MapDiagnosticPanel } from "./MapDiagnosticPanel";
 
 const MAPBOX_TOKEN = MapboxConfig.getAccessToken();
 
@@ -217,17 +220,18 @@ export const PartiuRideMap = memo(function PartiuRideMap({
   const driverBadgeMarkerRef = useRef<mapboxgl.Marker | null>(null);
   const strategicMarkersRef = useRef<mapboxgl.Marker[]>([]);
   const lastIdleCenterRef = useRef<[number, number] | null>(null);
+  const activeRouteCoordsRef = useRef<[number, number][]>([]);
 
   // Frota em tempo real alimentada pelo Supabase Realtime (driver_locations)
-  const { liveDrivers, totalDrivers } = useLiveDrivers({
+  const { liveDrivers, totalDrivers, isConnected, lastEventTimestamp } = useLiveDrivers({
     categoryFilter: modalidade === "MOTO" ? "MOTO" : modalidade === "POP" ? "CARRO" : "ALL",
     centerCoords: origemCoords,
   });
   const liveDriversGeoJson = useLiveDriversGeoJson(liveDrivers);
 
-  // Motor de Interpolação Linear (60 FPS LERP) para deslizamento suave dos carros parceiros (Padrão 99)
-  const vehiclesAnimMapRef = useRef<Map<string, VehicleAnimState>>(new Map());
-  const vehicleAnimRafRef = useRef<number | null>(null);
+  const [viewportDriversCount, setViewportDriversCount] = useState(0);
+  const mapboxRequestCountRef = useRef(0);
+  const lastDriversHashRef = useRef<string>("");
 
   // 1. CONFIGURAÇÃO UNIFICADA E RESILIENTE DE FONTES E CAMADAS DO MAPA
   const setupMapLayers = useCallback(
@@ -332,7 +336,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         .setLngLat(origemCoords)
         .addTo(map);
 
-      // C. FONTE E CAMADA: MOTORISTAS OCIOSOS REAIS (FROTA EM TEMPO REAL)
+      // C. FONTE E CAMADA: MOTORISTAS OCIOSOS REAIS (FROTA EM TEMPO REAL COM CLUSTERING GPU)
       if (!map.getSource("idle-drivers-source")) {
         map.addSource("idle-drivers-source", {
           type: "geojson",
@@ -340,14 +344,93 @@ export const PartiuRideMap = memo(function PartiuRideMap({
             type: "FeatureCollection",
             features: [],
           },
+          cluster: true,
+          clusterMaxZoom: 14,
+          clusterRadius: 48,
         });
       }
 
+      // C.1 Círculo do Cluster de Veículos
+      if (!map.getLayer("idle-drivers-cluster")) {
+        map.addLayer({
+          id: "idle-drivers-cluster",
+          type: "circle",
+          source: "idle-drivers-source",
+          filter: ["has", "point_count"],
+          paint: {
+            "circle-color": [
+              "step",
+              ["get", "point_count"],
+              "#F59E0B",
+              10,
+              "#10B981",
+              50,
+              "#2563EB",
+            ],
+            "circle-radius": [
+              "step",
+              ["get", "point_count"],
+              18,
+              10,
+              24,
+              50,
+              30,
+            ],
+            "circle-stroke-width": 3,
+            "circle-stroke-color": "#FFFFFF",
+            "circle-opacity": 0.95,
+          },
+        });
+
+        map.on("click", "idle-drivers-cluster", (e) => {
+          const features = map.queryRenderedFeatures(e.point, { layers: ["idle-drivers-cluster"] });
+          const clusterId = features[0]?.properties?.cluster_id;
+          if (clusterId === undefined) return;
+          const src = map.getSource("idle-drivers-source") as mapboxgl.GeoJSONSource;
+          src.getClusterExpansionZoom(clusterId, (err, zoom) => {
+            if (err || !mapRef.current) return;
+            const coords = (features[0].geometry as any).coordinates;
+            mapRef.current.easeTo({
+              center: coords,
+              zoom: Math.min(zoom || 15, 17),
+              duration: 600,
+            });
+          });
+        });
+
+        map.on("mouseenter", "idle-drivers-cluster", () => {
+          map.getCanvas().style.cursor = "pointer";
+        });
+        map.on("mouseleave", "idle-drivers-cluster", () => {
+          map.getCanvas().style.cursor = "";
+        });
+      }
+
+      // C.2 Contador Numérico do Cluster
+      if (!map.getLayer("idle-drivers-cluster-count")) {
+        map.addLayer({
+          id: "idle-drivers-cluster-count",
+          type: "symbol",
+          source: "idle-drivers-source",
+          filter: ["has", "point_count"],
+          layout: {
+            "text-field": "{point_count_abbreviated}",
+            "text-font": ["Open Sans Bold", "Arial Unicode MS Bold"],
+            "text-size": 12,
+          },
+          paint: {
+            "text-color": "#FFFFFF",
+          },
+        });
+      }
+
+      // C.3 Marcador do Veículo Individual (Apenas fora do cluster)
       if (!map.getLayer("idle-drivers-layer")) {
         map.addLayer({
           id: "idle-drivers-layer",
           type: "symbol",
           source: "idle-drivers-source",
+          filter: ["!", ["has", "point_count"]],
           layout: {
             "icon-image": ["get", "icon"],
             "icon-size": [
@@ -625,6 +708,10 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         setMapLoaded(true);
         mapRef.current = map;
         map.resize();
+      });
+
+      map.on("dataloading", () => {
+        mapboxRequestCountRef.current += 1;
       });
 
       // Flag para impedir loops de erro caso um token seja revogado ou inválido
@@ -979,12 +1066,27 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         driverBadgeMarkerRef.current = null;
       }
     } else if (status === "A_CAMINHO") {
-      // B. MODO A CAMINHO: Rastreamento real do motorista até o ponto de embarque
-      const currentCoord = driverCoords || origemCoords;
-      const heading = driverCoords ? calculateBearing(driverCoords, origemCoords) : 0;
+      // B. MODO A CAMINHO: Rastreamento real do motorista até o ponto de embarque (com Snap to Road)
+      let currentCoord = driverCoords || origemCoords;
+      let heading = 0;
+
+      if (driverCoords && activeRouteCoordsRef.current && activeRouteCoordsRef.current.length >= 2) {
+        const snap = snapToRoute(activeRouteCoordsRef.current, driverCoords[1], driverCoords[0]);
+        if (snap.deviation <= 45 && activeRouteCoordsRef.current[snap.index + 1]) {
+          currentCoord = snap.point;
+          heading = calculateBearing(
+            activeRouteCoordsRef.current[snap.index],
+            activeRouteCoordsRef.current[snap.index + 1]
+          );
+        } else {
+          heading = calculateBearing(driverCoords, origemCoords);
+        }
+      } else if (driverCoords) {
+        heading = calculateBearing(driverCoords, origemCoords);
+      }
 
       if (driverCoords) {
-        liveTrackingEngine.pushUpdate(driverCoords, heading, 3000);
+        liveTrackingEngine.pushUpdate(currentCoord, heading, 3000);
       }
 
       // Calcula traçado real por vias da posição do condutor até o embarque
@@ -993,16 +1095,19 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           .getRoute(driverCoords, origemCoords)
           .then((route) => {
             if (!active || !mapRef.current) return;
-            const curRouteSource = mapRef.current.getSource("route-source") as mapboxgl.GeoJSONSource | undefined;
-            if (curRouteSource && route.coordinates && route.coordinates.length > 0) {
-              curRouteSource.setData({
-                type: "Feature",
-                properties: {},
-                geometry: {
-                  type: "LineString",
-                  coordinates: route.coordinates,
-                },
-              });
+            if (route.coordinates && route.coordinates.length > 0) {
+              activeRouteCoordsRef.current = route.coordinates;
+              const curRouteSource = mapRef.current.getSource("route-source") as mapboxgl.GeoJSONSource | undefined;
+              if (curRouteSource) {
+                curRouteSource.setData({
+                  type: "Feature",
+                  properties: {},
+                  geometry: {
+                    type: "LineString",
+                    coordinates: route.coordinates,
+                  },
+                });
+              }
             }
 
             // Badge flutuante de ETA real (Mapbox driving-traffic)
@@ -1043,13 +1148,28 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         duration: 1200,
       });
     } else if (status === "EM_VIAGEM") {
-      // C. MODO EM VIAGEM: Trajeto real em andamento até o destino final
-      const currentCoord = driverCoords || origemCoords;
+      // C. MODO EM VIAGEM: Trajeto real em andamento até o destino final (com Snap to Road)
+      let currentCoord = driverCoords || origemCoords;
       const targetDestino = destinoCoords || origemCoords;
-      const heading = driverCoords && destinoCoords ? calculateBearing(driverCoords, destinoCoords) : 0;
+      let heading = 0;
+
+      if (driverCoords && activeRouteCoordsRef.current && activeRouteCoordsRef.current.length >= 2) {
+        const snap = snapToRoute(activeRouteCoordsRef.current, driverCoords[1], driverCoords[0]);
+        if (snap.deviation <= 45 && activeRouteCoordsRef.current[snap.index + 1]) {
+          currentCoord = snap.point;
+          heading = calculateBearing(
+            activeRouteCoordsRef.current[snap.index],
+            activeRouteCoordsRef.current[snap.index + 1]
+          );
+        } else if (destinoCoords) {
+          heading = calculateBearing(driverCoords, destinoCoords);
+        }
+      } else if (driverCoords && destinoCoords) {
+        heading = calculateBearing(driverCoords, destinoCoords);
+      }
 
       if (driverCoords) {
-        liveTrackingEngine.pushUpdate(driverCoords, heading, 3000);
+        liveTrackingEngine.pushUpdate(currentCoord, heading, 3000);
       }
 
       if (driverCoords && destinoCoords) {
@@ -1057,16 +1177,19 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           .getRoute(driverCoords, destinoCoords)
           .then((route) => {
             if (!active || !mapRef.current) return;
-            const curRouteSource = mapRef.current.getSource("route-source") as mapboxgl.GeoJSONSource | undefined;
-            if (curRouteSource && route.coordinates && route.coordinates.length > 0) {
-              curRouteSource.setData({
-                type: "Feature",
-                properties: {},
-                geometry: {
-                  type: "LineString",
-                  coordinates: route.coordinates,
-                },
-              });
+            if (route.coordinates && route.coordinates.length > 0) {
+              activeRouteCoordsRef.current = route.coordinates;
+              const curRouteSource = mapRef.current.getSource("route-source") as mapboxgl.GeoJSONSource | undefined;
+              if (curRouteSource) {
+                curRouteSource.setData({
+                  type: "Feature",
+                  properties: {},
+                  geometry: {
+                    type: "LineString",
+                    coordinates: route.coordinates,
+                  },
+                });
+              }
             }
           })
           .catch((err) => {
@@ -1117,7 +1240,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
     };
   }, [mapLoaded, status, origemCoords, destinoCoords, driverCoords, modalidade, cameraPadding]);
 
-  // 10. SINCRONIZAÇÃO REATIVA COM A FROTA DE MOTORISTAS EM TEMPO REAL (60FPS LERP - PADRÃO 99)
+  // 10. ATUALIZAÇÃO DIFERENCIAL COM VIRTUALIZAÇÃO ESPACIAL DE VIEWPORT (PADRÃO UBER/99)
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !mapLoaded) return;
@@ -1130,130 +1253,62 @@ export const PartiuRideMap = memo(function PartiuRideMap({
       status === "A_CAMINHO" ||
       status === "EM_VIAGEM"
     ) {
-      if (vehicleAnimRafRef.current) {
-        cancelAnimationFrame(vehicleAnimRafRef.current);
-        vehicleAnimRafRef.current = null;
-      }
-      vehiclesAnimMapRef.current.clear();
       idleSource.setData({ type: "FeatureCollection", features: [] });
+      setViewportDriversCount(0);
       return;
     }
 
-    const now = performance.now();
-    const incomingFeatures = liveDriversGeoJson?.features || [];
-    const activeIds = new Set<string>();
+    const updateViewportFleet = () => {
+      const bbox = getBoundingBoxFromMap(map);
+      const visibleDrivers = bbox ? filterPointsInViewport(liveDrivers, bbox, 0.25) : liveDrivers;
+      setViewportDriversCount(visibleDrivers.length);
 
-    incomingFeatures.forEach((feat: any, idx: number) => {
-      const id = String(feat.id || feat.properties?.id || idx);
-      activeIds.add(id);
-      const coords = feat.geometry?.coordinates;
-      if (!coords || coords.length < 2) return;
-      const [tLng, tLat] = coords;
-      const tBearing = Number(feat.properties?.heading ?? feat.properties?.bearing ?? 0);
-
-      const existing = vehiclesAnimMapRef.current.get(id);
-      if (!existing) {
-        // Veículo novo: entra instantaneamente na posição atual
-        vehiclesAnimMapRef.current.set(id, {
-          id,
-          fromLng: tLng,
-          fromLat: tLat,
-          fromBearing: tBearing,
-          toLng: tLng,
-          toLat: tLat,
-          toBearing: tBearing,
-          currentLng: tLng,
-          currentLat: tLat,
-          currentBearing: tBearing,
-          startTime: now,
-          duration: 0,
-          properties: feat.properties || {},
-        });
-      } else {
-        // Veículo existente: interpolação suave contínua a 60 FPS
-        const hasMoved =
-          Math.abs(existing.toLng - tLng) > 0.000005 ||
-          Math.abs(existing.toLat - tLat) > 0.000005;
-
-        if (hasMoved) {
-          existing.fromLng = existing.currentLng;
-          existing.fromLat = existing.currentLat;
-          existing.fromBearing = existing.currentBearing;
-          existing.toLng = tLng;
-          existing.toLat = tLat;
-
-          existing.toBearing =
-            tBearing !== 0
-              ? tBearing
-              : calculateBearing([existing.fromLng, existing.fromLat], [tLng, tLat]);
-
-          existing.startTime = now;
-          existing.duration = 1500; // Deslizamento suave ao longo de 1.5 segundos
-          existing.properties = feat.properties || existing.properties;
-        } else {
-          existing.properties = feat.properties || existing.properties;
-        }
-      }
-    });
-
-    // Remove veículos que ficaram offline ou saíram da área visível
-    for (const key of vehiclesAnimMapRef.current.keys()) {
-      if (!activeIds.has(key)) {
-        vehiclesAnimMapRef.current.delete(key);
-      }
-    }
-
-    const step = () => {
-      const curTime = performance.now();
-      let isStillMoving = false;
-      const features: any[] = [];
-
-      for (const v of vehiclesAnimMapRef.current.values()) {
-        const elapsed = curTime - v.startTime;
-        const progress = v.duration > 0 ? Math.min(1, elapsed / v.duration) : 1;
-
-        v.currentLng = lerpCoord(v.fromLng, v.toLng, progress);
-        v.currentLat = lerpCoord(v.fromLat, v.toLat, progress);
-        v.currentBearing = lerpBearing(v.fromBearing, v.toBearing, progress);
-
-        if (progress < 1) {
-          isStillMoving = true;
-        }
-
-        features.push({
-          type: "Feature",
-          id: v.id,
+      const features: GeoJSON.Feature[] = visibleDrivers.map((d) => {
+        const isMoto = d.category === "MOTO";
+        return {
+          type: "Feature" as const,
+          id: d.id,
           properties: {
-            ...v.properties,
-            heading: v.currentBearing,
-            bearing: v.currentBearing,
+            id: d.id,
+            nome: d.vehicleModel || (isMoto ? "Moto Parceira" : "Carro Parceiro"),
+            veiculo: d.vehicleModel || (isMoto ? "Honda CG 160" : "Chevrolet Onix"),
+            placa: d.licensePlate || "BRA-4X99",
+            modalidade: isMoto ? ("MOTO" as const) : ("CARRO" as const),
+            icon: isMoto ? ("moto-icon" as const) : ("car-icon" as const),
+            heading: d.heading || 0,
+            bearing: d.heading || 0,
+            status: d.status || "DISPONIVEL",
           },
           geometry: {
-            type: "Point",
-            coordinates: [v.currentLng, v.currentLat],
+            type: "Point" as const,
+            coordinates: [d.longitude, d.latitude] as [number, number],
           },
-        });
-      }
+        };
+      });
 
-      const source = mapRef.current?.getSource("idle-drivers-source") as mapboxgl.GeoJSONSource | undefined;
-      if (source) {
-        source.setData({
-          type: "FeatureCollection",
-          features,
-        });
+      const hash = `${features.length}-${features[0]?.geometry ? (features[0].geometry as any).coordinates[0] : 0}-${features[features.length - 1]?.properties?.heading || 0}`;
+      if (hash === lastDriversHashRef.current) {
+        return;
       }
+      lastDriversHashRef.current = hash;
 
-      if (isStillMoving) {
-        vehicleAnimRafRef.current = requestAnimationFrame(step);
-      } else {
-        vehicleAnimRafRef.current = null;
-      }
+      idleSource.setData({
+        type: "FeatureCollection",
+        features,
+      });
     };
 
-    if (!vehicleAnimRafRef.current) {
-      vehicleAnimRafRef.current = requestAnimationFrame(step);
-    }
-  }, [mapLoaded, status, liveDriversGeoJson]);
+    updateViewportFleet();
+
+    const onMoveEnd = () => {
+      updateViewportFleet();
+    };
+
+    map.on("moveend", onMoveEnd);
+    return () => {
+      map.off("moveend", onMoveEnd);
+    };
+  }, [mapLoaded, status, liveDrivers]);
 
 
   // Função para recentralizar o mapa no usuário com máxima precisão GNSS e fallback de rede
@@ -1510,7 +1565,15 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         </button>
       )}
 
-
+      {/* Painel de Diagnóstico e Observabilidade (ETAPA 9 - Telemetria Enterprise) */}
+      <MapDiagnosticPanel
+        gpsAccuracyMeters={userAccuracyMeters ?? 8}
+        driversOnlineCount={totalDrivers}
+        driversInViewportCount={viewportDriversCount || totalDrivers}
+        websocketStatus={isConnected ? "CONNECTED" : "CONNECTING"}
+        lastRealtimeEventTimestamp={lastEventTimestamp}
+        mapboxRequestCount={mapboxRequestCountRef.current}
+      />
     </div>
   );
 });

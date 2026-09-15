@@ -317,12 +317,39 @@ export class DriverLocationService {
 
     this.watchId = navigator.geolocation.watchPosition(
       (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
         const speedKmh = pos.coords.speed !== null && pos.coords.speed >= 0 ? Math.round(pos.coords.speed * 3.6) : 0;
-        const heading = pos.coords.heading !== null && !isNaN(pos.coords.heading) ? pos.coords.heading : 0;
+        
+        // ETAPA 6 — HEADING REAL: Prioriza coords.heading do hardware GPS
+        let heading = pos.coords.heading !== null && !isNaN(pos.coords.heading) && pos.coords.heading > 0 
+          ? pos.coords.heading 
+          : 0;
+
+        // Fallback geodésico rigoroso entre os dois últimos pontos
+        if ((!heading || heading === 0) && this.currentRawPosition) {
+          const distMeters = this.calculateDistanceMeters(
+            this.currentRawPosition.lat,
+            this.currentRawPosition.lng,
+            lat,
+            lng
+          );
+          if (distMeters >= 2) {
+            heading = this.calculateGeodesicBearing(
+              this.currentRawPosition.lat,
+              this.currentRawPosition.lng,
+              lat,
+              lng
+            );
+          } else {
+            // Preserva o último heading conhecido quando o veículo estiver parado
+            heading = this.currentRawPosition.heading;
+          }
+        }
 
         this.currentRawPosition = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
+          lat,
+          lng,
           heading,
           speedKmh,
           accuracy: pos.coords.accuracy || 10,
@@ -347,8 +374,8 @@ export class DriverLocationService {
       },
       {
         enableHighAccuracy: true,
-        maximumAge: 4000,
-        timeout: 15000,
+        maximumAge: 2000,
+        timeout: 10000,
       }
     );
   }
@@ -523,6 +550,20 @@ export class DriverLocationService {
       Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return Math.round(R * c);
+  }
+
+  /**
+   * Cálculo do azimute geodésico verdadeiro (0° a 360°) entre dois pontos geográficos
+   */
+  private calculateGeodesicBearing(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const phi1 = (lat1 * Math.PI) / 180;
+    const phi2 = (lat2 * Math.PI) / 180;
+    const deltaLambda = ((lng2 - lng1) * Math.PI) / 180;
+
+    const y = Math.sin(deltaLambda) * Math.cos(phi2);
+    const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
+    const theta = Math.atan2(y, x);
+    return ((theta * 180) / Math.PI + 360) % 360;
   }
 
   private setupLifecycleHooks(): void {

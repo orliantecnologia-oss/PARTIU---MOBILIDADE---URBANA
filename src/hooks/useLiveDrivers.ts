@@ -39,6 +39,7 @@ export function useLiveDrivers(options: UseLiveDriversOptions = {}) {
 
   const [driversMap, setDriversMap] = useState<Map<string, LiveDriver>>(() => new Map());
   const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [lastEventTimestamp, setLastEventTimestamp] = useState<number>(Date.now());
 
   const pendingUpdatesRef = useRef<Map<string, LiveDriver>>(new Map());
   const throttleTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -150,6 +151,9 @@ export function useLiveDrivers(options: UseLiveDriversOptions = {}) {
               table: "driver_locations",
             },
             (payload: any) => {
+              if (isMountedRef.current) {
+                setLastEventTimestamp(Date.now());
+              }
               const { eventType, new: newRecord, old: oldRecord } = payload;
 
               if (eventType === "DELETE") {
@@ -257,5 +261,6 @@ export function useLiveDrivers(options: UseLiveDriversOptions = {}) {
     totalDrivers: liveDrivers.length,
     isConnected,
     isSearchingDrivers: liveDrivers.length === 0,
+    lastEventTimestamp,
   };
 }
