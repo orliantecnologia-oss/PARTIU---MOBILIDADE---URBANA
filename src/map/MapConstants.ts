@@ -44,9 +44,9 @@ export const MAP_ASSETS = {
 } as const;
 
 export const MAP_COLORS = {
-  // Linha da Rota padrão Uber / 99
-  ROUTE_LINE: "#276EF1",       // Azul Uber oficial
-  ROUTE_CASING: "#0A1B39",     // Borda escura para contraste em qualquer mapa
+  // Linha da Rota padrão Uber / 99 (Theme-Aware com Casing Branco)
+  ROUTE_LINE: "#0088FF",       // Cor primária vibrante dinâmica
+  ROUTE_CASING: "#FFFFFF",     // Casing branco de alto contraste para destaque sobre o asfalto
   ROUTE_ALTERNATE: "#8FA8D4",  // Rotas alternativas
 
   // Pinos de ancoragem

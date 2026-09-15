@@ -52,7 +52,7 @@ interface VehicleOptionCardProps {
   corSecundaria?: string;
 }
 
-/** Item de Categoria Compacto Horizontal no Padrão Uber/99 Zero-Scroll (~48-52px) */
+/** Item de Categoria Compacto Horizontal no Padrão Uber Zero-Scroll (~48-52px) */
 const VehicleOptionCard = memo(function VehicleOptionCard({
   isSelected,
   category,
@@ -88,50 +88,50 @@ const VehicleOptionCard = memo(function VehicleOptionCard({
             }
           : undefined
       }
-      className={`w-full px-3 py-2 rounded-2xl border transition-all cursor-pointer flex items-center justify-between select-none active:scale-[0.99] ${
+      className={`w-full px-3 py-1.5 sm:py-2 rounded-xl border transition-all cursor-pointer flex flex-row items-center justify-between select-none active:scale-[0.99] ${
         isSelected
-          ? "border-brand-primary-vibrant bg-brand-soft/40 shadow-xs ring-1 ring-brand-primary-vibrant/30"
-          : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/50"
+          ? "border-brand-primary-vibrant bg-brand-soft/30 shadow-2xs ring-1 ring-brand-primary-vibrant/30"
+          : "border-slate-200/80 bg-white hover:border-slate-300 hover:bg-slate-50/60"
       }`}
     >
       {/* 1. THUMBNAIL DO VEÍCULO (ESQUERDA: FIXO 48x48px) */}
-      <div className="w-12 h-12 flex items-center justify-center shrink-0 mr-2.5">
+      <div className="w-12 h-12 flex items-center justify-center shrink-0 mr-2.5 sm:mr-3">
         <VehiclePerspectiveGraphic
           category={vehicleGraphicCategory}
-          className="w-full h-full object-contain drop-shadow-xs"
+          className="w-full h-full object-contain drop-shadow-2xs"
         />
       </div>
 
       {/* 2. DADOS DA CATEGORIA (CENTRO flex-1: NOME + ETA + CAPACIDADE) */}
-      <div className="flex-1 min-w-0 pr-2">
+      <div className="flex-1 min-w-0 pr-2 flex flex-col justify-center">
         <div className="flex items-center gap-1.5">
           <h4 className="text-sm font-bold text-slate-900 leading-tight truncate">
             {title}
           </h4>
           {badgeText && (
             <span
-              className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded shrink-0 ${badgeClass}`}
+              className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${badgeClass}`}
             >
               {badgeText}
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium mt-0.5">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium mt-0.5">
           <span className="flex items-center gap-0.5 shrink-0">
             <Clock className="w-3 h-3 text-slate-400" />
             <span>{etaMinutes} min</span>
           </span>
           <span className="text-slate-300">•</span>
-          <span className="flex items-center gap-0.5 shrink-0 text-slate-600">
+          <span className="flex items-center gap-0.5 shrink-0 text-slate-500 truncate">
             <User className="w-3 h-3 text-slate-400" />
             <span>{capacityText}</span>
           </span>
         </div>
       </div>
 
-      {/* 3. PREÇO EM NEGRITO E INDICADOR DE SELEÇÃO (DIREITA) */}
-      <div className="flex items-center gap-2.5 shrink-0">
+      {/* 3. PREÇO EM DESTAQUE E INDICADOR DE SELEÇÃO / RADIO BUTTON (DIREITA) */}
+      <div className="flex flex-row items-center gap-2.5 shrink-0">
         <span
           style={isSelected && corPrimaria ? { color: corPrimaria } : undefined}
           className={`text-sm font-extrabold leading-tight tracking-tight ${
@@ -203,11 +203,11 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
   const [modalPassageiroAberto, setModalPassageiroAberto] = useState(false);
   const [inputParada, setInputParada] = useState(paradaIntermediaria || "");
 
-  // Hook Gestual com Física de Mola e Snap Points calibrados para Zero Scroll (HALF 50% / COLLAPSED 38%)
+  // Hook Gestual com Física de Mola e Snap Points calibrados para Zero Scroll (HALF 52% / COLLAPSED 38%)
   const { currentHeight, isDragging, handlers, activeSnapKey, snapTo } = useBottomSheetGesture({
     snapPoints: [
       { key: "COLLAPSED", height: 0.38 },
-      { key: "HALF", height: 0.50 },
+      { key: "HALF", height: 0.52 },
     ],
     initialSnapKey: "HALF",
   });
@@ -315,6 +315,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
       {/* CARD PRINCIPAL: Altura compactada "Above the Fold" sem scroll vertical */}
       <div
         style={{
+          maxHeight: "88vh",
           height: currentHeight > 0 ? `${currentHeight}px` : undefined,
           transition: isDragging
             ? "none"
@@ -324,7 +325,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
         className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl border border-slate-200/90 flex flex-col text-left overflow-hidden select-none"
       >
         {/* ════════════════════════════════════════════════════════════════════
-            SEÇÃO A — HEADER FIXO (NUNCA ROLA)
+            SEÇÃO A — HEADER COMPACTO FIXO (NUNCA ROLA)
             ════════════════════════════════════════════════════════════════════ */}
         <div className="px-3.5 sm:px-4 pt-1 shrink-0">
           {/* BARRA SUPERIOR INDICADORA DE ARRASTE GESTUAL COM SPRING */}
@@ -336,18 +337,18 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
           >
             <div
               className={`h-1 rounded-full transition-all duration-200 ${
-                isDragging ? "bg-primary-600 w-12" : "bg-slate-300 w-10 group-hover:bg-slate-400"
+                isDragging ? "bg-brand-primary-vibrant w-12" : "bg-slate-300 w-10 group-hover:bg-slate-400"
               }`}
             />
           </div>
 
-          {/* 1. HEADER COMPACTO ENXUTO: Voltar, Estimativas e Fechar (Linha Única) */}
-          <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
+          {/* 1. LINHA ENXUTA UNIFICADA: Voltar + Chips de Distância/Tempo + Fechar */}
+          <div className="flex flex-row items-center justify-between gap-2 pb-1 border-b border-slate-100">
             {/* Botão Voltar */}
             <button
               type="button"
               onClick={handleBack}
-              className="h-8 px-2.5 text-slate-700 hover:text-slate-950 hover:bg-slate-100 active:scale-95 rounded-xl transition cursor-pointer flex items-center gap-1 font-bold text-[11px] border border-slate-200/80 bg-white shadow-2xs"
+              className="h-7.5 px-2.5 text-slate-700 hover:text-slate-950 hover:bg-slate-100 active:scale-95 rounded-xl transition cursor-pointer flex flex-row items-center gap-1 font-bold text-xs border border-slate-200/80 bg-white shadow-2xs shrink-0"
               title="Voltar e alterar endereço"
               aria-label="Voltar para busca de endereço"
             >
@@ -355,30 +356,30 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               <span>Voltar</span>
             </button>
 
-            {/* Estimativas de Rota no Topo (Chips Enxutos 11-12px) */}
-            <div className="flex items-center gap-1.5 text-[11px] font-bold">
-              <span className="text-slate-700 flex items-center gap-0.5">
-                <Navigation className="w-3 h-3 text-primary-600" />
-                {distanciaKm} km
+            {/* Chips Enxutos de Distância e Tempo (12-13px) */}
+            <div className="flex flex-row items-center gap-1.5 text-xs font-bold shrink-0">
+              <span className="text-slate-700 flex flex-row items-center gap-1">
+                <Navigation className="w-3.5 h-3.5 text-brand-primary-vibrant stroke-[2.2]" />
+                <span>{distanciaKm} km</span>
               </span>
               <span className="text-slate-300">•</span>
               <span
                 style={{
-                  backgroundColor: `${corPrimaria || "#0088FF"}15`,
-                  borderColor: `${corPrimaria || "#0088FF"}40`,
+                  backgroundColor: `${corPrimaria || "#0088FF"}14`,
+                  borderColor: `${corPrimaria || "#0088FF"}35`,
                 }}
-                className="text-slate-900 border px-2 py-0.5 rounded-full flex items-center gap-0.5 font-medium"
+                className="text-slate-900 border px-2 py-0.5 rounded-full flex flex-row items-center gap-1 font-semibold text-xs"
               >
-                <Clock className="w-2.5 h-2.5 text-brand-primary-vibrant stroke-[2.5]" />
-                ~{horarioDesembarquePrevisto || `${duracaoMin || 8} min`}
+                <Clock className="w-3 h-3 text-brand-primary-vibrant stroke-[2.4]" />
+                <span>~{horarioDesembarquePrevisto || `${duracaoMin || 8} min`}</span>
               </span>
             </div>
 
-            {/* Botão Sair / Fechar */}
+            {/* Botão Fechar / Cancelar */}
             <button
               type="button"
               onClick={handleCancel}
-              className="h-8 w-8 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 active:scale-90 transition cursor-pointer flex items-center justify-center border border-slate-200/60 bg-white shadow-2xs"
+              className="h-7.5 w-7.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 active:scale-90 transition cursor-pointer flex items-center justify-center border border-slate-200/60 bg-white shadow-2xs shrink-0"
               title="Cancelar e voltar ao mapa"
               aria-label="Cancelar e voltar ao mapa"
             >
@@ -390,10 +391,9 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
         {/* ════════════════════════════════════════════════════════════════════
             SEÇÃO B — CONTEÚDO PRINCIPAL (ZERO-SCROLL: CATEGORIAS + CHIPS)
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 flex flex-col px-3.5 sm:px-4 py-1.5 space-y-1.5 overflow-y-auto">
-
-          {/* TÍTULO DISCRETO E DIRETO */}
-          <div className="flex items-center justify-between pt-0.5">
+        <div className="flex-1 min-h-0 flex flex-col px-3.5 sm:px-4 py-1 space-y-1.5 overflow-y-auto">
+          {/* TÍTULO COMPACTO "ESCOLHA SUA CATEGORIA" COM PADDING REDUZIDO */}
+          <div className="flex flex-row items-center justify-between pt-0.5 pb-0.5 shrink-0">
             <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
               Escolha sua categoria
             </h3>
@@ -451,7 +451,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
           </div>
 
           {/* 3. CHIPS DE OPÇÕES EXTRAS (PARADA / PASSAGEIRO / MULHER) */}
-          <div className="flex items-center justify-between gap-1.5 pt-0.5 shrink-0">
+          <div className="flex flex-row items-center justify-between gap-1.5 pt-0.5 shrink-0">
             {/* Chip de Parada */}
             <div className="flex-1 min-w-0">
               <button
@@ -460,13 +460,13 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   hapticFeedback.light();
                   setModalParadaAberto(true);
                 }}
-                className={`min-h-[32px] w-full flex items-center justify-between gap-1 font-bold text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
+                className={`min-h-[28px] h-7 w-full flex flex-row items-center justify-between gap-1 font-bold text-[10px] sm:text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
                   paradas.length > 0
                     ? "bg-blue-50 text-blue-950 border-blue-400 font-black"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
                 }`}
               >
-                <div className="flex items-center gap-1 truncate">
+                <div className="flex flex-row items-center gap-1 truncate">
                   <Plus className="w-3 h-3 text-blue-600 stroke-[2.5] shrink-0" />
                   <span className="truncate">
                     {paradas.length === 0
@@ -502,7 +502,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   hapticFeedback.light();
                   setModalPassageiroAberto(true);
                 }}
-                className={`min-h-[32px] w-full flex items-center justify-center gap-1 font-bold text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
+                className={`min-h-[28px] h-7 w-full flex flex-row items-center justify-center gap-1 font-bold text-[10px] sm:text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
                   viajanteOutraPessoa
                     ? "bg-blue-50 text-blue-950 border-blue-300"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
@@ -525,7 +525,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   hapticFeedback.medium();
                   togglePreference("isFemaleOnly");
                 }}
-                className={`min-h-[32px] w-full flex items-center justify-center gap-1 font-bold text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
+                className={`min-h-[28px] h-7 w-full flex flex-row items-center justify-center gap-1 font-bold text-[10px] sm:text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
                   preferences?.isFemaleOnly
                     ? "bg-purple-50 text-purple-900 border-purple-300 shadow-2xs font-black"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
@@ -542,10 +542,15 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
         </div>
 
         {/* ════════════════════════════════════════════════════════════════════
-            SEÇÃO C — FOOTER FIXO (NUNCA ROLA, NUNCA SAI DA TELA)
-            Barra Fixa de Pagamento + Botão de Confirmação + Safe Area
+            SEÇÃO C — FOOTER FIXO SEGURO (NUNCA ROLA, VISIBILIDADE OBRIGATÓRIA)
+            Barra Fixa de Pagamento + Botão de Confirmação + Safe Area Padding
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="px-3.5 sm:px-4 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom,14px))] shrink-0 border-t border-slate-100 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.04)] space-y-2">
+        <div
+          style={{
+            paddingBottom: "max(12px, env(safe-area-inset-bottom, 16px))",
+          }}
+          className="px-3.5 sm:px-4 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom,16px))] shrink-0 border-t border-slate-100 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.04)] space-y-2 z-10"
+        >
           {/* BARRA FIXA DE FORMA DE PAGAMENTO (COMPACTA, DIRETA E NUNCA ESCONDIDA) */}
           <div
             role="button"
@@ -554,26 +559,26 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") handleOpenPayment();
             }}
-            className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 active:scale-[0.99] transition cursor-pointer border border-slate-200/80"
+            className="w-full flex flex-row items-center justify-between px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 active:scale-[0.99] transition cursor-pointer border border-slate-200/80"
           >
-            <div className="flex items-center gap-2 min-w-0">
+            <div className="flex flex-row items-center gap-2 min-w-0">
               <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
                 <PaymentIcon className="w-3.5 h-3.5 text-emerald-600 stroke-[2.2]" />
               </div>
               <span className="text-xs font-bold text-slate-800 truncate">
                 {pagamentoNaMaquininha
-                  ? "Maquininha"
+                  ? "Maquininha do Motorista"
                   : formaPagamento === "pix"
-                  ? "PIX D+0"
+                  ? "PIX Direto"
                   : paymentInfo.label}
               </span>
-              <span className="text-[9.5px] font-semibold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.2 rounded-full">
+              <span className="text-[9.5px] font-semibold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.5 rounded-full shrink-0">
                 {pagamentoNaMaquininha ? "Cartão" : formaPagamento === "pix" ? "Instantâneo" : "Presencial"}
               </span>
             </div>
 
             <div
-              className="flex items-center gap-1 text-xs font-bold text-brand-primary-vibrant hover:underline shrink-0"
+              className="flex flex-row items-center gap-1 text-xs font-bold text-brand-primary-vibrant hover:underline shrink-0"
               style={corPrimaria ? { color: corPrimaria } : undefined}
             >
               <span>Trocar</span>
@@ -585,7 +590,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
           <button
             type="button"
             onClick={handleConfirm}
-            className="w-full h-12 sm:h-13 rounded-2xl bg-gradient-to-r from-brand-primary-vibrant to-brand-primary-deep hover:brightness-105 text-white font-bold text-sm sm:text-base active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-2.5 cursor-pointer shadow-md shadow-brand-primary-vibrant/25 touch-manipulation"
+            className="w-full h-11 sm:h-12 rounded-2xl bg-gradient-to-r from-brand-primary-vibrant to-brand-primary-deep hover:brightness-105 text-white font-bold text-sm sm:text-base active:scale-[0.99] transition-all duration-150 flex flex-row items-center justify-center gap-2.5 cursor-pointer shadow-md shadow-brand-primary-vibrant/25 touch-manipulation"
             style={
               corPrimaria && corSecundaria
                 ? {

@@ -292,10 +292,10 @@ export function PartiuReactNativeMap({
 
         {/* 
           ======================================================================
-          6. ROTA TRAÇADA PELAS VIAS (LINHA PRETA PROFUNDA + CASING BRANCO UBER)
+          6. ROTA TRAÇADA PELAS VIAS (LINHA THEME-AWARE + CASING BRANCO)
           ======================================================================
-          - Casing branco de 7.5px garante contraste absoluto sobre o asfalto cinza.
-          - Linha principal preta de 4.8px com pontas e curvas perfeitamente arredondadas.
+          - Casing branco de 8.0px garante contraste absoluto sobre as ruas do mapa.
+          - Linha principal com cor primária dinâmica do sistema (theme-aware).
         */}
         {routeCoordinates.length >= 2 && (
           <MapboxGL.ShapeSource id="partiu-route-source" shape={routeGeoJSON}>
@@ -304,8 +304,8 @@ export function PartiuReactNativeMap({
               id="partiu-route-casing"
               style={{
                 lineColor: "#FFFFFF",
-                lineWidth: 7.5,
-                lineOpacity: 1.0,
+                lineWidth: 8.0,
+                lineOpacity: 0.95,
                 lineJoin: "round",
                 lineCap: "round",
               }}
@@ -315,7 +315,7 @@ export function PartiuReactNativeMap({
               id="partiu-route-line"
               style={{
                 lineColor: primaryRouteColor || "#0088FF",
-                lineWidth: 4.8,
+                lineWidth: 5.0,
                 lineOpacity: 1.0,
                 lineJoin: "round",
                 lineCap: "round",

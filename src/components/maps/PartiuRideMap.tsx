@@ -102,6 +102,7 @@ export interface PartiuRideMapProps {
   activeMapStyle?: "streets" | "traffic" | "satellite" | undefined;
   onSelectMapStyle?: ((style: "streets" | "traffic" | "satellite") => void) | undefined;
   onOpenLayersModal?: (() => void) | undefined;
+  primaryRouteColor?: string | undefined;
 }
 
 /**
@@ -203,6 +204,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
   activeMapStyle,
   onSelectMapStyle,
   onOpenLayersModal,
+  primaryRouteColor,
 }: PartiuRideMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -254,12 +256,16 @@ export const PartiuRideMap = memo(function PartiuRideMap({
       }
 
       const dynamicRouteColor =
+        primaryRouteColor ||
         (typeof document !== "undefined" &&
           (getComputedStyle(document.documentElement)
             .getPropertyValue("--brand-primary-vibrant")
             .trim() ||
             getComputedStyle(document.documentElement)
               .getPropertyValue("--brand-primary-deep")
+              .trim() ||
+            getComputedStyle(document.documentElement)
+              .getPropertyValue("--primary")
               .trim())) ||
         "#0088FF";
 
@@ -271,7 +277,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
             "line-color": "#FFFFFF",
-            "line-width": 7.5,
+            "line-width": 8.0,
             "line-opacity": 0.95,
           },
         });
@@ -285,7 +291,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
             "line-color": dynamicRouteColor,
-            "line-width": 4.8,
+            "line-width": 5.0,
             "line-opacity": 1.0,
           },
         });
@@ -790,25 +796,33 @@ export const PartiuRideMap = memo(function PartiuRideMap({
       const map = mapRef.current;
       if (map && map.getLayer && map.getLayer("route-line")) {
         const dynamicColor =
+          primaryRouteColor ||
           (typeof document !== "undefined" &&
             (getComputedStyle(document.documentElement)
               .getPropertyValue("--brand-primary-vibrant")
               .trim() ||
               getComputedStyle(document.documentElement)
                 .getPropertyValue("--brand-primary-deep")
+                .trim() ||
+              getComputedStyle(document.documentElement)
+                .getPropertyValue("--primary")
                 .trim())) ||
           "#0088FF";
         map.setPaintProperty("route-line", "line-color", dynamicColor);
       }
     };
 
+    handleThemeChange();
+
     window.addEventListener("partiu:whitelabel-updated", handleThemeChange);
+    window.addEventListener("partiu:identidade-atualizada", handleThemeChange);
     window.addEventListener("storage", handleThemeChange);
     return () => {
       window.removeEventListener("partiu:whitelabel-updated", handleThemeChange);
+      window.removeEventListener("partiu:identidade-atualizada", handleThemeChange);
       window.removeEventListener("storage", handleThemeChange);
     };
-  }, [mapLoaded]);
+  }, [mapLoaded, primaryRouteColor]);
 
   // 2. ATUALIZAÇÃO DA COORDENADA DO PASSAGEIRO (EXATO PONTO AZUL 99 & ORIGIN PIN)
   useEffect(() => {

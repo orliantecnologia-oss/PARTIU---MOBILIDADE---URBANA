@@ -48,8 +48,8 @@ export class MapLayers {
         },
         paint: {
           "line-color": MAP_COLORS.ROUTE_CASING,
-          "line-width": ["interpolate", ["linear"], ["zoom"], 12, 6, 16, 10],
-          "line-opacity": 0.85,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 12, 7, 16, 10],
+          "line-opacity": 0.95,
         },
       });
     }

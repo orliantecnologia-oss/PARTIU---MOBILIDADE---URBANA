@@ -25,6 +25,7 @@ import { DriverEnRouteSheet } from "@/components/passenger/DriverEnRouteSheet";
 import { NetworkReconnectionBanner } from "@/components/passenger/NetworkReconnectionBanner";
 import { GpsPermissionModal } from "@/components/passenger/GpsPermissionModal";
 import { PartiuRideMap } from "@/components/maps/PartiuRideMap";
+import { useBrandTheme } from "@/hooks/useBrandTheme";
 import { getStatusPermissaoPush } from "@/lib/push-notifications";
 import { useScrollInterpolation } from "@/hooks/useScrollInterpolation";
 import { NotificationCenterModal } from "@/components/notifications/NotificationCenterModal";
@@ -78,6 +79,8 @@ function PartiuPassengerHomeContent() {
     updateDestinationLocationFromMap,
     userAccuracyMeters,
   } = usePassengerRide();
+
+  const { corPrimaria, corSecundaria } = useBrandTheme();
 
   const [drawerAberto, setDrawerAberto] = useState(false);
   const [modalPushAberto, setModalPushAberto] = useState(false);
@@ -460,6 +463,7 @@ function PartiuPassengerHomeContent() {
           activeMapStyle={estiloMapaAtivo}
           onSelectMapStyle={handleSelectMapStyle}
           onOpenLayersModal={handleOpenLayersModal}
+          primaryRouteColor={corSecundaria || corPrimaria}
         />
       </div>
 
