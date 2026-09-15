@@ -91,7 +91,7 @@ export const MOTORISTA_CONTA_PADRAO: DriverProfileRecord = {
   taxaAceitacao: 96.5,
   taxaCancelamento: 1.2,
   totalViagens: 3840,
-  chavePix: "(22) 99876-5432",
+  chavePix: "123.456.789-00",
   statusAprovacao: "APROVADO",
   ultimoGpsTimestamp: Date.now(),
 };

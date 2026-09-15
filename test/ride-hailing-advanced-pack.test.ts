@@ -114,6 +114,27 @@ describe("SUITE 52: OTHER PERSON RIDES, DRIVER PIX WITHDRAWAL, H3 DEMAND HEATMAP
     });
     expect(resBadKey.success).toBe(false);
 
+    // 2.1. Tentar sacar com chave não-CPF (ex: EMAIL) deve falhar obrigatoriamente por regra de segurança
+    const resNonCpf = await driverWithdrawalService.requestPixWithdrawal({
+      driverId,
+      amountBrl: 50.0,
+      pixKey: "motorista@email.com",
+      pixKeyType: "EMAIL" as any,
+    });
+    expect(resNonCpf.success).toBe(false);
+    expect(resNonCpf.message).toContain("Regra de Segurança: O saque PIX deve ser obrigatoriamente realizado para a chave CPF");
+
+    // 2.2. Tentar sacar com CPF divergente do titular cadastrado deve falhar por regra de titularidade
+    const resWrongOwner = await driverWithdrawalService.requestPixWithdrawal({
+      driverId,
+      amountBrl: 50.0,
+      pixKey: "52998224725",
+      pixKeyType: "CPF",
+      expectedCpf: "123.456.789-00",
+    });
+    expect(resWrongOwner.success).toBe(false);
+    expect(resWrongOwner.message).toContain("Regra de Titularidade: A chave CPF informada não coincide");
+
     // 3. Saque válido de R$ 50,00
     const resOk = await driverWithdrawalService.requestPixWithdrawal({
       driverId,

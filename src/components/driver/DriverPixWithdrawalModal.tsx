@@ -6,14 +6,9 @@ import {
   AlertCircle,
   Copy,
   Check,
-  CreditCard,
-  QrCode,
   ShieldCheck,
-  ArrowDownToLine,
-  Phone,
-  Mail,
   Fingerprint,
-  KeyRound,
+  ArrowDownToLine,
 } from "lucide-react";
 import {
   driverWithdrawalService,
@@ -28,6 +23,7 @@ export interface DriverPixWithdrawalModalProps {
   driverId: string;
   saldoDisponivelBrl: number;
   chavePixPadrao?: string;
+  driverCpf?: string;
   onWithdrawalSuccess?: (newBalanceBrl: number) => void;
 }
 
@@ -37,17 +33,25 @@ export const DriverPixWithdrawalModal: React.FC<DriverPixWithdrawalModalProps> =
   driverId,
   saldoDisponivelBrl,
   chavePixPadrao = "",
+  driverCpf = "",
   onWithdrawalSuccess,
 }) => {
   const { corPrimaria, corSecundaria, corTextoPrimaria, corCabecalhoInicio, corCabecalhoFim, branding } = useBrandTheme();
   const accentColor = branding?.accent_color || corSecundaria || "#00C6FF";
-  const [keyType, setKeyType] = useState<PixKeyType>("CPF");
-  const [pixKey, setPixKey] = useState(chavePixPadrao);
+  const effectiveCpf = (driverCpf || chavePixPadrao || "").trim();
+  const keyType: PixKeyType = "CPF";
+  const [pixKey, setPixKey] = useState(effectiveCpf);
   const [amountStr, setAmountStr] = useState(saldoDisponivelBrl.toFixed(2));
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<WithdrawalReceipt | null>(null);
   const [copied, setCopied] = useState(false);
+
+  React.useEffect(() => {
+    if (effectiveCpf) {
+      setPixKey(effectiveCpf);
+    }
+  }, [effectiveCpf]);
 
   if (!isOpen) return null;
 
@@ -86,8 +90,9 @@ export const DriverPixWithdrawalModal: React.FC<DriverPixWithdrawalModalProps> =
       const res = await driverWithdrawalService.requestPixWithdrawal({
         driverId,
         amountBrl: amount,
-        pixKey,
-        pixKeyType: keyType,
+        pixKey: (pixKey || effectiveCpf).trim(),
+        pixKeyType: "CPF",
+        expectedCpf: effectiveCpf,
       });
 
       if (res.success) {
@@ -213,71 +218,39 @@ export const DriverPixWithdrawalModal: React.FC<DriverPixWithdrawalModalProps> =
               </div>
             </div>
 
-            {/* Seleção do Tipo de Chave PIX */}
-            <div>
-              <label className="text-[11px] font-black text-slate-700 block mb-1.5 uppercase tracking-wide">
-                Tipo de Chave PIX
-              </label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {[
-                  { type: "CPF" as PixKeyType, label: "CPF", icon: Fingerprint },
-                  { type: "PHONE" as PixKeyType, label: "Celular", icon: Phone },
-                  { type: "EMAIL" as PixKeyType, label: "E-mail", icon: Mail },
-                  { type: "EVP" as PixKeyType, label: "Aleatória", icon: KeyRound },
-                ].map(({ type, label, icon: Icon }) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => {
-                      setKeyType(type);
-                      setErrorMsg(null);
-                    }}
-                    style={
-                      keyType === type
-                        ? {
-                            borderColor: corPrimaria,
-                            backgroundColor: `${corPrimaria}15`,
-                            color: corPrimaria,
-                          }
-                        : {}
-                    }
-                    className={`py-2 px-1.5 rounded-xl border text-center transition flex flex-col items-center gap-1 cursor-pointer ${
-                      keyType === type
-                        ? "font-black shadow-xs"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 font-medium"
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" style={{ color: keyType === type ? corPrimaria : "#94A3B8" }} />
-                    <span className="text-[10px]">{label}</span>
-                  </button>
-                ))}
+            {/* Chave PIX Obrigatória: CPF do Titular Cadastrado */}
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-brand-primary-vibrant/10 text-brand-primary-deep flex items-center justify-center shrink-0">
+                    <Fingerprint className="w-4 h-4 text-brand-primary-deep" />
+                  </div>
+                  <div>
+                    <span className="text-xs font-black text-slate-900 block leading-tight">
+                      Chave PIX (CPF do Titular)
+                    </span>
+                    <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 text-emerald-600" /> Titularidade Vinculada
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Exclusivo CPF
+                </span>
               </div>
-            </div>
 
-            {/* Input da Chave PIX */}
-            <div>
-              <label className="text-[11px] font-black text-slate-700 block mb-1 uppercase tracking-wide">
-                Chave PIX ({keyType})
-              </label>
-              <input
-                type="text"
-                value={pixKey}
-                onChange={(e) => {
-                  setPixKey(e.target.value);
-                  setErrorMsg(null);
-                }}
-                placeholder={
-                  keyType === "CPF"
-                    ? "000.000.000-00"
-                    : keyType === "PHONE"
-                    ? "(22) 99999-9999"
-                    : keyType === "EMAIL"
-                    ? "motorista@email.com"
-                    : "Chave aleatória UUID..."
-                }
-                className="w-full text-xs font-semibold text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition"
-                required
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  readOnly
+                  value={pixKey || effectiveCpf || "CPF não cadastrado"}
+                  className="w-full h-11 rounded-xl bg-white px-3.5 text-xs font-mono font-black text-slate-900 border border-slate-300 focus:outline-none cursor-default select-all"
+                />
+              </div>
+
+              <p className="text-[10.5px] text-slate-500 leading-snug">
+                Por exigência de conformidade bancária e segurança antifraude, o saque é creditado exclusivamente na conta bancária vinculada ao CPF do condutor cadastrado.
+              </p>
             </div>
 
             {/* Input de Valor */}

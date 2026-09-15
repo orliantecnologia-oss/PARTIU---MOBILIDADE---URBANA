@@ -99,6 +99,10 @@ Todas as garantias fundamentais da arquitetura PARTIU foram estritamente preserv
   - *Solução:* Reposicionado para `bottom-72 sm:bottom-80 left-4 z-20`, empilhado harmonicamente acima do botão de recentralização e sempre legível para o motorista.
 - *Problema:* A barra de navegação global inferior (`HomeBottomNav`) colidia com o bottom sheet operacional do motorista.
   - *Solução:* Removida da rota de cockpit operacional do motorista; atalhos secundários para Carteira, Faturamento e Perfil foram integrados de forma compacta e contextual dentro do próprio bottom sheet e menu superior.
+- *Problema:* O badge flutuante de demanda H3 ativa ficava visível sob o cabeçalho superior no mapa, gerando poluição visual.
+  - *Solução:* Badge flutuante removido do mapa, mantendo apenas a renderização vetorial suave das camadas poligonais H3 no canvas Mapbox.
+- *Problema:* O fluxo de saque PIX permitia múltiplos tipos de chave (celular, email, aleatória), contrariando a regra de titularidade estrita.
+  - *Solução:* O saque via PIX e o cadastro do motorista agora exigem estritamente a chave CPF do próprio motorista titular cadastrado (`pixKeyType === "CPF"`), com validação de titularidade antifraude no client e no `DriverWithdrawalService`.
 
 ---
 

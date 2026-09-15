@@ -64,14 +64,16 @@ export function CadastroMotoristaPage() {
   const [categoriaCNH, setCategoriaCNH] = useState<"B" | "A" | "AB">("B");
   const [possuiEAR, setPossuiEAR] = useState(true);
 
-  // Etapa 4: Chave PIX (D+0)
+  // Etapa 4: Chave PIX (D+0) - Obrigatório CPF do Titular
   const [chavePix, setChavePix] = useState("");
-  const [tipoChave, setTipoChave] = useState<"cpf" | "celular" | "email" | "aleatoria">("celular");
+  const tipoChave = "cpf";
 
   async function handleFinalizarCadastro(e: FormEvent) {
     e.preventDefault();
     setCarregando(true);
     setErroCadastro(null);
+
+    const chavePixEfetiva = cpf || chavePix;
 
     const res = await supabaseAuthService.signUpDriver({
       name: nome,
@@ -87,8 +89,8 @@ export function CadastroMotoristaPage() {
       cnh,
       cnhCategory: categoriaCNH,
       hasEar: possuiEAR,
-      pixKey: chavePix,
-      pixKeyType: tipoChave,
+      pixKey: chavePixEfetiva,
+      pixKeyType: "CPF",
     });
 
     setCarregando(false);
@@ -112,7 +114,7 @@ export function CadastroMotoristaPage() {
       cnh,
       categoriaCNH,
       possuiEAR,
-      chavePix,
+      chavePix: chavePixEfetiva,
       tipoChave,
       status: "pendente",
       cadastradoEm: new Date().toISOString(),
@@ -512,47 +514,27 @@ export function CadastroMotoristaPage() {
                   </p>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-black uppercase text-slate-300">
-                    Tipo de Chave PIX
-                  </label>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {(["celular", "cpf", "email", "aleatoria"] as const).map((tipo) => (
-                      <button
-                        key={tipo}
-                        type="button"
-                        onClick={() => setTipoChave(tipo)}
-                        className={`h-10 rounded-xl border text-[11px] font-black uppercase transition-all cursor-pointer ${
-                          tipoChave === tipo
-                            ? "bg-[#0088FF] text-slate-950 border-[#0088FF]"
-                            : "bg-slate-950 text-slate-400 border-slate-800"
-                        }`}
-                      >
-                        {tipo}
-                      </button>
-                    ))}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-black uppercase text-slate-300">
+                      Chave PIX Obrigatória (CPF do Titular)
+                    </label>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      Exclusivo CPF
+                    </span>
                   </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-black uppercase text-slate-300">
-                    Sua Chave PIX
-                  </label>
-                  <input
-                    required
-                    value={chavePix}
-                    onChange={(e) => setChavePix(e.target.value)}
-                    placeholder={
-                      tipoChave === "celular"
-                        ? "(82) 99999-9999"
-                        : tipoChave === "cpf"
-                          ? "000.000.000-00"
-                          : tipoChave === "email"
-                            ? "chave@email.com"
-                            : "Chave aleatória UUID"
-                    }
-                    className="w-full h-12 rounded-xl bg-slate-950 px-4 text-sm font-medium text-white outline-none border border-slate-800 focus:border-[#0088FF] transition-colors"
-                  />
+                  <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2.5">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                      <span className="text-xs text-slate-400 font-medium">CPF do Titular:</span>
+                      <span className="text-sm font-mono font-black text-brand-primary-vibrant">
+                        {cpf || "Preencha o CPF na Etapa 1"}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 leading-snug">
+                      Por exigência do Banco Central e segurança antifraude da sua conta, os repasses via PIX (D+0) são efetuados exclusivamente para a conta bancária vinculada ao CPF do titular cadastrado.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-primary-600/10 border border-primary-600/30 space-y-2">

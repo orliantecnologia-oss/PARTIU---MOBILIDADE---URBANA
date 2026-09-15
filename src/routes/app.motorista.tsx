@@ -335,6 +335,7 @@ export function PartiuDriverCockpit() {
   // Perfil Operacional e Elegibilidade (Padrão 99/Uber)
   const [perfilMotorista] = useState<DriverProfileRecord>(() => {
     if (activeUser?.role === "MOTORISTA") {
+      const cpfEfetivo = activeUser.cpf || (activeUser as any).pixKey || MOTORISTA_CONTA_PADRAO.cpf;
       return {
         ...MOTORISTA_CONTA_PADRAO,
         id: activeUser.id,
@@ -342,6 +343,8 @@ export function PartiuDriverCockpit() {
         telefone: activeUser.phone || MOTORISTA_CONTA_PADRAO.telefone,
         email: activeUser.email || MOTORISTA_CONTA_PADRAO.email,
         fotoUrl: activeUser.avatarUrl || MOTORISTA_CONTA_PADRAO.fotoUrl,
+        cpf: cpfEfetivo,
+        chavePix: cpfEfetivo,
       };
     }
     return MOTORISTA_CONTA_PADRAO;
@@ -1654,7 +1657,8 @@ export function PartiuDriverCockpit() {
         onClose={() => setModalSaquePix(false)}
         driverId={perfilMotorista.id}
         saldoDisponivelBrl={ganhosHoje}
-        chavePixPadrao={perfilMotorista.chavePix}
+        chavePixPadrao={perfilMotorista.cpf || perfilMotorista.chavePix}
+        driverCpf={perfilMotorista.cpf}
         onWithdrawalSuccess={(newBalance) => {
           setGanhosHoje(newBalance);
           setWallet(driverWalletEngine.getWallet(perfilMotorista.id));

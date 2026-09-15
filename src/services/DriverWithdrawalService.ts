@@ -20,8 +20,9 @@ export interface WithdrawalRequestInput {
   amountBrl: number;
   pixKey: string;
   pixKeyType: PixKeyType;
-  tenantId?: string;
-  idempotencyKey?: string;
+  expectedCpf?: string | undefined;
+  tenantId?: string | undefined;
+  idempotencyKey?: string | undefined;
 }
 
 export interface WithdrawalReceipt {
@@ -163,6 +164,42 @@ export class DriverWithdrawalService {
     const now = new Date().toISOString();
     const year = new Date().getFullYear();
     const transferId = `PIX-OUT-${year}-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+
+    // 0. Exigência Estrita de Chave CPF do Titular Cadastrado
+    if (input.pixKeyType !== "CPF") {
+      return {
+        success: false,
+        transferId,
+        driverId: input.driverId,
+        amountBrl: input.amountBrl,
+        pixKey: input.pixKey,
+        pixKeyType: input.pixKeyType,
+        newBalanceBrl: 0,
+        status: "FAILED",
+        createdAt: now,
+        message: "Regra de Segurança: O saque PIX deve ser obrigatoriamente realizado para a chave CPF do titular cadastrado.",
+      };
+    }
+
+    // Validação de titularidade caso expectedCpf seja fornecido
+    if (input.expectedCpf) {
+      const cleanKey = input.pixKey.replace(/\D/g, "");
+      const cleanExpected = input.expectedCpf.replace(/\D/g, "");
+      if (cleanKey && cleanExpected && cleanKey !== cleanExpected) {
+        return {
+          success: false,
+          transferId,
+          driverId: input.driverId,
+          amountBrl: input.amountBrl,
+          pixKey: input.pixKey,
+          pixKeyType: input.pixKeyType,
+          newBalanceBrl: 0,
+          status: "FAILED",
+          createdAt: now,
+          message: "Regra de Titularidade: A chave CPF informada não coincide com o CPF do motorista titular cadastrado.",
+        };
+      }
+    }
 
     // 1. Validação da Chave PIX
     const keyValidation = this.validatePixKey(input.pixKey, input.pixKeyType);

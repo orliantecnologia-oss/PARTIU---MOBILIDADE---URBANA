@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, memo } from "react";
 import mapboxgl from "mapbox-gl";
-import { Navigation, Compass, ExternalLink, MapPin, Gauge, Flame } from "lucide-react";
+import { Navigation, Compass, ExternalLink, MapPin, Gauge } from "lucide-react";
 import { mapboxService } from "@/services/MapboxService";
 import { directionsService } from "@/services/DirectionsService";
 import { calculateBearing } from "@/utils/gis-interpolation";
@@ -439,18 +439,6 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
     <div className={`relative w-full h-full overflow-hidden ${modoNoturno ? "bg-slate-950" : "bg-[#f1f3f4]"} ${className}`}>
       <div ref={mapContainer} className="w-full h-full" />
 
-      {/* BADGE FLUTUANTE DE DEMANDA HEXAGONAL H3 (MODO IDLE) */}
-      {estado === "IDLE" && (
-        <div className="absolute top-[max(4.25rem,calc(env(safe-area-inset-top)+3.5rem))] left-3 z-30 animate-in fade-in duration-300">
-          <div className="px-3 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md border border-amber-500/40 text-white text-[11px] font-black flex items-center gap-1.5 shadow-xl">
-            <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400 animate-pulse" />
-            <span>Zonas de Demanda H3 Ativas</span>
-            <span className="text-[10px] text-amber-300 bg-amber-950/60 px-1.5 py-0.2 rounded-full font-bold">
-              Até 2.0x
-            </span>
-          </div>
-        </div>
-      )}
 
       {/* BANNER SUPERIOR DE NAVEGAÇÃO TURN-BY-TURN (Estilo Waze/Uber) */}
       {(estado === "HEADING_TO_PICKUP" || estado === "IN_PROGRESS") && (
