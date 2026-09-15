@@ -799,14 +799,24 @@ END $$;
 -- 4. SEGURANÇA E RLS
 ALTER TABLE public.driver_locations ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "driver_locations_public_read" ON public.driver_locations;
 CREATE POLICY "driver_locations_public_read"
   ON public.driver_locations FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "driver_locations_write" ON public.driver_locations;
 CREATE POLICY "driver_locations_write"
   ON public.driver_locations FOR ALL
-  USING (true)
-  WITH CHECK (true);
+  USING (
+    (auth.uid() IS NOT NULL AND auth.uid()::text = driver_id)
+    OR auth.role() = 'service_role'
+    OR (auth.jwt() ->> 'role') = 'service_role'
+  )
+  WITH CHECK (
+    (auth.uid() IS NOT NULL AND auth.uid()::text = driver_id)
+    OR auth.role() = 'service_role'
+    OR (auth.jwt() ->> 'role') = 'service_role'
+  );
 
 -- 5. RPC CANÔNICA DE TELEMETRIA: upsert_driver_location
 -- Atualiza simultaneamente driver_locations e active_drivers para compatibilidade 100%

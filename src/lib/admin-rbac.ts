@@ -258,7 +258,7 @@ export function isAutenticadoAdmin(): boolean {
 }
 
 /**
- * Realiza login no painel administrativo via Supabase Auth ou Zero Trust Tokens
+ * Realiza login no painel administrativo via Supabase Auth com validação estrita de RBAC
  */
 export async function loginAdmin(
   email: string,
@@ -267,168 +267,115 @@ export async function loginAdmin(
   const emailLimpo = email.trim().toLowerCase();
   const senhaLimpa = senha.trim();
 
+  if (!emailLimpo || !senhaLimpa) {
+    return {
+      sucesso: false,
+      mensagem: "E-mail e senha são obrigatórios para acesso ao painel de controle.",
+    };
+  }
+
   try {
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email: emailLimpo,
       password: senhaLimpa,
     });
 
-    if (!authError && authData?.user) {
-      const { data: roleData } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", authData.user.id)
-        .maybeSingle();
-
-      const userRole: AdminRole = roleData?.role === "superadmin" ? "OWNER" : "ADMIN";
-
-      const conta: AdminAccount = {
-        id: authData.user.id,
-        role: userRole,
-        nome:
-          (authData.user.user_metadata?.["full_name"] as string | undefined) ||
-          "Administrador Homologado",
-        email: authData.user.email || emailLimpo,
-        cargo: userRole === "OWNER" ? "Diretor Executivo" : "Gestor Operacional",
-      };
-
-      const tokens = authService.generateTokens({
-        id: conta.id,
-        email: conta.email,
-        role: conta.role,
-        permissions: ROLE_PERMISSIONS[conta.role] || [],
-      });
-
-      if (typeof window !== "undefined") {
-        localStorage.setItem(
-          STORAGE_KEY_AUTH,
-          JSON.stringify({
-            autenticado: true,
-            contaId: conta.id,
-            email: conta.email,
-            role: conta.role,
-            token: tokens.accessToken,
-            expiresAt: tokens.expiresAt,
-            autenticadoEm: new Date().toISOString(),
-          }),
-        );
-        setAdminRole(conta.role);
-      }
-
+    if (authError || !authData?.user) {
       auditTrail.logEvent({
-        userId: conta.id,
-        action: "ADMIN_LOGIN_SUCCESS",
+        userId: emailLimpo || "anonymous",
+        action: "ADMIN_LOGIN_REJECTED",
         resource: "app.admin",
-        status: "SUCCESS",
-        details: { role: conta.role, email: conta.email }
+        status: "DENIED",
+        details: { email: emailLimpo, reason: authError?.message || "Credenciais inválidas" }
       });
 
       return {
-        sucesso: true,
-        mensagem: "Login administrativo realizado com sucesso via Zero Trust Auth.",
-        conta,
-        token: tokens.accessToken,
+        sucesso: false,
+        mensagem: authError?.message || "Credenciais inválidas. Verifique seu e-mail e senha cadastrados.",
       };
     }
 
-    // 2. Fallback para Contas de Demonstração / Homologação Local (123456 ou partiu2026)
-    const isMasterPass = senhaLimpa === "123456" || senhaLimpa === "partiu2026" || senhaLimpa === "admin123";
-    const contaPredefinida = CONTAS_ADMIN_PADRAO.find(
-      (c) => c.email.toLowerCase() === emailLimpo
-    ) || (emailLimpo === "admin@partiu.com.br" ? CONTAS_ADMIN_PADRAO[1] : null);
+    // Validação estrita de papéis administrativos no PostgreSQL (user_roles)
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", authData.user.id)
+      .maybeSingle();
 
-    if (isMasterPass && contaPredefinida) {
-      const tokens = authService.generateTokens({
-        id: contaPredefinida.id,
-        email: contaPredefinida.email,
-        role: contaPredefinida.role,
-        permissions: ROLE_PERMISSIONS[contaPredefinida.role] || [],
-      });
+    const rawRole = roleData?.role?.toLowerCase() || "";
+    const validRoles = ["owner", "superadmin", "admin", "operator", "finance", "support"];
+    const hasAdminRole = validRoles.includes(rawRole);
 
-      if (typeof window !== "undefined") {
-        localStorage.setItem(
-          STORAGE_KEY_AUTH,
-          JSON.stringify({
-            autenticado: true,
-            contaId: contaPredefinida.id,
-            email: contaPredefinida.email,
-            role: contaPredefinida.role,
-            token: tokens.accessToken,
-            expiresAt: tokens.expiresAt,
-            autenticadoEm: new Date().toISOString(),
-          }),
-        );
-        setAdminRole(contaPredefinida.role);
-      }
+    if (!hasAdminRole) {
+      // Rejeição imediata e logout de contas normais de passageiros/motoristas tentando invadir o painel
+      await supabase.auth.signOut();
 
       auditTrail.logEvent({
-        userId: contaPredefinida.id,
-        action: "ADMIN_LOGIN_SUCCESS",
+        userId: authData.user.id,
+        action: "ADMIN_LOGIN_REJECTED",
         resource: "app.admin",
-        status: "SUCCESS",
-        details: { role: contaPredefinida.role, email: contaPredefinida.email, mode: "HOMOLOGATION_FALLBACK" }
+        status: "DENIED",
+        details: { email: emailLimpo, reason: "Acesso negado: usuário não possui role administrativa autorizada" }
       });
 
       return {
-        sucesso: true,
-        mensagem: "Login administrativo realizado com sucesso via Credencial Padrão.",
-        conta: contaPredefinida,
-        token: tokens.accessToken,
+        sucesso: false,
+        mensagem: "Acesso negado: sua conta não possui credenciais administrativas autorizadas.",
       };
+    }
+
+    const userRole: AdminRole =
+      rawRole === "superadmin" || rawRole === "owner" ? "OWNER" :
+      rawRole === "operator" ? "OPERATOR" : "ADMIN";
+
+    const conta: AdminAccount = {
+      id: authData.user.id,
+      role: userRole,
+      nome:
+        (authData.user.user_metadata?.["full_name"] as string | undefined) ||
+        "Administrador Homologado",
+      email: authData.user.email || emailLimpo,
+      cargo: userRole === "OWNER" ? "Diretor Executivo" : "Gestor Operacional",
+    };
+
+    const tokens = authService.generateTokens({
+      id: conta.id,
+      email: conta.email,
+      role: conta.role,
+      permissions: ROLE_PERMISSIONS[conta.role] || [],
+    });
+
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        STORAGE_KEY_AUTH,
+        JSON.stringify({
+          autenticado: true,
+          contaId: conta.id,
+          email: conta.email,
+          role: conta.role,
+          token: tokens.accessToken,
+          expiresAt: tokens.expiresAt,
+          autenticadoEm: new Date().toISOString(),
+        }),
+      );
+      setAdminRole(conta.role);
     }
 
     auditTrail.logEvent({
-      userId: emailLimpo || "anonymous",
-      action: "ADMIN_LOGIN_REJECTED",
+      userId: conta.id,
+      action: "ADMIN_LOGIN_SUCCESS",
       resource: "app.admin",
-      status: "DENIED",
-      details: { email: emailLimpo, reason: authError?.message || "Invalid credentials" }
+      status: "SUCCESS",
+      details: { role: conta.role, email: conta.email }
     });
 
     return {
-      sucesso: false,
-      mensagem:
-        authError?.message ||
-        "Credenciais inválidas. Verifique seu e-mail e senha cadastrados.",
+      sucesso: true,
+      mensagem: "Login administrativo realizado com sucesso via Zero Trust Auth.",
+      conta,
+      token: tokens.accessToken,
     };
   } catch (err: any) {
-    const isMasterPass = senhaLimpa === "123456" || senhaLimpa === "partiu2026" || senhaLimpa === "admin123";
-    const contaPredefinida = CONTAS_ADMIN_PADRAO.find(
-      (c) => c.email.toLowerCase() === emailLimpo
-    ) || (emailLimpo === "admin@partiu.com.br" ? CONTAS_ADMIN_PADRAO[1] : null);
-
-    if (isMasterPass && contaPredefinida) {
-      const tokens = authService.generateTokens({
-        id: contaPredefinida.id,
-        email: contaPredefinida.email,
-        role: contaPredefinida.role,
-        permissions: ROLE_PERMISSIONS[contaPredefinida.role] || [],
-      });
-
-      if (typeof window !== "undefined") {
-        localStorage.setItem(
-          STORAGE_KEY_AUTH,
-          JSON.stringify({
-            autenticado: true,
-            contaId: contaPredefinida.id,
-            email: contaPredefinida.email,
-            role: contaPredefinida.role,
-            token: tokens.accessToken,
-            expiresAt: tokens.expiresAt,
-            autenticadoEm: new Date().toISOString(),
-          }),
-        );
-        setAdminRole(contaPredefinida.role);
-      }
-
-      return {
-        sucesso: true,
-        mensagem: "Login administrativo realizado com sucesso via contingência.",
-        conta: contaPredefinida,
-        token: tokens.accessToken,
-      };
-    }
-
     auditTrail.logEvent({
       userId: emailLimpo || "anonymous",
       action: "ADMIN_LOGIN_ERROR",
