@@ -52,6 +52,7 @@ export interface PartiuReactNativeMapProps {
   destinationCoords?: [number, number] | undefined; // [longitude, latitude]
   nearbyDrivers?: DriverMarkerData[] | undefined;
   routeCoordinates?: [number, number][] | undefined; // Traçado real das vias
+  primaryRouteColor?: string | undefined; // Cor primária dinâmica do tema
   onRegionChange?: ((feature: any) => void) | undefined;
   onUserLocationUpdate?: ((location: any) => void) | undefined;
 }
@@ -63,6 +64,7 @@ export function PartiuReactNativeMap({
   destinationCoords,
   nearbyDrivers = [],
   routeCoordinates = [],
+  primaryRouteColor,
   onRegionChange,
   onUserLocationUpdate,
 }: PartiuReactNativeMapProps) {
@@ -308,11 +310,11 @@ export function PartiuReactNativeMap({
                 lineCap: "round",
               }}
             />
-            {/* Linha Principal Preto Profundo / Chumbo Escuro Uber */}
+            {/* Linha Principal Dinâmica com Contorno (Tema Partiu) */}
             <MapboxGL.LineLayer
               id="partiu-route-line"
               style={{
-                lineColor: "#1A1A1A",
+                lineColor: primaryRouteColor || "#0088FF",
                 lineWidth: 4.8,
                 lineOpacity: 1.0,
                 lineJoin: "round",

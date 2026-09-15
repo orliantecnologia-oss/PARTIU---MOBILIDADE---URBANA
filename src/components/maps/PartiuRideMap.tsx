@@ -238,7 +238,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
     async (map: mapboxgl.Map) => {
       if (!map) return;
 
-      // A. FONTE E CAMADA: ROTA POLYLINE (LINHA DA CORRIDA)
+      // A. FONTE E CAMADA: ROTA POLYLINE (LINHA DA CORRIDA THEME-AWARE)
       if (!map.getSource("route-source")) {
         map.addSource("route-source", {
           type: "geojson",
@@ -253,6 +253,16 @@ export const PartiuRideMap = memo(function PartiuRideMap({
         });
       }
 
+      const dynamicRouteColor =
+        (typeof document !== "undefined" &&
+          (getComputedStyle(document.documentElement)
+            .getPropertyValue("--brand-primary-vibrant")
+            .trim() ||
+            getComputedStyle(document.documentElement)
+              .getPropertyValue("--brand-primary-deep")
+              .trim())) ||
+        "#0088FF";
+
       if (!map.getLayer("route-casing")) {
         map.addLayer({
           id: "route-casing",
@@ -262,7 +272,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           paint: {
             "line-color": "#FFFFFF",
             "line-width": 7.5,
-            "line-opacity": 1.0,
+            "line-opacity": 0.95,
           },
         });
       }
@@ -274,7 +284,7 @@ export const PartiuRideMap = memo(function PartiuRideMap({
           source: "route-source",
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#1E293B",
+            "line-color": dynamicRouteColor,
             "line-width": 4.8,
             "line-opacity": 1.0,
           },
@@ -772,6 +782,32 @@ export const PartiuRideMap = memo(function PartiuRideMap({
     });
     ro.observe(mapContainer.current);
     return () => ro.disconnect();
+  }, [mapLoaded]);
+
+  // 1.2 SINCRONIZAÇÃO DA COR DA ROTA COM O TEMA DO SISTEMA (THEME-AWARE)
+  useEffect(() => {
+    const handleThemeChange = () => {
+      const map = mapRef.current;
+      if (map && map.getLayer && map.getLayer("route-line")) {
+        const dynamicColor =
+          (typeof document !== "undefined" &&
+            (getComputedStyle(document.documentElement)
+              .getPropertyValue("--brand-primary-vibrant")
+              .trim() ||
+              getComputedStyle(document.documentElement)
+                .getPropertyValue("--brand-primary-deep")
+                .trim())) ||
+          "#0088FF";
+        map.setPaintProperty("route-line", "line-color", dynamicColor);
+      }
+    };
+
+    window.addEventListener("partiu:whitelabel-updated", handleThemeChange);
+    window.addEventListener("storage", handleThemeChange);
+    return () => {
+      window.removeEventListener("partiu:whitelabel-updated", handleThemeChange);
+      window.removeEventListener("storage", handleThemeChange);
+    };
   }, [mapLoaded]);
 
   // 2. ATUALIZAÇÃO DA COORDENADA DO PASSAGEIRO (EXATO PONTO AZUL 99 & ORIGIN PIN)

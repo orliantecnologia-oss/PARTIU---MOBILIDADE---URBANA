@@ -39,12 +39,12 @@ interface VehicleOptionCardProps {
   isSelected: boolean;
   category: PassengerVehicleCategory;
   title: string;
-  description: string;
-  badgeText: string;
-  badgeClass: string;
+  description?: string;
+  badgeText?: string;
+  badgeClass?: string;
   etaMinutes: number;
   capacityText: string;
-  luggageText: string;
+  luggageText?: string;
   price: string;
   vehicleGraphicCategory: "POP" | "MOTO" | "PLUS";
   onSelect: (cat: PassengerVehicleCategory) => void;
@@ -52,20 +52,19 @@ interface VehicleOptionCardProps {
   corSecundaria?: string;
 }
 
-/** Card de Categoria Vertical Amplo (Lealt Recomendado/4.png) */
+/** Item de Categoria Compacto Horizontal no Padrão Uber/99 Zero-Scroll (~48-52px) */
 const VehicleOptionCard = memo(function VehicleOptionCard({
   isSelected,
   category,
   title,
-  description,
   badgeText,
   badgeClass,
   etaMinutes,
   capacityText,
-  luggageText,
   price,
   vehicleGraphicCategory,
   onSelect,
+  corPrimaria,
 }: VehicleOptionCardProps) {
   const handleClick = useCallback(() => {
     onSelect(category);
@@ -81,70 +80,82 @@ const VehicleOptionCard = memo(function VehicleOptionCard({
           handleClick();
         }
       }}
-      className={`w-full p-3 sm:p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between select-none active:scale-[0.99] ${
+      style={
+        isSelected && corPrimaria
+          ? {
+              borderColor: corPrimaria,
+              backgroundColor: `${corPrimaria}12`,
+            }
+          : undefined
+      }
+      className={`w-full px-3 py-2 rounded-2xl border transition-all cursor-pointer flex items-center justify-between select-none active:scale-[0.99] ${
         isSelected
-          ? "border-brand-primary-vibrant bg-brand-soft/40 shadow-xs"
-          : "border-slate-200 bg-white hover:border-slate-300"
+          ? "border-brand-primary-vibrant bg-brand-soft/40 shadow-xs ring-1 ring-brand-primary-vibrant/30"
+          : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/50"
       }`}
     >
-      {/* 1. ILUSTRAÇÃO 3D DO VEÍCULO (ESQUERDA) */}
-      <div className="w-20 sm:w-24 h-14 sm:h-16 flex items-center justify-center shrink-0 mr-2.5">
+      {/* 1. THUMBNAIL DO VEÍCULO (ESQUERDA: FIXO 48x48px) */}
+      <div className="w-12 h-12 flex items-center justify-center shrink-0 mr-2.5">
         <VehiclePerspectiveGraphic
           category={vehicleGraphicCategory}
           className="w-full h-full object-contain drop-shadow-xs"
         />
       </div>
 
-      {/* 2. DADOS DA CATEGORIA (MEIO) */}
+      {/* 2. DADOS DA CATEGORIA (CENTRO flex-1: NOME + ETA + CAPACIDADE) */}
       <div className="flex-1 min-w-0 pr-2">
-        <div className="flex items-center gap-2">
-          <h4 className="text-sm sm:text-base font-bold text-slate-900 leading-tight">
+        <div className="flex items-center gap-1.5">
+          <h4 className="text-sm font-bold text-slate-900 leading-tight truncate">
             {title}
           </h4>
-          <span className={`text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded ${badgeClass}`}>
-            {badgeText}
-          </span>
+          {badgeText && (
+            <span
+              className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded shrink-0 ${badgeClass}`}
+            >
+              {badgeText}
+            </span>
+          )}
         </div>
 
-        <p className="text-[11px] sm:text-xs text-slate-500 font-normal truncate mt-0.5">
-          {description}
-        </p>
-
-        <div className="flex items-center gap-2.5 text-[10.5px] sm:text-[11px] text-slate-600 font-medium mt-1">
-          <span className="flex items-center gap-1">
-            <User className="w-3 h-3 text-slate-400" />
-            <span>{capacityText}</span>
+        <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium mt-0.5">
+          <span className="flex items-center gap-0.5 shrink-0">
+            <Clock className="w-3 h-3 text-slate-400" />
+            <span>{etaMinutes} min</span>
           </span>
           <span className="text-slate-300">•</span>
-          <span className="flex items-center gap-1">
-            <span>🧳</span>
-            <span>{luggageText}</span>
+          <span className="flex items-center gap-0.5 shrink-0 text-slate-600">
+            <User className="w-3 h-3 text-slate-400" />
+            <span>{capacityText}</span>
           </span>
         </div>
       </div>
 
-      {/* 3. CHEGADA, PREÇO E SELETOR (DIREITA) */}
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="text-right">
-          <div className="flex items-center justify-end gap-1 text-[10px] sm:text-[10.5px] text-slate-500 font-medium">
-            <Clock className="w-3 h-3 text-brand-primary-vibrant" />
-            <span>Chegada em</span>
-          </div>
-          <div className="text-xs font-bold text-slate-800 leading-tight">
-            {etaMinutes} min
-          </div>
-          <div className="text-base sm:text-lg font-bold text-brand-primary-deep leading-snug mt-0.5">
-            {price}
-          </div>
-        </div>
-
-        {/* Radio Button Indicator (Lealt Recomendado/4.png) */}
-        <div
-          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-            isSelected ? "border-brand-primary-vibrant bg-white" : "border-slate-300 bg-white"
+      {/* 3. PREÇO EM NEGRITO E INDICADOR DE SELEÇÃO (DIREITA) */}
+      <div className="flex items-center gap-2.5 shrink-0">
+        <span
+          style={isSelected && corPrimaria ? { color: corPrimaria } : undefined}
+          className={`text-sm font-extrabold leading-tight tracking-tight ${
+            isSelected ? "text-brand-primary-deep" : "text-slate-900"
           }`}
         >
-          {isSelected && <div className="w-3 h-3 rounded-full bg-brand-primary-vibrant" />}
+          {price}
+        </span>
+
+        {/* Radio Button Indicator */}
+        <div
+          style={isSelected && corPrimaria ? { borderColor: corPrimaria } : undefined}
+          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+            isSelected
+              ? "border-brand-primary-vibrant bg-white"
+              : "border-slate-300 bg-white"
+          }`}
+        >
+          {isSelected && (
+            <div
+              style={corPrimaria ? { backgroundColor: corPrimaria } : undefined}
+              className="w-2.5 h-2.5 rounded-full bg-brand-primary-vibrant"
+            />
+          )}
         </div>
       </div>
     </div>
@@ -192,11 +203,11 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
   const [modalPassageiroAberto, setModalPassageiroAberto] = useState(false);
   const [inputParada, setInputParada] = useState(paradaIntermediaria || "");
 
-  // Hook Gestual com Física de Mola e Snap Points calibrados para Zero Scroll (HALF 48% / COLLAPSED 38%)
+  // Hook Gestual com Física de Mola e Snap Points calibrados para Zero Scroll (HALF 50% / COLLAPSED 38%)
   const { currentHeight, isDragging, handlers, activeSnapKey, snapTo } = useBottomSheetGesture({
     snapPoints: [
       { key: "COLLAPSED", height: 0.38 },
-      { key: "HALF", height: 0.48 },
+      { key: "HALF", height: 0.50 },
     ],
     initialSnapKey: "HALF",
   });
@@ -324,19 +335,19 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             aria-label={activeSnapKey === "COLLAPSED" ? "Expandir detalhes da corrida" : "Recolher para visão compacta"}
           >
             <div
-              className={`h-1.5 rounded-full transition-all duration-200 ${
+              className={`h-1 rounded-full transition-all duration-200 ${
                 isDragging ? "bg-primary-600 w-12" : "bg-slate-300 w-10 group-hover:bg-slate-400"
               }`}
             />
           </div>
 
-          {/* 1. HEADER COMPACTO: Voltar, Estimativas e Cancelar */}
-          <div className="flex items-center justify-between pb-1 border-b border-slate-100">
+          {/* 1. HEADER COMPACTO ENXUTO: Voltar, Estimativas e Fechar (Linha Única) */}
+          <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
             {/* Botão Voltar */}
             <button
               type="button"
               onClick={handleBack}
-              className="min-w-[38px] min-h-[38px] px-2 py-1 -ml-1 text-slate-700 hover:text-slate-950 hover:bg-slate-100 active:scale-95 rounded-xl transition cursor-pointer flex items-center gap-1 font-bold text-xs border border-slate-200/80 bg-white shadow-2xs"
+              className="h-8 px-2.5 text-slate-700 hover:text-slate-950 hover:bg-slate-100 active:scale-95 rounded-xl transition cursor-pointer flex items-center gap-1 font-bold text-[11px] border border-slate-200/80 bg-white shadow-2xs"
               title="Voltar e alterar endereço"
               aria-label="Voltar para busca de endereço"
             >
@@ -344,8 +355,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               <span>Voltar</span>
             </button>
 
-            {/* Estimativas de Rota no Topo */}
-            <div className="flex items-center gap-1.5 text-xs font-bold">
+            {/* Estimativas de Rota no Topo (Chips Enxutos 11-12px) */}
+            <div className="flex items-center gap-1.5 text-[11px] font-bold">
               <span className="text-slate-700 flex items-center gap-0.5">
                 <Navigation className="w-3 h-3 text-primary-600" />
                 {distanciaKm} km
@@ -353,10 +364,10 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               <span className="text-slate-300">•</span>
               <span
                 style={{
-                  backgroundColor: `${corPrimaria || "#0088FF"}20`,
-                  borderColor: `${corPrimaria || "#0088FF"}50`,
+                  backgroundColor: `${corPrimaria || "#0088FF"}15`,
+                  borderColor: `${corPrimaria || "#0088FF"}40`,
                 }}
-                className="text-slate-900 border px-2 py-0.5 rounded-full flex items-center gap-0.5 text-[11px] font-medium"
+                className="text-slate-900 border px-2 py-0.5 rounded-full flex items-center gap-0.5 font-medium"
               >
                 <Clock className="w-2.5 h-2.5 text-brand-primary-vibrant stroke-[2.5]" />
                 ~{horarioDesembarquePrevisto || `${duracaoMin || 8} min`}
@@ -367,7 +378,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             <button
               type="button"
               onClick={handleCancel}
-              className="min-w-[38px] min-h-[38px] rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 active:scale-90 transition cursor-pointer flex items-center justify-center border border-slate-200/60 bg-white shadow-2xs"
+              className="h-8 w-8 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 active:scale-90 transition cursor-pointer flex items-center justify-center border border-slate-200/60 bg-white shadow-2xs"
               title="Cancelar e voltar ao mapa"
               aria-label="Cancelar e voltar ao mapa"
             >
@@ -377,33 +388,28 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
         </div>
 
         {/* ════════════════════════════════════════════════════════════════════
-            SEÇÃO B — CONTEÚDO PRINCIPAL (PADRÃO LEALT RECOMENDADO/4.PNG)
+            SEÇÃO B — CONTEÚDO PRINCIPAL (ZERO-SCROLL: CATEGORIAS + CHIPS)
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 flex flex-col px-4 py-2 space-y-3 overflow-y-auto">
+        <div className="flex-1 flex flex-col px-3.5 sm:px-4 py-1.5 space-y-1.5 overflow-y-auto">
 
-          {/* CABEÇALHO DA SEÇÃO (LEALT RECOMENDADO/4.PNG) */}
-          <div className="pt-0.5">
-            <h2 className="text-xl font-bold text-brand-primary-deep leading-tight">
+          {/* TÍTULO DISCRETO E DIRETO */}
+          <div className="flex items-center justify-between pt-0.5">
+            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-tight">
               Escolha sua categoria
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
-              Veja o tempo de chegada e o valor da corrida.
-            </p>
+            </h3>
           </div>
 
-          {/* 2. SELEÇÃO DE VEÍCULOS VERTICAL (3 CARDS AMPLOS: POP, MOTO, PLUS) */}
-          <div className="space-y-2.5 shrink-0">
+          {/* 2. SELEÇÃO DE VEÍCULOS (LISTA HORIZONTAL COMPACTA ZERO-SCROLL) */}
+          <div className="space-y-1.5 shrink-0">
             {/* CARD 1: PARTIU POP */}
             <VehicleOptionCard
               isSelected={isPop}
               category="CARRO"
               title="Partiu Pop"
-              description="Viagem econômica para o seu dia a dia."
               badgeText="Popular"
               badgeClass="text-blue-900 bg-blue-100"
-              etaMinutes={pickupMinPop || 12}
-              capacityText="Até 4 passageiros"
-              luggageText="1 mala"
+              etaMinutes={pickupMinPop || 4}
+              capacityText="4 lug."
               price={precoPop}
               vehicleGraphicCategory="POP"
               onSelect={handleSelectCategory}
@@ -416,12 +422,10 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               isSelected={isMoto}
               category="MOTO"
               title="Partiu Moto"
-              description="Mais rápido e econômico para curtas distâncias."
               badgeText="Econômico"
               badgeClass="text-cyan-900 bg-cyan-100"
-              etaMinutes={pickupMinMoto || 8}
-              capacityText="1 passageiro"
-              luggageText="1 mala"
+              etaMinutes={pickupMinMoto || 3}
+              capacityText="1 lug."
               price={precoMoto}
               vehicleGraphicCategory="MOTO"
               onSelect={handleSelectCategory}
@@ -434,12 +438,10 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
               isSelected={isPlus}
               category="EXECUTIVO"
               title="Partiu Plus"
-              description="Mais espaço, conforto e segurança."
               badgeText="Conforto"
               badgeClass="text-amber-900 bg-amber-100"
-              etaMinutes={pickupMinPlus || 15}
-              capacityText="Até 4 passageiros"
-              luggageText="2 malas"
+              etaMinutes={pickupMinPlus || 5}
+              capacityText="4 lug."
               price={precoPlus}
               vehicleGraphicCategory="PLUS"
               onSelect={handleSelectCategory}
@@ -448,43 +450,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             />
           </div>
 
-          {/* 3. CARD DE PAGAMENTO SEGURO (PIX D+0 - PADRÃO 4.PNG) */}
-          <div
-            onClick={handleOpenPayment}
-            className="w-full p-3 sm:p-3.5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-between shadow-2xs transition active:scale-[0.99] cursor-pointer"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              {/* Ícone diamante verde esmeralda PIX */}
-              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center shrink-0 shadow-xs">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L4 10L12 18L20 10L12 2Z" stroke="#059669" strokeWidth="2" strokeLinejoin="round"/>
-                  <path d="M7 15L12 20L17 15" stroke="#059669" strokeWidth="2" strokeLinecap="round"/>
-                  <circle cx="12" cy="10" r="2" fill="#059669"/>
-                </svg>
-              </div>
-
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm font-bold text-slate-800 truncate">
-                    {formaPagamento === "pix" ? "PIX D+0" : paymentInfo.label}
-                  </span>
-                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded">
-                    Instantâneo
-                  </span>
-                </div>
-                <span className="text-xs text-slate-500 font-normal block truncate mt-0.5">
-                  {formaPagamento === "pix"
-                    ? "Pagamento seguro e instantâneo"
-                    : paymentInfo.sublabel}
-                </span>
-              </div>
-            </div>
-
-            <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
-          </div>
-
-          {/* 3.1 CHIPS DE OPÇÕES EXTRAS (PARADA / PASSAGEIRO) */}
-          <div className="flex items-center justify-between gap-1.5 shrink-0">
+          {/* 3. CHIPS DE OPÇÕES EXTRAS (PARADA / PASSAGEIRO / MULHER) */}
+          <div className="flex items-center justify-between gap-1.5 pt-0.5 shrink-0">
             {/* Chip de Parada */}
             <div className="flex-1 min-w-0">
               <button
@@ -493,7 +460,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   hapticFeedback.light();
                   setModalParadaAberto(true);
                 }}
-                className={`min-h-[34px] sm:min-h-[36px] w-full flex items-center justify-between gap-1 font-bold text-[11px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
+                className={`min-h-[32px] w-full flex items-center justify-between gap-1 font-bold text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
                   paradas.length > 0
                     ? "bg-blue-50 text-blue-950 border-blue-400 font-black"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
@@ -505,8 +472,8 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                     {paradas.length === 0
                       ? "+ Parada"
                       : paradas.length === 1
-                      ? `1 Parada: ${paradas[0].endereco.slice(0, 10)}...`
-                      : `2 Paradas (+R$ 5,00)`}
+                      ? `1 Parada: ${paradas[0].endereco.slice(0, 8)}...`
+                      : `2 Paradas`}
                   </span>
                 </div>
                 {paradas.length > 0 && (
@@ -519,7 +486,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                       hapticFeedback.light();
                       setParadaIntermediaria(null);
                     }}
-                    className="w-5 h-5 -mr-0.5 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-700 flex items-center justify-center font-black active:scale-90 transition shrink-0 text-[10px]"
+                    className="w-4 h-4 -mr-0.5 rounded-full bg-rose-100 hover:bg-rose-200 text-rose-700 flex items-center justify-center font-black active:scale-90 transition shrink-0 text-[9px]"
                   >
                     ✕
                   </span>
@@ -535,7 +502,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   hapticFeedback.light();
                   setModalPassageiroAberto(true);
                 }}
-                className={`min-h-[34px] sm:min-h-[36px] w-full flex items-center justify-center gap-1 font-bold text-[11px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
+                className={`min-h-[32px] w-full flex items-center justify-center gap-1 font-bold text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
                   viajanteOutraPessoa
                     ? "bg-blue-50 text-blue-950 border-blue-300"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
@@ -544,7 +511,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 <User className="w-3 h-3 text-slate-600 shrink-0" />
                 <span className="truncate">
                   {viajanteOutraPessoa
-                    ? (nomeOutroPassageiro ? `Para: ${nomeOutroPassageiro.slice(0, 12)}` : "Outra pessoa")
+                    ? (nomeOutroPassageiro ? `Para: ${nomeOutroPassageiro.slice(0, 10)}` : "Outro")
                     : "Para mim"}
                 </span>
               </button>
@@ -558,7 +525,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                   hapticFeedback.medium();
                   togglePreference("isFemaleOnly");
                 }}
-                className={`min-h-[36px] w-full flex items-center justify-center gap-1 font-bold text-[11px] px-2 py-1 rounded-xl border transition active:scale-95 cursor-pointer ${
+                className={`min-h-[32px] w-full flex items-center justify-center gap-1 font-bold text-[10.5px] px-2 py-0.5 rounded-xl border transition active:scale-95 cursor-pointer ${
                   preferences?.isFemaleOnly
                     ? "bg-purple-50 text-purple-900 border-purple-300 shadow-2xs font-black"
                     : "bg-slate-100/90 text-slate-700 hover:text-slate-950 border-slate-200/80"
@@ -576,18 +543,63 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
 
         {/* ════════════════════════════════════════════════════════════════════
             SEÇÃO C — FOOTER FIXO (NUNCA ROLA, NUNCA SAI DA TELA)
-            Ancorado ao Safe Area inferior com visibilidade permanente e sombra
+            Barra Fixa de Pagamento + Botão de Confirmação + Safe Area
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shrink-0 border-t border-slate-100 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+        <div className="px-3.5 sm:px-4 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom,14px))] shrink-0 border-t border-slate-100 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.04)] space-y-2">
+          {/* BARRA FIXA DE FORMA DE PAGAMENTO (COMPACTA, DIRETA E NUNCA ESCONDIDA) */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={handleOpenPayment}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") handleOpenPayment();
+            }}
+            className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100/90 active:scale-[0.99] transition cursor-pointer border border-slate-200/80"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+                <PaymentIcon className="w-3.5 h-3.5 text-emerald-600 stroke-[2.2]" />
+              </div>
+              <span className="text-xs font-bold text-slate-800 truncate">
+                {pagamentoNaMaquininha
+                  ? "Maquininha"
+                  : formaPagamento === "pix"
+                  ? "PIX D+0"
+                  : paymentInfo.label}
+              </span>
+              <span className="text-[9.5px] font-semibold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.2 rounded-full">
+                {pagamentoNaMaquininha ? "Cartão" : formaPagamento === "pix" ? "Instantâneo" : "Presencial"}
+              </span>
+            </div>
+
+            <div
+              className="flex items-center gap-1 text-xs font-bold text-brand-primary-vibrant hover:underline shrink-0"
+              style={corPrimaria ? { color: corPrimaria } : undefined}
+            >
+              <span>Trocar</span>
+              <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+          </div>
+
+          {/* BOTÃO PRINCIPAL DE CONFIRMAÇÃO DA CORRIDA */}
           <button
             type="button"
             onClick={handleConfirm}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand-primary-vibrant to-brand-primary-deep hover:brightness-105 text-white font-bold text-base active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer shadow-lg shadow-brand-primary-vibrant/25 touch-manipulation"
+            className="w-full h-12 sm:h-13 rounded-2xl bg-gradient-to-r from-brand-primary-vibrant to-brand-primary-deep hover:brightness-105 text-white font-bold text-sm sm:text-base active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-2.5 cursor-pointer shadow-md shadow-brand-primary-vibrant/25 touch-manipulation"
+            style={
+              corPrimaria && corSecundaria
+                ? {
+                    backgroundImage: `linear-gradient(to right, ${corPrimaria}, ${corSecundaria})`,
+                  }
+                : corPrimaria
+                ? { backgroundColor: corPrimaria }
+                : undefined
+            }
           >
             {isMoto ? (
-              <Bike className="w-5 h-5 text-white stroke-[2.2]" />
+              <Bike className="w-4.5 h-4.5 text-white stroke-[2.2]" />
             ) : (
-              <Car className="w-5 h-5 text-white stroke-[2.2]" />
+              <Car className="w-4.5 h-4.5 text-white stroke-[2.2]" />
             )}
             <span className="opacity-40 font-light">|</span>
             <span>Confirmar {nomeVeiculoAtivo} • {precoAtivo}</span>
