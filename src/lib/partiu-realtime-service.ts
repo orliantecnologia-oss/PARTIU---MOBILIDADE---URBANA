@@ -189,6 +189,7 @@ export async function criarCorridaDistribuida(params: {
         dropoff_lat: destLat,
         dropoff_lng: destLng,
         status: "REQUESTED",
+        category: params.modalidade === "MOTO" ? "MOTO" : "CARRO",
         vehicle_category: params.modalidade === "MOTO" ? "MOTO" : "CARRO",
         price_estimated_brl: params.valor,
         distance_km: params.distanciaKm,

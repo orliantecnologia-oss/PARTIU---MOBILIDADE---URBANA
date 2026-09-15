@@ -42,47 +42,64 @@ BEGIN
         'mensagem', 'Outro motorista parceiro acabou de aceitar esta corrida no mesmo instante!'
       );
     WHEN no_data_found THEN
-      -- Se não encontrou na tabela canônica, tenta buscar na tabela legada partiu_corridas se for UUID
-      IF p_corrida_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN
-        BEGIN
+      -- Se não encontrou na tabela canônica, tenta buscar na tabela legada partiu_corridas por UUID ou por codigo_viagem
+      BEGIN
+        IF p_corrida_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN
           PERFORM 1 FROM public.partiu_corridas
           WHERE id = p_corrida_id::uuid
           FOR UPDATE NOWAIT;
 
           UPDATE public.partiu_corridas
-          SET motorista_id = p_motorista_id::uuid,
+          SET motorista_id = CASE WHEN p_motorista_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN p_motorista_id::uuid ELSE motorista_id END,
               status = 'A_CAMINHO',
               updated_at = NOW()
           WHERE id = p_corrida_id::uuid
-            AND status IN ('PROCURANDO', 'OFERTADA');
+            AND status IN ('PROCURANDO', 'OFERTADA', 'REQUESTED', 'SEARCHING_R1');
+        ELSE
+          PERFORM 1 FROM public.partiu_corridas
+          WHERE codigo_viagem = p_corrida_id
+          FOR UPDATE NOWAIT;
 
-          GET DIAGNOSTICS v_affected_rows = ROW_COUNT;
+          UPDATE public.partiu_corridas
+          SET motorista_id = CASE WHEN p_motorista_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN p_motorista_id::uuid ELSE motorista_id END,
+              status = 'A_CAMINHO',
+              updated_at = NOW()
+          WHERE codigo_viagem = p_corrida_id
+            AND status IN ('PROCURANDO', 'OFERTADA', 'REQUESTED', 'SEARCHING_R1');
+        END IF;
 
-          IF v_affected_rows > 0 THEN
-            RETURN jsonb_build_object(
-              'sucesso', true,
-              'codigo', 'ACEITO_COM_SUCESSO',
-              'corrida_id', p_corrida_id,
-              'status', 'A_CAMINHO'
-            );
-          ELSE
-            RETURN jsonb_build_object(
-              'sucesso', false,
-              'codigo', 'STATUS_INVALIDO',
-              'mensagem', 'Esta corrida já foi atribuída ou cancelada.'
-            );
-          END IF;
-        EXCEPTION
-          WHEN lock_not_available THEN
-            RETURN jsonb_build_object(
-              'sucesso', false,
-              'codigo', 'LOCK_CONCORRENTE',
-              'mensagem', 'Outro motorista parceiro acabou de aceitar esta corrida no mesmo instante!'
-            );
-          WHEN OTHERS THEN
-            NULL;
-        END;
-      END IF;
+        GET DIAGNOSTICS v_affected_rows = ROW_COUNT;
+
+        IF v_affected_rows > 0 THEN
+          UPDATE public.driver_locations
+          SET status = 'ON_TRIP',
+              current_ride_id = p_corrida_id,
+              updated_at = NOW()
+          WHERE driver_id = p_motorista_id;
+
+          RETURN jsonb_build_object(
+            'sucesso', true,
+            'codigo', 'ACEITO_COM_SUCESSO',
+            'corrida_id', p_corrida_id,
+            'status', 'A_CAMINHO'
+          );
+        ELSE
+          RETURN jsonb_build_object(
+            'sucesso', false,
+            'codigo', 'STATUS_INVALIDO',
+            'mensagem', 'Esta corrida já foi atribuída ou cancelada.'
+          );
+        END IF;
+      EXCEPTION
+        WHEN lock_not_available THEN
+          RETURN jsonb_build_object(
+            'sucesso', false,
+            'codigo', 'LOCK_CONCORRENTE',
+            'mensagem', 'Outro motorista parceiro acabou de aceitar esta corrida no mesmo instante!'
+          );
+        WHEN OTHERS THEN
+          NULL;
+      END;
 
       RETURN jsonb_build_object(
         'sucesso', false,

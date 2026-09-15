@@ -54,11 +54,11 @@ serve(async (req: Request) => {
     const { data: matchedDrivers, error: matchError } = await supabase.rpc(
       "dispatch_find_best_driver",
       {
-        pickup_lat: pickupLat,
-        pickup_lng: pickupLng,
+        p_lat: pickupLat,
+        p_lng: pickupLng,
         p_category: category,
-        max_radius_km: maxRadiusKm,
-        max_results: 10,
+        p_radius_meters: maxRadiusKm * 1000,
+        p_limit: 10,
       }
     );
 
@@ -91,7 +91,8 @@ serve(async (req: Request) => {
     try {
       await supabase.from("rides").update({
         driver_id: selectedCandidate.driver_id,
-        status: "OFERTADA",
+        status: "SEARCHING_R1",
+        updated_at: new Date().toISOString(),
       }).eq("id", rideId);
     } catch (_) {
       // Ignora se tabela rides ainda não possui essa corrida no mock

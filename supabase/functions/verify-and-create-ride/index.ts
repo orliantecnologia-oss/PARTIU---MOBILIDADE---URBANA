@@ -125,34 +125,67 @@ serve(async (req: Request) => {
       }
     }
 
-    // 5. Inserção Segura na Tabela partiu_corridas
+    // 5. Inserção Canônica na Tabela public.rides e espelhamento em partiu_corridas
     const pin = Math.floor(1000 + Math.random() * 9000).toString();
     const rideId = `COR-${Date.now().toString().slice(-6)}`;
+    const categoryCanonical = catUpper === "MOTO" ? "MOTO" : "CARRO";
 
-    const { data: ride, error: insertError } = await supabase
-      .from("partiu_corridas")
+    const pickupLat = payload.pickupCoordinates ? payload.pickupCoordinates[1] : -21.205;
+    const pickupLng = payload.pickupCoordinates ? payload.pickupCoordinates[0] : -41.888;
+    const destLat = payload.destinationCoordinates ? payload.destinationCoordinates[1] : -21.209;
+    const destLng = payload.destinationCoordinates ? payload.destinationCoordinates[0] : -41.892;
+
+    const { data: canonicalRide, error: insertError } = await supabase
+      .from("rides")
       .insert({
         id: rideId,
-        modalidade: catUpper,
-        origem: payload.pickupAddress || "Embarque",
-        destino: payload.destinationAddress || "Destino",
-        passageiro_nome: payload.passengerName || "Passageiro",
-        passageiro_telefone: payload.passengerPhone || "(00) 00000-0000",
-        valor: precoFinal,
-        distancia_km: distanceKm,
-        duracao_min: durationMin,
-        forma_pagamento: payload.paymentMethod || "pix",
+        passenger_id: payload.passengerId || "guest-passenger",
+        passenger_name: payload.passengerName || "Passageiro",
+        passenger_phone: payload.passengerPhone || null,
+        pickup_address: payload.pickupAddress || "Embarque",
+        pickup_lat: pickupLat,
+        pickup_lng: pickupLng,
+        dropoff_address: payload.destinationAddress || "Destino",
+        dropoff_lat: destLat,
+        dropoff_lng: destLng,
+        status: "REQUESTED",
+        category: categoryCanonical,
+        price_estimated_brl: precoFinal,
+        distance_km: distanceKm,
+        duration_minutes: Math.round(durationMin),
+        payment_method: payload.paymentMethod || "pix",
         pin,
-        status: "PROCURANDO",
-        polyline: encodedPolyline,
-        created_at: new Date().toISOString(),
       })
       .select()
-      .single();
+      .maybeSingle();
+
+    // Espelhamento na tabela legada partiu_corridas para compatibilidade retroativa
+    try {
+      await supabase.from("partiu_corridas").insert({
+        codigo_viagem: rideId,
+        modalidade: catUpper,
+        origem_endereco: payload.pickupAddress || "Embarque",
+        destino_endereco: payload.destinationAddress || "Destino",
+        origem_lat: pickupLat,
+        origem_lng: pickupLng,
+        destino_lat: destLat,
+        destino_lng: destLng,
+        passageiro_nome: payload.passengerName || "Passageiro",
+        passageiro_telefone: payload.passengerPhone || "(00) 00000-0000",
+        valor_bruto_cents: Math.round(precoFinal * 100),
+        distancia_km: distanceKm,
+        duracao_min: Math.round(durationMin),
+        forma_pagamento: payload.paymentMethod || "pix",
+        pin_seguranca: pin,
+        status: "PROCURANDO",
+        polyline: encodedPolyline,
+      });
+    } catch (_) {
+      // Ignora se tabela legada estiver desativada
+    }
 
     if (insertError) {
-      console.error("Erro ao inserir corrida:", insertError);
-      // Retorna sucesso com o payload verificado se a tabela estiver em migração
+      console.error("Erro ao inserir corrida em public.rides:", insertError);
       return new Response(
         JSON.stringify({
           success: true,
@@ -161,7 +194,7 @@ serve(async (req: Request) => {
           distanceKm,
           durationMin,
           pin,
-          status: "PROCURANDO",
+          status: "REQUESTED",
         }),
         { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -170,7 +203,8 @@ serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        ride,
+        ride: canonicalRide || { id: rideId, status: "REQUESTED" },
+        rideId,
         verifiedFare: precoFinal,
       }),
       { status: 201, headers: { ...corsHeaders, "Content-Type": "application/json" } }
