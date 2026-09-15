@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileViewportContainer } from "@/components/layout/MobileViewportContainer";
 import { BrandingProvider, SplashScreen } from "@/components/branding";
+import { setupGlobalErrorLogging } from "@/lib/structured-logger";
 
 function NotFoundComponent() {
   return (
@@ -163,6 +164,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+
+  useEffect(() => {
+    setupGlobalErrorLogging();
+  }, []);
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {

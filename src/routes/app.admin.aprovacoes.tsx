@@ -102,9 +102,17 @@ export function AdminAprovacoesPage() {
         status: (p.status_aprovacao as any) || "pendente",
         motivoRejeicao: (p as any).motivo_rejeicao,
         documentos: {
-          cnhUrl: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
-          crlvUrl: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&auto=format&fit=crop&q=80",
-          fotoPerfilUrl: (p as any).foto_url || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+          cnhUrl:
+            (p as any).cnh_url ||
+            (p as any).cnh_foto_url ||
+            "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
+          crlvUrl:
+            (p as any).crlv_url ||
+            (p as any).crlv_foto_url ||
+            "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600&auto=format&fit=crop&q=80",
+          fotoPerfilUrl:
+            (p as any).foto_url ||
+            "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
         },
       }));
       setSolicitacoes(convertidas);

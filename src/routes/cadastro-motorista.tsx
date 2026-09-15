@@ -16,6 +16,10 @@ import {
   ShieldCheck,
   User,
   Zap,
+  Upload,
+  Camera,
+  FileText,
+  Check,
 } from "lucide-react";
 import { TopNav } from "@/components/navigation/TopNav";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
@@ -64,6 +68,64 @@ export function CadastroMotoristaPage() {
   const [categoriaCNH, setCategoriaCNH] = useState<"B" | "A" | "AB">("B");
   const [possuiEAR, setPossuiEAR] = useState(true);
 
+  // Documentos Reais (Upload)
+  const [cnhUrl, setCnhUrl] = useState<string>("");
+  const [crlvUrl, setCrlvUrl] = useState<string>("");
+  const [fotoPerfilUrl, setFotoPerfilUrl] = useState<string>("");
+  const [uploadingDoc, setUploadingDoc] = useState<"cnh" | "crlv" | "foto" | null>(null);
+
+  async function handleUploadArquivo(
+    e: React.ChangeEvent<HTMLInputElement>,
+    tipo: "cnh" | "crlv" | "foto"
+  ) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingDoc(tipo);
+
+    let url = "";
+    if (isSupabaseConfigured() && supabase) {
+      try {
+        const fileExt = file.name.split(".").pop() || "jpg";
+        const fileName = `${tipo}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+        const filePath = `motoristas/${fileName}`;
+
+        const { error: upErr } = await supabase.storage
+          .from("driver-documents")
+          .upload(filePath, file, { cacheControl: "3600", upsert: true });
+
+        if (!upErr) {
+          const { data: pubUrl } = supabase.storage
+            .from("driver-documents")
+            .getPublicUrl(filePath);
+          if (pubUrl?.publicUrl) {
+            url = pubUrl.publicUrl;
+          }
+        }
+      } catch (err) {
+        silentCatchWarn("uploadDriverDoc", err);
+      }
+    }
+
+    if (!url) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        if (tipo === "cnh") setCnhUrl(base64);
+        else if (tipo === "crlv") setCrlvUrl(base64);
+        else setFotoPerfilUrl(base64);
+        setUploadingDoc(null);
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    if (tipo === "cnh") setCnhUrl(url);
+    else if (tipo === "crlv") setCrlvUrl(url);
+    else setFotoPerfilUrl(url);
+    setUploadingDoc(null);
+  }
+
   // Etapa 4: Chave PIX (D+0) - Obrigatório CPF do Titular
   const [chavePix, setChavePix] = useState("");
   const tipoChave = "cpf";
@@ -89,6 +151,9 @@ export function CadastroMotoristaPage() {
       cnh,
       cnhCategory: categoriaCNH,
       hasEar: possuiEAR,
+      cnhUrl,
+      crlvUrl,
+      fotoPerfilUrl,
       pixKey: chavePixEfetiva,
       pixKeyType: "CPF",
     });
@@ -474,6 +539,100 @@ export function CadastroMotoristaPage() {
                     />
                     <label htmlFor="temEar" className="text-xs text-white font-bold cursor-pointer">
                       Sim, minha CNH possui a sigla EAR
+                    </label>
+                  </div>
+                </div>
+
+                {/* Upload de Documentos Obrigatórios */}
+                <div className="space-y-3 pt-2">
+                  <label className="block text-xs font-black uppercase text-slate-300">
+                    Fotos dos Documentos (Auditoria & Compliance)
+                  </label>
+
+                  {/* Foto da CNH */}
+                  <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-[#0088FF]" />
+                        <span className="text-xs font-bold text-white">Foto da CNH (Aberta ou Frente/Verso)</span>
+                      </div>
+                      {cnhUrl && (
+                        <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                          <Check className="h-3 w-3" /> Anexada
+                        </span>
+                      )}
+                    </div>
+                    <label className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-slate-950 border border-dashed border-slate-700 hover:border-[#0088FF] text-xs font-bold text-slate-300 cursor-pointer transition-colors">
+                      {uploadingDoc === "cnh" ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-[#0088FF]" />
+                      ) : (
+                        <Upload className="h-4 w-4 text-slate-400" />
+                      )}
+                      <span>{cnhUrl ? "Substituir Foto da CNH" : "Tirar Foto ou Anexar CNH"}</span>
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => handleUploadArquivo(e, "cnh")}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Foto do CRLV */}
+                  <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-[#0088FF]" />
+                        <span className="text-xs font-bold text-white">Documento do Veículo (CRLV Digital)</span>
+                      </div>
+                      {crlvUrl && (
+                        <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                          <Check className="h-3 w-3" /> Anexado
+                        </span>
+                      )}
+                    </div>
+                    <label className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-slate-950 border border-dashed border-slate-700 hover:border-[#0088FF] text-xs font-bold text-slate-300 cursor-pointer transition-colors">
+                      {uploadingDoc === "crlv" ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-[#0088FF]" />
+                      ) : (
+                        <Upload className="h-4 w-4 text-slate-400" />
+                      )}
+                      <span>{crlvUrl ? "Substituir CRLV" : "Tirar Foto ou Anexar CRLV"}</span>
+                      <input
+                        type="file"
+                        accept="image/*,.pdf"
+                        onChange={(e) => handleUploadArquivo(e, "crlv")}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* Selfie do Motorista */}
+                  <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Camera className="h-4 w-4 text-[#0088FF]" />
+                        <span className="text-xs font-bold text-white">Selfie do Condutor (Validação Facial)</span>
+                      </div>
+                      {fotoPerfilUrl && (
+                        <span className="flex items-center gap-1 text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                          <Check className="h-3 w-3" /> Anexada
+                        </span>
+                      )}
+                    </div>
+                    <label className="flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-slate-950 border border-dashed border-slate-700 hover:border-[#0088FF] text-xs font-bold text-slate-300 cursor-pointer transition-colors">
+                      {uploadingDoc === "foto" ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-[#0088FF]" />
+                      ) : (
+                        <Camera className="h-4 w-4 text-slate-400" />
+                      )}
+                      <span>{fotoPerfilUrl ? "Tirar Outra Selfie" : "Tirar Selfie ou Anexar Foto"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleUploadArquivo(e, "foto")}
+                        className="hidden"
+                      />
                     </label>
                   </div>
                 </div>

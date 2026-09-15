@@ -127,3 +127,39 @@ export function silentCatchWarn(context: string, err?: unknown): void {
     metadata: { originalError: message },
   });
 }
+
+let globalLoggingInitialized = false;
+
+/**
+ * [OPS-001] Observabilidade SRE: Captura Global de Falhas e Rejeições Não Tratadas
+ */
+export function setupGlobalErrorLogging(): void {
+  if (typeof window === "undefined" || globalLoggingInitialized) return;
+  globalLoggingInitialized = true;
+
+  window.addEventListener("error", (event) => {
+    appLogger.error("unhandled-runtime-error", {
+      errorCode: "UNHANDLED_EXCEPTION",
+      metadata: {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+      },
+    });
+  });
+
+  window.addEventListener("unhandledrejection", (event) => {
+    appLogger.error("unhandled-promise-rejection", {
+      errorCode: "UNHANDLED_PROMISE_REJECTION",
+      metadata: {
+        reason:
+          event.reason instanceof Error
+            ? event.reason.message
+            : typeof event.reason === "string"
+            ? event.reason
+            : "unknown rejection",
+      },
+    });
+  });
+}

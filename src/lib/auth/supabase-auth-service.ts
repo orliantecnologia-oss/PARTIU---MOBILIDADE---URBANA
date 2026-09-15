@@ -636,6 +636,9 @@ export class SupabaseAuthService {
     cnh?: string;
     cnhCategory?: string;
     hasEar?: boolean;
+    cnhUrl?: string;
+    crlvUrl?: string;
+    fotoPerfilUrl?: string;
     pixKey?: string;
     pixKeyType?: string;
   }): Promise<AuthResult> {
@@ -697,6 +700,9 @@ export class SupabaseAuthService {
                 vehicle_plate: params.vehiclePlate?.toUpperCase(),
                 vehicle_type: params.vehicleType,
                 cnh: params.cnh,
+                cnh_url: params.cnhUrl,
+                crlv_url: params.crlvUrl,
+                foto_url: params.fotoPerfilUrl,
                 pix_key: params.pixKey,
               },
             });
@@ -716,6 +722,9 @@ export class SupabaseAuthService {
               cnh_categoria: params.cnhCategory || "B",
               cnh_validade: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
               possui_ear: params.hasEar ?? true,
+              cnh_url: params.cnhUrl || null,
+              crlv_url: params.crlvUrl || null,
+              foto_url: params.fotoPerfilUrl || null,
               veiculo_marca_modelo: params.vehicleModel || "Modelo Não Informado",
               veiculo_placa: (params.vehiclePlate || "SEM-PLACA").toUpperCase(),
               veiculo_ano: parseInt(params.vehicleYear || "2023", 10) || 2023,
