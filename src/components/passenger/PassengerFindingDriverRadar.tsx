@@ -3,17 +3,16 @@ import { createPortal } from "react-dom";
 import {
   X,
   AlertTriangle,
-  Bike,
-  Car,
   Clock,
   Compass,
-  QrCode,
-  Banknote,
   Radar,
-  Radio,
   Users,
+  Star,
+  Eye,
+  PhoneCall,
 } from "lucide-react";
 import { usePassengerRide } from "@/contexts/PassengerRideContext";
+import { useDriverSearchRealtime } from "@/hooks/useDriverSearchRealtime";
 import { CurrentSearchStatus } from "./CurrentSearchStatus";
 
 /**
@@ -39,6 +38,8 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
     dismissCancel,
     confirmCancel,
   } = usePassengerRide();
+
+  const { currentDriver, isTransitioning, hasActiveDriver } = useDriverSearchRealtime();
 
   // Determina onda atual (1, 2 ou 3) com fallback do estado
   const currentWave = useMemo(() => {
@@ -114,33 +115,6 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
   return (
     <>
       {/* ========================================================================= */}
-      {/* TOP BANNER FLUTUANTE DE DESPACHO PROGRESSIVO (LEALT RECOMENDADO/5.PNG)    */}
-      {/* ========================================================================= */}
-      <div className="fixed top-18 inset-x-3 z-40 max-w-sm mx-auto pointer-events-auto animate-in slide-in-from-top duration-300">
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-lg border border-slate-200/90 flex items-center gap-3 text-left">
-          {/* Ícone circular azul com pino */}
-          <div className="w-10 h-10 rounded-full bg-[#0088FF] text-white flex items-center justify-center shrink-0 shadow-xs">
-            <Compass className="w-5 h-5 animate-spin duration-3000 text-white" />
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <span className="text-xs sm:text-[13px] font-bold text-slate-900 truncate block">
-              Busca Metropolitana • Onda {currentWave}/3 ({waveDetails.radiusLabel})
-            </span>
-            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
-              <div
-                className="h-full bg-[#0088FF] rounded-full transition-all duration-1000 ease-out"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Ícone de grupo de motoristas */}
-          <Users className="w-5 h-5 text-slate-500 shrink-0" />
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
       {/* 1. RADAR CENTRAL EM 60 FPS (ONDAS DE BUSCA CONCÊNTRICAS EM #00C6FF)       */}
       {/* ========================================================================= */}
       <div
@@ -169,79 +143,188 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. GAVETA INFERIOR DE BUSCA PROGRESSIVA (LEALT RECOMENDADO/5.PNG)         */}
+      {/* 2. GAVETA INFERIOR DE BUSCA PROGRESSIVA COMPACTA & LIMPA (PADRÃO 99/UBER) */}
       {/* ========================================================================= */}
       <div
         data-hide-bottom-nav="true"
         className="w-full max-w-md mx-auto z-50 animate-in slide-in-from-bottom duration-300 mt-auto relative"
         style={{ zIndex: 100, ...({ elevation: 10 } as React.CSSProperties) }}
       >
-        <div className="bg-white rounded-t-[32px] shadow-2xl border-t border-slate-100 pt-3 pb-6 px-6 flex flex-col items-center text-center select-none">
+        <div className="bg-white rounded-t-[28px] shadow-2xl border-t border-slate-100/90 pt-2.5 pb-5 px-5 flex flex-col select-none">
           {/* DRAG HANDLE BAR */}
-          <div className="w-12 h-1.5 rounded-full bg-slate-300 mb-4" />
+          <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto mb-3" />
 
-          {/* ALVO CENTRAL DE MIRA COM PINO AZUL #0088FF (PADRÃO 5.PNG) */}
-          <div className="w-20 h-20 rounded-full bg-[#F0F7FF] flex items-center justify-center relative mb-3">
-            <div className="w-14 h-14 rounded-full bg-[#D8EDFF] flex items-center justify-center">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
-                  fill="#0088FF"
+          {/* CABEÇALHO LIMPO DA ONDA & BARRA DE PROGRESSO INTEGRADOS NO MODAL */}
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="flex h-2 w-2 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0088FF] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0088FF]" />
+              </span>
+              <span className="text-xs font-bold text-slate-800 truncate">
+                Busca Metropolitana • Onda {currentWave}/3
+              </span>
+            </div>
+            <span className="text-[11px] font-semibold text-slate-400 shrink-0">
+              {waveDetails.radiusLabel}
+            </span>
+          </div>
+
+          <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden mb-3">
+            <div
+              className="h-full bg-[#0088FF] rounded-full transition-all duration-1000 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+
+          {/* CONTAINER DA BUSCA / NOTIFICAÇÃO DO MOTORISTA COM CONTAGEM REGRESSIVA */}
+          {hasActiveDriver && currentDriver ? (
+            /* ESTADO 1: MOTORISTA ANALISANDO / VISUALIZANDO (CARD COMPACTO E ELEGANTE) */
+            <div
+              className={`w-full bg-slate-900 text-white rounded-2xl p-3 shadow-md border border-blue-500/40 flex items-center justify-between gap-3 mb-3 transition-all duration-300 ${
+                isTransitioning ? "opacity-75 scale-[0.98]" : "opacity-100 scale-100"
+              }`}
+            >
+              {/* Foto com badge radar */}
+              <div className="relative shrink-0">
+                <img
+                  src={currentDriver.avatarUrl}
+                  alt={currentDriver.firstName}
+                  className="w-11 h-11 rounded-xl object-cover border border-white/20 shadow-xs"
                 />
-                <circle cx="12" cy="9" r="3" fill="#FFFFFF" />
-              </svg>
+                <span className="absolute -bottom-1 -right-1 flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0088FF] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#0088FF] border-2 border-slate-900" />
+                </span>
+              </div>
+
+              {/* Dados do Motorista & Status da Análise */}
+              <div className="min-w-0 flex-1 text-left">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h4 className="text-xs font-black text-white leading-tight truncate">
+                    {currentDriver.firstName}
+                  </h4>
+                  <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 px-1 rounded flex items-center gap-0.5">
+                    <Star className="w-2.5 h-2.5 fill-amber-300 text-amber-300" />
+                    {typeof currentDriver.rating === "number" ? currentDriver.rating.toFixed(2) : "4.95"}
+                  </span>
+                  <span className="text-[10px] text-slate-300 font-semibold truncate flex items-center gap-0.5">
+                    <Clock className="w-2.5 h-2.5 text-blue-400" />
+                    ~{currentDriver.etaMinutes} min
+                  </span>
+                </div>
+
+                <p className="text-[11px] font-bold text-blue-300 mt-0.5 truncate flex items-center gap-1">
+                  {currentDriver.dispatchStatus === "DRIVER_VIEWING" ? (
+                    <Eye className="w-3.5 h-3.5 text-sky-300 shrink-0 animate-pulse" />
+                  ) : (
+                    <PhoneCall className="w-3.5 h-3.5 text-blue-400 shrink-0 animate-pulse" />
+                  )}
+                  <span>
+                    {currentDriver.dispatchStatus === "DRIVER_VIEWING"
+                      ? `${currentDriver.firstName} está verificando a rota...`
+                      : `${currentDriver.firstName} está analisando seu pedido...`}
+                  </span>
+                </p>
+
+                <span className="text-[10px] text-slate-400 block truncate">
+                  {currentDriver.vehicleModel} • {currentDriver.distanceKm} km
+                </span>
+              </div>
+
+              {/* Timer Circular Regressivo Compacto do Motorista */}
+              <div className="relative w-12 h-12 shrink-0 flex items-center justify-center">
+                <svg className="w-12 h-12 -rotate-90">
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="19"
+                    className="stroke-slate-800"
+                    strokeWidth="3"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="19"
+                    stroke="#0088FF"
+                    strokeWidth="3"
+                    fill="transparent"
+                    strokeDasharray="119.38"
+                    strokeDashoffset={
+                      119.38 -
+                      ((currentDriver.cascadeSecondsRemaining || 1) / 15) * 119.38
+                    }
+                    strokeLinecap="round"
+                    className="transition-all duration-1000 ease-linear"
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center justify-center">
+                  <span className="text-sm font-bold font-mono text-white leading-none">
+                    {currentDriver.cascadeSecondsRemaining}
+                  </span>
+                  <span className="text-[8px] font-bold text-blue-400 leading-none">s</span>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            /* ESTADO 2: BUSCANDO MOTORISTAS PRÓXIMOS (LAYOUT LIMPO E COMPACTO) */
+            <div className="w-full bg-slate-50/90 rounded-2xl p-3 border border-slate-200/80 flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1 text-left">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0088FF] border border-blue-200/80 flex items-center justify-center shrink-0">
+                  <Radar className="w-5 h-5 animate-spin duration-3000 text-[#0088FF]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold text-slate-900 leading-tight truncate">
+                    Buscando motoristas próximos...
+                  </h4>
+                  <p className="text-[11px] text-slate-500 font-medium leading-tight truncate mt-0.5">
+                    {waveDetails.message}
+                  </p>
+                </div>
+              </div>
 
-          {/* TÍTULO E SUBTÍTULO OFICIAIS */}
-          <h3 className="text-lg sm:text-xl font-bold text-brand-primary-deep leading-tight">
-            Buscando motoristas próximos...
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-500 font-normal mt-1 mb-4 max-w-xs leading-relaxed">
-            Estamos conectando você com os melhores motoristas da região. Aguarde um instante!
-          </p>
-
-          {/* TEMPORIZADOR CIRCULAR REGRESSIVO DE 60s (PADRÃO 5.PNG) */}
-          <div className="relative w-16 h-16 shrink-0 flex items-center justify-center my-1">
-            <svg className="w-16 h-16 -rotate-90">
-              <circle
-                cx="32"
-                cy="32"
-                r="26"
-                className="stroke-slate-100"
-                strokeWidth="4"
-                fill="transparent"
-              />
-              <circle
-                cx="32"
-                cy="32"
-                r="26"
-                stroke="var(--brand-primary-vibrant, #0088FF)"
-                strokeWidth="4"
-                fill="transparent"
-                strokeDasharray="163.3"
-                strokeDashoffset={163.3 - (totalCountdownPercent / 100) * 163.3}
-                strokeLinecap="round"
-                className="transition-all duration-1000 ease-linear"
-              />
-            </svg>
-            <div className="absolute flex flex-col items-center justify-center">
-              <span className="text-xl font-bold text-slate-900 leading-none">
-                {totalSecondsRemaining}
-              </span>
-              <span className="text-[10px] font-semibold text-slate-400 mt-0.5">
-                s
-              </span>
+              {/* Timer Circular Regressivo Geral de 60s */}
+              <div className="relative w-12 h-12 shrink-0 flex items-center justify-center">
+                <svg className="w-12 h-12 -rotate-90">
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="19"
+                    className="stroke-slate-200"
+                    strokeWidth="3"
+                    fill="transparent"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="19"
+                    stroke="#0088FF"
+                    strokeWidth="3"
+                    fill="transparent"
+                    strokeDasharray="119.38"
+                    strokeDashoffset={119.38 - (totalCountdownPercent / 100) * 119.38}
+                    strokeLinecap="round"
+                    className="transition-all duration-1000 ease-linear"
+                  />
+                </svg>
+                <div className="absolute flex flex-col items-center justify-center">
+                  <span className="text-sm font-bold text-slate-900 leading-none">
+                    {totalSecondsRemaining}
+                  </span>
+                  <span className="text-[8px] font-semibold text-slate-400 leading-none">s</span>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* BOTÃO OUTLINE VERMELHO DE CANCELAR BUSCA (PADRÃO 5.PNG) */}
+          {/* BOTÃO COMPACTO CANCELAR BUSCA */}
           <button
             type="button"
             onClick={requestCancel}
-            className="w-full h-14 mt-5 rounded-full border-2 border-brand-danger-red bg-white text-brand-danger-red hover:bg-rose-50 font-semibold text-base flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-xs"
+            className="w-full h-11 rounded-full border border-rose-300 bg-white text-rose-600 hover:bg-rose-50 font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-[0.99] transition-all cursor-pointer shadow-2xs"
           >
-            <X className="w-5 h-5 stroke-[2.4]" />
+            <X className="w-4 h-4 stroke-[2.2]" />
             <span>Cancelar busca</span>
           </button>
         </div>

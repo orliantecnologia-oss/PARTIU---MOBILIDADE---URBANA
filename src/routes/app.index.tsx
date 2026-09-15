@@ -22,7 +22,6 @@ import { PassengerFindingDriverRadar } from "@/components/passenger/PassengerFin
 import { PassengerTimeoutBottomSheet } from "@/components/passenger/PassengerTimeoutBottomSheet";
 import { PassengerActiveRideCard } from "@/components/passenger/PassengerActiveRideCard";
 import { DriverEnRouteSheet } from "@/components/passenger/DriverEnRouteSheet";
-import { LiveRingingToast } from "@/components/passenger/LiveRingingToast";
 import { NetworkReconnectionBanner } from "@/components/passenger/NetworkReconnectionBanner";
 import { GpsPermissionModal } from "@/components/passenger/GpsPermissionModal";
 import { PartiuRideMap } from "@/components/maps/PartiuRideMap";
@@ -423,9 +422,8 @@ function PartiuPassengerHomeContent() {
 
   return (
     <div className="relative w-full h-[100dvh] max-h-[100dvh] bg-[#f1f3f4] overflow-hidden font-sans select-none flex flex-col">
-      {/* BANNER DE RESILIÊNCIA DE REDE & TOAST FLUTUANTE DE RINGING */}
+      {/* BANNER DE RESILIÊNCIA DE REDE */}
       <NetworkReconnectionBanner />
-      <LiveRingingToast />
       <GpsPermissionModal />
 
       {/* ========================================================================= */}
