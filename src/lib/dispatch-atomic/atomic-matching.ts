@@ -59,11 +59,13 @@ export class AtomicMatchingEngine {
     }
 
     // 2. Tentativa primária no Supabase via RPC atômica (FOR UPDATE NOWAIT)
-    if (isSupabaseConfigured() && UUID_REGEX.test(rideId) && UUID_REGEX.test(motorista.id)) {
+    if (isSupabaseConfigured() && rideId && motorista.id) {
       try {
         const { data, error } = await (supabase as any).rpc('partiu_aceitar_corrida_atomica', {
           p_corrida_id: rideId,
           p_motorista_id: motorista.id,
+          p_motorista_nome: motorista.nome || 'Motorista Parceiro',
+          p_motorista_telefone: motorista.telefone || '',
         });
 
         if (!error && data) {

@@ -10,5 +10,9 @@
   --brand-status-green: #22C55E;     /* Indicadores de ONLINE, confirmação de embarque */
   --brand-danger-red: #EF4444;       /* Central de Emergência / SOS 190, recusa e cancelamento */
   --brand-border-subtle: #E2E8F0;    /* Bordas finas de cartões e inputs (slate-200) */
+  --brand-border-active: #D0E6FF;    /* Bordas de inputs ativos e caixas de PIN */
   --brand-pill-bg: #F1F5F9;          /* Fundo de chips e metadados secundários (slate-100) */
+  --brand-soft: #F0F7FF;             /* Superfície suave azul de busca e cards de métricas */
+  --brand-surface-highlight: #E8F4FD;/* Destaque das caixas de dígitos de PIN e chips */
+  --brand-dark-navy: #0A2342;        /* Títulos de alto contraste no cockpit */
 }

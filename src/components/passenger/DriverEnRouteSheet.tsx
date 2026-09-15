@@ -34,7 +34,7 @@ const DriverProfileModal = lazy(() =>
 /**
  * Ícone estilizado de sirene de emergência SOS
  */
-function SirenIcon({ className = "w-5 h-5 text-[#EF4444]" }: { className?: string }) {
+function SirenIcon({ className = "w-5 h-5 text-brand-danger-red" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -59,7 +59,7 @@ function SirenIcon({ className = "w-5 h-5 text-[#EF4444]" }: { className?: strin
 /**
  * Ícone diamante do PIX D+0 em verde esmeralda (#10B981)
  */
-function PixDiamondIcon({ className = "w-6 h-6 text-[#10B981]" }: { className?: string }) {
+function PixDiamondIcon({ className = "w-6 h-6 text-brand-status-green" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
       <path d="M16.9 7.1a2 2 0 0 0-2.8 0l-2.1 2.1-2.1-2.1a2 2 0 0 0-2.8 2.8l2.1 2.1-2.1 2.1a2 2 0 0 0 2.8 2.8l2.1-2.1 2.1 2.1a2 2 0 0 0 2.8-2.8l-2.1-2.1 2.1-2.1a2 2 0 0 0 0-2.8z" />
@@ -270,7 +270,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             <AlertTriangle className="w-7 h-7" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-[#003366]">
+            <h3 className="text-base font-semibold text-brand-primary-deep">
               O motorista precisou cancelar
             </h3>
             <p className="text-xs text-slate-600 mt-1">
@@ -282,7 +282,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             <button
               type="button"
               onClick={retrySearchAfterTimeout}
-              className="w-full h-14 rounded-full bg-gradient-to-r from-[#0088FF] to-[#003366] text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer hover:brightness-105"
+              className="w-full h-14 rounded-full bg-gradient-to-r from-brand-primary-vibrant to-brand-primary-deep text-white font-bold text-sm flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all touch-manipulation cursor-pointer hover:brightness-105"
             >
               <RotateCcw className="w-4 h-4 text-white" />
               <span>Procurar Outro Motorista</span>
@@ -320,7 +320,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-[#003366]">Viagem concluída!</h2>
+              <h2 className="text-2xl font-bold text-brand-primary-deep">Viagem concluída!</h2>
               <p className="text-sm text-slate-500 mt-1">Obrigado por viajar com a gente!</p>
             </div>
 
@@ -329,14 +329,14 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               <div className="flex items-center justify-between">
                 <div className="space-y-2 flex-1 min-w-0 pr-3">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#0088FF] shrink-0" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-brand-primary-vibrant shrink-0" />
                     <div className="min-w-0">
                       <span className="text-[10px] text-slate-400 font-medium uppercase block">Origem</span>
                       <span className="text-xs font-semibold text-slate-800 truncate block">Centro, Itaperuna - RJ</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-3 h-3 text-[#0088FF] shrink-0" />
+                    <MapPin className="w-3 h-3 text-brand-primary-vibrant shrink-0" />
                     <div className="min-w-0">
                       <span className="text-[10px] text-slate-400 font-medium uppercase block">Destino</span>
                       <span className="text-xs font-semibold text-slate-800 truncate block">{destino || "Hospital São José"}</span>
@@ -346,7 +346,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
 
                 <div className="border-l border-slate-100 pl-4 text-right shrink-0">
                   <span className="text-[11px] text-slate-500 font-medium block">Valor da corrida</span>
-                  <div className="text-2xl font-bold text-[#003366] leading-tight">
+                  <div className="text-2xl font-bold text-brand-primary-deep leading-tight">
                     {valorCorridaFormatado}
                   </div>
                   <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-semibold">
@@ -366,7 +366,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                   className="w-12 h-12 rounded-full object-cover shadow-sm ring-2 ring-slate-100 shrink-0"
                 />
                 <div className="min-w-0">
-                  <h4 className="text-sm font-bold text-[#003366] truncate">{driverName}</h4>
+                  <h4 className="text-sm font-bold text-brand-primary-deep truncate">{driverName}</h4>
                   <div className="flex items-center gap-1 text-xs text-slate-700 font-semibold mt-0.5">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
                     <span>{Number(rating).toFixed(2)}</span>
@@ -387,7 +387,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
 
             {/* Seletor de Avaliação 5 Estrelas (8.png) */}
             <div className="space-y-2 pt-1">
-              <h3 className="text-base font-bold text-[#003366]">Como foi sua experiência?</h3>
+              <h3 className="text-base font-bold text-brand-primary-deep">Como foi sua experiência?</h3>
               <p className="text-xs text-slate-500">Sua avaliação ajuda a melhorar o nosso serviço.</p>
               <div className="flex items-center justify-center gap-2 pt-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -413,13 +413,13 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             </div>
 
             {/* Sugestão de Gorjeta Opcional (8.png) */}
-            <div className="bg-[#F0F7FF] rounded-2xl p-4 border border-[#D0E6FF] text-left space-y-3">
+            <div className="bg-brand-soft rounded-2xl p-4 border border-brand-border-active text-left space-y-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-[#0088FF] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-8 h-8 rounded-full bg-brand-primary-vibrant text-white flex items-center justify-center font-bold text-xs shrink-0">
                   $
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-[#003366]">Gostaria de dar uma gorjeta?</h4>
+                  <h4 className="text-xs font-bold text-brand-primary-deep">Gostaria de dar uma gorjeta?</h4>
                   <p className="text-[11px] text-slate-500">É opcional, mas faz toda a diferença!</p>
                 </div>
               </div>
@@ -435,7 +435,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                     }}
                     className={`h-11 rounded-xl font-bold text-xs transition-all cursor-pointer ${
                       selectedTip === val
-                        ? "bg-[#0088FF] text-white shadow-sm"
+                        ? "bg-brand-primary-vibrant text-white shadow-sm"
                         : "bg-white text-slate-700 hover:bg-slate-50 border border-slate-200"
                     }`}
                   >
@@ -451,7 +451,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             <button
               type="button"
               onClick={handleConcluirAvaliacao}
-              className="w-full h-14 rounded-full bg-gradient-to-r from-[#0088FF] to-[#003366] text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 active:scale-95 transition-all touch-manipulation cursor-pointer hover:brightness-105"
+              className="w-full h-14 rounded-full bg-gradient-to-r from-brand-primary-vibrant to-brand-primary-deep text-white font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 active:scale-95 transition-all touch-manipulation cursor-pointer hover:brightness-105"
             >
               <span>Concluir Avaliação</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -495,11 +495,11 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
         {isEmViagem ? (
           <div className="bg-white rounded-2xl p-3.5 shadow-lg border border-slate-100 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-[#0088FF] text-white flex items-center justify-center shrink-0 shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-brand-primary-vibrant text-white flex items-center justify-center shrink-0 shadow-sm">
                 <MapPin className="w-5 h-5 fill-white" />
               </div>
               <div className="min-w-0">
-                <h4 className="text-sm font-bold text-[#003366] leading-tight">
+                <h4 className="text-sm font-bold text-brand-primary-deep leading-tight">
                   Chegada em {etaLabel}
                 </h4>
                 <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -512,7 +512,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               <Clock className="w-4 h-4 text-slate-400" />
               <div className="text-right">
                 <span className="text-[10px] text-slate-400 font-medium uppercase block">Status</span>
-                <span className="text-xs font-semibold text-[#003366] block">Em andamento</span>
+                <span className="text-xs font-semibold text-brand-primary-deep block">Em andamento</span>
               </div>
             </div>
           </div>
@@ -530,7 +530,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1">
-                  <span className="text-xs sm:text-sm font-bold text-[#003366] truncate">{driverName}</span>
+                  <span className="text-xs sm:text-sm font-bold text-brand-primary-deep truncate">{driverName}</span>
                 </div>
                 <div className="flex items-center gap-1 text-xs text-slate-700 font-semibold mt-0.2">
                   <Star className="w-3 h-3 fill-amber-400 text-amber-400 shrink-0" />
@@ -553,10 +553,10 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
 
               <div className="border-l border-slate-100 pl-2 text-right">
                 <div className="flex items-center justify-end gap-1 text-[10px] text-slate-400 font-medium">
-                  <Clock className="w-3 h-3 text-[#0088FF]" />
+                  <Clock className="w-3 h-3 text-brand-primary-vibrant" />
                   <span>Chegando em</span>
                 </div>
-                <div className="text-base font-extrabold text-[#003366] leading-tight">
+                <div className="text-base font-extrabold text-brand-primary-deep leading-tight">
                   {etaLabel}
                 </div>
               </div>
@@ -590,7 +590,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                     className="w-12 h-12 rounded-full object-cover shadow-sm ring-1 ring-slate-100 shrink-0"
                   />
                   <div className="min-w-0">
-                    <h4 className="text-base font-bold text-[#003366] truncate">{driverName}</h4>
+                    <h4 className="text-base font-bold text-brand-primary-deep truncate">{driverName}</h4>
                     <div className="flex items-center gap-1 text-xs text-slate-700 font-semibold">
                       <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400 shrink-0" />
                       <span>{Number(rating).toFixed(2)}</span>
@@ -610,20 +610,20 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               </div>
 
               {/* Card Categoria & Preço Estimado (7.png) */}
-              <div className="bg-[#F0F7FF] rounded-2xl p-4 border border-[#D0E6FF] flex items-center justify-between">
+              <div className="bg-brand-soft rounded-2xl p-4 border border-brand-border-active flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#0088FF] text-white flex items-center justify-center shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-brand-primary-vibrant text-white flex items-center justify-center shrink-0">
                     <span className="text-lg">🚗</span>
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-[#003366]">Partiu Pop</h4>
+                    <h4 className="text-sm font-bold text-brand-primary-deep">Partiu Pop</h4>
                     <p className="text-xs text-slate-500">Viagem econômica</p>
                   </div>
                 </div>
 
-                <div className="border-l border-[#D0E6FF] pl-4 text-right">
+                <div className="border-l border-brand-border-active pl-4 text-right">
                   <span className="text-[10px] text-slate-400 font-medium uppercase block">Valor estimado</span>
-                  <div className="text-xl font-bold text-[#003366] leading-tight">
+                  <div className="text-xl font-bold text-brand-primary-deep leading-tight">
                     {valorCorridaFormatado}
                   </div>
                 </div>
@@ -640,7 +640,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 </div>
 
                 <div className="flex items-center gap-2 min-w-0 pl-3 border-l border-slate-100">
-                  <MapPin className="w-4 h-4 text-[#0088FF] shrink-0" />
+                  <MapPin className="w-4 h-4 text-brand-primary-vibrant shrink-0" />
                   <div className="truncate">
                     <span className="text-slate-500 block text-[10px]">Destino</span>
                     <span className="font-semibold text-slate-800 truncate block">{destino || "Hospital São José"}</span>
@@ -668,7 +668,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                       navigator.clipboard.writeText(`${shareText} ${window.location.href}`);
                     }
                   }}
-                  className="h-14 rounded-full border-2 border-[#0088FF] text-[#0088FF] hover:bg-blue-50 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+                  className="h-14 rounded-full border-2 border-brand-primary-vibrant text-brand-primary-vibrant hover:bg-blue-50 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
                 >
                   <Share2 className="w-4 h-4" />
                   <span>Compartilhar trajeto</span>
@@ -681,9 +681,9 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                     hapticFeedback.warning();
                     setIsSafetyCenterOpen(true);
                   }}
-                  className="h-14 rounded-full border-2 border-[#EF4444] text-[#EF4444] hover:bg-rose-50 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+                  className="h-14 rounded-full border-2 border-brand-danger-red text-brand-danger-red hover:bg-rose-50 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
                 >
-                  <SirenIcon className="w-4 h-4 text-[#EF4444]" />
+                  <SirenIcon className="w-4 h-4 text-brand-danger-red" />
                   <span>SOS Central</span>
                 </button>
               </div>
@@ -695,11 +695,11 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
             <div className="space-y-4">
               {/* Header do PIN de Segurança (6.png) */}
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#0088FF] text-white flex items-center justify-center shadow-md shadow-blue-500/20 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-brand-primary-vibrant text-white flex items-center justify-center shadow-md shadow-brand-primary-vibrant/20 shrink-0">
                   <Lock className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[#003366] leading-tight">
+                  <h3 className="text-lg font-bold text-brand-primary-deep leading-tight">
                     Seu PIN de segurança
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
@@ -713,7 +713,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                 {pinDigits.map((digit, idx) => (
                   <div
                     key={idx}
-                    className="h-16 rounded-2xl bg-[#E8F4FD] border border-[#D0E6FF] flex items-center justify-center text-3xl font-extrabold text-[#003366] shadow-xs"
+                    className="h-16 rounded-2xl bg-brand-surface-highlight border border-brand-border-active flex items-center justify-center text-3xl font-extrabold text-brand-primary-deep shadow-xs"
                   >
                     {digit}
                   </div>
@@ -723,12 +723,12 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
               {/* Linha de Forma de Pagamento PIX D+0 (6.png) */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between py-2">
                 <div className="flex items-center gap-3">
-                  <PixDiamondIcon className="w-7 h-7 text-[#10B981]" />
+                  <PixDiamondIcon className="w-7 h-7 text-brand-status-green" />
                   <div>
                     <span className="text-[11px] text-slate-400 font-medium block">
-                      Forma de pagamento
+                       Forma de pagamento
                     </span>
-                    <span className="text-sm font-bold text-[#003366] block">
+                    <span className="text-sm font-bold text-brand-primary-deep block">
                       {formaPagamento === "dinheiro" ? "Dinheiro" : "PIX D+0"}
                     </span>
                   </div>
@@ -744,9 +744,9 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                   hapticFeedback.warning();
                   setIsSafetyCenterOpen(true);
                 }}
-                className="w-full h-14 rounded-full border-2 border-[#EF4444] text-[#EF4444] hover:bg-rose-50 font-semibold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-95 cursor-pointer shadow-xs"
+                className="w-full h-14 rounded-full border-2 border-brand-danger-red text-brand-danger-red hover:bg-rose-50 font-semibold text-sm flex items-center justify-center gap-2.5 transition-all active:scale-95 cursor-pointer shadow-xs"
               >
-                <SirenIcon className="w-5 h-5 text-[#EF4444]" />
+                <SirenIcon className="w-5 h-5 text-brand-danger-red" />
                 <span>Central de Segurança / SOS</span>
               </button>
 
@@ -769,7 +769,7 @@ export const DriverEnRouteSheet = memo(function DriverEnRouteSheet() {
                     hapticFeedback.light();
                     setIsChatOpen(true);
                   }}
-                  className="flex-1 h-11 rounded-xl bg-[#0088FF] hover:bg-[#0077EE] text-white font-semibold flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition relative cursor-pointer"
+                  className="flex-1 h-11 rounded-xl bg-brand-primary-vibrant hover:brightness-105 text-white font-semibold flex items-center justify-center gap-1.5 shadow-xs active:scale-95 transition relative cursor-pointer"
                 >
                   <MessageCircle className="w-3.5 h-3.5 text-white" />
                   <span>Mensagem</span>

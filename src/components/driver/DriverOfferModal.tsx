@@ -134,7 +134,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
               cx="48"
               cy="48"
               r={circleRadius}
-              stroke="#0088FF"
+              stroke="var(--brand-primary-vibrant, #0088FF)"
               strokeWidth="5.5"
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashoffset}
@@ -144,10 +144,10 @@ export const DriverOfferModal = memo(function DriverOfferModal({
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <span className="text-3xl font-extrabold text-[#0088FF] leading-none tracking-tight">
+            <span className="text-3xl font-extrabold text-brand-primary-vibrant leading-none tracking-tight">
               {secondsRemaining}
             </span>
-            <span className="text-xs font-bold text-[#0088FF] -mt-0.5">seg</span>
+            <span className="text-xs font-bold text-brand-primary-vibrant -mt-0.5">seg</span>
           </div>
         </div>
 
@@ -156,7 +156,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
           <span className="text-sm text-slate-500 font-medium block">
             Ganhos líquidos do motorista
           </span>
-          <div className="text-4xl sm:text-5xl font-black text-[#003366] tracking-tight leading-tight my-1">
+          <div className="text-4xl sm:text-5xl font-black text-brand-primary-deep tracking-tight leading-tight my-1">
             {oferta.valorLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </div>
         </div>
@@ -164,9 +164,9 @@ export const DriverOfferModal = memo(function DriverOfferModal({
         {/* 3. 3 CARDS DE MÉTRICAS EM #F0F7FF (12.png: TOTAL, EMBARQUE, PASSAGEIRO) */}
         <div className="grid grid-cols-3 gap-2.5 mb-4">
           {/* Card 1: Distância Total */}
-          <div className="bg-[#F0F7FF] rounded-2xl p-3 border border-[#D0E6FF]/60 text-center">
-            <MapPin className="w-5 h-5 mx-auto mb-1 text-[#0088FF] fill-[#0088FF]/10" />
-            <div className="text-sm sm:text-base font-bold text-[#003366] leading-tight">
+          <div className="bg-brand-soft rounded-2xl p-3 border border-brand-border-active/60 text-center">
+            <MapPin className="w-5 h-5 mx-auto mb-1 text-brand-primary-vibrant fill-brand-primary-vibrant/10" />
+            <div className="text-sm sm:text-base font-bold text-brand-primary-deep leading-tight">
               {distanciaViagemTexto}
             </div>
             <div className="text-[11px] text-slate-400 font-medium mt-0.5">
@@ -175,9 +175,9 @@ export const DriverOfferModal = memo(function DriverOfferModal({
           </div>
 
           {/* Card 2: Tempo até embarque */}
-          <div className="bg-[#F0F7FF] rounded-2xl p-3 border border-[#D0E6FF]/60 text-center">
-            <Clock className="w-5 h-5 mx-auto mb-1 text-[#0088FF]" />
-            <div className="text-sm sm:text-base font-bold text-[#003366] leading-tight">
+          <div className="bg-brand-soft rounded-2xl p-3 border border-brand-border-active/60 text-center">
+            <Clock className="w-5 h-5 mx-auto mb-1 text-brand-primary-vibrant" />
+            <div className="text-sm sm:text-base font-bold text-brand-primary-deep leading-tight">
               {tempoEmbarqueMin} min
             </div>
             <div className="text-[11px] text-slate-400 font-medium mt-0.5">
@@ -186,12 +186,12 @@ export const DriverOfferModal = memo(function DriverOfferModal({
           </div>
 
           {/* Card 3: Nota do Passageiro */}
-          <div className="bg-[#F0F7FF] rounded-2xl p-3 border border-[#D0E6FF]/60 text-center">
-            <Star className="w-5 h-5 mx-auto mb-1 text-[#0088FF] fill-[#0088FF]" />
+          <div className="bg-brand-soft rounded-2xl p-3 border border-brand-border-active/60 text-center">
+            <Star className="w-5 h-5 mx-auto mb-1 text-brand-primary-vibrant fill-brand-primary-vibrant" />
             <div className="text-[11px] text-slate-500 font-medium truncate">
               Passageiro
             </div>
-            <div className="text-sm sm:text-base font-bold text-[#003366] leading-tight mt-0.5 flex items-center justify-center gap-0.5">
+            <div className="text-sm sm:text-base font-bold text-brand-primary-deep leading-tight mt-0.5 flex items-center justify-center gap-0.5">
               <span>{notaFormatada}</span>
               <span className="text-amber-500">★</span>
             </div>
@@ -201,13 +201,13 @@ export const DriverOfferModal = memo(function DriverOfferModal({
         {/* 4. CARDS DE ENDEREÇO (12.png: LOCAL DE EMBARQUE & DESTINO) */}
         <div className="space-y-2.5 mb-5 text-left">
           {/* Local de Embarque (Borda Lateral Verde #10B981) */}
-          <div className="bg-[#F8FAFC] rounded-2xl p-3.5 flex items-center justify-between gap-3 border-l-4 border-[#10B981] shadow-2xs">
+          <div className="bg-brand-bg-neutral rounded-2xl p-3.5 flex items-center justify-between gap-3 border-l-4 border-brand-status-green shadow-2xs">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-[#10B981] text-white flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-brand-status-green text-white flex items-center justify-center shrink-0">
                 <User className="w-5 h-5" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-bold text-[#003366] block leading-tight">
+                <span className="text-xs font-bold text-brand-primary-deep block leading-tight">
                   Local de embarque
                 </span>
                 <span className="text-xs text-slate-500 truncate block mt-0.5">
@@ -219,13 +219,13 @@ export const DriverOfferModal = memo(function DriverOfferModal({
           </div>
 
           {/* Destino (Borda Lateral Vermelha #EF4444) */}
-          <div className="bg-[#F8FAFC] rounded-2xl p-3.5 flex items-center justify-between gap-3 border-l-4 border-[#EF4444] shadow-2xs">
+          <div className="bg-brand-bg-neutral rounded-2xl p-3.5 flex items-center justify-between gap-3 border-l-4 border-brand-danger-red shadow-2xs">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-[#EF4444] text-white flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-brand-danger-red text-white flex items-center justify-center shrink-0">
                 <MapPin className="w-5 h-5 fill-white" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-bold text-[#003366] block leading-tight">
+                <span className="text-xs font-bold text-brand-primary-deep block leading-tight">
                   Destino
                 </span>
                 <span className="text-xs text-slate-500 truncate block mt-0.5">
@@ -245,9 +245,9 @@ export const DriverOfferModal = memo(function DriverOfferModal({
           onMouseUp={handleTouchEnd}
           onTouchEnd={handleTouchEnd}
           style={{
-            background: "linear-gradient(90deg, #0088FF 0%, #003366 100%)",
+            background: "linear-gradient(90deg, var(--brand-primary-vibrant, #0088FF) 0%, var(--brand-primary-deep, #003366) 100%)",
           }}
-          className="relative w-full h-16 rounded-full p-2 flex items-center justify-center shadow-lg shadow-blue-500/25 select-none cursor-pointer overflow-hidden transition active:scale-[0.99]"
+          className="relative w-full h-16 rounded-full p-2 flex items-center justify-center shadow-lg shadow-brand-primary-vibrant/25 select-none cursor-pointer overflow-hidden transition active:scale-[0.99]"
           onClick={handleAccept}
         >
           {/* Rótulo Central */}
@@ -267,7 +267,7 @@ export const DriverOfferModal = memo(function DriverOfferModal({
               transform: `translateX(${sliderPosition}px)`,
               transition: isDragging.current ? "none" : "transform 0.2s ease-out",
             }}
-            className="absolute left-2 top-2 bottom-2 w-12 rounded-full bg-white text-[#0088FF] flex items-center justify-center shadow-md active:scale-95 transition"
+            className="absolute left-2 top-2 bottom-2 w-12 rounded-full bg-white text-brand-primary-vibrant flex items-center justify-center shadow-md active:scale-95 transition"
           >
             <ArrowRight className="w-5 h-5 stroke-[2.5]" />
           </div>

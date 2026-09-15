@@ -184,7 +184,13 @@ export class RealtimeConnectionManager {
 
   private startGhostPurge(): void {
     this.stopGhostPurge();
-    // Executa purge a cada 60s
+    // A purga de motoristas inativos é uma operação de manutenção do sistema.
+    // No cliente, executamos exclusivamente em contexto administrativo (/app/admin)
+    // a cada 5 minutos para evitar tempestades de queries causadas por passageiros e motoristas comuns.
+    if (typeof window !== "undefined" && !window.location.pathname.startsWith("/app/admin")) {
+      return;
+    }
+
     this.ghostPurgeInterval = setInterval(async () => {
       try {
         const { error } = await supabase.rpc("purge_ghost_drivers" as any);
@@ -192,7 +198,7 @@ export class RealtimeConnectionManager {
           // Fallback silencioso se o RPC ainda não foi aplicado na instância
         }
       } catch (_) {}
-    }, 60000);
+    }, 300000); // 5 minutos (restrito a operadores)
   }
 
   private stopGhostPurge(): void {

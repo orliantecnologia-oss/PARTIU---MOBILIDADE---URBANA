@@ -98,6 +98,8 @@ import { DriverOfferModal } from "@/components/driver/DriverOfferModal";
 import { driverLocationService } from "@/services/DriverLocationService";
 import { dispatchQueueBuilder } from "@/services/DispatchQueueBuilder";
 import { DeliveryPinNumpadBottomSheet } from "@/components/driver/DeliveryPinNumpadBottomSheet";
+import { DriverHeader } from "@/components/driver/cockpit/DriverHeader";
+import { DriverContextualBottomSheet } from "@/components/driver/cockpit/DriverContextualBottomSheet";
 import { DriverAccessGuard } from "@/components/driver/DriverAccessGuard";
 import { ChatBottomSheet } from "@/components/chat/ChatBottomSheet";
 import { DriverPixWithdrawalModal } from "@/components/driver/DriverPixWithdrawalModal";
@@ -116,7 +118,7 @@ import { driverConsecutiveRidesEngine } from "@/lib/driver/driver-consecutive-ri
 import { supabaseAuthService } from "@/lib/auth/supabase-auth-service";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 
-function SirenIcon({ className = "w-5 h-5 text-[#EF4444]" }: { className?: string }) {
+function SirenIcon({ className = "w-5 h-5 text-brand-danger-red" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -1166,148 +1168,20 @@ export function PartiuDriverCockpit() {
       />
 
       {/* ================================================================= */}
-      {/* 2. TOP HUD FLUTUANTE — LIGHT THEME EM 2 LINHAS (PADRÃO 11.PNG)    */}
+      {/* 2. DRIVER HEADER MINIMALISTA & OPERACIONAL                        */}
       {/* ================================================================= */}
-      <header className="absolute top-0 inset-x-0 z-30 pt-[max(0.6rem,env(safe-area-inset-top))] px-3 pb-2 pointer-events-none space-y-2.5">
-        {/* SLIM APP BAR (Superior com PartiuLogo Centralizado) */}
-        <div className="flex items-center justify-between pointer-events-auto bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-slate-200/80 shadow-xs">
-          {/* Menu Hambúrguer */}
-          <button
-            type="button"
-            onClick={() => setModalPerfilMotorista(true)}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95 transition cursor-pointer"
-            aria-label="Abrir menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-
-          {/* Logo PARTIU Centralizado (11.png) */}
-          <div className="flex items-center justify-center">
-            <PartiuLogo variant="full" size="md" />
-          </div>
-
-          {/* Ações da Direita: Áudio + Notificações */}
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={toggleSom}
-              className={`w-8 h-8 rounded-xl flex items-center justify-center transition active:scale-90 cursor-pointer ${
-                somAtivo ? "text-[#0088FF] hover:bg-blue-50" : "text-slate-400 hover:bg-slate-100"
-              }`}
-              title={somAtivo ? "Som ativado" : "Som silenciado"}
-              aria-label="Controle de áudio"
-            >
-              {somAtivo ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-            </button>
-            <button
-              type="button"
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95 transition relative cursor-pointer"
-              aria-label="Notificações"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#0088FF]" />
-            </button>
-          </div>
-        </div>
-
-        {/* CARD HUD EM 2 LINHAS (11.png: Superfície Branca, Bordas Sutis) */}
-        <div className="pointer-events-auto bg-white/98 backdrop-blur-md rounded-3xl border border-slate-100 shadow-md p-4 space-y-3">
-          {/* LINHA 1: Avatar + Nota + Pill ONLINE (11.png) */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <img
-                src={perfilMotorista.fotoUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80"}
-                alt={perfilMotorista.nome || "Carlos Silva"}
-                className="w-13 h-13 rounded-full object-cover shadow-xs border-2 border-slate-100"
-              />
-              <div className="flex items-center gap-1.5">
-                <Star className="w-5 h-5 fill-amber-400 text-amber-400 shrink-0" />
-                <span className="text-[#003366] font-bold text-xl">{perfilMotorista.rating?.toFixed(2) || "4.98"}</span>
-              </div>
-            </div>
-
-            {/* Toggle Mestre Online / Offline (11.png: Pill Verde ONLINE) */}
-            <button
-              type="button"
-              onClick={handleToggleOnline}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0 ${
-                isOnline
-                  ? "bg-[#10B981] text-white hover:bg-emerald-600"
-                  : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-              }`}
-            >
-              <span
-                className={`w-2.5 h-2.5 rounded-full ${
-                  isOnline ? "bg-white animate-pulse" : "bg-slate-500"
-                }`}
-              />
-              <span className="tracking-wider uppercase">{isOnline ? "ONLINE" : "OFFLINE"}</span>
-            </button>
-          </div>
-
-          {/* LINHA 2: 3 Colunas Equilibradas (11.png: Ganhos Hoje, Corridas, Aceite) */}
-          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 items-center text-left">
-            {/* Coluna 1: Ganhos Hoje */}
-            <button
-              type="button"
-              onClick={handleAbrirModalSaquePix}
-              className="text-left active:scale-95 transition cursor-pointer flex items-start gap-2 group"
-              title="Solicitar Saque PIX D+0"
-            >
-              <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 mt-0.5 border border-slate-100">
-                <Wallet className="w-4 h-4 text-[#003366]" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] text-slate-500 font-medium block truncate">Ganhos Hoje:</span>
-                <div className="text-sm sm:text-base font-extrabold text-[#003366] leading-tight truncate">
-                  {ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                </div>
-                <span className="inline-block text-[9px] font-bold text-[#0088FF] bg-[#E8F4FD] px-1.5 py-0.2 rounded mt-0.5">
-                  D+0 PIX
-                </span>
-              </div>
-            </button>
-
-            {/* Coluna 2: Corridas */}
-            <div className="flex items-start gap-2 border-x border-slate-100 px-2">
-              <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 mt-0.5 border border-slate-100">
-                <Car className="w-4 h-4 text-[#003366]" />
-              </div>
-              <div>
-                <div className="text-sm sm:text-base font-extrabold text-[#003366] leading-tight">
-                  {corridasFeitas || 12}
-                </div>
-                <span className="text-[10px] text-slate-500 font-medium block">Corridas</span>
-              </div>
-            </div>
-
-            {/* Coluna 3: Aceite */}
-            <div className="flex items-start gap-2 pl-2">
-              <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 mt-0.5 border border-slate-100">
-                <CheckCircle2 className="w-4 h-4 text-[#003366]" />
-              </div>
-              <div>
-                <div className="text-sm sm:text-base font-extrabold text-[#003366] leading-tight">
-                  98%
-                </div>
-                <span className="text-[10px] text-slate-500 font-medium block">Aceite</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* PÍLULA FLUTUANTE DE TELEMETRIA GPS DEADBAND (11.png) */}
-        <div className="pointer-events-auto flex items-center justify-center">
-          <div className="bg-gradient-to-r from-[#0088FF] to-[#0066CC] text-white px-5 py-2 rounded-full text-xs font-medium shadow-md flex items-center gap-2">
-            <span className="text-sm">((•))</span>
-            <span>Telemetria Deadband Ativa (30m / 5s)</span>
-          </div>
-        </div>
-      </header>
+      <DriverHeader
+        isOnline={isOnline}
+        somAtivo={somAtivo}
+        onToggleSom={toggleSom}
+        onOpenMenu={() => setModalPerfilMotorista(true)}
+        onOpenNotifications={() => alert("Central de notificações operacionais")}
+        unreadNotifications={false}
+      />
 
       {/* Alerta de Moderação Documental Pendente / Rejeitada */}
       {driverApprovalStatus === "pendente" && (
-        <div className="absolute top-[5.5rem] inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-amber-500 text-slate-950 text-xs font-semibold shadow-2xl flex items-start gap-3 border border-amber-400 animate-in slide-in-from-top duration-200">
+        <div className="absolute top-[4.5rem] inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-amber-500 text-slate-950 text-xs font-semibold shadow-2xl flex items-start gap-3 border border-amber-400 animate-in slide-in-from-top duration-200">
           <Clock className="w-5 h-5 text-slate-950 shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="flex items-center justify-between gap-2">
@@ -1326,7 +1200,7 @@ export function PartiuDriverCockpit() {
       )}
 
       {driverApprovalStatus === "rejeitado" && (
-        <div className="absolute top-[5.5rem] inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-start gap-3 border border-rose-500 animate-in slide-in-from-top duration-200">
+        <div className="absolute top-[4.5rem] inset-x-3 z-40 max-w-lg mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-start gap-3 border border-rose-500 animate-in slide-in-from-top duration-200">
           <AlertTriangle className="w-5 h-5 text-white shrink-0 mt-0.5" />
           <div className="flex-1">
             <div className="flex items-center justify-between gap-2">
@@ -1346,7 +1220,7 @@ export function PartiuDriverCockpit() {
 
       {/* Alerta de Suspensão por Inadimplência (Fase 19) */}
       {(subscription.status === "SUSPENDED" || subscription.status === "REACTIVATION_REQUIRED") && (
-        <div className="absolute top-[5.5rem] inset-x-3 z-40 max-w-md mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-center justify-between animate-in slide-in-from-top duration-200">
+        <div className="absolute top-[4.5rem] inset-x-3 z-40 max-w-md mx-auto p-3.5 rounded-2xl bg-rose-600 text-white text-xs font-semibold shadow-2xl flex items-center justify-between animate-in slide-in-from-top duration-200">
           <div className="flex items-center gap-2">
             <span className="text-base">🚨</span>
             <div>
@@ -1368,7 +1242,7 @@ export function PartiuDriverCockpit() {
 
       {/* Alerta de Elegibilidade do Condutor (Se Bloqueado/Suspenso/CNH Vencida) */}
       {erroElegibilidade && !(subscription.status === "SUSPENDED" || subscription.status === "REACTIVATION_REQUIRED") && (
-        <div className="absolute top-[5.5rem] inset-x-3 z-40 max-w-md mx-auto p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold shadow-lg flex items-center justify-between animate-in slide-in-from-top duration-200">
+        <div className="absolute top-[4.5rem] inset-x-3 z-40 max-w-md mx-auto p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold shadow-lg flex items-center justify-between animate-in slide-in-from-top duration-200">
           <span>⚠️ {erroElegibilidade}</span>
           <button
             type="button"
@@ -1381,864 +1255,56 @@ export function PartiuDriverCockpit() {
       )}
 
       {/* ================================================================= */}
-      {/* 3. GAVETAS OPERACIONAIS EM BRANCO VIDRO COM DESIGN DO PASSAGEIRO */}
+      {/* 3. CONTEXTUAL BOTTOM SHEET (DIRIGIDO PELO ESTADO OPERACIONAL)     */}
       {/* ================================================================= */}
-      <div data-hide-bottom-nav="true" className="absolute bottom-0 inset-x-0 z-40 pb-[max(1.25rem,env(safe-area-inset-bottom))] px-3 sm:px-4 max-w-lg mx-auto pointer-events-auto">
-        {/* ESTADO 1: IDLE / AGUARDANDO OFERTA (Trip Radar Ativo no Mapa) */}
-        {estadoCockpit === "IDLE" && (
-          <div className="p-4 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200 shadow-[0_16px_50px_rgba(0,0,0,0.18)] space-y-2.5 animate-in slide-in-from-bottom duration-300">
-            {/* Barra tátil de puxar */}
-            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto mb-1" />
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
-                <h3 className="text-sm font-black text-slate-950">Trip Radar em Busca</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setModalPlanosAberto(true)}
-                style={{ backgroundColor: `${corPrimaria}10`, color: corPrimaria, borderColor: `${corPrimaria}25` }}
-                className="text-[10px] font-bold px-2 py-0.5 rounded-full border transition hover:opacity-80"
-              >
-                Plano {driverPlan?.name || "Bronze"} ({driverPlan?.commissionPercent || 5}%) • Alterar
-              </button>
-            </div>
-
-            {/* WIDGET: MODO DESTINO ("IR PARA CASA") */}
-            {destinoAtivo ? (
-              <div
-                className="p-2.5 rounded-2xl flex items-center justify-between text-xs border"
-                style={{
-                  backgroundColor: `${accentColor}10`,
-                  borderColor: `${accentColor}30`,
-                }}
-              >
-                <div className="flex items-center gap-2 min-w-0 pr-2">
-                  <span className="text-sm">🎯</span>
-                  <div className="min-w-0">
-                    <span
-                      className="text-[10px] font-bold uppercase tracking-wider block"
-                      style={{ color: corPrimaria }}
-                    >
-                      Modo Destino Ativo
-                    </span>
-                    <span className="font-black text-slate-900 truncate block">
-                      {destinoAtivo.address}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    driverDestinationModeService.clearDestination(perfilMotorista.id);
-                    setDestinoAtivo(null);
-                  }}
-                  className="px-2 py-1 rounded-xl bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-[11px] font-black shrink-0 transition"
-                  title="Desativar Modo Destino"
-                >
-                  ✕ Cancelar
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setModalModoDestino(true)}
-                className="w-full py-2 px-3 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold flex items-center justify-between transition cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">🎯</span>
-                  <span>Definir Destino ("Ir para Casa")</span>
-                </div>
-                <span
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-full border"
-                  style={{
-                    backgroundColor: `${corPrimaria}10`,
-                    color: corPrimaria,
-                    borderColor: `${corPrimaria}20`,
-                  }}
-                >
-                  {driverDestinationModeService.getRemainingUses(perfilMotorista.id)} restantes
-                </span>
-              </button>
-            )}
-
-            {/* NOVIDADE 2026: TAXÍMETRO VIRTUAL INTELIGENTE ("CORRIDA DE RUA") */}
-            <button
-              type="button"
-              onClick={() => setModalTaximetro(true)}
-              className="w-full py-2.5 px-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-900 text-xs font-bold flex items-center justify-between transition cursor-pointer shadow-2xs group"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-200/60">
-                  <span className="text-sm">⏱️</span>
-                </div>
-                <div className="text-left">
-                  <span className="block font-black text-slate-900 group-hover:text-blue-700 transition-colors">Taxímetro Virtual (Corrida na Rua)</span>
-                  <span className="text-[10.5px] text-slate-500 font-medium">Pegar passageiro sem app • PIX instantâneo</span>
-                </div>
-              </div>
-              <span
-                className="text-[10px] font-black px-2 py-0.5 rounded-full border shadow-2xs"
-                style={{
-                  backgroundColor: `${corPrimaria}15`,
-                  color: corPrimaria,
-                  borderColor: `${corPrimaria}30`,
-                }}
-              >
-                NOVO
-              </span>
-            </button>
-
-            {/* AUDITORIA 10: WIDGET OFICIAL ECONOMIA PARTIU */}
-            <div
-              className="p-3.5 rounded-2xl border space-y-1.5"
-              style={{
-                background: `linear-gradient(135deg, ${corPrimaria}08 0%, ${corSecundaria}12 100%)`,
-                borderColor: `${corPrimaria}25`,
-              }}
-            >
-              <div className="flex items-center justify-between">
-                <span
-                  className="text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5"
-                  style={{ color: corPrimaria }}
-                >
-                  <PiggyBank className="w-4 h-4" style={{ color: accentColor }} />
-                  <span>Economia {nomeApp} (Mês Atual)</span>
-                </span>
-                <span className="text-[10px] font-bold text-slate-500">
-                  {corridasFeitas} corridas hoje
-                </span>
-              </div>
-              <div className="flex items-baseline justify-between">
-                <div>
-                  <span
-                    className="text-xl font-black"
-                    style={{ color: corPrimaria }}
-                  >
-                    +{wallet.totalSavingsVersusUberBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                  </span>
-                  <span className="text-[10px] text-slate-600 font-medium block">
-                    guardados no seu bolso comparado à taxa de 20%
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setModalEconomiaAberto(true)}
-                  style={{ color: corPrimaria }}
-                  className="text-[11px] font-bold hover:underline flex items-center gap-0.5"
-                >
-                  <span>Ver Detalhes</span>
-                  <ArrowUpRight className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-
-            {/* Inadimplência ou Carência Aviso */}
-            {subscription.status === "GRACE_PERIOD" && (
-              <div
-                className="p-2.5 rounded-xl border text-[11px] flex items-center justify-between"
-                style={{
-                  backgroundColor: `${corPrimaria}08`,
-                  borderColor: `${corPrimaria}25`,
-                  color: corPrimaria,
-                }}
-              >
-                <span>⚠️ Mensalidade em carência ({subscription.accumulatedDebtBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}). Regularize para evitar suspensão.</span>
-                <button
-                  type="button"
-                  onClick={() => setModalPlanosAberto(true)}
-                  className="font-bold underline shrink-0 ml-1"
-                  style={{ color: corPrimaria }}
-                >
-                  Pagar PIX
-                </button>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1.5 border-t border-slate-100 font-semibold">
-              <span>Fundo Proteção: {wallet.protectionFundBalanceBrl.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-              <span className="font-black" style={{ color: corPrimaria }}>100% Repasse D+0</span>
-            </div>
-          </div>
-        )}
-
-        {/* ESTADO 2: OFERTA NO RADAR (DriverOfferModal V4.0 - Ultra-Minimalist & 10s Window) */}
-        {estadoCockpit === "OFFER" && ofertaAtiva && (
-          <DriverOfferModal
-            oferta={{
-              rideId: ofertaAtiva.id,
-              passageiro: ofertaAtiva.passageiro,
-              passageiroAvaliacao: ofertaAtiva.passageiroAvaliacao ?? 4.95,
-              valorLiquido: ofertaAtiva.valorLiquido,
-              distanciaKm: ofertaAtiva.distanciaKm,
-              duracaoMin: 11,
-              origem: ofertaAtiva.origem,
-              destino: ofertaAtiva.destino,
-              modalidadeTag: ofertaAtiva.tipo,
-              distanciaAteEmbarqueKm: (ofertaAtiva as any).distanciaEmbarqueKm ?? 0.85,
-              tempoAteEmbarqueMin: (ofertaAtiva as any).tempoEmbarqueMin ?? 3,
-              ganhoPorKm:
-                ofertaAtiva.distanciaKm > 0
-                  ? Number((ofertaAtiva.valorLiquido / ofertaAtiva.distanciaKm).toFixed(2))
-                  : 3.6,
-            }}
-            countdownSeconds={60}
-            onAceitar={handleAceitarOferta}
-            onRecusar={handleRecusarOferta}
-          />
-        )}
-
-        {/* ESTADO 3: A CAMINHO DO PASSAGEIRO (GPS Ativo + Ações Rápidas 48px/56px) */}
-        {estadoCockpit === "HEADING_TO_PICKUP" && ofertaAtiva && (
-          <div className="p-4 sm:p-5 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200 shadow-2xl space-y-3 animate-in slide-in-from-bottom duration-200">
-            {/* Barra tátil */}
-            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
-
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="min-w-0 flex-1 pr-2">
-                <span
-                  className="text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider inline-block"
-                  style={{
-                    backgroundColor: `${corPrimaria}10`,
-                    color: corPrimaria,
-                    borderColor: `${corPrimaria}25`,
-                  }}
-                >
-                  A Caminho do Embarque
-                </span>
-                <h3 className="text-base font-black text-slate-950 mt-1 truncate">{ofertaAtiva.passageiro}</h3>
-                <span className="text-xs text-slate-500 truncate block">{ofertaAtiva.origem}</span>
-              </div>
-
-              {/* Botões de Contato Rápido (Chat Nativo Seguro em Tempo Real + Ligação) */}
-              <div className="flex items-center gap-2 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setIsChatOpen(true)}
-                  style={{
-                    background: brandGradient,
-                    color: corTextoPrimaria,
-                  }}
-                  className="relative w-12 h-12 rounded-2xl flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
-                  title="Abrir Chat Operacional Seguro"
-                  aria-label={`Abrir chat operacional${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
-                >
-                  <MessageCircle className="w-5 h-5 text-slate-950" />
-                  {driverUnreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-600 text-white text-[10px] font-black border-2 border-white shadow-xs animate-pulse">
-                      {driverUnreadCount > 9 ? "9+" : driverUnreadCount}
-                    </span>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const tel = ofertaAtiva.telefone?.replace(/\D/g, "") || "22999605162";
-                    window.open(`tel:${tel}`, "_self");
-                  }}
-                  className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center active:scale-90 transition shadow-xs hover:bg-slate-200 cursor-pointer"
-                  title="Ligar para o passageiro"
-                >
-                  <Phone className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* FASE 4: Atalhos Rápidos de Navegação Externa (Waze & Google Maps) */}
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleNavegarExterno("waze")}
-                className="h-11 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-              >
-                <Compass className="w-4 h-4 text-sky-600" />
-                <span>Navegar no Waze</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleNavegarExterno("google_maps")}
-                className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-              >
-                <MapPin className="w-4 h-4" style={{ color: accentColor }} />
-                <span>Google Maps</span>
-              </button>
-            </div>
-
-            {/* Botão de Chegada no Local de Embarque (56px) */}
-            <button
-              type="button"
-              onClick={handleChegueiAoLocal}
-              style={{
-                background: brandGradient,
-                color: corTextoPrimaria,
-              }}
-              className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>✓ CHEGUEI AO LOCAL DE EMBARQUE</span>
-            </button>
-
-            {/* FASE 2: Gatilho de Cancelamento Operacional pelo Motorista */}
-            <div className="pt-1 flex justify-center">
-              <button
-                type="button"
-                onClick={() => setModalCancelarAberto(true)}
-                className="text-xs font-bold text-slate-500 hover:text-rose-600 flex items-center gap-1.5 py-1 px-3 rounded-lg transition active:scale-95 cursor-pointer"
-              >
-                <AlertTriangle className="w-3.5 h-3.5 text-slate-400" />
-                <span>Problemas com o embarque? Cancelar corrida</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ESTADO 4: CONFIRMAÇÃO DE EMBARQUE INTELIGENTE (MODELO PROFISSIONAL 99 / UBER — SEM PIN OBRIGATÓRIO) */}
-        {estadoCockpit === "WAITING_PIN" && ofertaAtiva && (
-          <div className="p-4 sm:p-5 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200 shadow-2xl space-y-3.5 animate-in slide-in-from-bottom duration-200">
-            {/* Barra tátil */}
-            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
-
-            {ofertaAtiva.tipo === "ENTREGA" ? (
-              <>
-                {/* Cabeçalho de Coleta Segura */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wider" style={{ color: corPrimaria }}>
-                    <Package className="w-4 h-4" style={{ color: accentColor }} />
-                    <span>Coleta de Pacote no Remetente</span>
-                  </div>
-                  <span
-                    className="text-[10px] font-bold px-2 py-0.5 rounded-md border"
-                    style={{
-                      backgroundColor: `${accentColor}12`,
-                      color: corPrimaria,
-                      borderColor: `${accentColor}30`,
-                    }}
-                  >
-                    Geofence Coleta OK ✓
-                  </span>
-                </div>
-
-                {/* Dados da Encomenda */}
-                <div
-                  className="flex items-center gap-3 p-3 rounded-2xl border"
-                  style={{
-                    backgroundColor: `${corPrimaria}08`,
-                    borderColor: `${corPrimaria}25`,
-                  }}
-                >
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg border shadow-xs shrink-0"
-                    style={{
-                      backgroundColor: `${corPrimaria}15`,
-                      color: corPrimaria,
-                      borderColor: `${corPrimaria}30`,
-                    }}
-                  >
-                    <Box className="w-6 h-6" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-black text-slate-950 truncate">
-                      {ofertaAtiva.descricaoPacote || "Pacote Flash Express"}
-                    </h3>
-                    <p className="text-xs text-slate-600 truncate mt-0.5">
-                      Remetente: <span className="font-bold text-slate-800">{ofertaAtiva.passageiro}</span>
-                    </p>
-                    <p className="text-[11px] font-semibold truncate text-slate-500">
-                      Entregar para: {ofertaAtiva.destinatarioNome || "Destinatário"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Resumo do Destino da Entrega */}
-                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center justify-between text-xs">
-                  <div className="truncate pr-2">
-                    <span className="text-[10px] text-slate-400 font-bold block uppercase">Endereço de Entrega:</span>
-                    <span className="font-bold text-slate-900 truncate block">{ofertaAtiva.destino}</span>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="text-xs font-black text-slate-950 block">{ofertaAtiva.distanciaKm} km</span>
-                    <span className="text-[10px] font-bold" style={{ color: corPrimaria }}>Flash Express</span>
-                  </div>
-                </div>
-
-                {/* Status do Cronômetro de Espera e Carência Auditada */}
-                {waitingTimerStatus && (
-                  <div
-                    className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
-                      waitingTimerStatus.isGracePeriodActive
-                        ? "bg-slate-50 text-slate-700 border-slate-200"
-                        : "bg-slate-100 text-slate-900 border-slate-300"
-                    }`}
-                  >
-                    <span>
-                      ⏱️ Espera no Remetente: {Math.floor(waitingTimerStatus.elapsedSeconds / 60)}:
-                      {(waitingTimerStatus.elapsedSeconds % 60).toString().padStart(2, "0")}
-                      {waitingTimerStatus.isGracePeriodActive
-                        ? " (Carência 5 min)"
-                        : " (Tarifação excedente)"}
-                    </span>
-                    <span className="font-black">
-                      {waitingTimerStatus.accumulatedWaitingFeeCents > 0
-                        ? `+R$ ${(waitingTimerStatus.accumulatedWaitingFeeCents / 100).toFixed(2)}`
-                        : "Grátis"}
-                    </span>
-                  </div>
-                )}
-
-                {erroPin && <p className="text-xs text-rose-500 font-bold text-center">{erroPin}</p>}
-
-                {/* Botão de Coleta 1-Tap */}
-                {/* Botão de Validação do PIN 1 de Coleta */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPinNumpadMode("PICKUP");
-                    setModalPinNumpadAberto(true);
-                  }}
-                  style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
-                  className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <KeyRound className="w-5 h-5" />
-                  <span>DIGITAR PIN DE COLETA (PIN 1)</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-
-                <div
-                  className="flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-xl py-2 px-3 border"
-                  style={{
-                    backgroundColor: `${corPrimaria}08`,
-                    borderColor: `${corPrimaria}25`,
-                    color: corPrimaria,
-                  }}
-                >
-                  <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: accentColor }} />
-                  <span>Cadeia de Custódia: Solicite o PIN 1 ao remetente</span>
-                </div>
-              </>
-            ) : (
-              <>
-                {/* Cabeçalho do Ponto de Embarque */}
-                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                  <div className="flex items-center gap-1.5 font-black text-xs uppercase tracking-wider" style={{ color: corPrimaria }}>
-                    <CheckCircle2 className="w-4 h-4" style={{ color: accentColor }} />
-                    <span>Passageiro no Local de Embarque</span>
-                  </div>
-                  <span
-                    className="text-[10px] font-bold px-2 py-0.5 rounded-md border"
-                    style={{
-                      backgroundColor: `${accentColor}12`,
-                      color: corPrimaria,
-                      borderColor: `${accentColor}30`,
-                    }}
-                  >
-                    GPS Sincronizado ✓
-                  </span>
-                </div>
-
-                {/* Perfil do Passageiro com Trust Badge, Avaliação e Contato Rápido */}
-                <div className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-200">
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="relative shrink-0">
-                      {ofertaAtiva.passageiroFoto ? (
-                        <img
-                          src={ofertaAtiva.passageiroFoto}
-                          alt={ofertaAtiva.passageiro}
-                          className="w-12 h-12 rounded-full object-cover border-2 shadow-xs" style={{ borderColor: accentColor }}
-                        />
-                      ) : (
-                        <div
-                          className="w-12 h-12 rounded-full font-black text-lg flex items-center justify-center border-2 shadow-xs"
-                          style={{
-                            backgroundColor: `${corPrimaria}15`,
-                            color: corPrimaria,
-                            borderColor: accentColor,
-                          }}
-                        >
-                          {ofertaAtiva.passageiro.charAt(0)}
-                        </div>
-                      )}
-                      <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full text-white flex items-center justify-center text-[10px] font-black border-2 border-white shadow-xs" style={{ backgroundColor: accentColor }}>
-                        ✓
-                      </span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <h3 className="text-base font-black text-slate-950 truncate">{ofertaAtiva.passageiro}</h3>
-                        <span className="text-xs font-black flex items-center gap-0.5" style={{ color: corPrimaria }}>
-                          <Star className="w-3.5 h-3.5 fill-current" style={{ color: accentColor }} />
-                          {ofertaAtiva.passageiroAvaliacao || 4.98}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[11px] text-slate-600 mt-0.5 flex-wrap">
-                        <span className="font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: `${accentColor}15`, color: corPrimaria }}>
-                          CPF Verificado
-                        </span>
-                        <span>•</span>
-                        <span>{ofertaAtiva.passageiroTotalCorridas || 48} viagens</span>
-                        <span>•</span>
-                        <span className="font-bold px-1.5 py-0.5 rounded border" style={{ backgroundColor: `${corPrimaria}10`, color: corPrimaria, borderColor: `${corPrimaria}20` }}>
-                          ⭐ {ofertaAtiva.passageiroTrustTier || "Elite"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Contato Rápido com Passageiro (Chat Nativo com Badge + Ligação) */}
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setIsChatOpen(true)}
-                      style={{
-                        background: brandGradient,
-                        color: corTextoPrimaria,
-                      }}
-                      className="relative w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
-                      title="Abrir Chat Operacional com o Passageiro"
-                      aria-label={`Abrir chat com o passageiro${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
-                    >
-                      <MessageCircle className="w-5 h-5 text-slate-950" />
-                      {driverUnreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-600 text-white text-[10px] font-black border-2 border-white shadow-xs animate-pulse">
-                          {driverUnreadCount > 9 ? "9+" : driverUnreadCount}
-                        </span>
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const tel = ofertaAtiva.telefone?.replace(/\D/g, "") || "22999605162";
-                        window.open(`tel:${tel}`, "_self");
-                      }}
-                      className="w-11 h-11 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 flex items-center justify-center active:scale-90 transition shadow-xs hover:bg-slate-200 cursor-pointer"
-                      title="Ligar para o passageiro"
-                    >
-                      <Phone className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Resumo do Destino e Alinhamento de Rota */}
-                <div className="p-3 rounded-2xl bg-slate-50/80 border border-slate-200 flex items-center justify-between text-xs">
-                  <div className="truncate pr-2">
-                    <span className="text-[10px] text-slate-400 font-bold block uppercase">Destino Confirmado:</span>
-                    <span className="font-bold text-slate-900 truncate block">{ofertaAtiva.destino}</span>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="text-xs font-black text-slate-950 block">{ofertaAtiva.distanciaKm} km</span>
-                    <span className="text-[10px] font-bold" style={{ color: corPrimaria }}>Livre de Fricção</span>
-                  </div>
-                </div>
-
-                {/* Status do Cronômetro de Espera e Carência Auditada */}
-                {waitingTimerStatus && (
-                  <div
-                    className={`p-2.5 rounded-xl text-xs font-semibold flex items-center justify-between border ${
-                      waitingTimerStatus.isGracePeriodActive
-                        ? "bg-slate-50 text-slate-700 border-slate-200"
-                        : "bg-slate-100 text-slate-900 border-slate-300"
-                    }`}
-                  >
-                    <span>
-                      ⏱️ Espera no Embarque: {Math.floor(waitingTimerStatus.elapsedSeconds / 60)}:
-                      {(waitingTimerStatus.elapsedSeconds % 60).toString().padStart(2, "0")}
-                      {waitingTimerStatus.isGracePeriodActive
-                        ? " (Carência 5 min ativa)"
-                        : " (Tarifação excedente ativa)"}
-                    </span>
-                    <span className="font-black">
-                      {waitingTimerStatus.accumulatedWaitingFeeCents > 0
-                        ? `+R$ ${(waitingTimerStatus.accumulatedWaitingFeeCents / 100).toFixed(2)}`
-                        : "Grátis"}
-                    </span>
-                  </div>
-                )}
-
-                {erroPin && <p className="text-xs text-rose-500 font-bold text-center">{erroPin}</p>}
-
-                {/* FASE 3: AÇÃO OPERACIONAL DE NO-SHOW (CARÊNCIA DE 5 MIN ESGOTADA) */}
-                {waitingTimerStatus && !waitingTimerStatus.isGracePeriodActive && (
-                  <button
-                    type="button"
-                    onClick={() => setModalNoShowConfirmAberto(true)}
-                    className="w-full h-13 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs sm:text-sm shadow-lg transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-rose-700"
-                  >
-                    <UserX className="w-4 h-4" />
-                    <span>PASSAGEIRO NÃO COMPARECEU • COBRAR TAXA (R$ 6,00)</span>
-                  </button>
-                )}
-
-                {/* BOTÃO PRINCIPAL 1-TAP (56px Touch Target - Modelo Uber / 99) */}
-                <button
-                  type="button"
-                  onClick={handleConfirmarEmbarqueSmart}
-                  style={{
-                    background: brandGradient,
-                    color: corTextoPrimaria,
-                  }}
-                  className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <span>PASSAGEIRO EMBARCOU • INICIAR CORRIDA</span>
-                  <span>✓</span>
-                </button>
-
-                {/* Rodapé com Indicador de Embarque Smart e Cancelamento Justificado */}
-                <div className="flex items-center justify-between pt-1 text-[11px] px-1">
-                  <span className="font-bold flex items-center gap-1" style={{ color: corPrimaria }}>
-                    <ShieldCheck className="w-3.5 h-3.5" style={{ color: accentColor }} />
-                    Embarque Smart sem PIN
-                  </span>
-
-                  <button
-                    type="button"
-                    onClick={() => setModalCancelarAberto(true)}
-                    className="font-bold text-slate-500 hover:text-rose-600 transition cursor-pointer"
-                  >
-                    Cancelar corrida
-                  </button>
-                </div>
-              </>
-            )}
-
-            {/* TECLADO DE PIN DE COLETA (Exclusivo para Encomendas/Entregas Flash) */}
-            {ofertaAtiva.tipo === "ENTREGA" && modoPinOpcional && (
-              <div className="space-y-2 pt-1 border-t border-slate-100 animate-in fade-in duration-150">
-                <p className="text-[11px] text-slate-500 text-center">
-                  Digite o PIN de 4 dígitos informado pelo remetente:
-                </p>
-
-                {/* Display dos 4 Dígitos */}
-                <div className="flex items-center justify-center gap-2.5 my-1">
-                  {[0, 1, 2, 3].map((idx) => {
-                    const digit = pinDigitado[idx];
-                    const isCurrent = pinDigitado.length === idx;
-                    return (
-                      <div
-                        key={idx}
-                        style={digit ? { borderColor: corPrimaria } : {}}
-                        className={`w-11 h-12 rounded-xl flex items-center justify-center font-mono text-xl font-black transition-all ${
-                          digit
-                            ? "bg-slate-50 text-slate-950 border-2 shadow-sm"
-                            : isCurrent
-                            ? "bg-white text-slate-950 border-2 border-slate-400 animate-pulse"
-                            : "bg-slate-50 text-slate-300 border border-slate-200"
-                        }`}
-                      >
-                        {digit || "•"}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Teclado Numérico Compacto */}
-                <div className="grid grid-cols-3 gap-1.5 pt-1 max-w-[260px] mx-auto">
-                  {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => handlePressDigit(num)}
-                      className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-900 font-black text-lg flex items-center justify-center border border-slate-200 active:scale-95 transition shadow-xs"
-                    >
-                      {num}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={handleClearDigits}
-                    className="h-11 rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 font-bold text-xs flex items-center justify-center border border-rose-200 active:scale-95 transition"
-                  >
-                    Limpar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handlePressDigit("0")}
-                    className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-900 font-black text-lg flex items-center justify-center border border-slate-200 active:scale-95 transition shadow-xs"
-                  >
-                    0
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleBackspaceDigit}
-                    className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-bold text-sm flex items-center justify-center border border-slate-200 active:scale-95 transition"
-                  >
-                    ⌫
-                  </button>
-                </div>
-
-                {/* Botão de Validação de PIN */}
-                <button
-                  type="button"
-                  onClick={() => validarPinDireto(pinDigitado)}
-                  disabled={pinDigitado.length < 4}
-                  style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
-                  className="w-full h-12 rounded-xl disabled:opacity-40 disabled:pointer-events-none font-black text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5 mt-1"
-                >
-                  <span>VALIDAR PIN &amp; INICIAR</span>
-                  <span>→</span>
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ESTADO 5: VIAGEM EM ANDAMENTO (Navegação até o Destino Final) */}
-        {estadoCockpit === "IN_PROGRESS" && ofertaAtiva && (
-          <div className="p-4 sm:p-5 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200 shadow-2xl space-y-3 animate-in slide-in-from-bottom duration-200">
-            {/* Barra tátil */}
-            <div className="w-10 h-1 rounded-full bg-slate-300 mx-auto" />
-
-            {/* Se for ENTREGA e em Devolução Reversa */}
-            {ofertaAtiva.tipo === "ENTREGA" && emDevolucao ? (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between border-b border-rose-100 pb-2.5">
-                  <div className="flex items-center gap-1.5 text-rose-700 font-black text-xs uppercase tracking-wider">
-                    <RotateCcw className="w-4 h-4 text-rose-600 animate-spin" />
-                    <span>Devolução Reversa ao Remetente</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-rose-800 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
-                    +R$ {returnDetails?.driverReturnCompensationBrl.toFixed(2) || "15,50"}
-                  </span>
-                </div>
-
-                <div className="p-3 bg-rose-50/70 rounded-2xl border border-rose-200 space-y-1 text-xs">
-                  <span className="text-[10px] font-black uppercase text-rose-800 block">Ponto de Retorno (Remetente):</span>
-                  <p className="font-black text-slate-950 truncate">{ofertaAtiva.origem}</p>
-                  <p className="text-[11px] text-slate-600">Devolver pacote para: <strong>{ofertaAtiva.passageiro}</strong></p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setModalReturnFinalizarAberto(true)}
-                  className="w-full h-14 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                >
-                  <Package className="w-5 h-5" />
-                  <span>CHEGUEI AO REMETENTE • FINALIZAR DEVOLUÇÃO</span>
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="min-w-0 flex-1 pr-2">
-                    <span
-                      className="text-[10px] font-bold px-2 py-0.5 rounded-md border uppercase tracking-wider inline-block"
-                      style={{
-                        backgroundColor: `${corPrimaria}10`,
-                        color: corPrimaria,
-                        borderColor: `${corPrimaria}25`,
-                      }}
-                    >
-                      {ofertaAtiva.tipo === "ENTREGA"
-                        ? `● Em Rota para o Destinatário ${currentStopNumber > 1 ? `(Parada ${currentStopNumber})` : ""}`
-                        : "● Viagem em Andamento"}
-                    </span>
-                    <h3 className="text-base font-black text-slate-950 mt-1 truncate">
-                      {ofertaAtiva.tipo === "ENTREGA" && ofertaAtiva.destinatarioNome
-                        ? `Destinatário: ${ofertaAtiva.destinatarioNome}`
-                        : ofertaAtiva.passageiro}
-                    </h3>
-                    <span className="text-xs text-slate-500 truncate block">Destino: {ofertaAtiva.destino}</span>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setIsChatOpen(true)}
-                      style={{
-                        background: brandGradient,
-                        color: corTextoPrimaria,
-                      }}
-                      className="relative w-11 h-11 rounded-xl flex items-center justify-center active:scale-90 transition shadow-xs cursor-pointer"
-                      title="Abrir Chat Operacional"
-                      aria-label={`Abrir chat operacional${driverUnreadCount > 0 ? ` (${driverUnreadCount} não lidas)` : ""}`}
-                    >
-                      <MessageCircle className="w-5 h-5 text-slate-950" />
-                      {driverUnreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-rose-600 text-white text-[10px] font-black border-2 border-white shadow-xs animate-pulse">
-                          {driverUnreadCount > 9 ? "9+" : driverUnreadCount}
-                        </span>
-                      )}
-                    </button>
-                    <span className="text-2xl font-black text-slate-950">
-                      {ofertaAtiva.valorLiquido.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                    </span>
-                  </div>
-                </div>
-
-                {/* FASE 4: Atalhos Rápidos de Navegação Externa (Waze & Google Maps) */}
-                <div className="grid grid-cols-2 gap-2 pt-0.5">
-                  <button
-                    type="button"
-                    onClick={() => handleNavegarExterno("waze")}
-                    className="h-11 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                  >
-                    <Compass className="w-4 h-4 text-sky-600" />
-                    <span>Navegar no Waze</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleNavegarExterno("google_maps")}
-                    className="h-11 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
-                  >
-                    <MapPin className="w-4 h-4" style={{ color: accentColor }} />
-                    <span>Google Maps</span>
-                  </button>
-                </div>
-
-                {ofertaAtiva.tipo === "ENTREGA" ? (
-                  <div className="space-y-2 pt-1">
-                    <div className="grid grid-cols-2 gap-2">
-                      {/* Botão de Exceção: Destinatário não localizado */}
-                      <button
-                        type="button"
-                        onClick={handleAbrirModalDevolucao}
-                        style={{
-                          backgroundColor: `${corPrimaria}08`,
-                          borderColor: `${corPrimaria}30`,
-                          color: corPrimaria,
-                        }}
-                        className="h-14 rounded-2xl border font-black text-xs transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer text-center px-2"
-                      >
-                        <UserX className="w-4 h-4 shrink-0" style={{ color: corPrimaria }} />
-                        <span>Destinatário Ausente?</span>
-                      </button>
-
-                      {/* Botão Normal: Finalizar com PIN 2 de Entrega */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPinNumpadMode("DROPOFF");
-                          setModalPinNumpadAberto(true);
-                        }}
-                        style={{ backgroundColor: corPrimaria, color: corTextoPrimaria }}
-                        className="h-14 rounded-2xl font-black text-xs shadow-lg transition active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer text-center px-2"
-                      >
-                        <KeyRound className="w-4 h-4 shrink-0" />
-                        <span>FINALIZAR COM PIN 2</span>
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-1 text-[11px] text-slate-500 font-semibold text-center">
-                      <ShieldCheck className="w-3.5 h-3.5" style={{ color: accentColor }} />
-                      <span>Exige PIN 2 do destinatário para liberar entrega e PIX</span>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleConcluirCorrida}
-                    style={{
-                      background: brandGradient,
-                      color: corTextoPrimaria,
-                    }}
-                    className="w-full h-14 rounded-2xl font-black text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>🏁 FINALIZAR CORRIDA &amp; RECEBER PIX D+0</span>
-                  </button>
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </div>
+      <DriverContextualBottomSheet
+        isOnline={isOnline}
+        estadoCockpit={estadoCockpit}
+        ganhosHoje={ganhosHoje}
+        corridasFeitas={corridasFeitas}
+        destinoAtivo={destinoAtivo}
+        remainingDestinationUses={driverDestinationModeService.getRemainingUses(perfilMotorista.id)}
+        ofertaAtiva={ofertaAtiva}
+        waitingTimerStatus={waitingTimerStatus}
+        driverUnreadCount={driverUnreadCount}
+        emDevolucao={emDevolucao}
+        returnDetails={returnDetails}
+        currentStopNumber={currentStopNumber}
+        erroPin={erroPin}
+        onToggleOnline={handleToggleOnline}
+        onOpenProfile={() => setModalPerfilMotorista(true)}
+        onOpenWallet={handleAbrirModalSaquePix}
+        onOpenSaquePix={handleAbrirModalSaquePix}
+        onOpenModoDestino={() => setModalModoDestino(true)}
+        onClearDestino={() => {
+          driverDestinationModeService.clearDestination(perfilMotorista.id);
+          setDestinoAtivo(null);
+        }}
+        onOpenTaximetro={() => setModalTaximetro(true)}
+        onOpenEconomia={() => setModalEconomiaAberto(true)}
+        onOpenPlanos={() => setModalPlanosAberto(true)}
+        onChegueiAoLocal={handleChegueiAoLocal}
+        onConfirmarEmbarque={handleConfirmarEmbarqueSmart}
+        onOpenPinNumpad={() => {
+          setPinNumpadMode("PICKUP");
+          setModalPinNumpadAberto(true);
+        }}
+        onOpenPinNumpadDropoff={() => {
+          setPinNumpadMode("DROPOFF");
+          setModalPinNumpadAberto(true);
+        }}
+        onOpenNoShowModal={() => setModalNoShowConfirmAberto(true)}
+        onOpenCancelar={() => setModalCancelarAberto(true)}
+        onConcluirCorrida={handleConcluirCorrida}
+        onOpenDevolucao={handleAbrirModalDevolucao}
+        onOpenReturnFinalizar={() => setModalReturnFinalizarAberto(true)}
+        onOpenChat={() => setIsChatOpen(true)}
+        onLigar={() => {
+          const tel = ofertaAtiva?.telefone?.replace(/\D/g, "") || "22999605162";
+          window.open(`tel:${tel}`, "_self");
+        }}
+        onNavegar={handleNavegarExterno}
+      />
 
       {/* =================================================================== */}
       {/* MODAL: DESTINATÁRIO AUSENTE / PROTOCOLO DE DEVOLUÇÃO 99ENTREGA     */}
@@ -2918,8 +1984,8 @@ export function PartiuDriverCockpit() {
                   <UserX className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-[#003366]">Passageiro Não Compareceu</h3>
-                  <p className="text-xs text-[#64748B] font-medium">Cobrança de taxa de carência</p>
+                  <h3 className="text-base font-semibold text-brand-primary-deep">Passageiro Não Compareceu</h3>
+                  <p className="text-xs text-slate-500 font-medium">Cobrança de taxa de carência</p>
                 </div>
               </div>
               <button
@@ -3006,93 +2072,46 @@ export function PartiuDriverCockpit() {
       )}
 
       {/* ========================================================================= */}
-      {/* BOTÕES FLUTUANTES NO MAPA (11.png: RECENTRALIZAR À ESQUERDA & SOS À DIREITA) */}
+      {/* BOTÕES FLUTUANTES NO MAPA (RECENTRALIZAR À ESQUERDA & SOS À DIREITA)       */}
       {/* ========================================================================= */}
-      {/* 1. Botão Recenter (11.png: Inferior Esquerdo) */}
+      {/* 1. Botão Recenter (Inferior Esquerdo, posicionado acima do Bottom Sheet) */}
       <button
         type="button"
         onClick={() => {
           window.dispatchEvent(new CustomEvent("partiu:recenter-map"));
         }}
-        className="fixed left-4 bottom-20 z-30 w-14 h-14 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center text-[#0088FF] hover:bg-slate-50 active:scale-95 transition pointer-events-auto cursor-pointer"
+        className="fixed left-4 bottom-56 sm:bottom-64 z-20 w-13 h-13 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center text-brand-primary-vibrant hover:bg-slate-50 active:scale-95 transition pointer-events-auto cursor-pointer"
         title="Centralizar Minha Posição"
         aria-label="Centralizar no Mapa"
       >
         <Compass className="w-6 h-6 stroke-[2.2]" />
       </button>
 
-      {/* 2. Botão SOS Emergência 190 (11.png: Inferior Direito) */}
-      <div className="fixed bottom-20 right-4 z-30 pointer-events-auto">
+      {/* 2. Botão SOS Emergência 190 (Inferior Direito, posicionado acima do Bottom Sheet) */}
+      <div className="fixed bottom-56 sm:bottom-64 right-4 z-20 pointer-events-auto">
         <button
           type="button"
           onClick={() => setModalSosAberto(true)}
           aria-label="Botão de Emergência e SOS Policial 190"
-          className="w-16 h-16 rounded-full bg-white hover:bg-rose-50 active:scale-95 text-[#EF4444] flex flex-col items-center justify-center shadow-xl border-2 border-[#EF4444] transition-all cursor-pointer animate-pulse"
+          className="w-14 h-14 rounded-full bg-white hover:bg-rose-50 active:scale-95 text-brand-danger-red flex flex-col items-center justify-center shadow-xl border-2 border-brand-danger-red transition-all cursor-pointer animate-pulse"
           title="Central de Emergência SOS 190"
         >
-          <SirenIcon className="w-6 h-6 text-[#EF4444]" />
-          <span className="text-[10px] font-extrabold tracking-wider leading-none mt-0.5 text-[#EF4444]">SOS</span>
+          <SirenIcon className="w-5 h-5 text-brand-danger-red" />
+          <span className="text-[9px] font-extrabold tracking-wider leading-none mt-0.5 text-brand-danger-red">SOS</span>
         </button>
       </div>
-
-      {/* ========================================================================= */}
-      {/* BARRA DE NAVEGAÇÃO INFERIOR MOTORISTA (11.png: Início, Corridas, Carteira, Perfil) */}
-      {/* ========================================================================= */}
-      {estadoCockpit === "IDLE" && (
-        <nav className="fixed bottom-0 inset-x-0 z-30 h-16 bg-white border-t border-slate-100 px-6 flex items-center justify-around pointer-events-auto shadow-lg">
-          {/* Aba Início (Ativa com barra azul indicadora) */}
-          <button
-            type="button"
-            className="flex flex-col items-center justify-center relative py-1 text-[#0088FF] cursor-pointer"
-          >
-            <Home className="w-5 h-5 stroke-[2.2]" />
-            <span className="text-[11px] font-bold mt-0.5">Início</span>
-            <span className="absolute -bottom-1 w-8 h-0.5 bg-[#0088FF] rounded-full" />
-          </button>
-
-          {/* Aba Corridas */}
-          <button
-            type="button"
-            onClick={() => setModalEconomiaAberto(true)}
-            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer transition"
-          >
-            <RouteIcon className="w-5 h-5 stroke-[2]" />
-            <span className="text-[11px] font-medium mt-0.5">Corridas</span>
-          </button>
-
-          {/* Aba Carteira */}
-          <button
-            type="button"
-            onClick={handleAbrirModalSaquePix}
-            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer transition"
-          >
-            <Wallet className="w-5 h-5 stroke-[2]" />
-            <span className="text-[11px] font-medium mt-0.5">Carteira</span>
-          </button>
-
-          {/* Aba Perfil */}
-          <button
-            type="button"
-            onClick={() => setModalPerfilMotorista(true)}
-            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer transition"
-          >
-            <User className="w-5 h-5 stroke-[2]" />
-            <span className="text-[11px] font-medium mt-0.5">Perfil</span>
-          </button>
-        </nav>
-      )}
 
       {/* MODAL DE CONFIRMAÇÃO SOS 190 */}
       {modalSosAberto && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white border-2 border-[#EF4444] rounded-3xl p-5 sm:p-6 max-w-sm w-full text-slate-900 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-white border-2 border-brand-danger-red rounded-3xl p-5 sm:p-6 max-w-sm w-full text-slate-900 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-[#EF4444] flex items-center justify-center border border-[#EF4444]/30 shrink-0">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 text-brand-danger-red flex items-center justify-center border border-brand-danger-red/30 shrink-0">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-semibold text-[#003366]">Emergência &amp; SOS 190</h3>
-                <p className="text-xs text-[#64748B] font-medium">Acionamento Policial PARTIU</p>
+                <h3 className="text-base font-semibold text-brand-primary-deep">Emergência &amp; SOS 190</h3>
+                <p className="text-xs text-slate-500 font-medium">Acionamento Policial PARTIU</p>
               </div>
             </div>
 
@@ -3101,7 +2120,7 @@ export function PartiuDriverCockpit() {
                 Você está prestes a acionar a <strong>Central de Emergência 190</strong>.
               </p>
               <div className="p-2 rounded-xl bg-rose-50 border border-rose-200 text-[11px] text-rose-700 font-medium flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#EF4444] animate-ping shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-brand-danger-red animate-ping shrink-0" />
                 <span>Telemetria GPS enviada aos canais de apoio</span>
               </div>
             </div>
@@ -3109,7 +2128,7 @@ export function PartiuDriverCockpit() {
             <div className="space-y-2 pt-1">
               <a
                 href="tel:190"
-                className="w-full h-12 rounded-2xl bg-[#EF4444] hover:bg-red-600 text-white font-semibold text-xs shadow-md shadow-red-600/20 flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer"
+                className="w-full h-12 rounded-2xl bg-brand-danger-red hover:bg-red-600 text-white font-semibold text-xs shadow-md shadow-red-600/20 flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer"
               >
                 <Phone className="w-4 h-4" />
                 <span>LIGAR PARA POLÍCIA MILITAR (190)</span>

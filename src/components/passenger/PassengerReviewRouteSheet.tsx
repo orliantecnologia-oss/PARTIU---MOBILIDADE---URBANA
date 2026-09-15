@@ -83,7 +83,7 @@ const VehicleOptionCard = memo(function VehicleOptionCard({
       }}
       className={`w-full p-3 sm:p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between select-none active:scale-[0.99] ${
         isSelected
-          ? "border-[#0088FF] bg-[#F0F7FF]/40 shadow-xs"
+          ? "border-brand-primary-vibrant bg-brand-soft/40 shadow-xs"
           : "border-slate-200 bg-white hover:border-slate-300"
       }`}
     >
@@ -127,13 +127,13 @@ const VehicleOptionCard = memo(function VehicleOptionCard({
       <div className="flex items-center gap-3 shrink-0">
         <div className="text-right">
           <div className="flex items-center justify-end gap-1 text-[10px] sm:text-[10.5px] text-slate-500 font-medium">
-            <Clock className="w-3 h-3 text-[#0088FF]" />
+            <Clock className="w-3 h-3 text-brand-primary-vibrant" />
             <span>Chegada em</span>
           </div>
           <div className="text-xs font-bold text-slate-800 leading-tight">
             {etaMinutes} min
           </div>
-          <div className="text-base sm:text-lg font-bold text-[#003366] leading-snug mt-0.5">
+          <div className="text-base sm:text-lg font-bold text-brand-primary-deep leading-snug mt-0.5">
             {price}
           </div>
         </div>
@@ -141,10 +141,10 @@ const VehicleOptionCard = memo(function VehicleOptionCard({
         {/* Radio Button Indicator (Lealt Recomendado/4.png) */}
         <div
           className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-            isSelected ? "border-[#0088FF] bg-white" : "border-slate-300 bg-white"
+            isSelected ? "border-brand-primary-vibrant bg-white" : "border-slate-300 bg-white"
           }`}
         >
-          {isSelected && <div className="w-3 h-3 rounded-full bg-[#0088FF]" />}
+          {isSelected && <div className="w-3 h-3 rounded-full bg-brand-primary-vibrant" />}
         </div>
       </div>
     </div>
@@ -358,7 +358,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                 }}
                 className="text-slate-900 border px-2 py-0.5 rounded-full flex items-center gap-0.5 text-[11px] font-medium"
               >
-                <Clock className="w-2.5 h-2.5 text-[#0088FF] stroke-[2.5]" />
+                <Clock className="w-2.5 h-2.5 text-brand-primary-vibrant stroke-[2.5]" />
                 ~{horarioDesembarquePrevisto || `${duracaoMin || 8} min`}
               </span>
             </div>
@@ -383,7 +383,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
 
           {/* CABEÇALHO DA SEÇÃO (LEALT RECOMENDADO/4.PNG) */}
           <div className="pt-0.5">
-            <h2 className="text-xl font-bold text-[#003366] leading-tight">
+            <h2 className="text-xl font-bold text-brand-primary-deep leading-tight">
               Escolha sua categoria
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
@@ -582,7 +582,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
           <button
             type="button"
             onClick={handleConfirm}
-            className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#0088FF] to-[#003366] hover:from-[#0077E6] hover:to-[#002244] text-white font-bold text-base active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer shadow-lg shadow-[#0088FF]/25 touch-manipulation"
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-brand-primary-vibrant to-brand-primary-deep hover:brightness-105 text-white font-bold text-base active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer shadow-lg shadow-brand-primary-vibrant/25 touch-manipulation"
           >
             {isMoto ? (
               <Bike className="w-5 h-5 text-white stroke-[2.2]" />
@@ -918,7 +918,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                     value={nomeOutroPassageiro}
                     onChange={(e) => setNomeOutroPassageiro(e.target.value)}
                     placeholder="Nome completo (ex: Maria Silva)..."
-                    className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#0088FF]"
+                    className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-brand-primary-vibrant"
                     autoFocus
                   />
                 </div>
@@ -931,7 +931,7 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
                     value={telefoneOutroPassageiro}
                     onChange={(e) => setTelefoneOutroPassageiro(e.target.value)}
                     placeholder="(22) 99999-9999"
-                    className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-[#0088FF]"
+                    className="w-full text-xs font-medium text-slate-900 bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-brand-primary-vibrant"
                   />
                 </div>
                 <p className="text-[10.5px] text-slate-500 bg-slate-50 p-2 rounded-xl border border-slate-100">

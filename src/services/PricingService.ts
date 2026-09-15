@@ -271,9 +271,9 @@ export class PricingService {
         // Fórmula direta de paridade: baseFare + (dist * priceKm) + (dur * priceMin)
         precoBruto = (baseFare + distanceKm * settings.pricePerKm + durationMin * settings.pricePerMinute) * surgeMultiplier;
       } else if (cat.id === "PARTIU_MOTO") {
-        // Proporção econômica de moto (~75% de base, 78% de km e 75% de minuto)
+        // Proporção econômica de moto (~75% de base, 75% de km e 75% de minuto)
         precoBruto =
-          (baseFare * 0.75 + distanceKm * (settings.pricePerKm * 0.78) + durationMin * (settings.pricePerMinute * 0.75)) *
+          (baseFare * 0.75 + distanceKm * (settings.pricePerKm * 0.75) + durationMin * (settings.pricePerMinute * 0.75)) *
           surgeMultiplier;
       } else {
         precoBruto = rawRouteCost * categoryMultiplier * surgeMultiplier;

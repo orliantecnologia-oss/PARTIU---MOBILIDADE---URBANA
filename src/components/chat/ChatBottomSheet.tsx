@@ -366,7 +366,7 @@ export const ChatBottomSheet: React.FC<ChatBottomSheetProps> = ({
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Mensagem operacional..."
             maxLength={250}
-            className="flex-1 h-11 px-3.5 bg-slate-100 focus:bg-white rounded-2xl border border-slate-200 focus:border-[#0088FF] focus:ring-2 focus:ring-[#0088FF]/20 text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
+            className="flex-1 h-11 px-3.5 bg-slate-100 focus:bg-white rounded-2xl border border-slate-200 focus:border-brand-primary-vibrant focus:ring-2 focus:ring-brand-primary-vibrant/20 text-xs text-slate-900 outline-none transition-all placeholder:text-slate-400"
           />
 
           <button

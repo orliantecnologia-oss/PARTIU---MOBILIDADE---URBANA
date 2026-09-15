@@ -100,7 +100,7 @@ export const RideRatingModal: React.FC<RideRatingModalProps> = ({
           </button>
 
           {/* Foto ou Avatar do Avaliado */}
-          <div className="w-20 h-20 mx-auto rounded-full p-1 bg-gradient-to-tr from-amber-400 to-[#0088FF] shadow-lg mb-3">
+          <div className="w-20 h-20 mx-auto rounded-full p-1 bg-gradient-to-tr from-amber-400 to-brand-primary-vibrant shadow-lg mb-3">
             {targetPhoto ? (
               <img
                 src={targetPhoto}
@@ -202,7 +202,7 @@ export const RideRatingModal: React.FC<RideRatingModalProps> = ({
                 rows={2}
                 placeholder="Conte mais sobre sua viagem (opcional)..."
                 maxLength={300}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-[#0088FF] focus:ring-2 focus:ring-[#0088FF]/20 transition resize-none"
+                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:border-brand-primary-vibrant focus:ring-2 focus:ring-brand-primary-vibrant/20 transition resize-none"
               />
             </div>
 
@@ -212,7 +212,7 @@ export const RideRatingModal: React.FC<RideRatingModalProps> = ({
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#0088FF] to-[#0055AA] hover:from-[#0077EE] hover:to-[#004499] text-white font-black text-sm shadow-md active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full h-12 rounded-2xl bg-gradient-to-r from-brand-primary-vibrant to-brand-primary-deep hover:brightness-105 text-white font-black text-sm shadow-md active:scale-98 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 <span>{isSubmitting ? "Enviando..." : "Confirmar Avaliação"}</span>
               </button>

@@ -194,7 +194,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           </div>
 
           {/* TÍTULO E SUBTÍTULO OFICIAIS */}
-          <h3 className="text-lg sm:text-xl font-bold text-[#003366] leading-tight">
+          <h3 className="text-lg sm:text-xl font-bold text-brand-primary-deep leading-tight">
             Buscando motoristas próximos...
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 font-normal mt-1 mb-4 max-w-xs leading-relaxed">
@@ -216,7 +216,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
                 cx="32"
                 cy="32"
                 r="26"
-                stroke="#0088FF"
+                stroke="var(--brand-primary-vibrant, #0088FF)"
                 strokeWidth="4"
                 fill="transparent"
                 strokeDasharray="163.3"
@@ -239,7 +239,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
           <button
             type="button"
             onClick={requestCancel}
-            className="w-full h-14 mt-5 rounded-full border-2 border-[#EF4444] bg-white text-[#EF4444] hover:bg-rose-50 font-semibold text-base flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-xs"
+            className="w-full h-14 mt-5 rounded-full border-2 border-brand-danger-red bg-white text-brand-danger-red hover:bg-rose-50 font-semibold text-base flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-xs"
           >
             <X className="w-5 h-5 stroke-[2.4]" />
             <span>Cancelar busca</span>
@@ -264,7 +264,7 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
               </div>
 
               <div className="space-y-1">
-                <h4 className="text-base font-semibold text-[#003366]">
+                <h4 className="text-base font-semibold text-brand-primary-deep">
                   Deseja cancelar a busca?
                 </h4>
                 <p className="text-xs text-slate-500 font-medium leading-relaxed">

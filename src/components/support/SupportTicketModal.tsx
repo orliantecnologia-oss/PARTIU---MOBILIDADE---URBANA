@@ -108,7 +108,7 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
         {/* Cabeçalho */}
         <div className="px-6 pt-6 pb-3 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <span className="text-[10px] font-bold text-[#0088FF] bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-100 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-brand-primary-vibrant bg-brand-soft px-2.5 py-0.5 rounded-full border border-brand-border-active uppercase tracking-wider">
               Central de Ajuda & Atendimento
             </span>
             <h3 className="text-lg font-black text-slate-900 mt-1">Como podemos te ajudar?</h3>
@@ -174,13 +174,13 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                       }}
                       className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
                         isSelected
-                          ? "bg-blue-50/70 border-[#0088FF] ring-2 ring-[#0088FF]/20 shadow-xs"
+                          ? "bg-brand-soft border-brand-primary-vibrant ring-2 ring-brand-primary-vibrant/20 shadow-xs"
                           : "bg-slate-50 border-slate-200 hover:bg-slate-100"
                       }`}
                     >
                       <div
                         className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
-                          isSelected ? "bg-[#0088FF] text-white" : "bg-white text-slate-600 border border-slate-200"
+                          isSelected ? "bg-brand-primary-vibrant text-white" : "bg-white text-slate-600 border border-slate-200"
                         }`}
                       >
                         <Icon className="w-4 h-4" />
@@ -206,7 +206,7 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="Ex: Deixei meu casaco preto no banco de trás"
-                className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:bg-white focus:border-[#0088FF] focus:ring-2 focus:ring-[#0088FF]/20 transition"
+                className="w-full h-11 px-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:bg-white focus:border-brand-primary-vibrant focus:ring-2 focus:ring-brand-primary-vibrant/20 transition"
               />
             </div>
 
@@ -219,7 +219,7 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Forneça o máximo de detalhes possível para agilizar o atendimento..."
-                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:bg-white focus:border-[#0088FF] focus:ring-2 focus:ring-[#0088FF]/20 transition resize-none"
+                className="w-full p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 outline-none focus:bg-white focus:border-brand-primary-vibrant focus:ring-2 focus:ring-brand-primary-vibrant/20 transition resize-none"
               />
             </div>
 
@@ -228,7 +228,7 @@ export const SupportTicketModal: React.FC<SupportTicketModalProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting || !subject.trim() || !description.trim()}
-                className="w-full h-12 rounded-2xl bg-[#0088FF] hover:bg-[#0077EE] disabled:opacity-50 text-white font-black text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-2xl bg-brand-primary-vibrant hover:brightness-105 disabled:opacity-50 text-white font-black text-sm shadow-md transition cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>{isSubmitting ? "Registrando Protocolo..." : "Enviar Chamado de Suporte"}</span>
               </button>

@@ -36,7 +36,7 @@ const RecentAddressItemRow = memo(function RecentAddressItemRow({
       className="w-full py-3 px-1 flex items-center justify-between border-b border-slate-100 hover:bg-slate-50/80 rounded-xl transition active:scale-[0.99] cursor-pointer group text-left"
     >
       <div className="flex items-center gap-3.5 min-w-0 flex-1">
-        <div className="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 shrink-0 group-hover:text-[#0088FF] transition-colors">
+        <div className="w-6 h-6 rounded-full flex items-center justify-center text-slate-400 shrink-0 group-hover:text-brand-primary-vibrant transition-colors">
           <Clock className="w-5 h-5 stroke-[2]" />
         </div>
 
@@ -98,11 +98,11 @@ export const DestinationCard = memo(function DestinationCard({
         <button
           type="button"
           onClick={handleSearch}
-          className="group w-full h-14 px-2 py-1.5 rounded-full bg-[#F0F7FF] hover:bg-[#E4F1FF] border border-[#D0E6FF] flex items-center transition-all duration-200 active:scale-[0.99] cursor-pointer text-left shadow-xs"
+          className="group w-full h-14 px-2 py-1.5 rounded-full bg-brand-soft hover:bg-brand-surface-highlight border border-brand-border-active flex items-center transition-all duration-200 active:scale-[0.99] cursor-pointer text-left shadow-xs"
           aria-label="Para onde vamos? Buscar endereços"
         >
           {/* Botão circular com lupa azul */}
-          <div className="w-11 h-11 rounded-full bg-[#0088FF] text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-11 h-11 rounded-full bg-brand-primary-vibrant text-white flex items-center justify-center shadow-xs shrink-0 group-hover:scale-105 transition-transform">
             <Search className="w-5 h-5 stroke-[2.4]" />
           </div>
 
@@ -126,7 +126,7 @@ export const DestinationCard = memo(function DestinationCard({
             <button
               type="button"
               onClick={handleSearch}
-              className="text-sm font-semibold text-[#0088FF] hover:underline cursor-pointer flex items-center gap-0.5"
+              className="text-sm font-semibold text-brand-primary-vibrant hover:underline cursor-pointer flex items-center gap-0.5"
             >
               <span>Ver todos</span>
               <ChevronRight className="w-3.5 h-3.5" />
@@ -149,10 +149,10 @@ export const DestinationCard = memo(function DestinationCard({
             <button
               type="button"
               onClick={handleAdjustPin}
-              className="w-full mt-2 py-2 px-1 flex items-center justify-between text-xs text-slate-500 hover:text-[#0088FF] hover:bg-blue-50/50 rounded-xl transition cursor-pointer"
+              className="w-full mt-2 py-2 px-1 flex items-center justify-between text-xs text-slate-500 hover:text-brand-primary-vibrant hover:bg-blue-50/50 rounded-xl transition cursor-pointer"
             >
               <span className="flex items-center gap-2 font-medium">
-                <MapPin className="w-4 h-4 text-[#0088FF]" />
+                <MapPin className="w-4 h-4 text-brand-primary-vibrant" />
                 <span>Escolher destino no mapa</span>
               </span>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />

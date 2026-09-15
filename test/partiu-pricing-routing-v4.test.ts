@@ -202,11 +202,11 @@ describe("27. Dynamic Pricing Engine & All 7 Categories (Zero Hardcode)", () => 
       price_per_minute: 0.6,
     });
 
-    const legacyQuotes = pricingService.calculateLegacyPairQuotes(10, 20);
+    const legacyQuotes = pricingService.calculateLegacyPairQuotes(10, 20, { isNightTime: false });
     // Carro: 12 + 10*3.5 + 20*0.6 = 12 + 35 + 12 = 59.00
     expect(legacyQuotes.carro.precoBrl).toBe(59.0);
-    // Moto: 12*0.75 + 10*(3.5*0.78) + 20*(0.6*0.75) = 9 + 27.3 + 9 = 45.30
-    expect(legacyQuotes.moto.precoBrl).toBe(45.3);
+    // Moto: 12*0.75 + 10*(3.5*0.75) + 20*(0.6*0.75) = 9 + 26.25 + 9 = 44.25
+    expect(legacyQuotes.moto.precoBrl).toBe(44.25);
   });
 });
 

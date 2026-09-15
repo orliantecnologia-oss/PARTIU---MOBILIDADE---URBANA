@@ -77,7 +77,7 @@ export const Header = memo(function Header({
         <button
           type="button"
           onClick={onOpenDrawer}
-          className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer shadow-sm hover:ring-2 hover:ring-[#0088FF]/40 active:scale-95 transition-all"
+          className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer shadow-sm hover:ring-2 hover:ring-brand-primary-vibrant/40 active:scale-95 transition-all"
           aria-label="Abrir Menu Lateral e Perfil"
           title="Abrir Menu"
         >
@@ -91,7 +91,7 @@ export const Header = memo(function Header({
               }}
             />
           ) : (
-            <span className="text-[#003366] text-xs font-bold tracking-tight">
+            <span className="text-brand-primary-deep text-xs font-bold tracking-tight">
               {iniciais}
             </span>
           )}
@@ -105,8 +105,8 @@ export const Header = memo(function Header({
         <PartiuLogo
           variant="full"
           size="md"
-          primaryColor="#003366"
-          accentColor="#0088FF"
+          primaryColor="var(--brand-primary-deep, #003366)"
+          accentColor="var(--brand-primary-vibrant, #0088FF)"
           className="transition-transform hover:scale-102"
         />
       </div>
@@ -118,7 +118,7 @@ export const Header = memo(function Header({
         <button
           type="button"
           onClick={onOpenNotifications}
-          className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200/80 flex items-center justify-center relative shrink-0 cursor-pointer text-slate-700 hover:bg-slate-100 hover:text-[#0088FF] active:scale-95 transition-all shadow-xs"
+          className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200/80 flex items-center justify-center relative shrink-0 cursor-pointer text-slate-700 hover:bg-slate-100 hover:text-brand-primary-vibrant active:scale-95 transition-all shadow-xs"
           aria-label="Notificações"
           title="Notificações"
         >
@@ -127,7 +127,7 @@ export const Header = memo(function Header({
           {/* Badge azul vibrante #0088FF oficial (Lealt Recomendado/2.png) */}
           {hasUnreadNotifications && (
             <span
-              className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-[#0088FF] ring-2 ring-white animate-pulse"
+              className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-brand-primary-vibrant ring-2 ring-white animate-pulse"
               aria-hidden="true"
             />
           )}

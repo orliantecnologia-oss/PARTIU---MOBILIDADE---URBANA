@@ -492,7 +492,7 @@ export const PartiuDriverNavigationMap = memo(function PartiuDriverNavigationMap
       )}
 
       {/* VELOCÍMETRO DIGITAL HUD (Satelite Real) */}
-      <div className="absolute bottom-6 left-4 z-20 pointer-events-none">
+      <div className="absolute bottom-72 sm:bottom-80 left-4 z-20 pointer-events-none">
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-900/90 backdrop-blur-md border border-white/10 text-white shadow-xl">
           <Gauge className="w-4 h-4 text-emerald-400" />
           <div className="flex items-baseline gap-1">

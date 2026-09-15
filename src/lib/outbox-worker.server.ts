@@ -54,11 +54,31 @@ export async function runOutboxWorkerBatch(
 
   // 1. Obter lote de eventos pendentes ou com falha temporária
   let events: any[] = [];
+  let isDatabaseConnected = false;
+
   if (mockEventsProvider) {
     events = mockEventsProvider.filter(
       (e) =>
         e.status === "PENDING" || (e.status === "FAILED" && e.retry_count < (e.max_retries || 5)),
     );
+  } else {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data, error } = await (supabaseAdmin as any)
+        .from("event_outbox")
+        .select("*")
+        .in("status", ["PENDING", "FAILED"])
+        .lt("retry_count", 5)
+        .order("created_at", { ascending: true })
+        .limit(50);
+
+      if (!error && Array.isArray(data)) {
+        events = data;
+        isDatabaseConnected = true;
+      }
+    } catch {
+      // Fallback gracioso se tabela ou credenciais de servidor estiverem indisponíveis
+    }
   }
 
   for (const event of events) {
@@ -79,6 +99,20 @@ export async function runOutboxWorkerBatch(
       event.published_at = new Date().toISOString();
       result.published++;
       result.details.push({ id: event.id, eventType: event.event_type, status: "PUBLISHED" });
+
+      if (isDatabaseConnected) {
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          await (supabaseAdmin as any)
+            .from("event_outbox")
+            .update({
+              status: "PUBLISHED",
+              published_at: event.published_at,
+              retry_count: event.retry_count,
+            })
+            .eq("id", event.id);
+        } catch {}
+      }
     } catch (err: any) {
       const errorMessage = err?.message || "Falha desconhecida no consumidor";
       event.last_error = errorMessage;
@@ -104,6 +138,29 @@ export async function runOutboxWorkerBatch(
           status: "DEAD_LETTER",
           error: errorMessage,
         });
+
+        if (isDatabaseConnected) {
+          try {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            await (supabaseAdmin as any)
+              .from("event_outbox")
+              .update({
+                status: "DEAD_LETTER",
+                last_error: errorMessage,
+                retry_count: event.retry_count,
+              })
+              .eq("id", event.id);
+
+            await (supabaseAdmin as any)
+              .from("event_dead_letters")
+              .insert({
+                outbox_id: event.id,
+                event_type: event.event_type,
+                payload: event.payload,
+                error_message: errorMessage,
+              });
+          } catch {}
+        }
       } else {
         // Falha temporária: marca como FAILED com agendamento de retry
         event.status = "FAILED";
@@ -115,6 +172,20 @@ export async function runOutboxWorkerBatch(
           status: "FAILED",
           error: `${errorMessage} (Próximo retry em ${nextRetryMs}ms)`,
         });
+
+        if (isDatabaseConnected) {
+          try {
+            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+            await (supabaseAdmin as any)
+              .from("event_outbox")
+              .update({
+                status: "FAILED",
+                last_error: errorMessage,
+                retry_count: event.retry_count,
+              })
+              .eq("id", event.id);
+          } catch {}
+        }
       }
     }
   }
