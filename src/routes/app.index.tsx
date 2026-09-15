@@ -516,8 +516,8 @@ function PartiuPassengerHomeContent() {
               {(state === "TIMEOUT" || (state as string) === "SEARCH_TIMEOUT") && <PassengerTimeoutBottomSheet />}
 
               {/* E. CORRIDA EM ANDAMENTO */}
-              {state === "DRIVER_ASSIGNED" && <PassengerActiveRideCard />}
-              {(state === "DRIVER_ARRIVING" ||
+              {(state === "DRIVER_ASSIGNED" ||
+                state === "DRIVER_ARRIVING" ||
                 state === "DRIVER_EN_ROUTE" ||
                 state === "DRIVER_ARRIVED" ||
                 state === "ACCEPTED" ||

@@ -36,7 +36,11 @@ import {
   Wallet,
   Receipt,
   ArrowUpRight,
+  Home,
+  Route as RouteIcon,
+  User,
 } from "lucide-react";
+import { PartiuLogo } from "@/components/common/PartiuLogo";
 import {
   subscriptionEngine,
   commissionEngine,
@@ -111,6 +115,28 @@ import { openExternalNavigation } from "@/utils/navigation-launcher";
 import { driverConsecutiveRidesEngine } from "@/lib/driver/driver-consecutive-rides-engine";
 import { supabaseAuthService } from "@/lib/auth/supabase-auth-service";
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
+
+function SirenIcon({ className = "w-5 h-5 text-[#EF4444]" }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M7 12a5 5 0 0 1 10 0v4H7v-4z" />
+      <path d="M5 20h14" />
+      <path d="M12 4V2" />
+      <path d="M4.93 6.93 3.51 5.51" />
+      <path d="M19.07 6.93l1.42-1.42" />
+      <path d="M2 13h2" />
+      <path d="M20 13h2" />
+    </svg>
+  );
+}
 
 export function extrairOfertaDeCorrida(c: CorridaPartiu, nomeApp: string = "PARTIU") {
   const isEntrega = c.isEntrega || c.modalidade.startsWith("ENTREGA");
@@ -1140,27 +1166,24 @@ export function PartiuDriverCockpit() {
       />
 
       {/* ================================================================= */}
-      {/* 2. TOP HUD FLUTUANTE — LIGHT THEME EM 2 LINHAS (PADRÃO 6.PNG)    */}
+      {/* 2. TOP HUD FLUTUANTE — LIGHT THEME EM 2 LINHAS (PADRÃO 11.PNG)    */}
       {/* ================================================================= */}
-      <header className="absolute top-0 inset-x-0 z-30 pt-[max(0.6rem,env(safe-area-inset-top))] px-3 pb-2 pointer-events-none space-y-2">
-        {/* SLIM APP BAR (Superior) */}
-        <div className="flex items-center justify-between pointer-events-auto bg-white/90 backdrop-blur-md px-3 py-2 rounded-2xl border border-slate-200/80 shadow-xs">
+      <header className="absolute top-0 inset-x-0 z-30 pt-[max(0.6rem,env(safe-area-inset-top))] px-3 pb-2 pointer-events-none space-y-2.5">
+        {/* SLIM APP BAR (Superior com PartiuLogo Centralizado) */}
+        <div className="flex items-center justify-between pointer-events-auto bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-slate-200/80 shadow-xs">
           {/* Menu Hambúrguer */}
           <button
             type="button"
             onClick={() => setModalPerfilMotorista(true)}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95 transition"
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95 transition cursor-pointer"
             aria-label="Abrir menu"
           >
             <Menu className="w-5 h-5" />
           </button>
 
-          {/* Logo PARTIU Centralizado */}
-          <div className="flex items-center gap-1.5">
-            <div className="w-6 h-6 rounded-lg bg-[#0088FF] flex items-center justify-center text-white shadow-xs">
-              <MapPin className="w-3.5 h-3.5 fill-white text-white" />
-            </div>
-            <span className="text-base font-bold tracking-tight text-[#003366]">PARTIU</span>
+          {/* Logo PARTIU Centralizado (11.png) */}
+          <div className="flex items-center justify-center">
+            <PartiuLogo variant="full" size="md" />
           </div>
 
           {/* Ações da Direita: Áudio + Notificações */}
@@ -1168,7 +1191,7 @@ export function PartiuDriverCockpit() {
             <button
               type="button"
               onClick={toggleSom}
-              className={`w-8 h-8 rounded-xl flex items-center justify-center transition active:scale-90 ${
+              className={`w-8 h-8 rounded-xl flex items-center justify-center transition active:scale-90 cursor-pointer ${
                 somAtivo ? "text-[#0088FF] hover:bg-blue-50" : "text-slate-400 hover:bg-slate-100"
               }`}
               title={somAtivo ? "Som ativado" : "Som silenciado"}
@@ -1178,7 +1201,7 @@ export function PartiuDriverCockpit() {
             </button>
             <button
               type="button"
-              className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95 transition relative"
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-700 hover:bg-slate-100 active:scale-95 transition relative cursor-pointer"
               aria-label="Notificações"
             >
               <Bell className="w-4 h-4" />
@@ -1187,150 +1210,100 @@ export function PartiuDriverCockpit() {
           </div>
         </div>
 
-        {/* CARD HUD EM 2 LINHAS (Superfície Branca, Bordas Sutis) */}
-        <div className="pointer-events-auto bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-sm p-3 sm:p-3.5 space-y-2.5">
-          {/* LINHA 1: Avatar + Nome + Profissional + Nota + Toggle Mestre Online/Offline */}
-          <div className="flex items-center justify-between gap-2">
-            <button
-              type="button"
-              onClick={() => setModalPerfilMotorista(true)}
-              className="flex items-center gap-2.5 text-left min-w-0 active:scale-98 transition group cursor-pointer"
-            >
-              <div className="relative shrink-0">
-                <div className="w-9 h-9 rounded-full bg-[#0088FF] text-white font-bold flex items-center justify-center text-xs shadow-xs ring-2 ring-blue-100">
-                  {perfilMotorista.nome
-                    ? perfilMotorista.nome
-                        .split(" ")
-                        .filter(Boolean)
-                        .map((n) => n[0])
-                        .slice(0, 2)
-                        .join("")
-                        .toUpperCase()
-                    : "CS"}
-                </div>
-                <span
-                  className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white shadow-xs ${
-                    isOnline ? "bg-[#22C55E] animate-pulse" : "bg-slate-400"
-                  }`}
-                />
+        {/* CARD HUD EM 2 LINHAS (11.png: Superfície Branca, Bordas Sutis) */}
+        <div className="pointer-events-auto bg-white/98 backdrop-blur-md rounded-3xl border border-slate-100 shadow-md p-4 space-y-3">
+          {/* LINHA 1: Avatar + Nota + Pill ONLINE (11.png) */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <img
+                src={perfilMotorista.fotoUrl || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80"}
+                alt={perfilMotorista.nome || "Carlos Silva"}
+                className="w-13 h-13 rounded-full object-cover shadow-xs border-2 border-slate-100"
+              />
+              <div className="flex items-center gap-1.5">
+                <Star className="w-5 h-5 fill-amber-400 text-amber-400 shrink-0" />
+                <span className="text-[#003366] font-bold text-xl">{perfilMotorista.rating?.toFixed(2) || "4.98"}</span>
               </div>
+            </div>
 
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs sm:text-sm font-semibold text-[#003366] truncate max-w-[120px] sm:max-w-[150px]">
-                    {perfilMotorista.nome || "Carlos Silva"}
-                  </span>
-                  <span className="text-[10px] font-semibold bg-[#0088FF] text-white px-1.5 py-0.2 rounded-full">
-                    Profissional
-                  </span>
-                </div>
-                <div className="text-[11px] font-medium flex items-center gap-1 text-slate-500 mt-0.5">
-                  <span className="flex items-center text-amber-500 font-semibold">
-                    <Star className="w-3 h-3 fill-current shrink-0 mr-0.5" />
-                    <span>{perfilMotorista.rating?.toFixed(2) || "4.98"}</span>
-                  </span>
-                  <span>•</span>
-                  <span className="text-slate-600">{loyaltyProfile.tierName || "Ouro"}</span>
-                </div>
-              </div>
-            </button>
-
-            {/* Toggle Mestre Online / Offline com Switch */}
+            {/* Toggle Mestre Online / Offline (11.png: Pill Verde ONLINE) */}
             <button
               type="button"
               onClick={handleToggleOnline}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0 border ${
+              className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 transition-all shadow-xs active:scale-95 cursor-pointer shrink-0 ${
                 isOnline
-                  ? "bg-emerald-50 text-[#22C55E] border-emerald-200 hover:bg-emerald-100/70"
-                  : "bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200/70"
+                  ? "bg-[#10B981] text-white hover:bg-emerald-600"
+                  : "bg-slate-200 text-slate-700 hover:bg-slate-300"
               }`}
             >
               <span
-                className={`w-2 h-2 rounded-full ${
-                  isOnline ? "bg-[#22C55E] animate-pulse" : "bg-slate-400"
+                className={`w-2.5 h-2.5 rounded-full ${
+                  isOnline ? "bg-white animate-pulse" : "bg-slate-500"
                 }`}
               />
-              <span>{isOnline ? "ONLINE" : "OFFLINE"}</span>
-              {/* Switch Visual Pill */}
-              <div
-                className={`w-7 h-4 rounded-full p-0.5 transition-colors duration-200 flex items-center ${
-                  isOnline ? "bg-[#22C55E] justify-end" : "bg-slate-300 justify-start"
-                }`}
-              >
-                <div className="w-3 h-3 rounded-full bg-white shadow-xs" />
-              </div>
+              <span className="tracking-wider uppercase">{isOnline ? "ONLINE" : "OFFLINE"}</span>
             </button>
           </div>
 
-          {/* LINHA 2: 3 Colunas Equilibradas (Ganhos Hoje, Corridas, Online) */}
-          <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center items-center">
+          {/* LINHA 2: 3 Colunas Equilibradas (11.png: Ganhos Hoje, Corridas, Aceite) */}
+          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100 items-center text-left">
             {/* Coluna 1: Ganhos Hoje */}
             <button
               type="button"
               onClick={handleAbrirModalSaquePix}
-              className="text-left active:scale-95 transition cursor-pointer px-1 py-0.5 rounded-lg hover:bg-slate-50"
+              className="text-left active:scale-95 transition cursor-pointer flex items-start gap-2 group"
               title="Solicitar Saque PIX D+0"
             >
-              <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                <Wallet className="w-3 h-3 text-[#0088FF] shrink-0" />
-                <span>Ganhos Hoje</span>
+              <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 mt-0.5 border border-slate-100">
+                <Wallet className="w-4 h-4 text-[#003366]" />
               </div>
-              <div className="text-xs sm:text-sm font-semibold text-[#003366] leading-snug">
-                {ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              <div className="min-w-0">
+                <span className="text-[10px] text-slate-500 font-medium block truncate">Ganhos Hoje:</span>
+                <div className="text-sm sm:text-base font-extrabold text-[#003366] leading-tight truncate">
+                  {ganhosHoje.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                </div>
+                <span className="inline-block text-[9px] font-bold text-[#0088FF] bg-[#E8F4FD] px-1.5 py-0.2 rounded mt-0.5">
+                  D+0 PIX
+                </span>
               </div>
-              <span className="inline-block text-[9px] font-medium text-[#0088FF] bg-blue-50 border border-blue-200/60 px-1 py-0.2 rounded leading-tight">
-                D+0 PIX
-              </span>
             </button>
 
             {/* Coluna 2: Corridas */}
-            <div className="text-center px-1 py-0.5 border-x border-slate-100">
-              <div className="flex items-center justify-center gap-1 text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                <Car className="w-3 h-3 text-[#0088FF] shrink-0" />
-                <span>Corridas</span>
+            <div className="flex items-start gap-2 border-x border-slate-100 px-2">
+              <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 mt-0.5 border border-slate-100">
+                <Car className="w-4 h-4 text-[#003366]" />
               </div>
-              <div className="text-xs sm:text-sm font-semibold text-[#003366] leading-snug">
-                {corridasFeitas}
+              <div>
+                <div className="text-sm sm:text-base font-extrabold text-[#003366] leading-tight">
+                  {corridasFeitas || 12}
+                </div>
+                <span className="text-[10px] text-slate-500 font-medium block">Corridas</span>
               </div>
-              <span className="text-[9px] text-slate-400 font-medium">hoje</span>
             </div>
 
-            {/* Coluna 3: Online */}
-            <div className="text-right px-1 py-0.5">
-              <div className="flex items-center justify-end gap-1 text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                <Clock className="w-3 h-3 text-[#0088FF] shrink-0" />
-                <span>Online</span>
+            {/* Coluna 3: Aceite */}
+            <div className="flex items-start gap-2 pl-2">
+              <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 mt-0.5 border border-slate-100">
+                <CheckCircle2 className="w-4 h-4 text-[#003366]" />
               </div>
-              <div className="text-xs sm:text-sm font-semibold text-[#003366] leading-snug">
-                {horasOnline}
+              <div>
+                <div className="text-sm sm:text-base font-extrabold text-[#003366] leading-tight">
+                  98%
+                </div>
+                <span className="text-[10px] text-slate-500 font-medium block">Aceite</span>
               </div>
-              <span className="text-[9px] text-slate-400 font-medium">tempo ativo</span>
             </div>
           </div>
         </div>
 
-        {/* PÍLULA FLUTUANTE DE TELEMETRIA GPS DEADBAND */}
+        {/* PÍLULA FLUTUANTE DE TELEMETRIA GPS DEADBAND (11.png) */}
         <div className="pointer-events-auto flex items-center justify-center">
-          <div className="bg-white/95 backdrop-blur-md rounded-full px-3 py-1 text-[11px] border border-slate-200 shadow-xs flex items-center gap-1.5 font-medium text-slate-600">
-            <span className="w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
-            <span>📡 Telemetria Deadband Ativa (30m / 5s)</span>
+          <div className="bg-gradient-to-r from-[#0088FF] to-[#0066CC] text-white px-5 py-2 rounded-full text-xs font-medium shadow-md flex items-center gap-2">
+            <span className="text-sm">((•))</span>
+            <span>Telemetria Deadband Ativa (30m / 5s)</span>
           </div>
         </div>
       </header>
-
-      {/* BOTÃO FLUTUANTE DE CENTRALIZAR NO MAPA (DIREITA) */}
-      <button
-        type="button"
-        onClick={() => {
-          // Centraliza no mapa acionando reset de viewport se disponível
-          window.dispatchEvent(new CustomEvent("partiu:recenter-map"));
-        }}
-        className="absolute right-3.5 top-44 z-20 w-10 h-10 rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-md flex items-center justify-center text-slate-700 hover:text-[#0088FF] hover:border-blue-200 active:scale-90 transition pointer-events-auto cursor-pointer"
-        title="Centralizar Minha Posição"
-        aria-label="Centralizar no Mapa"
-      >
-        <Compass className="w-5 h-5" />
-      </button>
 
       {/* Alerta de Moderação Documental Pendente / Rejeitada */}
       {driverApprovalStatus === "pendente" && (
@@ -3033,20 +3006,81 @@ export function PartiuDriverCockpit() {
       )}
 
       {/* ========================================================================= */}
-      {/* BOTÃO FLUTUANTE SOS (SOCORRO IMEDIATO POLÍCIA 190)                        */}
+      {/* BOTÕES FLUTUANTES NO MAPA (11.png: RECENTRALIZAR À ESQUERDA & SOS À DIREITA) */}
       {/* ========================================================================= */}
-      <div className="fixed bottom-24 right-4 z-40 pointer-events-auto">
+      {/* 1. Botão Recenter (11.png: Inferior Esquerdo) */}
+      <button
+        type="button"
+        onClick={() => {
+          window.dispatchEvent(new CustomEvent("partiu:recenter-map"));
+        }}
+        className="fixed left-4 bottom-20 z-30 w-14 h-14 rounded-full bg-white shadow-xl border border-slate-100 flex items-center justify-center text-[#0088FF] hover:bg-slate-50 active:scale-95 transition pointer-events-auto cursor-pointer"
+        title="Centralizar Minha Posição"
+        aria-label="Centralizar no Mapa"
+      >
+        <Compass className="w-6 h-6 stroke-[2.2]" />
+      </button>
+
+      {/* 2. Botão SOS Emergência 190 (11.png: Inferior Direito) */}
+      <div className="fixed bottom-20 right-4 z-30 pointer-events-auto">
         <button
           type="button"
           onClick={() => setModalSosAberto(true)}
           aria-label="Botão de Emergência e SOS Policial 190"
-          className="w-13 h-13 rounded-full bg-white hover:bg-rose-50 active:scale-95 text-[#EF4444] flex flex-col items-center justify-center shadow-lg border-2 border-[#EF4444] transition-all cursor-pointer animate-pulse"
+          className="w-16 h-16 rounded-full bg-white hover:bg-rose-50 active:scale-95 text-[#EF4444] flex flex-col items-center justify-center shadow-xl border-2 border-[#EF4444] transition-all cursor-pointer animate-pulse"
           title="Central de Emergência SOS 190"
         >
-          <Shield className="w-5 h-5 text-[#EF4444]" />
-          <span className="text-[9px] font-semibold tracking-wider leading-none mt-0.5 text-[#EF4444]">SOS</span>
+          <SirenIcon className="w-6 h-6 text-[#EF4444]" />
+          <span className="text-[10px] font-extrabold tracking-wider leading-none mt-0.5 text-[#EF4444]">SOS</span>
         </button>
       </div>
+
+      {/* ========================================================================= */}
+      {/* BARRA DE NAVEGAÇÃO INFERIOR MOTORISTA (11.png: Início, Corridas, Carteira, Perfil) */}
+      {/* ========================================================================= */}
+      {estadoCockpit === "IDLE" && (
+        <nav className="fixed bottom-0 inset-x-0 z-30 h-16 bg-white border-t border-slate-100 px-6 flex items-center justify-around pointer-events-auto shadow-lg">
+          {/* Aba Início (Ativa com barra azul indicadora) */}
+          <button
+            type="button"
+            className="flex flex-col items-center justify-center relative py-1 text-[#0088FF] cursor-pointer"
+          >
+            <Home className="w-5 h-5 stroke-[2.2]" />
+            <span className="text-[11px] font-bold mt-0.5">Início</span>
+            <span className="absolute -bottom-1 w-8 h-0.5 bg-[#0088FF] rounded-full" />
+          </button>
+
+          {/* Aba Corridas */}
+          <button
+            type="button"
+            onClick={() => setModalEconomiaAberto(true)}
+            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer transition"
+          >
+            <RouteIcon className="w-5 h-5 stroke-[2]" />
+            <span className="text-[11px] font-medium mt-0.5">Corridas</span>
+          </button>
+
+          {/* Aba Carteira */}
+          <button
+            type="button"
+            onClick={handleAbrirModalSaquePix}
+            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer transition"
+          >
+            <Wallet className="w-5 h-5 stroke-[2]" />
+            <span className="text-[11px] font-medium mt-0.5">Carteira</span>
+          </button>
+
+          {/* Aba Perfil */}
+          <button
+            type="button"
+            onClick={() => setModalPerfilMotorista(true)}
+            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-600 cursor-pointer transition"
+          >
+            <User className="w-5 h-5 stroke-[2]" />
+            <span className="text-[11px] font-medium mt-0.5">Perfil</span>
+          </button>
+        </nav>
+      )}
 
       {/* MODAL DE CONFIRMAÇÃO SOS 190 */}
       {modalSosAberto && (

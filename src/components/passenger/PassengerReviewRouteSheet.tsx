@@ -23,108 +23,131 @@ import { useBrandTheme } from "@/hooks/useBrandTheme";
 import { useBottomSheetGesture } from "@/hooks/useBottomSheetGesture";
 import { hapticFeedback } from "@/lib/haptics/haptic-feedback";
 import { CategoryQuoteSkeleton } from "@/components/ui/skeleton";
+import { VehiclePerspectiveGraphic } from "./VehiclePerspectiveGraphic";
 
 /**
- * 🚗 PASSENGER REVIEW ROUTE SHEET (MODAL INFERIOR "CONFIRMAÇÃO DE CORRIDA")
+ * 🚗 PASSENGER REVIEW ROUTE SHEET (MODAL "ESCOLHA SUA CATEGORIA")
  * ==============================================================================
- * Refatorado com arquitetura "Above the Fold":
- * 1. Altura compacta travada em ~46% a 50% da tela (sem rolagem/scroll).
- * 2. Seleção de Veículos: Partiu Pop, Partiu Moto e Partiu Plus lado a lado.
- * 3. Seção de Pagamento compacta em linha única (célula com ChevronRight + modal secundário).
- * 4. Botão de Confirmação principal sempre visível e ancorado no rodapé.
- * 5. Mapa livre e respirando no fundo com máxima visibilidade do trajeto.
+ * Alinhado com 100% de fidelidade com Lealt Recomendado/4.png:
+ * 1. Título "Escolha sua categoria" e subtítulo "Veja o tempo de chegada e o valor da corrida."
+ * 2. Três cards verticais amplos (Partiu Pop, Partiu Moto, Partiu Plus) com renders 3D
+ * 3. Card de pagamento seguro PIX D+0
+ * 4. Botão de confirmação amplo com gradiente e identificação do veículo selecionado
  * ==============================================================================
  */
 interface VehicleOptionCardProps {
   isSelected: boolean;
   category: PassengerVehicleCategory;
   title: string;
+  description: string;
   badgeText: string;
   badgeClass: string;
   etaMinutes: number;
   capacityText: string;
+  luggageText: string;
   price: string;
-  icon: React.ComponentType<{ className?: string }>;
+  vehicleGraphicCategory: "POP" | "MOTO" | "PLUS";
   onSelect: (cat: PassengerVehicleCategory) => void;
-  accentBorder?: string;
   corPrimaria?: string;
   corSecundaria?: string;
 }
 
-/** Card de Categoria 100% Puro e Memorizado (Zero re-renders durante gestos de arrasto) */
+/** Card de Categoria Vertical Amplo (Lealt Recomendado/4.png) */
 const VehicleOptionCard = memo(function VehicleOptionCard({
   isSelected,
   category,
   title,
+  description,
   badgeText,
   badgeClass,
   etaMinutes,
   capacityText,
+  luggageText,
   price,
-  icon: IconComp,
+  vehicleGraphicCategory,
   onSelect,
-  accentBorder,
-  corPrimaria,
-  corSecundaria,
 }: VehicleOptionCardProps) {
   const handleClick = useCallback(() => {
     onSelect(category);
   }, [onSelect, category]);
 
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={handleClick}
-      style={
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          handleClick();
+        }
+      }}
+      className={`w-full p-3 sm:p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-between select-none active:scale-[0.99] ${
         isSelected
-          ? {
-              borderColor: corPrimaria || "#0088FF",
-              backgroundColor: `${corPrimaria || "#0088FF"}15`,
-              boxShadow: `0 4px 14px -2px ${corPrimaria || "#0088FF"}70`,
-            }
-          : undefined
-      }
-      className={`p-2 sm:p-2.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden active:scale-[0.97] hover:scale-[1.01] duration-150 ${
-        isSelected
-          ? "ring-2 ring-primary-600/50 shadow-sm"
-          : "border-slate-200 bg-white hover:border-slate-300 shadow-2xs"
+          ? "border-[#0088FF] bg-[#F0F7FF]/40 shadow-xs"
+          : "border-slate-200 bg-white hover:border-slate-300"
       }`}
     >
-      <div className="flex items-center justify-between w-full">
-        <div
-          style={
-            isSelected
-              ? {
-                  backgroundColor: corPrimaria || "#0088FF",
-                  color: "#FFFFFF",
-                }
-              : undefined
-          }
-          className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 ${
-            isSelected ? "shadow-2xs" : "bg-slate-100 text-slate-700"
-          }`}
-        >
-          <IconComp className="w-4 h-4 stroke-[2.4]" />
-        </div>
-        <span className={`text-[9.5px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-md ${badgeClass}`}>
-          {badgeText}
-        </span>
+      {/* 1. ILUSTRAÇÃO 3D DO VEÍCULO (ESQUERDA) */}
+      <div className="w-20 sm:w-24 h-14 sm:h-16 flex items-center justify-center shrink-0 mr-2.5">
+        <VehiclePerspectiveGraphic
+          category={vehicleGraphicCategory}
+          className="w-full h-full object-contain drop-shadow-xs"
+        />
       </div>
 
-      <div className="mt-1">
-        <span className="text-xs sm:text-[13px] font-semibold text-slate-900 block truncate">
-          {title}
-        </span>
-        <span className="text-[10px] sm:text-[10.5px] text-slate-500 font-medium block truncate">
-          ~{etaMinutes} min • {capacityText}
-        </span>
-        <span
-          className="text-sm sm:text-base font-semibold text-[#003366] block mt-0.5 tracking-tight"
-        >
-          {price}
-        </span>
+      {/* 2. DADOS DA CATEGORIA (MEIO) */}
+      <div className="flex-1 min-w-0 pr-2">
+        <div className="flex items-center gap-2">
+          <h4 className="text-sm sm:text-base font-bold text-slate-900 leading-tight">
+            {title}
+          </h4>
+          <span className={`text-[9.5px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded ${badgeClass}`}>
+            {badgeText}
+          </span>
+        </div>
+
+        <p className="text-[11px] sm:text-xs text-slate-500 font-normal truncate mt-0.5">
+          {description}
+        </p>
+
+        <div className="flex items-center gap-2.5 text-[10.5px] sm:text-[11px] text-slate-600 font-medium mt-1">
+          <span className="flex items-center gap-1">
+            <User className="w-3 h-3 text-slate-400" />
+            <span>{capacityText}</span>
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="flex items-center gap-1">
+            <span>🧳</span>
+            <span>{luggageText}</span>
+          </span>
+        </div>
       </div>
-    </button>
+
+      {/* 3. CHEGADA, PREÇO E SELETOR (DIREITA) */}
+      <div className="flex items-center gap-3 shrink-0">
+        <div className="text-right">
+          <div className="flex items-center justify-end gap-1 text-[10px] sm:text-[10.5px] text-slate-500 font-medium">
+            <Clock className="w-3 h-3 text-[#0088FF]" />
+            <span>Chegada em</span>
+          </div>
+          <div className="text-xs font-bold text-slate-800 leading-tight">
+            {etaMinutes} min
+          </div>
+          <div className="text-base sm:text-lg font-bold text-[#003366] leading-snug mt-0.5">
+            {price}
+          </div>
+        </div>
+
+        {/* Radio Button Indicator (Lealt Recomendado/4.png) */}
+        <div
+          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+            isSelected ? "border-[#0088FF] bg-white" : "border-slate-300 bg-white"
+          }`}
+        >
+          {isSelected && <div className="w-3 h-3 rounded-full bg-[#0088FF]" />}
+        </div>
+      </div>
+    </div>
   );
 });
 
@@ -354,112 +377,110 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
         </div>
 
         {/* ════════════════════════════════════════════════════════════════════
-            SEÇÃO B — CONTEÚDO PRINCIPAL (100% VISÍVEL, ZERO SCROLL)
-            Flexbox puro e responsivo sem scrollbars ou containers roláveis
+            SEÇÃO B — CONTEÚDO PRINCIPAL (PADRÃO LEALT RECOMENDADO/4.PNG)
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="flex-1 flex flex-col justify-between px-3.5 sm:px-4 py-1 space-y-1.5 overflow-hidden">
+        <div className="flex-1 flex flex-col px-4 py-2 space-y-3 overflow-y-auto">
 
-          {/* 1.1 FITA MINIMALISTA DE TRAJETO (EMBARQUE -> DESTINO) */}
-          <div
-            onClick={startSearch}
-            className="flex items-center justify-between gap-2 py-1 px-2 rounded-xl bg-slate-50 border border-slate-200/80 hover:bg-slate-100 transition cursor-pointer text-xs shrink-0"
-            title="Clique para editar rota"
-          >
-            <div className="flex items-center gap-1.5 min-w-0 flex-1">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 ring-2 ring-emerald-200" />
-              <span className="font-medium text-slate-800 truncate max-w-[42%]">
-                {origem || "Local Atual"}
-              </span>
-              <span className="text-slate-400 font-medium">→</span>
-              <div
-                style={{ backgroundColor: corPrimaria || "#0088FF" }}
-                className="w-2 h-2 rounded-full shrink-0 ring-2 ring-slate-400/40"
-              />
-              <span className="font-semibold text-slate-900 truncate max-w-[42%]">
-                {destino || "Destino"}
-              </span>
-            </div>
-            <Pencil className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          {/* CABEÇALHO DA SEÇÃO (LEALT RECOMENDADO/4.PNG) */}
+          <div className="pt-0.5">
+            <h2 className="text-xl font-bold text-[#003366] leading-tight">
+              Escolha sua categoria
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 font-normal mt-0.5">
+              Veja o tempo de chegada e o valor da corrida.
+            </p>
           </div>
 
-          {/* 2. SELEÇÃO DE VEÍCULOS (LADO A LADO - 3 CATEGORIAS: POP, MOTO, PLUS) */}
-          <div className="grid grid-cols-3 gap-1.5 shrink-0">
+          {/* 2. SELEÇÃO DE VEÍCULOS VERTICAL (3 CARDS AMPLOS: POP, MOTO, PLUS) */}
+          <div className="space-y-2.5 shrink-0">
             {/* CARD 1: PARTIU POP */}
             <VehicleOptionCard
               isSelected={isPop}
               category="CARRO"
               title="Partiu Pop"
+              description="Viagem econômica para o seu dia a dia."
               badgeText="Popular"
-              badgeClass="text-blue-950 bg-blue-100 font-bold"
-              etaMinutes={pickupMinPop}
-              capacityText="4 lug."
+              badgeClass="text-blue-900 bg-blue-100"
+              etaMinutes={pickupMinPop || 12}
+              capacityText="Até 4 passageiros"
+              luggageText="1 mala"
               price={precoPop}
-              icon={Car}
+              vehicleGraphicCategory="POP"
               onSelect={handleSelectCategory}
               corPrimaria={corPrimaria}
               corSecundaria={corSecundaria}
             />
 
-            {/* CARD 2: PARTIU MOTO (DESTAQUE ACENTO CIANO/AMARELO) */}
+            {/* CARD 2: PARTIU MOTO */}
             <VehicleOptionCard
               isSelected={isMoto}
               category="MOTO"
               title="Partiu Moto"
+              description="Mais rápido e econômico para curtas distâncias."
               badgeText="Econômico"
-              badgeClass="text-cyan-950 bg-cyan-100 font-semibold"
-              etaMinutes={pickupMinMoto}
-              capacityText="1 lug."
+              badgeClass="text-cyan-900 bg-cyan-100"
+              etaMinutes={pickupMinMoto || 8}
+              capacityText="1 passageiro"
+              luggageText="1 mala"
               price={precoMoto}
-              icon={Bike}
+              vehicleGraphicCategory="MOTO"
               onSelect={handleSelectCategory}
-              accentBorder="#00C6FF"
               corPrimaria={corPrimaria}
               corSecundaria={corSecundaria}
             />
 
-            {/* CARD 3: PARTIU PLUS (ÍCONE DE CONFORTO) */}
+            {/* CARD 3: PARTIU PLUS */}
             <VehicleOptionCard
               isSelected={isPlus}
               category="EXECUTIVO"
               title="Partiu Plus"
+              description="Mais espaço, conforto e segurança."
               badgeText="Conforto"
-              badgeClass="text-amber-950 bg-amber-100 font-semibold"
-              etaMinutes={pickupMinPlus}
-              capacityText="Ar / Plus"
+              badgeClass="text-amber-900 bg-amber-100"
+              etaMinutes={pickupMinPlus || 15}
+              capacityText="Até 4 passageiros"
+              luggageText="2 malas"
               price={precoPlus}
-              icon={Sparkles}
+              vehicleGraphicCategory="PLUS"
               onSelect={handleSelectCategory}
               corPrimaria={corPrimaria}
               corSecundaria={corSecundaria}
             />
           </div>
 
-          {/* 3. SEÇÃO DE PAGAMENTO (COMPACTA EM LINHA ÚNICA / CÉLULA) */}
+          {/* 3. CARD DE PAGAMENTO SEGURO (PIX D+0 - PADRÃO 4.PNG) */}
           <div
             onClick={handleOpenPayment}
-            className="min-h-[40px] flex items-center justify-between p-1.5 sm:p-2 rounded-xl bg-slate-50/95 border border-slate-200/80 hover:bg-slate-100/80 active:scale-[0.99] transition-all duration-150 cursor-pointer shadow-2xs group shrink-0"
+            className="w-full p-3 sm:p-3.5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-between shadow-2xs transition active:scale-[0.99] cursor-pointer"
           >
-            <div className="flex items-center gap-2 min-w-0">
-              <div
-                className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg border flex items-center justify-center shrink-0 shadow-2xs ${paymentInfo.color}`}
-              >
-                <PaymentIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[2.2]" />
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Ícone diamante verde esmeralda PIX */}
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center shrink-0 shadow-xs">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L4 10L12 18L20 10L12 2Z" stroke="#059669" strokeWidth="2" strokeLinejoin="round"/>
+                  <path d="M7 15L12 20L17 15" stroke="#059669" strokeWidth="2" strokeLinecap="round"/>
+                  <circle cx="12" cy="10" r="2" fill="#059669"/>
+                </svg>
               </div>
+
               <div className="min-w-0">
-                <div className="flex items-center gap-1">
-                  <span className="text-[11px] font-semibold text-slate-900 truncate">
-                    {paymentInfo.label}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold text-slate-800 truncate">
+                    {formaPagamento === "pix" ? "PIX D+0" : paymentInfo.label}
                   </span>
-                  <span className="text-[11px] font-bold text-blue-600 transition">
-                    • Trocar
+                  <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1.5 py-0.2 rounded">
+                    Instantâneo
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-600 block truncate">
-                  {paymentInfo.sublabel}
+                <span className="text-xs text-slate-500 font-normal block truncate mt-0.5">
+                  {formaPagamento === "pix"
+                    ? "Pagamento seguro e instantâneo"
+                    : paymentInfo.sublabel}
                 </span>
               </div>
             </div>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-slate-900 group-hover:translate-x-0.5 transition shrink-0" />
+
+            <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
           </div>
 
           {/* 3.1 CHIPS DE OPÇÕES EXTRAS (PARADA / PASSAGEIRO) */}
@@ -557,20 +578,19 @@ export const PassengerReviewRouteSheet = memo(function PassengerReviewRouteSheet
             SEÇÃO C — FOOTER FIXO (NUNCA ROLA, NUNCA SAI DA TELA)
             Ancorado ao Safe Area inferior com visibilidade permanente e sombra
             ════════════════════════════════════════════════════════════════════ */}
-        <div className="px-3.5 sm:px-4 pt-2 pb-[max(1.25rem,env(safe-area-inset-bottom))] shrink-0 border-t border-slate-100/90 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+        <div className="px-4 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shrink-0 border-t border-slate-100 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
           <button
             type="button"
             onClick={handleConfirm}
-            style={{
-              background: "linear-gradient(180deg, #0088FF 0%, #003366 100%)",
-              color: "#FFFFFF",
-              borderRadius: 16,
-              boxShadow: "0 4px 14px -2px rgba(0, 51, 102, 0.35)",
-            }}
-            className="w-full py-3 px-4 min-h-[50px] font-semibold text-sm sm:text-base active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 touch-manipulation"
+            className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#0088FF] to-[#003366] hover:from-[#0077E6] hover:to-[#002244] text-white font-bold text-base active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer shadow-lg shadow-[#0088FF]/25 touch-manipulation"
           >
-            <span>Confirmar {nomeVeiculoAtivo}</span>
-            <span className="text-sm opacity-90 font-medium">• {precoAtivo}</span>
+            {isMoto ? (
+              <Bike className="w-5 h-5 text-white stroke-[2.2]" />
+            ) : (
+              <Car className="w-5 h-5 text-white stroke-[2.2]" />
+            )}
+            <span className="opacity-40 font-light">|</span>
+            <span>Confirmar {nomeVeiculoAtivo} • {precoAtivo}</span>
           </button>
         </div>
       </div>

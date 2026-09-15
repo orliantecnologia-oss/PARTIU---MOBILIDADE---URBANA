@@ -23,26 +23,26 @@ export interface UserProfileMock {
   iniciais: string;
 }
 
-// 1. Mock do Perfil do Usuário
+// 1. Mock do Perfil do Usuário Oficial (Lealt Recomendado/2.png e 9.png)
 export const USER_PROFILE_MOCK: UserProfileMock = {
-  nome: "Rodrigo",
+  nome: "Rodrigo Gomes",
   avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  iniciais: "RO",
+  iniciais: "RG",
 };
 
-// 2. Mock dos Últimos Destinos Pesquisados em Itaperuna, RJ
+// 2. Mock dos Últimos Destinos Pesquisados em Itaperuna, RJ (Oficiais de 2.png)
 export const RECENT_SEARCH_MOCKS: RecentAddressItem[] = [
   {
     id: "rec-1",
-    titulo: "Centro",
-    endereco: "Av. Cardoso Moreira, 310 - Centro",
+    titulo: "Centro, Itaperuna - RJ",
+    endereco: "Praça Getúlio Vargas, Centro",
     coords: [-41.8835, -21.2080],
   },
   {
     id: "rec-2",
-    titulo: "Supermercado Fluminense",
-    endereco: "Rua Dez de Maio, 188 - Centro",
-    coords: [-41.8860, -21.2065],
+    titulo: "Hospital São José",
+    endereco: "Rua 10 de Maio, 456 - Centro",
+    coords: [-41.8895, -21.2038],
   },
 ];
 

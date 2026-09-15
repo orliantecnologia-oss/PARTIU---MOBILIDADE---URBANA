@@ -11,6 +11,7 @@ import {
   Banknote,
   Radar,
   Radio,
+  Users,
 } from "lucide-react";
 import { usePassengerRide } from "@/contexts/PassengerRideContext";
 import { CurrentSearchStatus } from "./CurrentSearchStatus";
@@ -113,27 +114,29 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
   return (
     <>
       {/* ========================================================================= */}
-      {/* TOP BANNER FLUTUANTE DE DESPACHO PROGRESSIVO                              */}
+      {/* TOP BANNER FLUTUANTE DE DESPACHO PROGRESSIVO (LEALT RECOMENDADO/5.PNG)    */}
       {/* ========================================================================= */}
-      <div className="fixed top-20 inset-x-3 z-40 max-w-sm mx-auto pointer-events-auto animate-in slide-in-from-top duration-300">
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-lg border border-slate-200/90 text-left space-y-1.5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#00C6FF] animate-ping" />
-              <span className="text-xs font-semibold text-[#003366]">
-                {waveDetails.title} • Onda {currentWave}/3
-              </span>
-            </div>
-            <span className="text-[10.5px] font-medium px-2 py-0.5 rounded-full bg-[#F1F5F9] text-[#0088FF] border border-slate-200">
-              {waveDetails.radiusLabel}
+      <div className="fixed top-18 inset-x-3 z-40 max-w-sm mx-auto pointer-events-auto animate-in slide-in-from-top duration-300">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-lg border border-slate-200/90 flex items-center gap-3 text-left">
+          {/* Ícone circular azul com pino */}
+          <div className="w-10 h-10 rounded-full bg-[#0088FF] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <Compass className="w-5 h-5 animate-spin duration-3000 text-white" />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <span className="text-xs sm:text-[13px] font-bold text-slate-900 truncate block">
+              Busca Metropolitana • Onda {currentWave}/3 ({waveDetails.radiusLabel})
             </span>
+            <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mt-1.5">
+              <div
+                className="h-full bg-[#0088FF] rounded-full transition-all duration-1000 ease-out"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-[#0088FF] via-[#00C6FF] to-[#003366] rounded-full transition-all duration-1000 ease-out"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
+
+          {/* Ícone de grupo de motoristas */}
+          <Users className="w-5 h-5 text-slate-500 shrink-0" />
         </div>
       </div>
 
@@ -166,130 +169,80 @@ export const PassengerFindingDriverRadar = memo(function PassengerFindingDriverR
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. CARD INFERIOR FLUTUANTE DE STATUS DE BUSCA PROGRESSIVA               */}
+      {/* 2. GAVETA INFERIOR DE BUSCA PROGRESSIVA (LEALT RECOMENDADO/5.PNG)         */}
       {/* ========================================================================= */}
       <div
         data-hide-bottom-nav="true"
-        className="w-full max-w-md mx-auto px-4 pb-5 z-50 animate-in slide-in-from-bottom duration-300 mt-auto relative h-fit"
+        className="w-full max-w-md mx-auto z-50 animate-in slide-in-from-bottom duration-300 mt-auto relative"
         style={{ zIndex: 100, ...({ elevation: 10 } as React.CSSProperties) }}
       >
-        {/* ÍCONE FLUTUANTE EM MEIA-LUA NA BORDA SUPERIOR (AVATAR OVERLAY COMPACTO) */}
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <div className="relative w-12 h-12 rounded-full bg-white border-2 border-[#00C6FF] shadow-md flex items-center justify-center text-[#0088FF]">
-            {categoriaVeiculo === "MOTO" ? (
-              <Bike className="w-6 h-6 text-[#0088FF]" />
-            ) : (
-              <Car className="w-6 h-6 text-[#0088FF]" />
-            )}
-          </div>
-        </div>
+        <div className="bg-white rounded-t-[32px] shadow-2xl border-t border-slate-100 pt-3 pb-6 px-6 flex flex-col items-center text-center select-none">
+          {/* DRAG HANDLE BAR */}
+          <div className="w-12 h-1.5 rounded-full bg-slate-300 mb-4" />
 
-        <div className="bg-white rounded-3xl shadow-[0_4px_20px_-2px_rgba(15,23,42,0.08)] border border-slate-200/90 pt-8 p-4 sm:p-5 space-y-3 text-left">
-          
-          {/* Header de Status com Radar e Badge da Onda */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-cyan-50 text-[#0088FF] flex items-center justify-center shrink-0 shadow-inner">
-                <Compass className="w-4 h-4 animate-spin duration-3000 text-[#0088FF]" />
-              </div>
-
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-[#003366] leading-tight">
-                    {waveDetails.title}
-                  </h3>
-                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border bg-[#F1F5F9] text-[#003366] border-slate-200">
-                    Onda {currentWave}/3
-                  </span>
-                </div>
-                <p className="text-xs text-[#64748B] font-normal mt-0.5 truncate transition-all duration-300">
-                  {waveDetails.message}
-                </p>
-              </div>
-            </div>
-
-            {/* Badge com Raio Ativo PostGIS */}
-            <div className="text-right shrink-0">
-              <span className="inline-block px-2.5 py-0.5 rounded-xl bg-[#F1F5F9] text-[#334155] text-[10.5px] font-medium border border-slate-200 shadow-xs">
-                {waveDetails.radiusLabel}
-              </span>
-            </div>
-          </div>
-
-          {/* STATUS COM INDICADOR DE PULSO E TEMPORIZADOR CIRCULAR SINCRONIZADO (60s) */}
-          <div className="flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/80">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative w-3 h-3 flex items-center justify-center shrink-0">
-                <span className="absolute w-3 h-3 rounded-full bg-[#0088FF] animate-ping opacity-75" />
-                <span className="relative w-2 h-2 rounded-full bg-[#0088FF]" />
-              </div>
-              <span className="text-xs font-medium text-[#334155] truncate">
-                Procurando motoristas próximos...
-              </span>
-            </div>
-
-            {/* Temporizador Circular Regressivo de 60s */}
-            <div className="relative w-10 h-10 shrink-0 flex items-center justify-center">
-              <svg className="w-10 h-10 -rotate-90">
-                <circle
-                  cx="20"
-                  cy="20"
-                  r="15"
-                  className="stroke-slate-200"
-                  strokeWidth="3"
-                  fill="transparent"
+          {/* ALVO CENTRAL DE MIRA COM PINO AZUL #0088FF (PADRÃO 5.PNG) */}
+          <div className="w-20 h-20 rounded-full bg-[#F0F7FF] flex items-center justify-center relative mb-3">
+            <div className="w-14 h-14 rounded-full bg-[#D8EDFF] flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
+                  fill="#0088FF"
                 />
-                <circle
-                  cx="20"
-                  cy="20"
-                  r="15"
-                  stroke="#0088FF"
-                  strokeWidth="3"
-                  fill="transparent"
-                  strokeDasharray="94.2"
-                  strokeDashoffset={94.2 - (totalCountdownPercent / 100) * 94.2}
-                  strokeLinecap="round"
-                  className="transition-all duration-1000 ease-linear"
-                />
+                <circle cx="12" cy="9" r="3" fill="#FFFFFF" />
               </svg>
-              <span className="absolute text-[10.5px] font-semibold text-[#003366]">
-                {totalSecondsRemaining}s
+            </div>
+          </div>
+
+          {/* TÍTULO E SUBTÍTULO OFICIAIS */}
+          <h3 className="text-lg sm:text-xl font-bold text-[#003366] leading-tight">
+            Buscando motoristas próximos...
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-500 font-normal mt-1 mb-4 max-w-xs leading-relaxed">
+            Estamos conectando você com os melhores motoristas da região. Aguarde um instante!
+          </p>
+
+          {/* TEMPORIZADOR CIRCULAR REGRESSIVO DE 60s (PADRÃO 5.PNG) */}
+          <div className="relative w-16 h-16 shrink-0 flex items-center justify-center my-1">
+            <svg className="w-16 h-16 -rotate-90">
+              <circle
+                cx="32"
+                cy="32"
+                r="26"
+                className="stroke-slate-100"
+                strokeWidth="4"
+                fill="transparent"
+              />
+              <circle
+                cx="32"
+                cy="32"
+                r="26"
+                stroke="#0088FF"
+                strokeWidth="4"
+                fill="transparent"
+                strokeDasharray="163.3"
+                strokeDashoffset={163.3 - (totalCountdownPercent / 100) * 163.3}
+                strokeLinecap="round"
+                className="transition-all duration-1000 ease-linear"
+              />
+            </svg>
+            <div className="absolute flex flex-col items-center justify-center">
+              <span className="text-xl font-bold text-slate-900 leading-none">
+                {totalSecondsRemaining}
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400 mt-0.5">
+                s
               </span>
             </div>
           </div>
 
-          {/* BLOCO ÚNICO DE FEEDBACK DINÂMICO (SINGLE DYNAMIC ROW) */}
-          <CurrentSearchStatus />
-
-          {/* Resumo da Corrida e Pagamento */}
-          <div className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center justify-between text-xs">
-            <span className="font-semibold text-[#003366]">
-              {cotacaoAtiva.nomeExibicao} • R$ {cotacaoAtiva.precoBrl.toFixed(2).replace(".", ",")}
-            </span>
-
-            <span className="font-medium text-slate-600 flex items-center gap-1.5">
-              {formaPagamento === "pix" ? (
-                <>
-                  <QrCode className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>PIX</span>
-                </>
-              ) : (
-                <>
-                  <Banknote className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Dinheiro</span>
-                </>
-              )}
-            </span>
-          </div>
-
-          {/* Botão Secundário de Cancelamento Estilizado em Outline com Borda #EF4444 */}
+          {/* BOTÃO OUTLINE VERMELHO DE CANCELAR BUSCA (PADRÃO 5.PNG) */}
           <button
             type="button"
             onClick={requestCancel}
-            className="w-full py-2.5 px-4 rounded-2xl bg-white hover:bg-rose-50/50 text-[#EF4444] text-xs font-semibold transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer border border-[#EF4444] shadow-xs"
+            className="w-full h-14 mt-5 rounded-full border-2 border-[#EF4444] bg-white text-[#EF4444] hover:bg-rose-50 font-semibold text-base flex items-center justify-center gap-2 active:scale-[0.99] transition-all cursor-pointer shadow-xs"
           >
-            <X className="w-4 h-4 text-[#EF4444]" />
-            <span>Cancelar Corrida</span>
+            <X className="w-5 h-5 stroke-[2.4]" />
+            <span>Cancelar busca</span>
           </button>
         </div>
       </div>

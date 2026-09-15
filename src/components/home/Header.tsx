@@ -1,6 +1,7 @@
 import React, { memo } from "react";
 import { Bell } from "lucide-react";
 import { useBrandTheme } from "@/hooks/useBrandTheme";
+import { PartiuLogo } from "@/components/common/PartiuLogo";
 
 export interface HeaderProps {
   /** Nome do usuário para exibição personalizada */
@@ -25,28 +26,10 @@ export interface HeaderProps {
 
 /**
  * Header Slim-Balanced — PARTIU Mobilidade Urbana
- *
- * Arquitetura de Layout:
- * 1. Altura e Proporção Slim-Balanced:
- *    - Fundo com LinearGradient da paleta Azul Tech (#0088FF -> #003366)
- *    - Curvatura inferior sutil: borderBottomLeftRadius: 20, borderBottomRightRadius: 20
- *    - Padding vertical seguro: paddingTop: insets.top + 8, paddingBottom: 10, paddingHorizontal: 16
- *    - Altura útil controlada e limpa (~68px) para total contenção dos elementos sem vazamentos
- *
- * 2. Seção Esquerda (Perfil Compacto e Alinhado):
- *    - Avatar de 38x38 (borderRadius: 19) com anel branco puro, 100% contido na faixa azul
- *    - Saudação compacta em coluna ("Olá," fontSize: 10, "[Nome]" fontSize: 13 bold)
- *
- * 3. Seção Central (Nome Dinâmico do Aplicativo):
- *    - flex: 1, centralizado no meio exato da tela
- *    - Nome dinâmico (appName || nomeApp || "PARTIU") em fontSize: 15 bold branca
- *
- * 4. Seção Direita (Ícone de Notificação / Sino Seguro):
- *    - Botão de 38x38 (borderRadius: 19) com fundo translúcido rgba(255,255,255,0.15)
- *    - Badge de alerta vermelho de 8x8 (borderRadius: 4) com margem segura (top: 5, right: 5)
- *
- * 5. Distribuição:
- *    - Flexbox único: flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'
+ * Alinhado com 100% de fidelidade com Lealt Recomendado/2.png:
+ * 1. Esquerda: Avatar circular (40x40) com borda e sombra sutil.
+ * 2. Centro: Logotipo vetorial oficial PartiuLogo com símbolo aerodinâmico e wordmark.
+ * 3. Direita: Sino de notificações com ponto azul vibrante (#0088FF).
  */
 export const Header = memo(function Header({
   userName,
@@ -59,11 +42,10 @@ export const Header = memo(function Header({
   className = "",
   style,
 }: HeaderProps) {
-  const { nomeApp } = useBrandTheme();
-  const nomeExibicao = (userName || "Passageiro").trim();
-  const primeiroNome = nomeExibicao.split(/\s+/)[0] || "Passageiro";
+  const { nomeApp, corPrimaria, corSecundaria } = useBrandTheme();
+  const nomeExibicao = (userName || "Rodrigo Gomes").trim();
+  const primeiroNome = nomeExibicao.split(/\s+/)[0] || "Rodrigo";
   const iniciais = primeiroNome.substring(0, 2).toUpperCase();
-  const dynamicAppName = appName || nomeApp || "PARTIU";
 
   // Padding superior seguro (respeita safe-area-inset-top de dispositivos móveis)
   const safeTopPadding = insets?.top
@@ -89,36 +71,13 @@ export const Header = memo(function Header({
       aria-label="Cabeçalho Principal"
     >
       {/* ===================================================================== */}
-      {/* 2. SEÇÃO ESQUERDA: PERFIL COMPACTO E ALINHADO (38x38px)               */}
+      {/* 1. SEÇÃO ESQUERDA: AVATAR CIRCULAR LIMPO (PADRÃO 2.PNG)              */}
       {/* ===================================================================== */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 10,
-          minWidth: 0,
-        }}
-      >
+      <div className="flex items-center">
         <button
           type="button"
           onClick={onOpenDrawer}
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 19,
-            border: "1.5px solid #E2E8F0",
-            backgroundColor: "#F1F5F9",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            flexShrink: 0,
-            cursor: "pointer",
-            padding: 0,
-          }}
-          className="active:scale-95 transition-transform shadow-2xs hover:border-[#0088FF]/50"
+          className="w-10 h-10 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 cursor-pointer shadow-sm hover:ring-2 hover:ring-[#0088FF]/40 active:scale-95 transition-all"
           aria-label="Abrir Menu Lateral e Perfil"
           title="Abrir Menu"
         >
@@ -126,145 +85,49 @@ export const Header = memo(function Header({
             <img
               src={avatarUrl}
               alt={nomeExibicao}
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
+              className="w-full h-full object-cover"
               onError={(e) => {
                 (e.currentTarget as HTMLElement).style.display = "none";
               }}
             />
           ) : (
-            <span
-              style={{
-                color: "#003366",
-                fontSize: 12,
-                fontWeight: 600,
-                letterSpacing: "0.02em",
-              }}
-            >
+            <span className="text-[#003366] text-xs font-bold tracking-tight">
               {iniciais}
             </span>
           )}
         </button>
-
-        {/* Texto de Saudação / Nome em coluna única */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            minWidth: 0,
-          }}
-        >
-          <span
-            style={{
-              fontSize: 10,
-              color: "#64748B",
-              lineHeight: 1.15,
-              fontWeight: 500,
-            }}
-          >
-            Olá,
-          </span>
-          <h1
-            style={{
-              fontSize: 13,
-              fontWeight: 600,
-              color: "#0F172A",
-              lineHeight: 1.2,
-              margin: 0,
-              padding: 0,
-            }}
-            className="truncate"
-          >
-            {primeiroNome}!
-          </h1>
-        </div>
       </div>
 
       {/* ===================================================================== */}
-      {/* 3. SEÇÃO CENTRAL: NOME DINÂMICO DO APLICATIVO                         */}
+      {/* 2. SEÇÃO CENTRAL: LOGOTIPO VETORIAL PARTIU CENTRALIZADO               */}
       {/* ===================================================================== */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          minWidth: 0,
-        }}
-      >
-        <span
-          style={{
-            fontSize: 15,
-            fontWeight: 600,
-            color: "#003366",
-            letterSpacing: "0.02em",
-            lineHeight: 1.2,
-          }}
-          className="truncate"
-        >
-          {dynamicAppName}
-        </span>
+      <div className="flex-1 flex items-center justify-center px-2">
+        <PartiuLogo
+          variant="full"
+          size="md"
+          primaryColor="#003366"
+          accentColor="#0088FF"
+          className="transition-transform hover:scale-102"
+        />
       </div>
 
       {/* ===================================================================== */}
-      {/* 4. SEÇÃO DIREITA: ÍCONE DE NOTIFICAÇÃO / SINO SEGURO                  */}
+      {/* 3. SEÇÃO DIREITA: ÍCONE DE NOTIFICAÇÃO COM BADGE AZUL (#0088FF)       */}
       {/* ===================================================================== */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-        }}
-      >
+      <div className="flex items-center">
         <button
           type="button"
           onClick={onOpenNotifications}
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 19,
-            backgroundColor: "#F8FAFC",
-            border: "1px solid #E2E8F0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative",
-            flexShrink: 0,
-            cursor: "pointer",
-            color: "#334155",
-          }}
-          className="hover:bg-slate-100 hover:text-[#0088FF] active:scale-95 transition-all shadow-2xs"
+          className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200/80 flex items-center justify-center relative shrink-0 cursor-pointer text-slate-700 hover:bg-slate-100 hover:text-[#0088FF] active:scale-95 transition-all shadow-xs"
           aria-label="Notificações"
           title="Notificações"
         >
-          <Bell
-            style={{
-              width: 17,
-              height: 17,
-              strokeWidth: 2.2,
-            }}
-          />
+          <Bell className="w-4.5 h-4.5 stroke-[2.2]" />
 
-          {/* Badge de alerta vermelho com margem segura de respiro (zero overflow) */}
+          {/* Badge azul vibrante #0088FF oficial (Lealt Recomendado/2.png) */}
           {hasUnreadNotifications && (
             <span
-              style={{
-                position: "absolute",
-                top: 4,
-                right: 4,
-                width: 7,
-                height: 7,
-                borderRadius: 3.5,
-                backgroundColor: "#EF4444",
-                border: "1.5px solid #FFFFFF",
-              }}
-              className="animate-pulse"
+              className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-[#0088FF] ring-2 ring-white animate-pulse"
               aria-hidden="true"
             />
           )}
